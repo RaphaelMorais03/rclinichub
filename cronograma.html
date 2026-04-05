@@ -220,6 +220,8 @@
       .print-doc{width:100%;}
     }
   </style>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/shared-utils.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>if(typeof pdfjsLib!=="undefined")pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";</script>
 </head>
@@ -229,7 +231,7 @@
 
   <div class="s-header">
     <div class="s-logo">
-      <div class="s-logo-icon"><img src="__logoamor.ico__" alt="" onerror="this.outerHTML='🏥'" id="headerLogo"></div>
+      <div class="s-logo-icon"><img src="assets/favicon.png" alt="" onerror="this.outerHTML='🏥'" id="headerLogo"></div>
       <div>
         <div class="s-logo-name">Amor Saúde</div>
         <div class="s-logo-sub">Cronograma · Pirituba</div>
@@ -672,10 +674,10 @@
     el.innerHTML=ag.map(item=>{
       const ok=window.setupDone[item.sala];
       return '<div class="room-card '+(ok?'ok':'pend')+'">'+
-        '<div class="room-num">Sala '+item.sala+'</div>'+
-        '<div class="room-doc">'+item.doc+'</div>'+
-        '<div class="room-role">'+item.role+'</div>'+
-        '<div class="room-badge '+(ok?'rb-ok':'rb-pend')+'">'+(ok?'<i class="fas fa-check"></i> Configurada':'<i class="fas fa-clock"></i> Pendente')+'</div>'+
+        <div class="room-num">Sala '+esc(item.sala)+'</div>'+
+        <div class="room-doc">'+esc(item.doc)+'</div>'+
+        <div class="room-role">'+esc(item.role)+'</div>'+
+        <div class="room-badge '+(ok?'rb-ok':'rb-pend')+'">'+(ok?'<i class="fas fa-check"></i> Configurada':'<i class="fas fa-clock"></i> Pendente')+'</div>'+
         (diaOff===0?'<button class="room-btn '+(ok?'done':'')+'" onclick="marcarSetup(\''+item.sala+'\',this)">'+(ok?'✅ Configurada':'⚙️ Marcar como configurada')+'</button>':'')+
         '</div>';
     }).join('');
@@ -716,7 +718,7 @@
     document.getElementById('weekGrid').innerHTML=dias.map(d=>
       '<div class="week-col '+(d===hoje?'today':'')+'">'+
       '<div class="week-day">'+d+'</div>'+
-      (window.AGENDA[d]||[]).map(i=>'<div class="week-item"><div class="wi-sala">Sala '+i.sala+'</div><div class="wi-doc">'+i.doc+'</div><div class="wi-role">'+i.role+'</div></div>').join('')+
+      (window.AGENDA[d]||[]).map(i=>'<div class="week-item"><div class="wi-sala">Sala '+esc(i.sala)+'</div><div class="wi-doc">'+esc(i.doc)+'</div><div class="wi-role">'+esc(i.role)+'</div></div>').join('')+
       (!(window.AGENDA[d]||[]).length?'<div style="font-size:11px;color:var(--gray-400);text-align:center;padding:8px;">—</div>':'')+
       '</div>').join('');
   }
