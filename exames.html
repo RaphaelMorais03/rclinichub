@@ -243,6 +243,8 @@
       .content { padding:16px 14px 60px; }
     }
   </style>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/shared-utils.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -306,7 +308,7 @@
   <div class="s-header">
     <div class="s-logo">
       <div class="s-logo-icon">
-        <img src="__logoamor.ico__" alt="Logo" onerror="this.style.display='none'">
+        <img src="assets/favicon.png" alt="Logo" onerror="this.style.display='none'">
       </div>
       <div>
         <div class="s-logo-name">Amor Saúde</div>
@@ -636,20 +638,7 @@ Ou simplesmente uma lista de nomes, um por linha." oninput="previewColar()"></te
   </div>
 
   <!-- Firebase SDK -->
-  <script>
-    // Firebase config inline fallback (centralizado em firebase-config.js)
-    if (typeof window.FIREBASE_CONFIG === 'undefined') {
-      window.FIREBASE_CONFIG = {
-        apiKey:            "AIzaSyAJwgap1ZVgRsjEW5G9idhuiG0SHowPUUg",
-        authDomain:        "clinica-pirituba.firebaseapp.com",
-        databaseURL:       "https://clinica-pirituba-default-rtdb.firebaseio.com",
-        projectId:         "clinica-pirituba",
-        storageBucket:     "clinica-pirituba.firebasestorage.app",
-        messagingSenderId: "873516334703",
-        appId:             "1:873516334703:web:1e20dc20b1c68e388a179a"
-      };
-    }
-  </script>
+
     <script>
     // Module load safety — stub onclick handlers until module is ready
     window._moduleReady_exames_html = false;
