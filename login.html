@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Amor Saúde — Pirituba</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:     #0A1F44;
+      --navy-mid: #122b5e;
+      --red:      #C62828;
+      --red-h:    #ad1f1f;
+      --gray-50:  #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-400: #94a3b8;
+      --gray-500: #64748b;
+      --gray-600: #475569;
+      --gray-800: #1e293b;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; font-family:'Inter',sans-serif; }
+
+    /* ══ TELA DE LOGIN ══ */
+    #telaLogin {
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:white;
+    }
+
+    .login-left { display:none; }  /* always hidden */
+    .login-left::before {
+      content:''; position:absolute; width:500px; height:500px;
+      border-radius:50%; border:1px solid rgba(255,255,255,.05);
+      top:-160px; right:-190px; pointer-events:none;
+    }
+    .login-left::after {
+      content:''; position:absolute; width:320px; height:320px;
+      border-radius:50%; border:1px solid rgba(255,255,255,.04);
+      bottom:-100px; left:-100px; pointer-events:none;
+    }
+    .ll-brand { display:flex; align-items:center; gap:14px; }
+    .ll-brand-icon {
+      width:48px; height:48px; border-radius:12px;
+      background:rgba(255,255,255,.1);
+      display:flex; align-items:center; justify-content:center; overflow:hidden;
+    }
+    .ll-brand-icon img { width:100%; height:100%; object-fit:contain; }
+    .ll-brand-name { font-size:18px; font-weight:800; color:white; }
+    .ll-brand-sub  { font-size:11px; color:rgba(255,255,255,.4); }
+    .ll-center {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 24px;
+    }
+    .ll-tag {
+      display:inline-block; background:rgba(198,40,40,.25);
+      color:#ff8080; font-size:10px; font-weight:800;
+      letter-spacing:1.5px; text-transform:uppercase;
+      padding:4px 12px; border-radius:20px; margin-bottom:20px;
+    }
+    .ll-footer { font-size:11px; color:rgba(255,255,255,.2); }
+
+    .login-right {
+      background:white;
+      display:flex; align-items:center; justify-content:center;
+      padding:40px 32px;
+    }
+    .login-form-box { width:100%; max-width:380px; }
+    .lf-tag {
+      font-size:10px; font-weight:800; letter-spacing:1.5px;
+      text-transform:uppercase; color:var(--red); margin-bottom:10px;
+    }
+    .lf-title { font-size:28px; font-weight:900; color:var(--navy); letter-spacing:-.8px; margin-bottom:6px; }
+    .lf-sub   { font-size:13px; color:var(--gray-400); margin-bottom:32px; }
+
+    .lf-field { margin-bottom:16px; }
+    .lf-field label {
+      display:block; font-size:11px; font-weight:700;
+      letter-spacing:.7px; text-transform:uppercase;
+      color:var(--gray-500); margin-bottom:8px;
+    }
+    .lf-wrap {
+      position:relative; display:flex; align-items:center;
+      border:1.5px solid var(--gray-200); border-radius:12px;
+      background:var(--gray-50); transition:border-color .2s, box-shadow .2s;
+    }
+    .lf-wrap:focus-within { border-color:var(--navy); box-shadow:0 0 0 3px rgba(10,31,68,.08); background:white; }
+    .lf-wrap.err { border-color:var(--red); box-shadow:0 0 0 3px rgba(198,40,40,.08); }
+    .lf-ico { padding:0 14px; color:var(--gray-400); font-size:14px; flex-shrink:0; }
+    .lf-input {
+      flex:1; padding:13px 0; border:none; background:transparent;
+      font-family:inherit; font-size:14px; color:var(--gray-800); outline:none;
+    }
+    .lf-input::placeholder { color:var(--gray-300); }
+    .eye-btn {
+      padding:0 14px; background:none; border:none; cursor:pointer;
+      color:var(--gray-400); font-size:13px; transition:color .15s;
+    }
+    .eye-btn:hover { color:var(--navy); }
+
+    .err-box {
+      display:none; align-items:center; gap:9px;
+      background:#fff5f5; border:1px solid #fecaca;
+      border-radius:10px; padding:11px 14px;
+      margin-bottom:18px; font-size:13px; color:var(--red); font-weight:500;
+    }
+    .err-box.show { display:flex; animation:shake .38s ease; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-5px)} 40%{transform:translateX(5px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)} }
+
+    .btn-entrar {
+      width:100%; padding:15px; background:var(--navy); color:white;
+      border:none; border-radius:12px; font-family:inherit;
+      font-size:15px; font-weight:700; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      box-shadow:0 4px 18px rgba(10,31,68,.26);
+      transition:background .2s, transform .15s;
+    }
+    .btn-entrar:hover:not(:disabled) { background:var(--navy-mid); transform:translateY(-1px); }
+    .btn-entrar:disabled { opacity:.6; cursor:not-allowed; }
+    .b-spin {
+      display:none; width:17px; height:17px;
+      border:2.5px solid rgba(255,255,255,.3); border-top-color:white;
+      border-radius:50%; animation:rot .65s linear infinite;
+    }
+    @keyframes rot { to{transform:rotate(360deg)} }
+
+    /* ══ PORTAL ══ */
+    #telaPortal { display:none; min-height:100vh; background:#f0f4f8; }
+
+    .p-header {
+      background:white; border-bottom:2px solid var(--gray-200);
+      padding:0 40px; height:64px;
+      display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:50;
+      box-shadow:0 2px 8px rgba(0,0,0,.05);
+    }
+    .p-logo { display:flex; align-items:center; gap:12px; }
+    .p-logo-icon { width:40px; height:40px; border-radius:8px; overflow:hidden; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+    .p-logo-icon img { width:100%; height:100%; object-fit:contain; }
+    .p-logo-name { font-size:17px; font-weight:800; color:var(--navy); letter-spacing:-.3px; }
+    .p-logo-sub  { font-size:10px; color:var(--gray-400); }
+    .p-header-right { display:flex; align-items:center; gap:12px; }
+    .p-user {
+      background:var(--gray-100); border:1px solid var(--gray-200);
+      border-radius:20px; padding:6px 14px;
+      font-size:12px; font-weight:600; color:var(--gray-600);
+      display:flex; align-items:center; gap:6px;
+    }
+    .btn-sair {
+      background:var(--red); color:white; border:none; border-radius:8px;
+      padding:7px 16px; font-family:inherit; font-size:12px; font-weight:700;
+      cursor:pointer; display:flex; align-items:center; gap:6px; transition:background .2s;
+    }
+    .btn-sair:hover { background:var(--red-h); }
+
+    .p-content { max-width:1000px; margin:0 auto; padding:48px 24px 60px; }
+    .p-greeting { margin-bottom:36px; }
+    .p-greeting-sub   { font-size:13px; color:var(--gray-400); margin-bottom:6px; }
+    .p-greeting-title { font-size:30px; font-weight:900; color:var(--navy); letter-spacing:-.8px; }
+
+    .portal-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:20px; }
+
+    .portal-card {
+      background:white; border:1.5px solid var(--gray-200);
+      border-radius:20px; padding:28px 28px 24px;
+      cursor:pointer; transition:all .2s;
+      display:flex; flex-direction:column; gap:14px;
+      position:relative; overflow:hidden;
+      box-shadow:0 2px 12px rgba(10,31,68,.06);
+    }
+    .portal-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background:var(--red); transform:scaleX(0); transform-origin:left;
+      transition:transform .25s;
+    }
+    .portal-card:hover { border-color:var(--navy); transform:translateY(-3px); box-shadow:0 12px 32px rgba(10,31,68,.13); }
+    .portal-card:hover::before { transform:scaleX(1); }
+
+    .pc-icon {
+      width:56px; height:56px; border-radius:16px;
+      background:var(--navy); display:flex; align-items:center;
+      justify-content:center; font-size:26px; overflow:hidden; flex-shrink:0;
+    }
+    .pc-icon img { width:100%; height:100%; object-fit:contain; }
+    .pc-name { font-size:18px; font-weight:800; color:var(--navy); letter-spacing:-.3px; }
+    .pc-desc { font-size:13px; color:var(--gray-400); line-height:1.55; }
+    .pc-arrow {
+      margin-top:auto; font-size:12px; font-weight:700;
+      color:var(--red); display:flex; align-items:center; gap:5px;
+      transition:gap .18s;
+    }
+    .portal-card:hover .pc-arrow { gap:9px; }
+
+    /* Overlay transição */
+    .s-overlay {
+      position:fixed; inset:0; background:var(--navy);
+      display:none; align-items:center; justify-content:center;
+      flex-direction:column; gap:13px; z-index:9999;
+    }
+    .s-overlay.show { display:flex; }
+    .s-icon { font-size:54px; animation:pop .38s cubic-bezier(.34,1.56,.64,1) both; }
+    .s-sys  { font-size:12px; color:rgba(255,255,255,.35); letter-spacing:1.8px; text-transform:uppercase; animation:fu .3s .22s ease both; }
+    @keyframes pop { from{opacity:0;transform:scale(.3)} to{opacity:1;transform:scale(1)} }
+    @keyframes fu  { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+    @media(max-width:860px) {
+      #telaLogin { grid-template-columns:1fr; }
+      .login-left { display:none; }  /* always hidden */
+      .portal-grid { grid-template-columns:1fr; }
+      .p-header { padding:0 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="s-overlay" id="sOverlay">
+    <div class="s-icon">🏥</div>
+    <div class="s-sys" id="sSys"></div>
+  </div>
+
+  <!-- ══ TELA DE LOGIN ══ -->
+  <div id="telaLogin">
+    <div class="login-left">
+      <div class="ll-brand">
+        <div class="ll-brand-icon">
+          <img src="__logoamor.ico__" alt="Logo" onerror="this.outerHTML='🏥'">
+        </div>
+        <div>
+          <div class="ll-brand-name">Amor Saúde</div>
+          <div class="ll-brand-sub">Pirituba · São Paulo</div>
+        </div>
+      </div>
+      <div class="ll-footer">© 2026 Amor Saúde · Desenvolvido por Raphael Morais</div>
+    </div>
+
+    <div class="login-right">
+      <div class="login-form-box">
+        <div style="margin-bottom:32px;">
+          <div style="font-size:28px;font-weight:900;color:var(--navy);letter-spacing:-.5px;margin-bottom:4px;">Amor Saúde</div>
+          <div style="font-size:13px;color:var(--gray-400);">Portal Interno · Pirituba</div>
+        </div>
+        <div class="lf-tag">Acesso ao sistema</div>
+        <h2 class="lf-title">Entrar no Portal</h2>
+        <p class="lf-sub">Use seu e-mail e senha para acessar</p>
+
+        <div class="lf-field">
+          <label>E-mail</label>
+          <div class="lf-wrap" id="wrapEmail">
+            <span class="lf-ico"><i class="fas fa-envelope"></i></span>
+            <input class="lf-input" type="email" id="fEmail" placeholder="seu@email.com" autocomplete="email">
+          </div>
+        </div>
+
+        <div class="lf-field">
+          <label>Senha</label>
+          <div class="lf-wrap" id="wrapSenha">
+            <span class="lf-ico"><i class="fas fa-lock"></i></span>
+            <input class="lf-input" type="password" id="fSenha" placeholder="••••••••" autocomplete="current-password">
+            <button class="eye-btn" type="button" onclick="toggleOlho()">
+              <i class="fas fa-eye" id="eyeIco"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="err-box" id="errBox">
+          <i class="fas fa-exclamation-circle"></i>
+          <span id="errMsg">E-mail ou senha incorretos.</span>
+        </div>
+
+        <button class="btn-entrar" id="btnEntrar" onclick="entrar()">
+          <div class="b-spin" id="bSpin"></div>
+          <span id="bTxt">Entrar no Portal</span>
+        </button>
+
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PORTAL ══ -->
+  <div id="telaPortal">
+    <div class="p-header">
+      <div class="p-logo">
+        <div class="p-logo-icon">
+          <img src="__logoamor.ico__" alt="Logo" onerror="this.outerHTML='🏥'">
+        </div>
+        <div>
+          <div class="p-logo-name">Amor Saúde</div>
+          <div class="p-logo-sub">Portal Interno · Pirituba</div>
+        </div>
+      </div>
+      <div class="p-header-right">
+        <div class="p-user"><i class="fas fa-user"></i> <span id="pUserNome">—</span></div>
+        <button class="btn-sair" onclick="sair()"><i class="fas fa-right-from-bracket"></i> Sair</button>
+      </div>
+    </div>
+
+    <div class="p-content">
+      <div class="p-greeting">
+        <div class="p-greeting-sub">Bem-vindo(a) ao portal</div>
+        <div class="p-greeting-title">O que deseja acessar?</div>
+      </div>
+
+      <div class="portal-grid">
+        <div class="portal-card" onclick="abrirSistema('sistema_orcamentos.html','Sistema de Orçamentos')">
+          <div class="pc-icon"><img src="__logoamor.ico__" alt="" onerror="this.outerHTML='🧾'"></div>
+          <div>
+            <div class="pc-name">Orçamentos</div>
+            <div class="pc-desc">Consulte exames, valores, parceiros e preparos. Gere mensagens para WhatsApp.</div>
+          </div>
+          <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
+        </div>
+
+        <div class="portal-card" onclick="abrirSistema('fechamento.html','Sistema de Fechamento')">
+          <div class="pc-icon"><img src="__logoamor.ico__" alt="" onerror="this.outerHTML='💰'"></div>
+          <div>
+            <div class="pc-name">Fechamento Médico</div>
+            <div class="pc-desc">Cálculo de repasse, impostos PJ e geração de recibo consolidado para impressão.</div>
+          </div>
+          <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
+        </div>
+
+        <div class="portal-card" id="cardFinanceiro" style="display:none;" onclick="abrirSistema('financeiro.html','Sistema Financeiro')">
+          <div class="pc-icon"><img src="__logoamor.ico__" alt="" onerror="this.outerHTML='💼'"></div>
+          <div>
+            <div class="pc-name">Financeiro</div>
+            <div class="pc-desc">Geração de recibos em lote para colaboradores. Cadastro e controle de equipe.</div>
+          </div>
+          <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
+        </div>
+
+        <div class="portal-card" onclick="abrirSistema('exames.html','Retirada de Exames')">
+          <div class="pc-icon"><img src="__logoamor.ico__" alt="" onerror="this.outerHTML='📋'"></div>
+          <div>
+            <div class="pc-name">Retirada de Exames</div>
+            <div class="pc-desc">Gaveta digital de exames. Cadastre, dê baixa e consulte o histórico completo.</div>
+          </div>
+          <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
+        </div>
+
+        <!-- Cronograma -->
+        <div class="portal-card" onclick="abrirSistema('cronograma.html','Cronograma')">
+          <div class="pc-icon" style="background:#1d4ed8;"><i class="fas fa-calendar-week" style="color:white;font-size:22px;"></i></div>
+          <div>
+            <div class="pc-name">Cronograma</div>
+            <div class="pc-desc">Agenda diária por sala, checklist de abertura, notas e controle de caixa.</div>
+          </div>
+          <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
+        </div>
+
+        <!-- Admin — só para administrador -->
+        <div class="portal-card" id="cardAdmin" style="display:none;border-color:#fde68a;background:#fffbeb;" onclick="abrirSistema('admin.html','Painel Admin')">
+          <div class="pc-icon" style="background:#92400e;"><i class="fas fa-shield-halved" style="color:white;font-size:22px;"></i></div>
+          <div>
+            <div class="pc-name" style="color:#92400e;">Painel Admin</div>
+            <div class="pc-desc">Gerenciar usuários, clínica, atendentes e permissões de acesso.</div>
+          </div>
+          <div class="pc-arrow" style="color:#92400e;"><i class="fas fa-arrow-right"></i> Gerenciar</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Firebase config inline fallback (centralizado em firebase-config.js)
+    if (typeof window.FIREBASE_CONFIG === 'undefined') {
+      window.FIREBASE_CONFIG = {
+        apiKey:            "AIzaSyAJwgap1ZVgRsjEW5G9idhuiG0SHowPUUg",
+        authDomain:        "clinica-pirituba.firebaseapp.com",
+        databaseURL:       "https://clinica-pirituba-default-rtdb.firebaseio.com",
+        projectId:         "clinica-pirituba",
+        storageBucket:     "clinica-pirituba.firebasestorage.app",
+        messagingSenderId: "873516334703",
+        appId:             "1:873516334703:web:1e20dc20b1c68e388a179a"
+      };
+    }
+  </script>
+    <script>
+    // Module load safety — stub onclick handlers until module is ready
+    window._moduleReady_login_html = false;
+        if(!window.abrirSistema) window.abrirSistema = function(){};
+    if(!window.entrar) window.entrar = function(){};
+    if(!window.sair) window.sair = function(){};
+    if(!window.toggleOlho) window.toggleOlho = function(){};
+  </script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut }
+      from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getDatabase, ref, get }
+      from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+        const app = initializeApp(window.FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getDatabase(app);
+
+    const EMAILS_FINANCEIRO = ['financeiro@amorsaude.com', 'raphael@amorsaude.com'];
+
+    // Verifica sessão ao carregar
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        abrirPortal(user);
+      } else {
+        document.getElementById('telaLogin').style.display  = 'grid';
+        document.getElementById('telaPortal').style.display = 'none';
+      }
+    });
+
+    async function abrirPortal(user) {
+      document.getElementById('telaLogin').style.display  = 'none';
+      document.getElementById('telaPortal').style.display = 'block';
+
+      // Busca dados e permissões do Firebase
+      let nomeCompleto = user.email.split('@')[0];
+      let perms = {};
+      try {
+        const snap = await get(ref(db, `admin/usuarios/${user.uid}`));
+        if (snap.exists()) {
+          const dados = snap.val();
+          if (dados.nomeCompleto) nomeCompleto = dados.nomeCompleto;
+          perms = dados.perms || {};
+          // Legado: acessoFinanceiro boolean
+          if (dados.acessoFinanceiro) perms.financeiro = true;
+        }
+      } catch(e) { /* usa fallback */ }
+
+      // raphael sempre tem acesso total
+      if (user.email === 'raphael@amorsaude.com') {
+        perms = { financeiro:true, orcamento:true, exames:true, cronograma:true, admin:true };
+      }
+
+      // Fallback: emails hardcoded legado
+      if (EMAILS_FINANCEIRO.includes(user.email)) perms.financeiro = true;
+
+      const primeiroNome = nomeCompleto.split(' ')[0];
+      document.getElementById('pUserNome').textContent = primeiroNome;
+      sessionStorage.setItem('usuario',      nomeCompleto);
+      sessionStorage.setItem('primeiroNome', primeiroNome);
+      sessionStorage.setItem('uid',          user.uid);
+      sessionStorage.setItem('email',        user.email);
+      sessionStorage.setItem('perms',        JSON.stringify(perms));
+
+      // Exibir cards conforme permissão
+      if (perms.financeiro)  document.getElementById('cardFinanceiro').style.display = 'flex';
+      if (perms.admin)       document.getElementById('cardAdmin').style.display      = 'flex';
+    }
+
+    window.entrar = function() {
+      const email = document.getElementById('fEmail').value.trim();
+      const senha = document.getElementById('fSenha').value;
+      limparErro();
+      if (!email) { erro('Informe o e-mail.'); return; }
+      if (!senha)  { erro('Informe a senha.');  return; }
+      setLoad(true);
+      signInWithEmailAndPassword(auth, email, senha).catch(e => {
+        setLoad(false);
+        if (['auth/invalid-credential','auth/wrong-password','auth/user-not-found'].includes(e.code))
+          erro('E-mail ou senha incorretos.');
+        else if (e.code === 'auth/too-many-requests')
+          erro('Muitas tentativas. Aguarde alguns minutos.');
+        else erro('Erro de conexão. Tente novamente.');
+      });
+    };
+
+    window.sair = function() {
+      signOut(auth).then(() => {
+        sessionStorage.clear();
+        document.getElementById('telaPortal').style.display = 'none';
+        document.getElementById('telaLogin').style.display  = 'grid';
+        document.getElementById('cardFinanceiro').style.display = 'none';
+        document.getElementById('cardAdmin').style.display = 'none';
+      });
+    };
+
+    window.abrirSistema = function(arquivo, nome) {
+      sessionStorage.setItem('sistema', nome);
+      document.getElementById('sSys').textContent = nome;
+      document.getElementById('sOverlay').classList.add('show');
+      setTimeout(() => {
+        var href = window.location.href.split('?')[0].split('#')[0];
+        var base = href.substring(0, href.lastIndexOf('/') + 1);
+        window.location.replace(base + arquivo);
+      }, 900);
+    };
+
+    window.toggleOlho = function() {
+      const i = document.getElementById('fSenha');
+      const e = document.getElementById('eyeIco');
+      if (i.type==='password') { i.type='text'; e.className='fas fa-eye-slash'; }
+      else { i.type='password'; e.className='fas fa-eye'; }
+    };
+
+    function erro(msg) {
+      const b = document.getElementById('errBox');
+      document.getElementById('errMsg').textContent = msg;
+      document.getElementById('wrapEmail').classList.add('err');
+      document.getElementById('wrapSenha').classList.add('err');
+      b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+    }
+    function limparErro() {
+      document.getElementById('errBox').classList.remove('show');
+      document.getElementById('wrapEmail').classList.remove('err');
+      document.getElementById('wrapSenha').classList.remove('err');
+    }
+    function setLoad(on) {
+      document.getElementById('btnEntrar').disabled = on;
+      document.getElementById('bSpin').style.display = on ? 'block' : 'none';
+      document.getElementById('bTxt').textContent = on ? 'Autenticando...' : 'Entrar no Portal';
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Enter') window.entrar();
+    });
+  
+    // Expose to global scope (required for onclick= handlers)
+</script>
+</body>
+</html>

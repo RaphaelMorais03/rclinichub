@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orçamentos — Amor Saúde Pirituba</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#f0f4f8;--sidebar:#ffffff;--surface:#ffffff;--surface2:#f8fafc;
+    --border:#e2e8f0;--border2:#cbd5e1;--accent:#C62828;--accent2:#ad1f1f;
+    --blue:#0A1F44;--text:#1e293b;--text2:#475569;--text3:#94a3b8;
+    --danger:#C62828;--warning:#b45309;--gold:#b45309;--purple:#6d28d9;
+    --teal:#15803d;--radius:8px;--radius2:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;}.red-bar{height:3px;background:#C62828;flex-shrink:0;}
+  header{background:#ffffff;border-bottom:2px solid #e2e8f0;padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;z-index:10;}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.3px;}
+  .logo-icon{width:40px;height:40px;background:transparent;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;flex-shrink:0;}
+  .header-right{display:flex;align-items:center;gap:8px;font-size:12px;color:#64748b;}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:#39d353;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+  .layout{display:grid;grid-template-columns:268px 1fr 320px;flex:1;overflow:hidden;}
+  .sidebar{background:#f8fafc;border-right:1px solid #e2e8f0;display:flex;flex-direction:column;overflow:hidden;}
+  .sidebar-top{padding:14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .sidebar-scroll{flex:1;overflow-y:auto;}
+  .sidebar-scroll::-webkit-scrollbar{width:4px;}
+  .sidebar-scroll::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:2px;}
+  .sidebar-block{padding:12px 14px;border-bottom:1px solid var(--border);}
+  .sidebar-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#94a3b8;margin-bottom:8px;}
+  .search-wrap{position:relative;}
+  .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;pointer-events:none;}
+  #searchInput{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);color:var(--text);font-family:inherit;font-size:13px;padding:8px 28px 8px 32px;outline:none;transition:border-color .2s;}
+  #searchInput:focus{border-color:var(--accent);}
+  #searchInput::placeholder{color:var(--text3);}
+  .clear-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:var(--border2);border:none;color:var(--text2);cursor:pointer;font-size:10px;width:17px;height:17px;border-radius:50%;display:none;align-items:center;justify-content:center;}
+  .clear-btn.visible{display:flex;}
+  .filter-group{display:flex;flex-direction:column;gap:2px;}
+  .chip{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:6px;font-size:12px;cursor:pointer;color:#475569;transition:all .15s;border:1px solid transparent;user-select:none;}
+  .chip:hover{background:#e2e8f0;color:#1e293b;}
+  .chip.cat-active{background:rgba(198,40,40,.1);color:#C62828;border-color:rgba(198,40,40,.25);}
+  .chip.cli-active{background:rgba(56,139,253,.12);color:var(--blue);border-color:rgba(56,139,253,.25);}
+  .chip-icon{font-size:12px;width:15px;text-align:center;flex-shrink:0;}
+  .chip-count{margin-left:auto;background:var(--surface2);border-radius:10px;font-size:10px;font-family:'DM Mono',monospace;padding:1px 5px;color:var(--text3);flex-shrink:0;}
+  .chip.cat-active .chip-count{background:rgba(198,40,40,.15);color:#C62828;}
+  .chip.cli-active .chip-count{background:rgba(56,139,253,.2);color:var(--blue);}
+  .sidebar-stats{padding:12px 14px;}
+  .stat-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:12px;color:var(--text2);border-bottom:1px dashed var(--border);}
+  .stat-row:last-child{border-bottom:none;}
+  .stat-val{font-family:'DM Mono',monospace;color:#C62828;font-size:11px;}
+  .center{display:flex;flex-direction:column;overflow:hidden;background:var(--bg);}
+  .center-header{padding:12px 20px;border-bottom:1px solid #e2e8f0;background:#ffffff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .ch-left{display:flex;align-items:center;gap:8px;}
+  .results-count{font-size:12px;color:#64748b;}
+  .results-count strong{color:#1e293b;}
+  .filter-tag{font-size:10px;font-weight:600;background:rgba(56,139,253,.12);color:var(--blue);border:1px solid rgba(56,139,253,.3);padding:2px 8px;border-radius:10px;cursor:pointer;display:none;align-items:center;gap:4px;}
+  .filter-tag.show{display:flex;}
+  .filter-tag:hover{background:rgba(248,81,73,.1);color:var(--danger);border-color:rgba(248,81,73,.3);}
+  .sort-btn{font-size:12px;background:#ffffff;border:1px solid #cbd5e1;color:#475569;padding:4px 10px;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit;transition:all .15s;flex-shrink:0;}
+  .sort-btn:hover{border-color:#0A1F44;color:#1e293b;}
+  .exams-list{flex:1;overflow-y:auto;padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start;}
+  .exams-list::-webkit-scrollbar{width:6px;}
+  .exams-list::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:3px;}
+  .exam-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:var(--radius2);padding:12px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden;display:flex;flex-direction:column;min-height:130px;}
+  .exam-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:transparent;transition:background .18s;}
+  .exam-card:hover{border-color:#C62828;background:#fff;transform:translateY(-1px);box-shadow:0 4px 16px rgba(198,40,40,.1);}
+  .exam-card:hover::before{background:#C62828;}
+  .exam-card.partner::before{background:var(--blue);}
+  .exam-card.partner:hover::before{background:var(--accent);}
+  .exam-card.lab-rule::before{background:var(--warning);}
+  .card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
+  .card-name{font-size:13px;font-weight:600;line-height:1.3;color:#1e293b;}
+  .card-badge{font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;padding:2px 6px;border-radius:4px;flex-shrink:0;}
+  .badge-normal{background:rgba(46,160,67,.15);color:var(--accent2);}
+  .badge-partner{background:rgba(56,139,253,.15);color:var(--blue);}
+  .badge-rule{background:rgba(210,153,34,.15);color:var(--warning);}
+  .card-desc{font-size:11px;color:#64748b;line-height:1.4;margin-bottom:8px;flex:1;}
+  .partner-tags{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px;}
+  .ptag{font-size:9px;background:rgba(56,139,253,.08);color:var(--blue);border:1px solid rgba(56,139,253,.18);padding:1px 5px;border-radius:3px;}
+  .card-footer{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto;padding-top:8px;border-top:1px solid #f1f5f9;flex-wrap:nowrap;}
+  .card-price-area{display:flex;flex-direction:column;gap:1px;}
+  .card-price{font-family:'DM Mono',monospace;font-size:12px;color:#C62828;font-weight:600;}
+  .card-price-label{font-size:9px;color:var(--text3);margin-right:3px;}
+  .card-cat{font-size:10px;color:var(--text3);}
+  .card-actions{display:flex;gap:3px;flex-shrink:0;align-items:center;}
+  /* Botão Preparo */
+  .card-prep-btn{font-size:10px;font-weight:600;background:rgba(57,211,83,.1);color:#39d353;border:1px solid rgba(57,211,83,.25);padding:3px 7px;border-radius:5px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:3px;white-space:nowrap;}
+  .card-prep-btn:hover{background:#39d353;color:#000;border-color:#39d353;}
+  /* Botão Mensagem */
+  .card-msg-btn{font-size:10px;font-weight:600;background:rgba(163,113,247,.12);color:var(--purple);border:1px solid rgba(163,113,247,.25);padding:3px 7px;border-radius:5px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:3px;white-space:nowrap;}
+  .card-msg-btn:hover{background:var(--purple);color:#fff;border-color:var(--purple);}
+  .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:#94a3b8;}
+  .empty-icon{font-size:40px;margin-bottom:12px;}
+  .empty-title{font-size:15px;font-weight:600;color:var(--text2);margin-bottom:6px;}
+  /* BUDGET */
+  .budget-panel{background:#f8fafc;border-left:1px solid #e2e8f0;display:flex;flex-direction:column;overflow:hidden;}
+  .budget-header{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .budget-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;color:#1e293b;}
+  .budget-badge{background:#C62828;color:#fff;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;}
+  .budget-clear{font-size:11px;background:none;border:1px solid var(--border2);color:var(--text3);cursor:pointer;padding:3px 8px;border-radius:5px;font-family:inherit;transition:all .15s;}
+  .budget-clear:hover{border-color:var(--danger);color:var(--danger);}
+  .budget-items{flex:1;overflow-y:auto;padding:12px;}
+  .budget-items::-webkit-scrollbar{width:4px;}
+  .budget-items::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .budget-item{background:#ffffff;border:1px solid #e2e8f0;border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;display:flex;align-items:flex-start;gap:8px;animation:slideIn .2s ease;}
+  @keyframes slideIn{from{opacity:0;transform:translateX(10px);}to{opacity:1;transform:translateX(0);}}
+  .bi-info{flex:1;min-width:0;}
+  .bi-name{font-size:12px;font-weight:600;color:#1e293b;word-wrap:break-word;margin-bottom:3px;line-height:1.3;}
+  .bi-sub{font-size:10px;color:var(--text3);display:flex;gap:5px;flex-wrap:wrap;}
+  .bi-sub span{background:var(--surface2);padding:2px 6px;border-radius:4px;}
+  .bi-price{font-family:'DM Mono',monospace;font-size:12px;color:#C62828;font-weight:600;flex-shrink:0;}
+  .remove-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0;line-height:1;flex-shrink:0;transition:color .15s;}
+  .remove-btn:hover{color:var(--danger);}
+  .budget-empty{text-align:center;padding:40px 16px;color:#94a3b8;font-size:12px;}
+  .budget-empty .icon{font-size:32px;margin-bottom:10px;}
+  .budget-footer{border-top:1px solid #e2e8f0;padding:16px;background:#ffffff;}
+  .total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:12px;color:#64748b;}
+  .total-main{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid #e2e8f0;margin-top:8px;}
+  .total-label{font-size:14px;font-weight:700;}
+  .total-value{font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:#C62828;}
+  .action-btns{display:flex;gap:8px;margin-top:12px;}
+  .btn{flex:1;padding:9px 12px;border-radius:var(--radius);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:5px;}
+  .btn-primary{background:#C62828;color:#fff;}
+  .btn-primary:hover{background:#ad1f1f;}
+  .btn-secondary{background:var(--surface2);color:var(--text2);border:1px solid var(--border2);}
+  .btn-secondary:hover{color:var(--text);border-color:var(--text3);}
+  .btn:disabled{opacity:.4;cursor:not-allowed;}
+  /* MODAIS */
+  .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+  .overlay.open{display:flex;}
+  .modal{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;width:580px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.5);animation:scaleIn .2s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes scaleIn{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
+  .modal::-webkit-scrollbar{width:6px;}
+  .modal::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+  .modal-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .modal-cat{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+  .modal-title{font-size:17px;font-weight:700;line-height:1.3;color:#1e293b;}
+  .modal-close{background:#f1f5f9;border:1px solid #e2e8f0;color:#64748b;cursor:pointer;font-size:16px;width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+  .modal-close:hover{color:var(--text);border-color:var(--text3);}
+  .modal-body{padding:20px 24px;}
+  .info-box{background:#f8fafc;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:12px;color:#475569;line-height:1.6;border-left:3px solid #e2e8f0;}
+  .info-box.desc{border-left-color:#C62828;}
+  .info-box.prep{border-left-color:var(--gold);}
+  .info-box.tips{border-left-color:var(--blue);background:rgba(56,139,253,.05);color:var(--text);}
+  .info-box-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;color:var(--text3);}
+  .option-group{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+  .option-card{background:#f8fafc;border:2px solid #e2e8f0;border-radius:var(--radius2);padding:14px;text-align:center;}
+  .option-card.selected{border-color:var(--accent);background:rgba(46,160,67,.1);}
+  .option-label{font-size:12px;font-weight:600;margin-bottom:6px;}
+  .option-price{font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--accent2);}
+  .option-tag{font-size:10px;color:var(--text3);margin-top:3px;}
+  .partner-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+  .partner-cards{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+  .partner-card{background:#f8fafc;border:2px solid #e2e8f0;border-radius:var(--radius2);padding:14px;cursor:pointer;transition:all .18s;}
+  .partner-card:hover{border-color:var(--blue);}
+  .partner-card.selected{border-color:var(--blue);background:rgba(56,139,253,.08);}
+  .partner-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .partner-name{font-size:13px;font-weight:700;color:var(--blue);}
+  .partner-location{font-size:10px;color:var(--text3);margin-top:1px;}
+  .partner-select-btn{font-size:11px;font-weight:600;background:rgba(56,139,253,.15);color:var(--blue);border:1px solid rgba(56,139,253,.3);padding:4px 10px;border-radius:5px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+  .partner-select-btn:hover{background:var(--blue);color:#fff;}
+  .partner-prices{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+  .price-col{background:#ffffff;border:1px solid #e2e8f0;border-radius:6px;padding:7px 8px;text-align:center;}
+  .price-col-label{font-size:9px;color:var(--text3);margin-bottom:3px;text-transform:uppercase;}
+  .price-col-val{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;}
+  .price-col-val.clinic{color:var(--warning);}
+  .price-col-val.partner{color:var(--text2);}
+  .price-col-val.total{color:#C62828;}
+  .modal-add-btn{width:100%;padding:12px;background:#C62828;color:#fff;border:none;border-radius:var(--radius);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;margin-top:4px;}
+  .modal-add-btn:hover{background:#ad1f1f;}
+  .modal-add-btn:disabled{opacity:.4;cursor:not-allowed;}
+  mark{background:rgba(198,40,40,.12);color:#C62828;border-radius:2px;}
+  /* PREPARO MODAL */
+  .prep-modal{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;width:500px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.5);animation:scaleIn .2s cubic-bezier(.34,1.56,.64,1);}
+  .prep-modal-header{padding:16px 20px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:#fff5f5;border-radius:14px 14px 0 0;}
+  .prep-modal-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px;color:#C62828;}
+  .prep-modal-subtitle{font-size:11px;color:var(--text3);margin-top:2px;}
+  .prep-close-btn{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;font-size:15px;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+  .prep-close-btn:hover{color:var(--text);}
+  .prep-modal-body{flex:1;overflow-y:auto;padding:20px;}
+  .prep-modal-body::-webkit-scrollbar{width:4px;}
+  .prep-modal-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+  .prep-section{margin-bottom:16px;}
+  .prep-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .prep-section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+  .prep-item{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;background:#f8fafc;border-radius:6px;margin-bottom:5px;font-size:12px;color:#1e293b;line-height:1.5;}
+  .prep-item-icon{font-size:13px;flex-shrink:0;margin-top:1px;}
+  .prep-item.warn{background:rgba(210,153,34,.08);border-left:2px solid var(--warning);}
+  .prep-item.warn .prep-item-icon{color:var(--warning);}
+  .prep-item.info{background:rgba(56,139,253,.06);border-left:2px solid var(--blue);}
+  .prep-item.info .prep-item-icon{color:var(--blue);}
+  .prep-footer{padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0;}
+  .prep-copy-btn{width:100%;padding:9px;background:rgba(198,40,40,.15);color:#ff8080;border:1px solid rgba(198,40,40,.3);border-radius:var(--radius);font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;}
+  .prep-copy-btn:hover{background:#C62828;color:#fff;border-color:#C62828;}
+  .prep-copy-btn.copied{background:#C62828;color:#fff;}
+  /* MSG MODAL */
+  #msgOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+  #msgOverlay.open{display:flex;}
+  .msg-modal{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;width:560px;max-width:95vw;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.5);animation:scaleIn .2s cubic-bezier(.34,1.56,.64,1);}
+  .msg-modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+  .msg-modal-title{font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px;}
+  .msg-modal-close{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);cursor:pointer;font-size:16px;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+  .msg-modal-close:hover{color:var(--text);}
+  .msg-partner-select{padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;display:none;}
+  .msg-partner-select.show{display:block;}
+  .msg-partner-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:8px;}
+  .msg-partner-btns{display:flex;gap:6px;flex-wrap:wrap;}
+  .msg-partner-pill{font-size:11px;font-weight:600;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);padding:4px 10px;border-radius:20px;cursor:pointer;font-family:inherit;transition:all .15s;}
+  .msg-partner-pill.active{background:rgba(56,139,253,.15);color:var(--blue);border-color:rgba(56,139,253,.4);}
+  .msg-body{flex:1;overflow-y:auto;padding:16px 20px;}
+  .msg-textarea{width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:var(--radius);color:#1e293b;font-family:'DM Mono',monospace;font-size:11.5px;line-height:1.6;padding:12px;resize:none;outline:none;min-height:240px;}
+  .msg-textarea:focus{border-color:var(--blue);}
+  .msg-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;flex-shrink:0;}
+  .msg-copy-btn{flex:1;padding:10px;background:var(--purple);color:#fff;border:none;border-radius:var(--radius);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;}
+  .msg-copy-btn:hover{opacity:.85;}
+  .msg-copy-btn.copied{background:var(--accent);}
+  .msg-close-btn{padding:10px 16px;background:var(--surface2);color:var(--text2);border:1px solid var(--border2);border-radius:var(--radius);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
+  .msg-close-btn:hover{color:var(--text);}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+    // Firebase config inline (centralizado)
+    if (typeof window.FIREBASE_CONFIG === 'undefined') {
+      window.FIREBASE_CONFIG = {
+        apiKey:            "AIzaSyAJwgap1ZVgRsjEW5G9idhuiG0SHowPUUg",
+        authDomain:        "clinica-pirituba.firebaseapp.com",
+        databaseURL:       "https://clinica-pirituba-default-rtdb.firebaseio.com",
+        projectId:         "clinica-pirituba",
+        storageBucket:     "clinica-pirituba.firebasestorage.app",
+        messagingSenderId: "873516334703",
+        appId:             "1:873516334703:web:1e20dc20b1c68e388a179a"
+      };
+    }
+  </script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+  import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+  const _app = initializeApp(FIREBASE_CONFIG);
+        // Re-render se já inicializado
+        if (typeof window.reRenderExams === 'function') window.reRenderExams();
+      });
+    } catch(e) { console.warn('Firebase precos:', e); }
+  })();
+</script>
+</head>
+<body>
+<div class="red-bar"></div>
+<header>
+  <div class="logo"><div class="logo-icon"><img src="__logoamor.ico__" alt="Amor Saúde" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'"></div><div><div style="color:#0A1F44;font-weight:800;letter-spacing:-.3px">Amor Saúde</div><div style="font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.3px">Orçamentos · Pirituba</div></div></div>
+  <div class="header-right"><div class="status-dot"></div><span style="color:var(--text2)">Online · <span id="totalExamsCount">0</span> exames</span><button onclick="irPara('login.html')" style="background:#C62828;border:none;color:white;font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px;">🏠 Portal</button></div>
+</header>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-top" style="padding:10px 14px;">
+      <div class="sidebar-label" style="margin-bottom:0;font-size:9px;">Filtros</div>
+    </div>
+    <div class="sidebar-scroll">
+      <div class="sidebar-block">
+        <div class="sidebar-label">Categorias</div>
+        <div class="filter-group" id="catFilters">
+          <div class="chip cat-active" onclick="setCategory('all',this)"><span class="chip-icon">⊞</span>Todas<span class="chip-count" id="cnt-all">0</span></div>
+          <div class="chip" onclick="setCategory('Neurológico',this)"><span class="chip-icon">🧠</span>Neurológico<span class="chip-count" id="cnt-Neurológico">0</span></div>
+          <div class="chip" onclick="setCategory('Cardiológico',this)"><span class="chip-icon">🫀</span>Cardiológico<span class="chip-count" id="cnt-Cardiológico">0</span></div>
+          <div class="chip" onclick="setCategory('Ginecológico',this)"><span class="chip-icon">💃</span>Ginecológico<span class="chip-count" id="cnt-Ginecológico">0</span></div>
+          <div class="chip" onclick="setCategory('Ortopédico',this)"><span class="chip-icon">🩼</span>Ortopédico<span class="chip-count" id="cnt-Ortopédico">0</span></div>
+          <div class="chip" onclick="setCategory('Otorrinolaringológico',this)"><span class="chip-icon">👃</span>Otorrino<span class="chip-count" id="cnt-Otorrinolaringológico">0</span></div>
+          <div class="chip" onclick="setCategory('Dermatológico',this)"><span class="chip-icon">🧬</span>Dermatológico<span class="chip-count" id="cnt-Dermatológico">0</span></div>
+          <div class="chip" onclick="setCategory('Oftalmológico',this)"><span class="chip-icon">👁️</span>Oftalmológico<span class="chip-count" id="cnt-Oftalmológico">0</span></div>
+          <div class="chip" onclick="setCategory('Ultrassom',this)"><span class="chip-icon">🔊</span>Ultrassom<span class="chip-count" id="cnt-Ultrassom">0</span></div>
+          <div class="chip" onclick="setCategory('Raio-X',this)"><span class="chip-icon">🦴</span>Raio-X<span class="chip-count" id="cnt-Raio-X">0</span></div>
+          <div class="chip" onclick="setCategory('Tomografia',this)"><span class="chip-icon">💻</span>Tomografia<span class="chip-count" id="cnt-Tomografia">0</span></div>
+          <div class="chip" onclick="setCategory('Ressonância',this)"><span class="chip-icon">🧲</span>Ressonância<span class="chip-count" id="cnt-Ressonância">0</span></div>
+          <div class="chip" onclick="setCategory('Gastrointestinal',this)"><span class="chip-icon">🩻</span>Gastrointestinal<span class="chip-count" id="cnt-Gastrointestinal">0</span></div>
+          <div class="chip" onclick="setCategory('Laboratorial',this)"><span class="chip-icon">🧪</span>Laboratorial<span class="chip-count" id="cnt-Laboratorial">0</span></div>
+          <div class="chip" onclick="setCategory('Outros',this)"><span class="chip-icon">➕</span>Outros<span class="chip-count" id="cnt-Outros">0</span></div>
+        </div>
+      </div>
+      <div class="sidebar-block">
+        <div class="sidebar-label">Clínicas / Parceiros</div>
+        <div class="filter-group" id="clinicFilters"></div>
+      </div>
+      <div class="sidebar-stats">
+        <div class="sidebar-label">Orçamento atual</div>
+        <div class="stat-row"><span>Itens</span><span class="stat-val" id="stat-items">0</span></div>
+        <div class="stat-row"><span>Com parceiros</span><span class="stat-val" id="stat-partner">0</span></div>
+        <div class="stat-row"><span>Total</span><span class="stat-val" id="stat-total">R$ 0,00</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="center">
+    <!-- Search bar centralizado no topo -->
+    <div style="padding:12px 20px 10px;border-bottom:1px solid #e2e8f0;background:#ffffff;">
+      <div class="search-wrap" style="max-width:560px;margin:0 auto;">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar exame por nome, região ou tipo..." autocomplete="off">
+        <button class="clear-btn" id="clearBtn" onclick="clearSearch()">✕</button>
+      </div>
+    </div>
+    <div class="center-header">
+      <div class="ch-left">
+        <div class="results-count" id="resultsCount">Carregando...</div>
+        <div class="filter-tag" id="clinicTag" onclick="clearClinic()"><span id="clinicTagName"></span> ✕</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="sort-btn" onclick="toggleSort()"><span>↕</span><span id="sortLabel">A–Z</span></button>
+        <button class="sort-btn" onclick="exportarPlanilha()" style="background:rgba(46,160,67,.1);color:#15803d;border-color:rgba(46,160,67,.25);" title="Exportar planilha de parceiros">📊 Exportar</button>
+      </div>
+    </div>
+    <div class="exams-list" id="examsList"></div>
+  </main>
+
+  <aside class="budget-panel">
+    <div class="budget-header">
+      <div class="budget-title">🧾 Orçamento<div class="budget-badge" id="budgetCount">0</div></div>
+      <button class="budget-clear" onclick="clearBudget()">Limpar</button>
+    </div>
+    <div class="budget-items" id="budgetItems"></div>
+    <div class="budget-footer">
+      <div class="total-row"><span>Subtotal</span><span id="subtotalVal">R$ 0,00</span></div>
+      <div class="total-main"><div class="total-label">Total</div><div class="total-value" id="totalVal">R$ 0,00</div></div>
+      <div class="action-btns">
+        <button class="btn btn-secondary" onclick="printBudget()" id="printBtn" disabled>🖨️ Imprimir</button>
+        <button class="btn btn-primary" onclick="copyBudget()" id="copyBtn" disabled>📋 Copiar</button>
+      </div>
+      <div class="action-btns" style="margin-top:6px;">
+        <button class="btn btn-secondary" onclick="exportarPlanilha()" id="xlsBtn" style="flex:1;font-size:11px;background:rgba(57,211,83,.12);color:#39d353;border:1px solid rgba(57,211,83,.25);">📊 Exportar Planilha Parceiros</button>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- EXAM MODAL -->
+<div class="overlay" id="overlay" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div><div class="modal-cat" id="modalCat"></div><div class="modal-title" id="modalTitle"></div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- PREPARO MODAL -->
+<div class="overlay" id="prepOverlay" onclick="closePrepOnBg(event)">
+  <div class="prep-modal">
+    <div class="prep-modal-header">
+      <div>
+        <div class="prep-modal-title">🩺 Orientações de Preparo</div>
+        <div class="prep-modal-subtitle" id="prepModalSubtitle"></div>
+      </div>
+      <button class="prep-close-btn" onclick="closePrepModal()">✕</button>
+    </div>
+    <div class="prep-modal-body" id="prepModalBody"></div>
+    <div class="prep-footer">
+      <button class="prep-copy-btn" id="prepCopyBtn" onclick="copyPrep()">📋 Copiar Preparo</button>
+    </div>
+  </div>
+</div>
+
+<!-- MESSAGE MODAL -->
+<div id="msgOverlay" onclick="closeMsgOnBg(event)">
+  <div class="msg-modal">
+    <div class="msg-modal-header">
+      <div class="msg-modal-title">📩 Mensagem de Orçamento</div>
+      <button class="msg-modal-close" onclick="closeMsgModal()">✕</button>
+    </div>
+    <div class="msg-partner-select" id="msgPartnerSelect">
+      <div class="msg-partner-label">Selecione o parceiro para a mensagem</div>
+      <div class="msg-partner-btns" id="msgPartnerBtns"></div>
+    </div>
+    <div class="msg-body">
+      <textarea class="msg-textarea" id="msgText" readonly></textarea>
+    </div>
+    <div class="msg-footer">
+      <button class="msg-copy-btn" id="msgCopyBtn" onclick="copyMsg()">📋 Copiar Mensagem</button>
+      <button class="msg-close-btn" onclick="closeMsgModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// PREPAROS ESTRUTURADOS
+// Cada item: { icon, text, type }
+// type: '' | 'warn' | 'info'
+// ─────────────────────────────────────────────
+const PREPS = {
+  // ULTRASSOM
+  'abdome_total': {
+    title: 'USG Abdome Total',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'🍽️', text:'Jejum de 6 horas — última refeição deve ser leve.' },
+        { icon:'💧', text:'Após a liberação do exame, tomar 3 copos de água aqui na clínica.', type:'info' },
+        { icon:'👕', text:'Usar roupas confortáveis que facilitem acesso ao abdome.' }
+      ]}
+    ]
+  },
+  'pelvico_feminino': {
+    title: 'USG Pélvico Feminino',
+    sections: [
+      { title: 'Preparo — Bexiga Cheia', items: [
+        { icon:'💧', text:'Tomar 5 copos de água no total:', type:'info' },
+        { icon:'🏠', text:'2 copos em casa antes de vir.' },
+        { icon:'🏥', text:'3 copos aqui na clínica após a liberação do exame.' },
+        { icon:'⚠️', text:'Não urinar após começar a tomar os copos na clínica.', type:'warn' }
+      ]}
+    ]
+  },
+  'parede_abdominal': {
+    title: 'USG Parede Abdominal',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'🍽️', text:'Jejum de 6 horas — última refeição deve ser leve.' },
+        { icon:'💧', text:'Tomar 2 copos de água em casa antes de vir.', type:'info' },
+        { icon:'💧', text:'Tomar mais 3 copos aqui na clínica após a liberação do exame.', type:'info' }
+      ]}
+    ]
+  },
+  'urinario_prostata': {
+    title: 'USG Aparelho Urinário / Próstata',
+    sections: [
+      { title: 'Preparo — Bexiga Cheia', items: [
+        { icon:'💧', text:'Tomar 5 copos de água no total:', type:'info' },
+        { icon:'🏠', text:'2 copos em casa antes de vir.' },
+        { icon:'🏥', text:'3 copos aqui na clínica após a liberação do exame.' },
+        { icon:'⚠️', text:'Não urinar após começar a tomar os copos na clínica.', type:'warn' }
+      ]}
+    ]
+  },
+  'transvaginal_preparo': {
+    title: 'USG Transvaginal com Preparo Intestinal',
+    sections: [
+      { title: 'Dia Anterior', items: [
+        { icon:'🥗', text:'Alimentação leve durante as 24 horas anteriores ao exame.' },
+        { icon:'💊', text:'Tomar 1 comprimido de Ducolax de manhã e 1 à noite (inteiros, com água).' },
+        { icon:'💊', text:'Tomar 40 gotas de Luftal à noite.' }
+      ]},
+      { title: 'No Dia do Exame', items: [
+        { icon:'💉', text:'Aplicar Fleet Enema 30 minutos antes do exame.', type:'warn' },
+        { icon:'💧', text:'Ao chegar: beber 2 copos de água.' },
+        { icon:'💧', text:'Beber mais 2 copos antes de iniciar o exame.' }
+      ]}
+    ]
+  },
+  'transretal': {
+    title: 'USG Próstata Transretal',
+    sections: [
+      { title: 'Preparo Intestinal', items: [
+        { icon:'💊', text:'Tomar 2 comprimidos de Lacto Purga à noite (na véspera do exame).', type:'warn' },
+        { icon:'💡', text:'Ingerir os comprimidos inteiros, sem mastigar ou cortar, com bastante água.', type:'info' },
+        { icon:'🌙', text:'Isso permite que a evacuação aconteça pela manhã, antes do exame.' }
+      ]}
+    ]
+  },
+  // CARDIOLÓGICO
+  'ergometrico': {
+    title: 'Teste Ergométrico',
+    sections: [
+      { title: 'Dia Anterior', items: [
+        { icon:'🪒', text:'Homens: raspar a região do tórax e abdômen (até a cintura) se houver pelos.' }
+      ]},
+      { title: 'No Dia do Exame', items: [
+        { icon:'🚿', text:'Tomar banho com sabonete neutro (sem cremes, perfumes, pomadas ou talco).' },
+        { icon:'👟', text:'Usar roupa confortável (bermuda, calça leve ou agasalho esportivo) e tênis.' },
+        { icon:'👙', text:'Mulheres: usar sutiã firme.' },
+        { icon:'🧻', text:'Trazer uma toalha de rosto.' },
+        { icon:'📋', text:'Trazer lista de medicamentos tomados nos últimos 5 dias.' },
+        { icon:'🍽️', text:'Fazer refeição leve até 1 hora antes do exame.' }
+      ]},
+      { title: 'Proibidos até o exame', items: [
+        { icon:'☕', text:'Café, chá, refrigerante, álcool e cigarros.', type:'warn' }
+      ]},
+      { title: 'Atenção', items: [
+        { icon:'👨‍👧', text:'Menores de 18 anos devem vir acompanhados pelo responsável.', type:'info' }
+      ]}
+    ]
+  },
+  'holter': {
+    title: 'Holter 24h',
+    sections: [
+      { title: 'Antes do Exame', items: [
+        { icon:'🚿', text:'Tomar banho — ficará 24h sem molhar o tórax.' },
+        { icon:'🪒', text:'Homens: vir com o tórax depilado.', type:'warn' },
+        { icon:'🚫', text:'Não passar hidratante, óleo ou creme no tórax.' }
+      ]},
+      { title: 'Durante o Exame (24h)', items: [
+        { icon:'👕', text:'Usar roupa larga ou camisa aberta na frente.' },
+        { icon:'🏋️', text:'Não pegar peso durante o uso do aparelho.' },
+        { icon:'🍽️', text:'Alimentação e medicação normais.' }
+      ]},
+      { title: 'Chegada', items: [
+        { icon:'⏰', text:'Chegar com 30 minutos de antecedência.', type:'info' }
+      ]}
+    ]
+  },
+  'mapa': {
+    title: 'MAPA 24h',
+    sections: [
+      { title: 'Antes do Exame', items: [
+        { icon:'🚿', text:'Tomar banho — não poderá molhar o braço nas próximas 24h.', type:'warn' },
+        { icon:'👕', text:'Usar roupa confortável, de preferência camiseta de manga curta.' }
+      ]},
+      { title: 'Durante o Exame (24h)', items: [
+        { icon:'🚫', text:'Nunca desligar ou retirar o manguito do braço.', type:'warn' },
+        { icon:'💧', text:'Não molhar o aparelho em hipótese alguma.', type:'warn' },
+        { icon:'📝', text:'Ao instalar o aparelho, o paciente assinará um termo de responsabilidade.' }
+      ]},
+      { title: 'Chegada', items: [
+        { icon:'⏰', text:'Chegar com 30 minutos de antecedência.', type:'info' }
+      ]}
+    ]
+  },
+  // LABORATORIAL
+  'urina24': {
+    title: 'Urina 24 Horas',
+    sections: [
+      { title: 'Coleta', items: [
+        { icon:'🚽', text:'Esvaziar totalmente a bexiga e DESCARTAR a primeira urina do dia.' },
+        { icon:'⏱️', text:'A partir daí, coletar TODAS as urinas (incluindo à noite) até o dia seguinte no mesmo horário.' },
+        { icon:'🧪', text:'Coletar em recipiente limpo e seco.' },
+        { icon:'📦', text:'Entregar TODA a amostra ao laboratório — qualquer erro pode alterar o resultado.' }
+      ]},
+      { title: 'Atenção', items: [
+        { icon:'⚠️', text:'Se esquecer alguma coleta, interromper e reiniciar do zero no dia seguinte.', type:'warn' },
+        { icon:'💰', text:'O recipiente do exame é cobrado R$ 10,00.', type:'info' }
+      ]}
+    ]
+  },
+  'psa': {
+    title: 'PSA Total / Livre',
+    sections: [
+      { title: 'Restrições Obrigatórias', items: [
+        { icon:'🚫', text:'NÃO ejacular nos últimos 3 a 5 dias.', type:'warn' },
+        { icon:'🚫', text:'NÃO fazer exercício em bicicleta ou motocicleta nos últimos 2 dias.', type:'warn' },
+        { icon:'🚫', text:'NÃO praticar equitação (cavalo) nos últimos 2 dias.', type:'warn' },
+        { icon:'🚫', text:'NÃO ter feito toque retal nos últimos 3 dias.', type:'warn' },
+        { icon:'🚫', text:'NÃO ter feito USG transretal nos últimos 7 dias.', type:'warn' },
+        { icon:'🚫', text:'NÃO ter feito colonoscopia nos últimos 15 dias.', type:'warn' }
+      ]}
+    ]
+  },
+  'curva_glicemica': {
+    title: 'Curva Glicêmica',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'🍽️', text:'Jejum de 8 horas.' },
+        { icon:'💊', text:'Não usar medicação ou insulina na noite anterior.' },
+        { icon:'⏰', text:'Início rigoroso às 7h00 — após esse horário não será possível realizar.', type:'warn' }
+      ]},
+      { title: 'Como funciona', items: [
+        { icon:'👥', text:'Adultos e crianças: 2 coletas (jejum e 120min).' },
+        { icon:'🤰', text:'Gestantes: 3 coletas (jejum, 60min e 120min).' },
+        { icon:'⏱️', text:'Duração total: até 3 horas.' }
+      ]},
+      { title: 'Importante', items: [
+        { icon:'⚠️', text:'Trazer exame de glicose de até 1 mês OU realizar glicose ANTES de iniciar a curva.', type:'warn' }
+      ]}
+    ]
+  },
+  'lactose': {
+    title: 'Teste de Intolerância à Lactose',
+    sections: [
+      { title: 'Jejum', items: [
+        { icon:'🧒', text:'Crianças de 3 a 5 anos: 4 horas de jejum.' },
+        { icon:'👤', text:'Acima de 5 anos: 8 horas de jejum.' }
+      ]},
+      { title: 'Atenção', items: [
+        { icon:'🤒', text:'NÃO realizar se o paciente tiver febre, gripe, diarreia ou outra doença aguda no dia ou nos 2 dias anteriores.', type:'warn' },
+        { icon:'⏰', text:'Início rigoroso às 7h. Duração mínima: 2 horas.', type:'info' },
+        { icon:'😣', text:'Podem ocorrer desconforto abdominal, náuseas, cólicas ou diarreia durante/após.' }
+      ]}
+    ]
+  },
+  'urina1_urocultura': {
+    title: 'Urina Tipo I / Urocultura',
+    sections: [
+      { title: 'Coleta', items: [
+        { icon:'🧼', text:'Realizar higienização da região íntima com água e sabão antes de coletar.' },
+        { icon:'💧', text:'Descartar o primeiro jato de urina.' },
+        { icon:'🧪', text:'Coletar o jato médio no frasco estéril fornecido pelo laboratório.' },
+        { icon:'🌅', text:'Preferência: primeira urina da manhã ou com pelo menos 2 horas sem urinar.' }
+      ]},
+      { title: 'Atenção', items: [
+        { icon:'⚠️', text:'Interferentes que alteram o resultado: pomadas, cremes vaginais ou talco na região genital.', type:'warn' }
+      ]}
+    ]
+  },
+  // GINECOLÓGICO
+  'papanicolau': {
+    title: 'Papanicolau (Preventivo)',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'🚫', text:'Não ter relação sexual nos 3 dias anteriores ao exame.', type:'warn' },
+        { icon:'🩸', text:'Estar fora do período menstrual.' },
+        { icon:'🚫', text:'Não usar pomadas ou cremes vaginais no dia do exame.' }
+      ]},
+      { title: 'Atenção', items: [
+        { icon:'⚠️', text:'Se for realizar USG Transvaginal no mesmo dia, o Papanicolau deve ser feito PRIMEIRO.', type:'warn' }
+      ]}
+    ]
+  },
+  'cultura_vaginal': {
+    title: 'Cultura de Secreção Vaginal / Bacterioscopia',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'🚫', text:'Não ter relação sexual nos 3 dias anteriores.', type:'warn' },
+        { icon:'🚫', text:'Não usar medicação tópica (cremes, pomadas) na região íntima.', type:'warn' },
+        { icon:'🚫', text:'Não realizar USG transvaginal nos 3 dias anteriores.', type:'warn' },
+        { icon:'🚫', text:'Não realizar ducha vaginal interna.', type:'warn' },
+        { icon:'🩸', text:'Não estar menstruada (pelo menos 3 dias sem sangramento).' },
+        { icon:'🚿', text:'Não tomar banho nem fazer higiene íntima nas 12 horas antes da coleta.', type:'warn' }
+      ]}
+    ]
+  },
+  // NEUROLÓGICO
+  'eletroencefalograma': {
+    title: 'Eletroencefalograma',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'🚿', text:'NÃO lavar os cabelos no dia anterior ao exame.', type:'warn' },
+        { icon:'💍', text:'Não usar brincos, anéis ou colares metálicos no dia do exame.' },
+        { icon:'🧻', text:'Trazer toalha de rosto.' },
+        { icon:'📄', text:'Trazer pedido médico e documentos pessoais.' },
+        { icon:'🍽️', text:'Alimentar-se bem — NÃO vir em jejum.' }
+      ]}
+    ]
+  },
+  'eletroneuromiografia': {
+    title: 'Eletroneuromiografia',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'🚿', text:'Tomar banho com sabonete neutro e esponja, removendo ao máximo a oleosidade da pele.' },
+        { icon:'🚫', text:'Não passar loções, óleos ou cremes no corpo após o banho.', type:'warn' },
+        { icon:'👕', text:'Para Membros Superiores: usar camiseta de manga curta ou regata.' },
+        { icon:'🩳', text:'Para Membros Inferiores: usar bermuda acima do joelho.' }
+      ]},
+      { title: 'Documentos e Informações', items: [
+        { icon:'📋', text:'Trazer exames anteriores de eletroneuromiografia, ressonância e tomografia (se tiver).' },
+        { icon:'💊', text:'Informar medicações em uso, especialmente anticoagulantes e marcapasso.', type:'info' },
+        { icon:'⏱️', text:'Duração: 30min a 1h. Laudo disponível em 10–15 dias.' }
+      ]}
+    ]
+  },
+  'potencial_evocado': {
+    title: 'Potencial Evocado (Auditivo / Visual)',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'🚿', text:'Lavar o cabelo com shampoo neutro.' },
+        { icon:'🚫', text:'Não passar cremes ou condicionadores após o banho.', type:'warn' },
+        { icon:'😴', text:'Comparecer descansado e bem alimentado.' },
+        { icon:'👀', text:'Para Potencial Visual: manter-se acordado durante o exame (sonolência interfere no resultado).', type:'warn' }
+      ]},
+      { title: 'Trazer', items: [
+        { icon:'📋', text:'Exames anteriores de Potencial Evocado, oftalmológicos e de imagem (se tiver).' },
+        { icon:'👓', text:'Se fizer uso de óculos ou lentes de contato, utilizar durante o exame.', type:'info' },
+        { icon:'💊', text:'Lista de medicações em uso (não é necessário parar de tomar).' },
+        { icon:'⏱️', text:'Duração: 30min a 1h. Laudo disponível em 10–15 dias.' }
+      ]}
+    ]
+  },
+  // OTORRINO
+  'nasofibrolaringoscopia': {
+    title: 'Nasofibrolaringoscopia',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'🍽️', text:'Jejum de alimentos de 2 horas antes do exame.' },
+        { icon:'💧', text:'Não é necessário jejum de água.' }
+      ]},
+      { title: 'Atenção', items: [
+        { icon:'🤒', text:'NÃO realizar o exame se estiver com gripe ou resfriado.', type:'warn' },
+        { icon:'👶', text:'Crianças até 7 anos precisam estar acompanhadas de 2 adultos.', type:'info' },
+        { icon:'🚪', text:'Não é permitida a entrada de acompanhantes na sala durante o exame.' },
+        { icon:'🅿️', text:'Sem estacionamento disponível (exceto pacientes com dificuldade de locomoção).', type:'info' }
+      ]}
+    ]
+  },
+  // FEZES
+  'sangue_oculto': {
+    title: 'Sangue Oculto nas Fezes',
+    sections: [
+      { title: 'Dieta Preparatória — 3 dias antes', items: [
+        { icon:'🥩', text:'Não ingerir carne vermelha (boi, porco) nem derivados (caldos, extratos, molhos).', type:'warn' },
+        { icon:'🥦', text:'Evitar: nabo, rabanete, brócolis, couve-flor, cogumelo, alcachofra, maçã, laranja, banana e uva.', type:'warn' },
+        { icon:'🍺', text:'Não ingerir bebidas alcoólicas.', type:'warn' },
+        { icon:'💊', text:'Suspender medicamentos à base de ferro, vitaminas, anti-inflamatórios e aspirina (consultar médico se prescritos).', type:'warn' },
+        { icon:'🦷', text:'Escovar os dentes com escova de cerdas macias — evitar sangramento gengival.' }
+      ]},
+      { title: 'Coleta', items: [
+        { icon:'🧪', text:'Após os 3 dias de dieta, coletar de qualquer evacuação.' },
+        { icon:'🚫', text:'Não coletar durante hemorroidas ativas ou menstruação.', type:'warn' },
+        { icon:'💧', text:'Evitar contato da amostra com urina ou água do vaso sanitário.' }
+      ]}
+    ]
+  },
+  'parasitologico': {
+    title: 'Parasitológico de Fezes',
+    sections: [
+      { title: 'Coleta', items: [
+        { icon:'🧪', text:'Coletar em vasilhame limpo e seco.' },
+        { icon:'💩', text:'Retirar frações de fezes em diferentes partes do bolo fecal (início, meio e fim) — completar ½ frasco.' },
+        { icon:'💧', text:'Evitar contato com urina ou água do vaso sanitário.' },
+        { icon:'⏱️', text:'Entregar ao laboratório em até 2 horas após a coleta.' }
+      ]},
+      { title: 'Quando solicitado 3 amostras', items: [
+        { icon:'📅', text:'Coletar em dias alternados (ex: 2ª, 4ª e 6ª feira).', type:'info' },
+        { icon:'🧪', text:'Usar um frasco para cada coleta, anotando dia e horário.' },
+        { icon:'❄️', text:'Armazenar em local fresco ou refrigerador (não congelar).' },
+        { icon:'📦', text:'Pode entregar as 3 amostras juntas após a última coleta.' }
+      ]}
+    ]
+  },
+  // RAIO-X GERAL
+  'raio_x': {
+    title: 'Raio-X Digital',
+    sections: [
+      { title: 'Preparo Geral', items: [
+        { icon:'💍', text:'Retirar objetos metálicos (colares, brincos, piercings, cintos).' },
+        { icon:'🤰', text:'Informar ao técnico caso esteja grávida ou suspeite de gravidez.', type:'warn' }
+      ]}
+    ]
+  },
+  // MAMOGRAFIA
+  'mamografia': {
+    title: 'Mamografia Digital',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'🚫', text:'Não usar desodorante, talco ou cremes no dia do exame.', type:'warn' },
+        { icon:'🩸', text:'Evitar realizar durante o período menstrual (as mamas ficam mais sensíveis).' },
+        { icon:'📋', text:'Trazer mamografias anteriores para comparação (se tiver).' }
+      ]}
+    ]
+  },
+  // DENSITOMETRIA
+  'densitometria': {
+    title: 'Densitometria Óssea',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'💊', text:'Suspender suplemento de cálcio 24 horas antes do exame.', type:'warn' },
+        { icon:'📋', text:'Trazer exames de densitometria anteriores para comparação (se tiver).' },
+        { icon:'👕', text:'Usar roupas sem objetos metálicos.' }
+      ]}
+    ]
+  },
+  // RM / TC
+  'ressonancia': {
+    title: 'Ressonância Magnética',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'💍', text:'Retirar TODOS os objetos metálicos: joias, piercings, grampos de cabelo.' },
+        { icon:'🦷', text:'Informar sobre implantes dentários, próteses metálicas, marcapasso ou neuroestimuladores.', type:'warn' },
+        { icon:'😰', text:'Informar se tiver claustrofobia — pode ser necessária sedação.' }
+      ]},
+      { title: 'Atenção', items: [
+        { icon:'💊', text:'Sedação: R$ 400,00 (Pix) pago direto no local — confirmar necessidade ao agendar.', type:'info' },
+        { icon:'💉', text:'Contraste IV: R$ 150,00 à parte, se solicitado.', type:'info' }
+      ]}
+    ]
+  },
+  'tomografia': {
+    title: 'Tomografia Computadorizada',
+    sections: [
+      { title: 'Preparo', items: [
+        { icon:'🍽️', text:'Jejum de 4 horas (quando solicitado contraste).' },
+        { icon:'💊', text:'Informar alergias a medicamentos, especialmente ao contraste iodado.', type:'warn' },
+        { icon:'🩺', text:'Informar se tem problemas renais — o contraste pode ser contraindicado.' }
+      ]}
+    ]
+  }
+};
+
+// ─────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────
+const IMADI_RX  = (vc,vp,tot) => ({name:'IMADI',local:'Todos os dias — 8h às 13h',valueClin:vc,valuePartner:vp,total:tot});
+const PREZECOR_RX=(vc,vp,tot) => ({name:'Prezecor',local:'Todas unidades',valueClin:vc,valuePartner:vp,total:tot});
+const RX_BOTH   = ()          => [IMADI_RX(25,35,60), PREZECOR_RX(20,30,50)];
+const RX_IMADI  = ()          => [IMADI_RX(25,35,60)];
+const RX_PREZE  = ()          => [PREZECOR_RX(20,30,50)];
+
+const CLINIC_INFO = {
+  'Prezecor':{tel:'(11) 3934-4100',address:'SANTANA: R. Conselheiro Moreira de Barros, 94 · FREGUESIA: R. Bonifácio Cubas, 341',note:'Agendar primeiro na Prezecor, depois vir PESSOALMENTE à Clínica de Pirituba retirar a Guia.'},
+  'Prezecor (Santana)':{tel:'(11) 3934-4100',address:'R. Conselheiro Moreira de Barros, 94 - Santana',note:'Agendar primeiro na Prezecor, depois vir PESSOALMENTE à Clínica de Pirituba retirar a Guia.'},
+  'IMADI':{tel:'(11) 96640-8998 / (11) 3185-6631',address:'Rua Nossa Senhora da Lapa, 423 - Lapa, São Paulo',schedule:'Todos os dias das 8h às 13h',note:'Agendar primeiro na IMADI, depois vir à Clínica de Pirituba retirar pessoalmente a Guia.'},
+  'Scoppeta':{address:'Av. Pompeia, 1137 - Perdizes, São Paulo',note:'Após agendamento, efetuar pagamento da entrada via PIX. Será emitida guia de autorização. O restante é pago na clínica no dia do exame.'},
+  'Scoppeta — sem contraste':{address:'Av. Pompeia, 1137 - Perdizes, São Paulo',note:'Após agendamento, efetuar pagamento da entrada via PIX. O restante é pago na clínica no dia do exame.'},
+  'Scoppeta — c/ Contraste Primovist':{address:'Av. Pompeia, 1137 - Perdizes, São Paulo',note:'Após agendamento, efetuar pagamento da entrada via PIX. O restante (com Primovist) é pago na clínica.'},
+  'Auri Medicina':{tel:'(11) 4517-4909',address:'Av. Cruzeiro do Sul, 3337 - Santana, São Paulo',note:'Agendar primeiro na Auri Medicina, depois vir PESSOALMENTE à Clínica de Pirituba retirar a Guia. Sedação: R$ 400,00 no local (se necessário).'},
+  'Dra. Silvia (Cergoli - Lapa)':{tel:'(11) 3021-5058 / 997758497',address:'Rua Cerro Corá, 1145 - Alto da Lapa'},
+
+};
+
+const CLINIC_ICONS = {'IMADI':'🏥','Prezecor':'💊','Scoppeta':'🔬','Auri Medicina':'🧪',
+  'Dr. Luis Massoni':'👨‍⚕️','Dra. Vanessa':'👩‍⚕️','Dr. Wilson':'👨‍⚕️',
+  'Dra. Silvia (Cergoli - Lapa)':'👂','Prezecor (Santana)':'💊'};
+
+// ─────────────────────────────────────────────
+// BASE DE DADOS — com campo prepKey
+// ─────────────────────────────────────────────
+const EXAMS = [
+  // NEUROLÓGICO
+  {id:1,name:'Eletroneuromiografia Facial',cat:'Neurológico',type:'normal',prepKey:'eletroneuromiografia',
+   desc:'Avalia integridade dos músculos faciais e identifica distrofias musculares.',value:{ct:330,part:410}},
+  {id:2,name:'Eletroneuromiografia Membros Superiores',cat:'Neurológico',type:'normal',prepKey:'eletroneuromiografia',
+   desc:'Avaliação eletrofisiológica dos membros superiores (MSS).',
+   tips:'⚠️ Se solicitado MSS E MII juntos, cobrar 4× o valor unitário.',value:{ct:330,part:410}},
+  {id:3,name:'Eletroneuromiografia Membros Inferiores',cat:'Neurológico',type:'normal',prepKey:'eletroneuromiografia',
+   desc:'Avaliação eletrofisiológica dos membros inferiores (MII).',
+   tips:'⚠️ Se solicitado MSS E MII juntos, cobrar 4× o valor unitário.',value:{ct:330,part:410}},
+  {id:4,name:'Eletroneuromiografia — Superiores + Inferiores (4 membros)',cat:'Neurológico',type:'normal',prepKey:'eletroneuromiografia',
+   desc:'Avaliação completa de membros superiores e inferiores — equivale a 4× o valor unitário.',
+   tips:'⚠️ CT: R$ 1.320,00 · Particular: R$ 1.640,00.',value:{ct:1320,part:1640}},
+  {id:5,name:'Eletroencefalograma com Fotoestímulo',cat:'Neurológico',type:'normal',prepKey:'eletroencefalograma',
+   desc:'Registro da atividade elétrica cerebral com estimulação luminosa.',value:{ct:420,part:500}},
+  {id:6,name:'Potencial Evocado Auditivo',cat:'Neurológico',type:'normal',prepKey:'potencial_evocado',
+   desc:'Avaliação da via auditiva. Bilateral = cobrar o dobro.',
+   tips:'⚠️ Bilateral = dobrar: R$ 620,00 (CT) / R$ 740,00 (Particular).',value:{ct:310,part:370}},
+  {id:7,name:'Potencial Evocado Visual',cat:'Neurológico',type:'normal',prepKey:'potencial_evocado',
+   desc:'Avaliação da via visual. Bilateral = cobrar o dobro.',
+   tips:'⚠️ Bilateral = dobrar: R$ 620,00 (CT) / R$ 740,00 (Particular).',value:{ct:310,part:370}},
+  // CARDIOLÓGICO
+  {id:10,name:'Ecocardiograma',cat:'Cardiológico',type:'normal',
+   desc:'Ultrassonografia do coração avaliando estrutura e função cardíaca. Sem preparo especial.',
+   tips:'📋 Agenda do Dr. Sérgio Alejandro — 08h às 11h por ordem de chegada. Seg–Sex.',value:{ct:210,part:300}},
+  {id:11,name:'Teste Ergométrico',cat:'Cardiológico',type:'normal',prepKey:'ergometrico',
+   desc:'Avalia resposta cardiovascular ao esforço em esteira.',
+   tips:'📋 Agendamento via sistema AMEI — Agenda de Marlene Rodrigues. Horário: 08h30 às 11h. Seg–Sex.',value:{ct:170,part:250}},
+  {id:12,name:'Holter 24h',cat:'Cardiológico',type:'normal',prepKey:'holter',
+   desc:'Monitorização contínua por 24h do ritmo cardíaco.',
+   tips:'📋 Agendamento via sistema AMEI — Agenda de Vinicius Rodrigo Da Silva Oliveira. Horário: 07h às 08h10. Seg–Sex.',value:{ct:100,part:195}},
+  {id:120,name:'MAPA 24h',cat:'Cardiológico',type:'normal',prepKey:'mapa',
+   desc:'Monitorização ambulatorial da pressão arterial por 24h.',
+   tips:'📋 Agendamento via sistema AMEI — Agenda de João Victor Sousa. Horário: 07h às 08h10. Seg–Sex.',value:{ct:100,part:195}},
+  {id:13,name:'Eletrocardiograma (ECG)',cat:'Cardiológico',type:'normal',
+   desc:'Registro da atividade elétrica do coração. Sem preparo especial.',
+   tips:'📋 07h às 15h por ordem de chegada. Seg–Sex.',value:{ct:50,part:80}},
+  // GINECOLÓGICO
+  {id:20,name:'Colocação de DIU',cat:'Ginecológico',type:'normal',
+   desc:'Inserção de dispositivo intrauterino. Dr. Fábio e Dra. Leticia.',
+   prep_text:'Agendar de preferência nos primeiros dias após menstruação.',value:{ct:500,part:700}},
+  {id:21,name:'Retirada de DIU',cat:'Ginecológico',type:'normal',
+   desc:'Remoção do DIU. Dr. Fábio e Dra. Leticia.',value:{ct:400,part:660}},
+  {id:22,name:'Retirada de Cisto Vaginal',cat:'Ginecológico',type:'normal',
+   desc:'Remoção de cisto vaginal. Dra. Leticia.',
+   tips:'⚠️ Acrescentar anatomopatológico no orçamento.',value:{ct:250,part:350}},
+  {id:23,name:'Streptococcus Anal',cat:'Ginecológico',type:'normal',
+   desc:'Cultura para Streptococcus. Somente Dra. Leticia.',
+   prep_text:'Não realizar higiene íntima 24h antes.',value:{ct:70,part:150}},
+  {id:24,name:'Streptococcus Vaginal',cat:'Ginecológico',type:'normal',
+   desc:'Cultura para Streptococcus vaginal. Somente Dra. Leticia.',
+   prep_text:'Não realizar higiene íntima 24h antes. Não usar medicamentos vaginais 3 dias antes.',value:{ct:70,part:150}},
+  {id:25,name:'Cauterização Colo de Útero',cat:'Ginecológico',type:'normal',
+   desc:'Tratamento de lesões no colo uterino. Somente Dr. Fábio.',
+   prep_text:'Agendar fora do período menstrual.',value:{ct:350,part:480}},
+  {id:26,name:'Cauterização Química ATA (verrugas)',cat:'Ginecológico',type:'normal',
+   desc:'Tratamento de verrugas com ácido tricloroacético. Dra. Leticia.',
+   tips:'⚠️ Somente para verrugas.',value:{ct:250,part:360}},
+  {id:27,name:'Implante de Implanon / Interino',cat:'Ginecológico',type:'normal',
+   desc:'Inserção de implante contraceptivo subdérmico. Dra. Leticia.',
+   prep_text:'Manga larga ou removível. Sem jejum.',value:{ct:450,part:600}},
+  {id:28,name:'Retirada de Implanon / Síntese',cat:'Ginecológico',type:'normal',
+   desc:'Remoção de implante contraceptivo. Dra. Leticia.',value:{ct:350,part:500}},
+  {id:29,name:'Cultura de Secreção e Bacterioscopia',cat:'Ginecológico',type:'normal',prepKey:'cultura_vaginal',
+   desc:'Análise microbiológica de secreção vaginal. Somente Dra. Leticia.',value:{ct:70,part:130}},
+  {id:2900,name:'Papanicolau (Preventivo)',cat:'Ginecológico',type:'normal',prepKey:'papanicolau',
+   desc:'Coleta cérvico-vaginal para rastreamento de alterações celulares do colo uterino.',value:{ct:40,part:80}},
+  {id:610,name:'Colposcopia',cat:'Ginecológico',type:'partner',
+   desc:'Exame de imagem amplificada do colo uterino. Prezecor — Unidade Santana.',
+   prep_text:'Fora do período menstrual. Sem relação sexual 48h antes. Sem cremes vaginais.',
+   tips:'Anatomopatológico cobrado à parte na Prezecor: R$ 80,00 por fragmento.',
+   partners:[{name:'Prezecor (Santana)',local:'Unidade Santana',valueClin:20,valuePartner:80,total:100}]},
+  {id:611,name:'Vulvoscopia',cat:'Ginecológico',type:'partner',
+   desc:'Exame colposcópico da vulva. Prezecor — Unidade Santana.',
+   prep_text:'Mesmas orientações da colposcopia.',
+   partners:[{name:'Prezecor (Santana)',local:'Unidade Santana',valueClin:20,valuePartner:80,total:100}]},
+  {id:620,name:'PAAF de Mama (guiada por USG)',cat:'Ginecológico',type:'partner',
+   desc:'Punção aspirativa de nódulo de mama guiada por ultrassom.',
+   prep_text:'Trazer exames de imagem anteriores.',
+   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:450,total:550}]},
+  {id:623,name:'Core Biópsia de Mama (guiada por USG)',cat:'Ginecológico',type:'partner',
+   desc:'Biópsia core de mama guiada por ultrassom.',
+   prep_text:'Trazer exames de imagem. Informar anticoagulantes.',
+   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:600,total:700}]},
+  // ORTOPÉDICO
+  {id:30,name:'Infiltração Ortopédica / Punção',cat:'Ortopédico',type:'normal',
+   desc:'Aplicação de medicamento ou aspiração articular. André, Thales ou Ronaldo.',
+   tips:'⚠️ Cobrar por cada infiltração/articulação.',value:{ct:250,part:370}},
+  {id:31,name:'Infiltração com Ácido Hialurônico',cat:'Ortopédico',type:'normal',
+   desc:'Viscosuplementação articular. André, Thales ou Ronaldo.',
+   tips:'⚠️ Cobrar por cada articulação tratada.',value:{ct:900,part:1100}},
+  // OTORRINO
+  {id:40,name:'Nasofibrolaringoscopia',cat:'Otorrinolaringológico',type:'normal',prepKey:'nasofibrolaringoscopia',
+   desc:'Endoscopia de nariz, faringe e laringe. Drs. Larissa, Wania e Breno.',
+   tips:'⚠️ Mínimo 7 anos. NÃO realizar com gripe/resfriado.',value:{ct:290,part:380}},
+  {id:41,name:'Cauterização Nasal',cat:'Otorrinolaringológico',type:'normal',
+   desc:'Tratamento de vasos nasais.',
+   tips:'⚠️ Exame pouco solicitado. Verificar repasse antes de orçar.',value:{ct:350,part:490}},
+  {id:42,name:'Remoção de Corpo Estranho ORL',cat:'Otorrinolaringológico',type:'normal',
+   desc:'Remoção de corpo estranho de nariz, ouvido ou garganta.',
+   tips:'⚠️ Exame pouco solicitado. Verificar repasse.',value:{ct:140,part:210}},
+  {id:43,name:'Remoção de Cerume',cat:'Otorrinolaringológico',type:'normal',
+   desc:'Limpeza do canal auditivo.',
+   tips:'⚠️ Cobrar por cada ouvido tratado.',value:{ct:60,part:90}},
+  // DERMATOLÓGICO
+  {id:70,name:'Patch Teste (Dr. Vinicius)',cat:'Dermatológico',type:'normal',
+   desc:'Teste de contato para diagnóstico de dermatite alérgica.',
+   prep_text:'Não usar corticoides tópicos nas costas por 7 dias. Sem sol.',value:{ct:700,part:1120}},
+  {id:71,name:'Peeling Químico ATA/TCA — sessão (Cód. 100)',cat:'Dermatológico',type:'normal',
+   desc:'Peeling com Ácido Tricloroacético. Dr. Vinicius Alencar.',
+   prep_text:'Não expor ao sol 7 dias antes. Sem retinoides 7 dias antes.',value:{ct:140,part:190}},
+  {id:72,name:'Cauterização Eletrocauterização 5–10 lesões (Cód. 150)',cat:'Dermatológico',type:'normal',
+   desc:'Tratamento de 5 a 10 lesões cutâneas. Dr. Vinicius Alencar.',value:{ct:210,part:260}},
+  {id:73,name:'Curetagem Simples até 5 Lesões (Cód. 200)',cat:'Dermatológico',type:'normal',
+   desc:'Curetagem de até 5 lesões de pele. Dr. Vinicius Alencar.',value:{ct:280,part:330}},
+  {id:74,name:'Biópsia de Face (Cód. 220)',cat:'Dermatológico',type:'normal',
+   desc:'Biópsia facial. Dr. Vinicius Alencar.',value:{ct:308,part:358}},
+  {id:75,name:'Biópsia / Exérese Lesão de Pele e Mucosas (Cód. 250)',cat:'Dermatológico',type:'normal',
+   desc:'Biópsia ou exérese de lesão/tumor. Dr. Vinicius Alencar.',value:{ct:350,part:400}},
+  {id:76,name:'Eletrocauterização 15 Lesões (Cód. 300)',cat:'Dermatológico',type:'normal',
+   desc:'Tratamento de 15 lesões. Dr. Vinicius Alencar.',value:{ct:450,part:500}},
+  {id:77,name:'Exérese Tumor Benigno / Cisto / Fístula (Cód. 350)',cat:'Dermatológico',type:'normal',
+   desc:'Exérese cirúrgica de tumor benigno, cisto ou fístula. Dr. Vinicius.',value:{ct:490,part:540}},
+  {id:78,name:'Exérese Lesão/Tumor Extra Grande (Cód. 400)',cat:'Dermatológico',type:'normal',
+   desc:'Exérese de lesão ou tumor extra grande. Dr. Vinicius.',value:{ct:560,part:610}},
+  {id:79,name:'Exérese Lesão/Tumor de Pele e Mucosas (Cód. 450)',cat:'Dermatológico',type:'normal',
+   desc:'Exérese de lesão ou tumor. Dr. Vinicius Alencar.',value:{ct:630,part:680}},
+  {id:80,name:'Eletrocoagulação 10–20 Lesões (Cód. 500)',cat:'Dermatológico',type:'normal',
+   desc:'Eletrocoagulação com ou sem curetagem — 10 a 20 lesões. Dr. Vinicius.',
+   tips:'⚠️ Informar se usa marca-passo.',value:{ct:700,part:750}},
+  {id:81,name:'Toxina Botulínica (Botox) Face (Cód. 800)',cat:'Dermatológico',type:'normal',
+   desc:'Aplicação de toxina botulínica. Dr. Vinicius Alencar.',
+   prep_text:'Sem álcool 24h antes. Sem AAS/anti-inflamatório 7 dias antes.',value:{ct:1120,part:1170}},
+  {id:82,name:'Dermato P1 — Curetagem e eletrocoagulação CA de pele (por lesão)',cat:'Dermatológico',type:'normal',
+   desc:'Curetagem e eletrocoagulação de carcinoma de pele — por lesão. Dr. Juliano.',value:{ct:162,part:260}},
+  {id:83,name:'Dermato P2 — Eletrocoagulação de lesões cutâneas',cat:'Dermatológico',type:'normal',
+   desc:'Eletrocoagulação cutânea. Dr. Juliano.',value:{ct:242,part:390}},
+  {id:84,name:'Dermato P3 — Eletrocoagulação até 5 lesões',cat:'Dermatológico',type:'normal',
+   desc:'Eletrocoagulação com ou sem curetagem — até 5 lesões. Dr. Juliano.',value:{ct:323,part:520}},
+  {id:85,name:'Dermato P4 — Exérese lesão/tumor de pele (média)',cat:'Dermatológico',type:'normal',
+   desc:'Exérese de lesão ou tumor de tamanho médio. Dr. Juliano.',value:{ct:404,part:650}},
+  {id:86,name:'Dermato P5 — Exérese e sutura com rotação de retalhos',cat:'Dermatológico',type:'normal',
+   desc:'Exérese e sutura com rotação de retalhos cutâneos. Dr. Juliano.',value:{ct:484,part:780}},
+  {id:87,name:'Dermato P6 — Exérese lesão/tumor de pele (grande)',cat:'Dermatológico',type:'normal',
+   desc:'Exérese de lesão ou tumor grande. Dr. Juliano.',value:{ct:565,part:905}},
+  {id:88,name:'Dermato P7 — Alopecia parcial — exérese e sutura',cat:'Dermatológico',type:'normal',
+   desc:'Exérese e sutura para alopecia parcial. Dr. Juliano.',value:{ct:646,part:1035}},
+  {id:89,name:'Dermato P8 — Exérese ou excisão de mucocele',cat:'Dermatológico',type:'normal',
+   desc:'Remoção de mucocele. Dr. Juliano.',value:{ct:726,part:1165}},
+  {id:90,name:'Dermato P9 — Biópsia Excisional',cat:'Dermatológico',type:'normal',
+   desc:'Biópsia excisional. Dr. Juliano.',value:{ct:807,part:1295}},
+  {id:91,name:'Dermato P10 — Exérese tangencial (shaving) até 5 lesões',cat:'Dermatológico',type:'normal',
+   desc:'Exérese tangencial (shaving) — por grupo de até 5 lesões. Dr. Juliano.',value:{ct:887,part:1420}},
+  {id:92,name:'Dermato P11 — Incisão e drenagem de flegmão',cat:'Dermatológico',type:'normal',
+   desc:'Incisão e drenagem de flegmão. Dr. Juliano.',value:{ct:968,part:1550}},
+  {id:93,name:'Dermato P12 — Incisão e drenagem de tenossinovites',cat:'Dermatológico',type:'normal',
+   desc:'Incisão e drenagem de tenossinovites purulentas. Dr. Juliano.',value:{ct:1049,part:1680}},
+  {id:94,name:'Dermato P13 — Infiltração intralesional (sessão)',cat:'Dermatológico',type:'normal',
+   desc:'Infiltração intralesional por sessão. Dr. Juliano.',value:{ct:1129,part:1810}},
+  {id:95,name:'Dermato P14 — Exérese de lipoma até 5cm',cat:'Dermatológico',type:'normal',
+   desc:'Remoção cirúrgica de lipoma até 5cm. Dr. Juliano.',value:{ct:1210,part:1940}},
+  {id:96,name:'Dermato P15 — Biópsia incisional',cat:'Dermatológico',type:'normal',
+   desc:'Biópsia incisional de pele e tecido subcutâneo. Dr. Juliano.',value:{ct:1291,part:2070}},
+  {id:97,name:'Dermato P16 — Cauterização lesões de colo uterino',cat:'Dermatológico',type:'normal',
+   desc:'Cauterização química, eletrocauterização ou criocauterização. Dr. Juliano.',value:{ct:1371,part:2195}},
+  {id:98,name:'Dermato P17 — Exérese de cisto unilateral',cat:'Dermatológico',type:'normal',
+   desc:'Exérese de cisto unilateral. Dr. Juliano.',value:{ct:1452,part:2325}},
+  {id:99,name:'Dermato P18 — Retirada de corpo estranho (cirúrgico)',cat:'Dermatológico',type:'normal',
+   desc:'Remoção cirúrgica de corpo estranho. Dr. Juliano.',value:{ct:1533,part:2455}},
+  {id:100,name:'Dermato P19 — Miiase furunculóide (por lesão)',cat:'Dermatológico',type:'normal',
+   desc:'Tratamento de miiase furunculóide por lesão. Dr. Juliano.',value:{ct:1613,part:2585}},
+  {id:101,name:'Biópsia Dermatológica — por fragmento',cat:'Dermatológico',type:'normal',
+   desc:'Análise de biópsia cutânea — cobrado por fragmento/frasco.',
+   tips:'CT: R$ 93,50 por fragmento · Particular: R$ 187,00 por fragmento.',value:{ct:93.5,part:187}},
+  {id:1000,name:'Peeling Químico TCA Face/Mãos (Cód. 220)',cat:'Dermatológico',type:'normal',
+   desc:'Peeling com ácido tricloroacético. Dr. Vinicius Alencar.',
+   prep_text:'Não expor ao sol 7 dias antes. Sem retinoides 7 dias antes.',value:{ct:308,part:358}},
+  {id:1001,name:'Remoção de Cisto Sebáceo até 5cm (Cód. 250)',cat:'Dermatológico',type:'normal',
+   desc:'Remoção cirúrgica de cisto sebáceo de até 5cm. Dr. Vinicius Alencar.',value:{ct:350,part:400}},
+  {id:1002,name:'Biópsia de Pele 2 ou 3 Lesões (Cód. 400)',cat:'Dermatológico',type:'normal',
+   desc:'Biópsia de 2 ou 3 lesões cutâneas. Dr. Vinicius Alencar.',value:{ct:560,part:610}},
+  // OFTALMOLÓGICO
+  {id:110,name:'Gonioscopia (Bilateral)',cat:'Oftalmológico',type:'normal',
+   desc:'Avaliação do ângulo da câmara anterior do olho.',
+   prep_text:'Não usar lentes de contato. Trazer óculos e receitas.',
+   tips:'Repasse da equipe: R$ 95,00.',value:{ct:200,part:320}},
+  {id:111,name:'Curva Tensional Diária (Bilateral)',cat:'Oftalmológico',type:'normal',
+   desc:'Medição da pressão intraocular em múltiplos horários.',
+   prep_text:'Comparecer em horários pré-agendados.',
+   tips:'Repasse da equipe: R$ 100,00.',value:{ct:180,part:300}},
+  {id:112,name:'Teste de Schimer (Bilateral)',cat:'Oftalmológico',type:'normal',
+   desc:'Avalia produção de lágrimas.',prep_text:'Sem colírios anestésicos ou maquiagem.',
+   tips:'Repasse da equipe: R$ 100,00.',value:{ct:180,part:300}},
+  {id:113,name:'Biometria Ultrassônica (Bilateral)',cat:'Oftalmológico',type:'normal',
+   desc:'Medição do comprimento axial do olho.',prep_text:'Sem lentes de contato 24h antes.',
+   tips:'Repasse da equipe: R$ 100,00.',value:{ct:200,part:320}},
+  {id:114,name:'Retinografia (Bilateral)',cat:'Oftalmológico',type:'normal',
+   desc:'Fotografia do fundo de olho.',
+   prep_text:'Pode precisar dilatar — evitar dirigir após o exame.',
+   tips:'Repasse da equipe: R$ 93,60.',value:{ct:156,part:210}},
+  {id:115,name:'Tonometria',cat:'Oftalmológico',type:'normal',
+   desc:'Medição da pressão intraocular.',
+   tips:'Repasse via Yuledis: R$ 30,00.',value:{ct:60,part:120}},
+  {id:116,name:'Topografia de Córnea (Bilateral)',cat:'Oftalmológico',type:'normal',
+   desc:'Mapeamento tridimensional da córnea.',prep_text:'Sem lentes de contato 72h antes.',
+   tips:'Repasse da equipe: R$ 144,00.',value:{ct:240,part:290}},
+  {id:117,name:'Paquimetria Ultrassônica (Bilateral)',cat:'Oftalmológico',type:'normal',
+   desc:'Medição da espessura da córnea.',prep_text:'Sem lentes de contato 24h antes.',
+   tips:'Repasse da equipe: R$ 72,00.',value:{ct:120,part:190}},
+  {id:118,name:'Mapeamento de Retina (Bilateral)',cat:'Oftalmológico',type:'normal',
+   desc:'Exame completo da retina periférica.',
+   prep_text:'Dilata pupila — levar óculos escuros e acompanhante.',
+   tips:'Repasse da equipe: R$ 108,00.',value:{ct:200,part:320}},
+  {id:119,name:'Retirada de Corpo Estranho Ocular (Dra. Carid)',cat:'Oftalmológico',type:'normal',
+   desc:'Remoção de corpo estranho ocular. Dra. Carid.',
+   tips:'Repasse da equipe: R$ 150,00.',value:{ct:210,part:336}},
+  // OUTROS
+  {id:50,name:'Escleroterapia de Vasos',cat:'Outros',type:'normal',
+   desc:'Tratamento de varizes e vasinhos por injeção esclerosante. Somente Dr. Ruben.',
+   prep_text:'Não usar hidratante nas pernas no dia.',value:{ct:180,part:280}},
+  {id:55,name:'Avaliação de Função Muscular',cat:'Outros',type:'normal',
+   desc:'Avaliação da força e funcionalidade muscular. Somente Dra. Cinthya.',
+   prep_text:'Não realizar exercícios intensos 24h antes.',value:{ct:80,part:100}},
+  {id:56,name:'Bioimpedanciometria',cat:'Outros',type:'normal',
+   desc:'Avaliação de composição corporal — gordura, músculo e água.',
+   prep_text:'Não praticar exercícios intensos 24h antes. Necessário realizar consulta com a doutora antes de agendar o exame.',value:{ct:80,part:100}},
+  {id:60,name:'Fisioterapia Ortopédica (sessão)',cat:'Outros',type:'normal',
+   desc:'Sessão de fisioterapia ortopédica.',
+   prep_text:'Usar roupas confortáveis que permitam acesso à região.',value:{ct:40,part:120}},
+  {id:61,name:'Fisioterapia Neurológica (sessão)',cat:'Outros',type:'normal',
+   desc:'Sessão de fisioterapia neurológica.',
+   prep_text:'Trazer laudos e relatórios. Roupas confortáveis.',value:{ct:48,part:156}},
+  {id:65,name:'Aplicação de Vitamina B12',cat:'Outros',type:'normal',
+   desc:'Aplicação intramuscular de vitamina B12.',
+   prep_text:'Trazer a prescrição médica e o medicamento.',
+   tips:'⚠️ Realizado apenas de segunda a sexta, das 07h às 15h.',value:{ct:120,part:170}},
+  {id:122,name:'Audiometria Tonal + Vocal + Impedanciometria',cat:'Outros',type:'partner',
+   desc:'Avaliação completa da audição. Dra. Silvia — Clínica Cergoli / Lapa.',
+   prep_text:'Sem cerume. Não expor a ruído intenso 24h antes.',
+   tips:'📍 Rua Cerro Corá, 1145 — Alto da Lapa · Tel: (11) 3021-5058 / 997758497',
+   partners:[{name:'Dra. Silvia (Cergoli - Lapa)',local:'Rua Cerro Corá, 1145 - Alto da Lapa',valueClin:50,valuePartner:200,total:250}]},
+  {id:123,name:'Exame Otoneurológico',cat:'Outros',type:'partner',
+   desc:'Avaliação do sistema vestibular e auditivo. Dra. Silvia — Cergoli / Lapa.',
+   prep_text:'Sem álcool 48h antes. Sem sedativos.',
+   tips:'📍 Rua Cerro Corá, 1145 — Alto da Lapa · Tel: (11) 3021-5058 / 997758497',
+   partners:[{name:'Dra. Silvia (Cergoli - Lapa)',local:'Rua Cerro Corá, 1145 - Alto da Lapa',valueClin:50,valuePartner:300,total:350}]},
+  {id:621,name:'PAAF de Tireoide (guiada por USG)',cat:'Outros',type:'partner',
+   desc:'Punção aspirativa de nódulo de tireoide guiada por ultrassom.',
+   prep_text:'Trazer exames anteriores.',
+   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:450,total:550}]},
+  {id:622,name:'PAAF de Linfonodos (guiada por USG)',cat:'Outros',type:'partner',
+   desc:'Punção aspirativa de linfonodo guiada por ultrassom.',
+   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:450,total:550}]},
+  {id:624,name:'Core Biópsia de Próstata (guiada por USG — até 6 fragmentos)',cat:'Outros',type:'partner',
+   desc:'Biópsia core de próstata com anatomopatológico incluído.',
+   prep_text:'Preparo intestinal. Antibioticoprofilaxia conforme orientação médica.',
+   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:900,total:1000}]},
+  {id:625,name:'Core Biópsia de Linfonodos (guiada por USG)',cat:'Outros',type:'partner',
+   desc:'Biópsia core percutânea de linfonodo guiada por ultrassom.',
+   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:600,total:700}]},
+  {id:720,name:'Espirometria',cat:'Outros',type:'partner',
+   desc:'Teste de função pulmonar.',
+   prep_text:'Sem broncodilatadores 4–6h antes. Sem fumar no dia.',
+   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:20,valuePartner:35,total:55}]},
+
+  // ULTRASSOM
+  {id:200,name:'USG Partes Moles (cada região)',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia de tecidos moles superficiais. Cobrar por cada região.',
+   tips:'Para bilateral (ex: 2 ombros), cobrar 2×.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:201,name:'USG Pélvico Transvaginal',cat:'Ultrassom',type:'partner',prepKey:'pelvico_feminino',
+   desc:'Ultrassonografia pélvica transvaginal.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:202,name:'USG Pélvico Feminino (Suprapúbico)',cat:'Ultrassom',type:'partner',prepKey:'pelvico_feminino',
+   desc:'Ultrassonografia pélvica via abdominal — bexiga cheia.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:203,name:'USG Mamas',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia das mamas.',prep_text:'Sem desodorante ou talco no dia.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:204,name:'USG Próstata Abdominal',cat:'Ultrassom',type:'partner',prepKey:'urinario_prostata',
+   desc:'Ultrassonografia da próstata via abdominal — bexiga cheia.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:205,name:'USG Escroto / Bolsa Testicular',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia escrotal.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:206,name:'USG Aparelho Urinário',cat:'Ultrassom',type:'partner',prepKey:'urinario_prostata',
+   desc:'Ultrassonografia do aparelho urinário (rins, bexiga, ureter) — bexiga cheia.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:207,name:'USG Abdome Superior',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia do abdome superior.',prep_text:'Jejum de 6h.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:208,name:'USG Abdome Total',cat:'Ultrassom',type:'partner',prepKey:'abdome_total',
+   desc:'Ultrassonografia completa do abdome (superior + inferior).',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:100,valuePartner:0,total:100},{name:'Dra. Vanessa',local:'Sábados',valueClin:100,valuePartner:0,total:100},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:100,valuePartner:0,total:100}]},
+  {id:209,name:'USG Parede Abdominal',cat:'Ultrassom',type:'partner',prepKey:'parede_abdominal',
+   desc:'Ultrassonografia da parede abdominal.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:210,name:'USG Região Inguinal (cada lado)',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia da região inguinal. Cobrar por cada lado.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:211,name:'USG Articulação (cada)',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia de articulações. Cobrar por articulação.',
+   tips:'Para bilateral, cobrar 2×.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:212,name:'USG Obstétrico',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia obstétrica.',prep_text:'Bexiga cheia no 1º trimestre. Após 2º trimestre, bexiga vazia.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:100,valuePartner:0,total:100},{name:'Dra. Vanessa',local:'Sábados',valueClin:100,valuePartner:0,total:100}]},
+  {id:213,name:'USG Obstétrico Morfológico (1º Trimestre)',cat:'Ultrassom',type:'partner',
+   desc:'Morfológico do 1º trimestre gestacional. Dr. Luis Massoni.',
+   prep_text:'Bexiga cheia. Gestação entre 11 e 14 semanas.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:260,valuePartner:0,total:260}]},
+  {id:214,name:'USG Transvaginal com Preparo Intestinal',cat:'Ultrassom',type:'partner',prepKey:'transvaginal_preparo',
+   desc:'Transvaginal com preparo intestinal especial.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:360,valuePartner:0,total:360}]},
+  {id:215,name:'USG Tireoide com Doppler',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia com Doppler da tireoide.',prep_text:'Roupa com decote.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:170,valuePartner:0,total:170},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82}]},
+  {id:216,name:'USG Mamas com Doppler',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia com Doppler das mamas.',prep_text:'Sem desodorante ou talco.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:170,valuePartner:0,total:170}]},
+  {id:217,name:'USG Transvaginal com Doppler',cat:'Ultrassom',type:'partner',
+   desc:'Transvaginal com avaliação por Doppler.',prep_text:'Bexiga vazia.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:170,valuePartner:0,total:170}]},
+  {id:218,name:'USG Bolsa Escrotal / Escroto com Doppler',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia escrotal com Doppler.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:170,valuePartner:0,total:170}]},
+  {id:219,name:'Doppler Venoso MMII',cat:'Ultrassom',type:'partner',
+   desc:'Avaliação por Doppler das veias dos membros inferiores.',
+   prep_text:'Roupas fáceis de remover. Sem meias compressivas.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:440,valuePartner:0,total:440},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:440,valuePartner:0,total:440}]},
+  {id:220,name:'Doppler Arterial MMII',cat:'Ultrassom',type:'partner',
+   desc:'Avaliação por Doppler das artérias dos membros inferiores.',
+   prep_text:'Não fumar 2h antes. Evitar esforço físico.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:440,valuePartner:0,total:440},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:440,valuePartner:0,total:440}]},
+  {id:221,name:'Doppler Arterial de Abdome',cat:'Ultrassom',type:'partner',
+   desc:'Doppler do abdome.',prep_text:'Jejum de 6h.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:250,valuePartner:0,total:250}]},
+  {id:222,name:'Doppler de Carótidas',cat:'Ultrassom',type:'partner',
+   desc:'Avaliação por Doppler das artérias carótidas.',prep_text:'Sem colar. Roupa com decote.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:290,valuePartner:0,total:290},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:290,valuePartner:0,total:290}]},
+  {id:223,name:'Globo Ocular (cada olho)',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia ocular. Cobrar por cada olho.',
+   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:230,valuePartner:0,total:230}]},
+  {id:224,name:'USG Próstata Transretal',cat:'Ultrassom',type:'partner',prepKey:'transretal',
+   desc:'Ultrassonografia prostática via transretal.',
+   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:230,valuePartner:0,total:230}]},
+  {id:225,name:'USG Pênis',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia do pênis.',
+   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:140,valuePartner:0,total:140}]},
+  {id:226,name:'USG Pênis com Doppler',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia do pênis com Doppler.',
+   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:190,valuePartner:0,total:190}]},
+  {id:227,name:'Doppler Abdome Total (cobrar 2 valores)',cat:'Ultrassom',type:'partner',
+   desc:'Doppler do abdome total — equivale a 2 exames.',
+   tips:'⚠️ Cobrar DOIS valores: R$ 640,00 total.',
+   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:640,valuePartner:0,total:640}]},
+  {id:228,name:'USG Abdome Superior com Doppler',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia com Doppler do abdome superior.',prep_text:'Jejum de 6h.',
+   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:320,valuePartner:0,total:320}]},
+  {id:229,name:'USG Abdome Inferior',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia do abdome inferior.',prep_text:'Bexiga cheia.',
+   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:230,name:'USG Hipocôndrio Direito / Vias Biliares',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia do hipocôndrio direito e vias biliares.',prep_text:'Jejum de 6h.',
+   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:231,name:'USG Axilas (cada lado)',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia das axilas. Cobrar por lado.',
+   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:232,name:'USG Região Cervical',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassonografia da região cervical (pescoço).',
+   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
+  {id:233,name:'USG Morfológico (IMADI)',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassom morfológico gestacional.',prep_text:'Orientação conforme trimestre.',
+   tips:'Realizado de Seg, Qui, Sex e Sáb das 8h às 13h.',
+   partners:[{name:'IMADI',local:'Seg / Qui / Sex / Sáb — 8h às 13h',valueClin:55,valuePartner:125,total:180}]},
+  {id:234,name:'USG Obstétrico com Doppler (IMADI)',cat:'Ultrassom',type:'partner',
+   desc:'Ultrassom obstétrico com Doppler fetal.',prep_text:'Bexiga semi-cheia no 1º trimestre.',
+   tips:'Realizado de Seg, Qui, Sex e Sáb das 8h às 13h.',
+   partners:[{name:'IMADI',local:'Seg / Qui / Sex / Sáb — 8h às 13h',valueClin:55,valuePartner:125,total:180}]},
+  // RAIO-X
+  {id:300,name:'Raio-X — Adenoide / Cavum',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia de adenoide ou cavum.',partners:RX_BOTH()},
+  {id:301,name:'Raio-X — Abdome Simples / Agudo',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia de abdome simples ou agudo.',partners:RX_IMADI()},
+  {id:302,name:'Raio-X — Articulação Acromioclavicular',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da articulação acromioclavicular.',partners:RX_BOTH()},
+  {id:303,name:'Raio-X — Ombro (Escapuloumeral)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do ombro.',partners:RX_BOTH()},
+  {id:304,name:'Raio-X — Articulações Sacroilíacas',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia das articulações sacroilíacas.',partners:RX_BOTH()},
+  {id:305,name:'Raio-X — Quadril (Coxofemoral)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do quadril.',partners:RX_BOTH()},
+  {id:306,name:'Raio-X — Tornozelo (Tibiotársica)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do tornozelo.',partners:RX_BOTH()},
+  {id:307,name:'Raio-X — Braço',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do braço.',partners:RX_BOTH()},
+  {id:308,name:'Raio-X — Bacia',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da bacia.',partners:RX_BOTH()},
+  {id:309,name:'Raio-X — Crânio PA e Lateral',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do crânio.',partners:RX_BOTH()},
+  {id:3091,name:'Raio-X — Crânio PA-Lat-Bretton',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do crânio com incidências PA, Lateral e Bretton.',partners:RX_PREZE()},
+  {id:3092,name:'Raio-X — Crânio PA-Lat-Oblíquas-Bretton-Hirtz',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do crânio com múltiplas incidências.',partners:RX_PREZE()},
+  {id:310,name:'Raio-X — Coluna Cervical',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da coluna cervical.',partners:RX_BOTH()},
+  {id:311,name:'Raio-X — Coluna Dorsal / Torácica',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da coluna dorsal ou torácica.',partners:RX_BOTH()},
+  {id:312,name:'Raio-X — Coluna Lombo-Sacra',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da coluna lombo-sacra.',partners:RX_BOTH()},
+  {id:313,name:'Raio-X — Coluna Dorso-Lombar Total (escoliose)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia total da coluna para escoliose.',partners:RX_BOTH()},
+  {id:314,name:'Raio-X — Costelas / Hemitórax',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia de costelas por hemitórax.',partners:RX_BOTH()},
+  {id:315,name:'Raio-X — Clavícula',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da clavícula.',partners:RX_BOTH()},
+  {id:316,name:'Raio-X — Cotovelo',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do cotovelo.',partners:RX_BOTH()},
+  {id:3161,name:'Raio-X — Antebraço',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do antebraço.',partners:RX_PREZE()},
+  {id:317,name:'Raio-X — Coxa',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da coxa.',partners:RX_BOTH()},
+  {id:318,name:'Raio-X — Calcâneo',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do calcâneo.',partners:RX_BOTH()},
+  {id:319,name:'Raio-X — Coração e Vasos da Base',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia de coração e vasos da base.',partners:RX_IMADI()},
+  {id:320,name:'Raio-X — Esterno',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do esterno.',partners:RX_BOTH()},
+  {id:3201,name:'Raio-X — Articulação Esterno-Clavicular',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da articulação esterno-clavicular.',partners:RX_PREZE()},
+  {id:321,name:'Raio-X — Joelho / Patela',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do joelho ou patela.',partners:RX_BOTH()},
+  {id:322,name:'Raio-X — Mão / Quirodáctilo',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da mão ou dedos.',partners:RX_BOTH()},
+  {id:323,name:'Raio-X — Mãos e Punhos para Idade Óssea',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia para avaliação de idade óssea.',partners:RX_BOTH()},
+  {id:324,name:'Raio-X — Órbitas Bilaterais',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia das órbitas.',partners:RX_BOTH()},
+  {id:325,name:'Raio-X — Omoplata / Escápula',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da omoplata.',partners:RX_BOTH()},
+  {id:326,name:'Raio-X — Pé / Pododáctilo',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do pé ou dedos.',partners:RX_BOTH()},
+  {id:327,name:'Raio-X — Perna',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da perna.',partners:RX_BOTH()},
+  {id:328,name:'Raio-X — Punho AP-Lat-Oblíquas',cat:'Raio-X',type:'partner',prepKey:'raio_x',
+   desc:'Radiografia do punho.',tips:'⚠️ Prezecor: guia R$ 20 + local R$ 45 = R$ 65.',
+   partners:[IMADI_RX(25,35,60),PREZECOR_RX(20,45,65)]},
+  {id:329,name:'Raio-X — Tórax PA e Perfil',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do tórax em duas incidências.',partners:RX_BOTH()},
+  {id:3291,name:'Raio-X — Tórax PA (somente)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do tórax somente em PA.',partners:RX_PREZE()},
+  {id:3292,name:'Raio-X — Tórax PA (Insp. e Exp.) + Lateral',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do tórax com inspiração, expiração e perfil.',partners:RX_PREZE()},
+  {id:330,name:'Raio-X — Seios da Face (FN-MN-Lat.)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia dos seios da face com 3 incidências.',partners:RX_BOTH()},
+  {id:3301,name:'Raio-X — Seios da Face (FN-MN-Lat.-Hirtz)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia dos seios da face com 4 incidências.',partners:RX_PREZE()},
+  {id:331,name:'Raio-X — Sela Túrcica',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da sela túrcica.',partners:RX_BOTH()},
+  {id:332,name:'Raio-X — Sacro-Cóccix',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do sacro-cóccix.',partners:RX_BOTH()},
+  {id:333,name:'Mamografia Digital',cat:'Raio-X',type:'partner',prepKey:'mamografia',
+   desc:'Mamografia digital de rastreio ou diagnóstico.',
+   partners:[IMADI_RX(45,75,120),PREZECOR_RX(20,100,120)]},
+  {id:334,name:'Densitometria Óssea',cat:'Raio-X',type:'partner',prepKey:'densitometria',
+   desc:'Avaliação da massa óssea — diagnóstico de osteoporose.',
+   partners:[IMADI_RX(20,80,100),PREZECOR_RX(20,90,110)]},
+  {id:3401,name:'Raio-X — Mastoides / Rochedos (Bilateral)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia das mastoides bilaterais.',partners:RX_PREZE()},
+  {id:3402,name:'Raio-X — ATM Bilateral',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da articulação temporomandibular, bilateral.',partners:RX_PREZE()},
+  {id:3403,name:'Raio-X — Maxilar Inferior PA-Oblíquas',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do maxilar inferior.',partners:RX_PREZE()},
+  {id:3404,name:'Raio-X — Ossos da Face',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia dos ossos da face com múltiplas incidências.',partners:RX_PREZE()},
+  {id:3405,name:'Raio-X — Arcada Zigomática / Malar',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da arcada zigomática ou malar.',partners:RX_PREZE()},
+  {id:3406,name:'Raio-X — Escanometria',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia para mensuração do comprimento dos membros.',partners:RX_PREZE()},
+  // TOMOGRAFIA
+  {id:400,name:'TC Crânio / Sela Túrcica',cat:'Tomografia',type:'partner',prepKey:'tomografia',
+   desc:'Tomografia do crânio ou sela túrcica.',tips:'⚠️ NÃO realizar em < 7 anos. Peso máx: 140kg.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170}]},
+  {id:401,name:'TC Mastoides',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia das mastoides.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:402,name:'TC Face / Seios da Face',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da face ou seios da face.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:403,name:'TC ATM (Articulação Temporomandibular)',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da articulação temporomandibular.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:404,name:'TC Dental Scan (Maxilar / Mandibular)',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia para planejamento odontológico.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:405,name:'TC Pescoço',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia do pescoço.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:406,name:'TC Tórax',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia do tórax.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:407,name:'TC Abdome Superior',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia do abdome superior.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:408,name:'TC Abdome Total (Superior + Pelve + Retroperitônio)',cat:'Tomografia',type:'partner',prepKey:'tomografia',
+   desc:'TC completa do abdome.',tips:'⚠️ NÃO realizar em < 7 anos.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:420,total:500},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:240,total:290},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:112,valuePartner:220,total:332}]},
+  {id:409,name:'TC Pelve / Bacia',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da pelve ou bacia.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:410,name:'TC Coluna Cervical',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da coluna cervical.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:411,name:'TC Coluna Dorsal / Lombar',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da coluna dorsal ou lombar.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:412,name:'TC Articulações (cada)',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia de articulação. Cobrar por cada articulação.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:413,name:'TC Segmento Apendicular (cada)',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'TC de segmentos apendiculares. Cobrar por cada segmento.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:414,name:'TC Mandíbula / Maxilar',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da mandíbula ou maxilar.',
+   partners:[{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:415,name:'Urotomografia',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia do trato urinário.',
+   prep_text:'Jejum de 4h. Bexiga cheia no momento do exame.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:520,total:600}]},
+  {id:416,name:'Angio-TC (Aorta, Crânio, Pescoço, Tórax, Abdome, Pelve, Membros)',cat:'Tomografia',type:'partner',prepKey:'tomografia',
+   desc:'Angio-tomografia arterial ou venosa.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
+  {id:1016,name:'Angio-TC Aorta Torácica',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Angiotomografia de aorta torácica.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:683,total:793}]},
+  {id:1017,name:'Angio-TC Aorta Abdominal',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Angiotomografia de aorta abdominal.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:683,total:793}]},
+  // RESSONÂNCIA
+  {id:500,name:'RM Crânio (Encéfalo)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
+   desc:'Ressonância magnética do crânio/encéfalo.',
+   tips:'⚠️ Não agendar campo aberto para tontura/zumbido ou planejamento cirúrgico.\n⚠️ SEDAÇÃO: R$ 400 (Pix) pago no local. Contraste: R$ 150 à parte.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:501,name:'RM Sela Túrcica (Hipófise)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da sela túrcica / hipófise.',
+   tips:'⚠️ Não agendar em campo aberto.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:502,name:'RM Base do Crânio',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da base do crânio.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:503,name:'RM Órbitas (Bilateral)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM das órbitas, bilateral.',
+   tips:'⚠️ Não agendar campo aberto.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:504,name:'RM Ossos Temporais (Mastoides)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM dos ossos temporais / mastoides.',
+   tips:'⚠️ Não agendar campo aberto.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:505,name:'RM Face (inclui seios da face)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM de face.',
+   tips:'⚠️ Não agendar campo aberto.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:506,name:'RM ATM — Articulação Temporomandibular (Bilateral)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da ATM bilateral.',
+   tips:'⚠️ Não agendar campo aberto.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:507,name:'RM Pescoço',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM de pescoço.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:508,name:'RM Tórax',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM do tórax.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:509,name:'RM Abdome Superior',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM do abdome superior.',
+   prep_text:'Jejum de 4–6h.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:510,name:'RM Abdome Total (lançar pelve + superior)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
+   desc:'RM completa do abdome. Equivale a 2 exames.',prep_text:'Jejum de 6–8h.',
+   tips:'⚠️ Cobrar como 2 exames. Contraste Primovist tem valor diferenciado na Scoppeta.',
+   partners:[{name:'Scoppeta — sem contraste',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:832,total:942},{name:'Scoppeta — c/ Contraste Primovist',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:987,total:1097},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:200,valuePartner:500,total:700}]},
+  {id:511,name:'RM Pelve',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da pelve.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:512,name:'RM Coluna Cervical',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da coluna cervical.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:513,name:'RM Coluna Dorsal / Torácica',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da coluna dorsal.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:514,name:'RM Coluna Lombar / Lombo-Sacra',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da coluna lombar.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:515,name:'RM Articulação — Ombro, Cotovelo, Punho, Joelho etc. (cada)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM de articulação. Cobrar por articulação.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:516,name:'RM Segmento Apendicular — Braço, Coxa, Perna, Pé (cada)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM de segmento apendicular. Cobrar por cada.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:517,name:'RM Bacia (articulações sacroilíacas)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da bacia / articulações sacroilíacas.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:518,name:'RM Mamas (Bilateral)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
+   desc:'RM das mamas bilateral.',prep_text:'Programar para 7–10 dias após início da menstruação.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:624,total:734}]},
+  {id:519,name:'RM Próstata Multiparamétrica',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
+   desc:'RM multiparamétrica da próstata.',prep_text:'Preparo intestinal leve.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:624,total:734}]},
+  {id:520,name:'RM Coração (Morfológica e Funcional)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
+   desc:'RM cardíaca morfológica e funcional.',prep_text:'Sem cafeína 24h antes. Retirar metais.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:832,total:942}]},
+  {id:521,name:'RM Crânio com Fluxo Liquórico',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM do crânio com estudo do fluxo liquórico.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:520,total:630},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:522,name:'RM Colangioressonância',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
+   desc:'RM das vias biliares.',prep_text:'Jejum de 6h. Sem água 4h antes.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:420,total:530}]},
+  {id:523,name:'Uroressonância Magnética',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM das vias urinárias.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:520,total:630}]},
+  {id:524,name:'RM Avaliação de Ferro (Fígado)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM para quantificação de ferro hepático.',
+   partners:[{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:525,name:'RM Fetal',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM fetal.',
+   partners:[{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:526,name:'RM Pênis / Bolsa Escrotal',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM do pênis ou bolsa escrotal.',
+   partners:[{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:527,name:'RM Plexo Braquial / Lombossacral',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM do plexo braquial ou lombossacral.',
+   partners:[{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  {id:528,name:'Angio-RM — Arterial ou Venosa (Crânio, Pescoço, Aorta, Pulmonar, Pelve, Membros)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
+   desc:'Angio-ressonância arterial ou venosa.',
+   tips:'⚠️ Sedação: R$ 400 (Pix) no local.\n⚠️ Máx 100kg, tubo 60cm.',
+   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:473,total:583},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
+  // GASTROINTESTINAL
+  {id:600,name:'Endoscopia Digestiva Alta',cat:'Gastrointestinal',type:'partner',
+   desc:'Exame endoscópico de esôfago, estômago e duodeno.',
+   prep_text:'Jejum de 8–12h. Acompanhante obrigatório.',
+   tips:'⚠️ NÃO realizar em pacientes com mais de 70 anos e/ou mais de 100 kg.\nEm caso de biópsia: R$ 80,00 a mais por fragmento.',
+   partners:[{name:'Prezecor',local:'SANTANA: R. Conselheiro Moreira de Barros, 94',valueClin:60,valuePartner:200,total:260}]},
+  {id:601,name:'Anuscopia (Interna e Externa)',cat:'Gastrointestinal',type:'partner',
+   desc:'Exame proctológico da região anal.',prep_text:'Fleet enema 2h antes.',
+   partners:[{name:'Prezecor',local:'SANTANA: R. Conselheiro Moreira de Barros, 94',valueClin:60,valuePartner:200,total:260}]},
+  {id:602,name:'Colonoscopia (com biópsia e/ou citologia)',cat:'Gastrointestinal',type:'partner',
+   desc:'Exame completo do intestino grosso.',
+   prep_text:'Preparo intestinal rigoroso de 2 dias (dieta + laxantes). Acompanhante obrigatório.',
+   tips:'⚠️ NÃO realiza em mais de 70 anos e/ou mais de 100 kg.\nEm caso de biópsia: R$ 80,00 a mais por fragmento.',
+   partners:[{name:'Prezecor',local:'SANTANA: R. Conselheiro Moreira de Barros, 94',valueClin:60,valuePartner:385,total:445}]},
+  {id:603,name:'Retossigmoidoscopia Flexível (com biópsia)',cat:'Gastrointestinal',type:'partner',
+   desc:'Exame do reto e sigmoide.',prep_text:'Fleet enema 2h antes.',
+   tips:'⚠️ Acima de 60 anos NÃO realiza.',
+   partners:[{name:'Prezecor',local:'SANTANA: R. Conselheiro Moreira de Barros, 94',valueClin:60,valuePartner:290,total:350}]},
+  {id:604,name:'Polipectomia de Esôfago / Estômago / Duodeno',cat:'Gastrointestinal',type:'partner',
+   desc:'Remoção endoscópica de pólipo.',prep_text:'Jejum de 12h. Acompanhante.',
+   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:60,valuePartner:250,total:310}]},
+  {id:605,name:'Polipectomia de Cólon',cat:'Gastrointestinal',type:'partner',
+   desc:'Remoção endoscópica de pólipo de cólon.',prep_text:'Preparo intestinal. Acompanhante.',
+   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:60,valuePartner:250,total:310}]},
+  {id:606,name:'Anatomopatológico por Fragmento (Endoscopia/Colonoscopia)',cat:'Gastrointestinal',type:'normal',
+   desc:'Análise histológica de fragmento coletado.',
+   tips:'Pago diretamente na Prezecor: R$ 80,00 por fragmento.',value:{ct:0,part:80}},
+  // LABORATORIAL
+  {id:700,name:'Regra: Colesterol Total e Frações',cat:'Laboratorial',type:'rule',
+   desc:'Como lançar o colesterol completo no sistema.',
+   tips:'⚠️ LANÇAR COMO: <strong>Lipidograma + Triglicerides</strong>',prep_text:'Jejum de 12 horas.'},
+  {id:701,name:'Regra: Sorologia para Sífilis',cat:'Laboratorial',type:'rule',
+   desc:'Como lançar sorologia de sífilis.',
+   tips:'⚠️ LANÇAR COMO: <strong>FTA ABS IgG + FTA ABS IgM + VDRL</strong>',prep_text:'Sem jejum.'},
+  {id:702,name:'Regra: PSA (Próstata)',cat:'Laboratorial',type:'rule',prepKey:'psa',
+   desc:'Como lançar exame de PSA.',
+   tips:'⚠️ LANÇAR COMO: <strong>PSA Total / Livre</strong>'},
+  {id:703,name:'Regra: Testosterona',cat:'Laboratorial',type:'rule',
+   desc:'Como lançar testosterona.',
+   tips:'⚠️ LANÇAR COMO: <strong>Testosterona + Testosterona Livre</strong>',prep_text:'Coleta preferencialmente pela manhã.'},
+  {id:704,name:'Regra: Estrogênio',cat:'Laboratorial',type:'rule',
+   desc:'Como lançar o painel de estrogênio.',
+   tips:'⚠️ LANÇAR COMO: <strong>E1 (Estrona) + E2 + E3</strong>',prep_text:'Informar fase do ciclo menstrual.'},
+  {id:705,name:'Regra: Beta HCG (teste de gravidez)',cat:'Laboratorial',type:'rule',
+   desc:'Como lançar o Beta HCG.',
+   tips:'⚠️ LANÇAR COMO: <strong>Beta HCG Quantitativo</strong>',prep_text:'Sem jejum.'},
+  {id:706,name:'Regra: Hepatite B (painel completo)',cat:'Laboratorial',type:'rule',
+   desc:'Como lançar o painel de Hepatite B.',
+   tips:'⚠️ LANÇAR COMO: <strong>HBSAG + HBC TOTAL + ANTI HBS + HBEAG</strong>',prep_text:'Sem jejum.'},
+  {id:707,name:'Regra: Curva Glicêmica',cat:'Laboratorial',type:'rule',prepKey:'curva_glicemica',
+   desc:'Regra de coleta da curva glicêmica.',
+   tips:'⚠️ O paciente <strong>SEMPRE realizará coleta de glicose ANTES</strong> de iniciar a curva.'},
+  {id:708,name:'Regra: DHL / Fator Reumatoide / FAN / INR',cat:'Laboratorial',type:'rule',
+   desc:'Equivalências de nomes de exames laboratoriais.',
+   tips:'⚠️ Desidrogenase Lática → <strong>DHL</strong><br>• Waaler Rose → <strong>Fator Reumatoide</strong><br>• Célula LE → <strong>FAN</strong><br>• INR → <strong>Tempo de Protrombina</strong>'},
+  {id:709,name:'Regra: Sexagem Fetal',cat:'Laboratorial',type:'rule',
+   desc:'Descoberta do sexo do bebê pelo sangue materno (a partir de 8 semanas).',
+   tips:'⚠️ Lançar como <strong>Sexagem</strong> no sistema AMEI — o valor irá automático.',prep_text:'Apenas coleta de sangue materno.'},
+  {id:710,name:'Toxicológico CNH',cat:'Laboratorial',type:'normal',
+   desc:'Exame toxicológico para CNH.',prep_text:'Cabelo ou pelos com mínimo 3–4 cm.',value:{ct:135,part:210}},
+  {id:711,name:'Glicose (Destro / Ponta de Dedo)',cat:'Laboratorial',type:'normal',
+   desc:'Medição de glicose capilar. Sem preparo especial.',value:{ct:10,part:10}},
+  {id:712,name:'Urina Tipo I',cat:'Laboratorial',type:'normal',prepKey:'urina1_urocultura',
+   desc:'Exame de urina tipo 1 — avaliação físico-química e microscópica.',value:{ct:15,part:25}},
+  {id:713,name:'Urocultura',cat:'Laboratorial',type:'normal',prepKey:'urina1_urocultura',
+   desc:'Cultura de urina para identificação de bactérias.',value:{ct:20,part:35}},
+  {id:714,name:'Urina 24 Horas',cat:'Laboratorial',type:'normal',prepKey:'urina24',
+   desc:'Coleta de urina por 24 horas para dosagens específicas.',value:{ct:25,part:40}},
+  {id:715,name:'PSA Total / Livre',cat:'Laboratorial',type:'normal',prepKey:'psa',
+   desc:'Dosagem do antígeno prostático específico.',value:{ct:35,part:60}},
+  {id:716,name:'Curva Glicêmica',cat:'Laboratorial',type:'normal',prepKey:'curva_glicemica',
+   desc:'Avalia tolerância à glicose por coletas sequenciais de sangue.',value:{ct:30,part:50}},
+  {id:717,name:'Parasitológico de Fezes (por amostra)',cat:'Laboratorial',type:'normal',prepKey:'parasitologico',
+   desc:'Pesquisa de parasitas nas fezes. Cobrar por amostra.',value:{ct:15,part:25}},
+  {id:718,name:'Sangue Oculto nas Fezes',cat:'Laboratorial',type:'normal',prepKey:'sangue_oculto',
+   desc:'Pesquisa de sangue oculto nas fezes.',value:{ct:18,part:30}},
+  {id:719,name:'Teste de Intolerância à Lactose',cat:'Laboratorial',type:'normal',prepKey:'lactose',
+   desc:'Avalia a tolerância ao açúcar do leite por coletas sequenciais.',value:{ct:60,part:100}},
+  {id:721,name:'Microalbuminúria (Amostra Isolada)',cat:'Laboratorial',type:'normal',
+   desc:'Dosagem de albumina na urina.',prep_text:'Colher a primeira urina da manhã ou com no mínimo 4h sem urinar. Desprezar o primeiro jato e coletar o segundo.',value:{ct:20,part:35}}
+];
+
+// ─────────────────────────────────────────────
+// Estado
+// ─────────────────────────────────────────────
+let currentCat='all', currentClinic=null, currentSearch='', sortAZ=true;
+let budget=[], selectedExam=null, selectedPIdx=null;
+let msgExam=null, msgPIdx=0;
+let prepExam=null;
+
+// ─────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────
+window.EXAMS_GLOBAL = EXAMS;
+function reRenderExams(){ renderExams(); updateStats(); }
+function init(){
+  updateCounts();
+  buildClinicFilters();
+  renderExams();
+  renderBudget();
+  document.getElementById('totalExamsCount').textContent=EXAMS.length;
+  const inp=document.getElementById('searchInput');
+  inp.addEventListener('input',e=>{
+    currentSearch=e.target.value.trim();
+    document.getElementById('clearBtn').classList.toggle('visible',currentSearch.length>0);
+    renderExams();
+  });
+}
+
+function updateCounts(){
+  const cats={};
+  EXAMS.forEach(e=>{cats[e.cat]=(cats[e.cat]||0)+1;});
+  document.getElementById('cnt-all').textContent=EXAMS.length;
+  Object.keys(cats).forEach(c=>{const el=document.getElementById('cnt-'+c);if(el)el.textContent=cats[c];});
+}
+
+function buildClinicFilters(){
+  const m={};
+  EXAMS.forEach(e=>{if(e.type==='partner')e.partners.forEach(p=>{
+    let k=p.name.startsWith('Scoppeta')?'Scoppeta':p.name;
+    m[k]=(m[k]||0)+1;
+  });});
+  const container=document.getElementById('clinicFilters');
+  container.innerHTML=Object.keys(m).sort().map(name=>{
+    const icon=CLINIC_ICONS[name]||'🏢';
+    return `<div class="chip" onclick="setClinic('${name}',this)"><span class="chip-icon">${icon}</span>${name}<span class="chip-count">${m[name]}</span></div>`;
+  }).join('');
+}
+
+function setCategory(cat,el){
+  currentCat=cat;
+  document.querySelectorAll('#catFilters .chip').forEach(c=>c.classList.remove('cat-active'));
+  el.classList.add('cat-active');
+  renderExams();
+}
+function setClinic(name,el){
+  if(currentClinic===name){clearClinic();return;}
+  currentClinic=name;
+  document.querySelectorAll('#clinicFilters .chip').forEach(c=>c.classList.remove('cli-active'));
+  el.classList.add('cli-active');
+  document.getElementById('clinicTagName').textContent=name;
+  document.getElementById('clinicTag').classList.add('show');
+  renderExams();
+}
+function clearClinic(){
+  currentClinic=null;
+  document.querySelectorAll('#clinicFilters .chip').forEach(c=>c.classList.remove('cli-active'));
+  document.getElementById('clinicTag').classList.remove('show');
+  renderExams();
+}
+function toggleSort(){sortAZ=!sortAZ;document.getElementById('sortLabel').textContent=sortAZ?'A–Z':'Z–A';renderExams();}
+function clearSearch(){currentSearch='';document.getElementById('searchInput').value='';document.getElementById('clearBtn').classList.remove('visible');renderExams();}
+function highlight(text,q){if(!q)return text;return text.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');}
+function fmtMoney(v){if(v===undefined||v===null)return'—';return'R$ '+Number(v).toFixed(2).replace('.',',');}
+function examMatchesClinic(e){if(!currentClinic)return true;if(e.type!=='partner')return false;return e.partners.some(p=>{let k=p.name.startsWith('Scoppeta')?'Scoppeta':p.name;return k===currentClinic;});}
+
+function hasPrep(e){return !!(e.prepKey||e.prep_text);}
+
+// ─────────────────────────────────────────────
+// Render cards
+// ─────────────────────────────────────────────
+function renderExams(){
+  const q=currentSearch.toLowerCase();
+  let list=EXAMS.filter(e=>{
+    if(currentCat!=='all'&&e.cat!==currentCat)return false;
+    if(!examMatchesClinic(e))return false;
+    if(!q)return true;
+    return(e.name+' '+(e.desc||'')+' '+(e.cat||'')).toLowerCase().includes(q);
+  });
+  list.sort((a,b)=>sortAZ?a.name.localeCompare(b.name,'pt'):b.name.localeCompare(a.name,'pt'));
+  const container=document.getElementById('examsList');
+  document.getElementById('resultsCount').innerHTML=`<strong>${list.length}</strong> exame${list.length!==1?'s':''} encontrado${list.length!==1?'s':''}`;
+  if(!list.length){container.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nenhum exame encontrado</div><div>Tente outra busca ou mude o filtro</div></div>`;return;}
+
+  container.innerHTML=list.map(e=>{
+    const isPartner=e.type==='partner', isRule=e.type==='rule';
+    let badge,badgeCls,priceHtml;
+    if(isPartner){badge='Parceiro';badgeCls='badge-partner';const min=Math.min(...e.partners.map(p=>p.total));priceHtml=`<span class="card-price-label">a partir de</span><span class="card-price">${fmtMoney(min)}</span>`;}
+    else if(isRule){badge='Regra';badgeCls='badge-rule';priceHtml=`<span class="card-price" style="color:var(--text3);font-size:10px">Ver modal</span>`;}
+    else{badge='Normal';badgeCls='badge-normal';priceHtml=`<span class="card-price-label">CT</span><span class="card-price">${fmtMoney(e.value.ct)}</span>`;}
+    const desc=highlight(e.desc?e.desc.substring(0,78)+(e.desc.length>78?'...':''):'',currentSearch);
+    const ptags=isPartner?`<div class="partner-tags">${[...new Set(e.partners.map(p=>p.name.startsWith('Scoppeta')?'Scoppeta':p.name))].map(n=>`<span class="ptag">${n}</span>`).join('')}</div>`:''
+
+    const hasPrepBtn = hasPrep(e);
+    const prepBtn = hasPrepBtn
+      ? `<button class="card-prep-btn" onclick="event.stopPropagation();openPrepModal(${e.id})">🩺 Preparo</button>`
+      : '';
+
+    return `<div class="exam-card ${isPartner?'partner':isRule?'lab-rule':''}" onclick="openModal(${e.id})">
+      <div class="card-header"><div class="card-name">${highlight(e.name,currentSearch)}</div><span class="card-badge ${badgeCls}">${badge}</span></div>
+      <div class="card-desc">${desc}</div>
+      ${ptags}
+      <div class="card-footer">
+        <div class="card-price-area">${priceHtml}<div class="card-cat">${e.cat}</div></div>
+        <div class="card-actions">
+          ${prepBtn}
+          <button class="card-msg-btn" onclick="event.stopPropagation();openMsgModal(${e.id})">📩 Mensagem</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// PREPARO MODAL
+// ─────────────────────────────────────────────
+function openPrepModal(id){
+  prepExam=EXAMS.find(e=>e.id===id);
+  if(!prepExam)return;
+  document.getElementById('prepModalSubtitle').textContent=prepExam.name;
+  renderPrepBody();
+  document.getElementById('prepOverlay').classList.add('open');
+  document.getElementById('prepCopyBtn').textContent='📋 Copiar Preparo';
+  document.getElementById('prepCopyBtn').classList.remove('copied');
+}
+
+function renderPrepBody(){
+  const e=prepExam;
+  const container=document.getElementById('prepModalBody');
+  let html='';
+
+  // Se tiver prepKey, usar PREPS estruturado
+  if(e.prepKey && PREPS[e.prepKey]){
+    const pd=PREPS[e.prepKey];
+    pd.sections.forEach(sec=>{
+      html+=`<div class="prep-section"><div class="prep-section-title">${sec.title}</div>`;
+      sec.items.forEach(item=>{
+        const cls=item.type?` ${item.type}`:'';
+        html+=`<div class="prep-item${cls}"><span class="prep-item-icon">${item.icon}</span><span>${item.text}</span></div>`;
+      });
+      html+='</div>';
+    });
+  }
+
+  // Se tiver prep_text simples, mostrar também
+  if(e.prep_text){
+    const lines=e.prep_text.split('\n').filter(l=>l.trim());
+    if(lines.length>0){
+      html+=`<div class="prep-section"><div class="prep-section-title">Informações adicionais</div>`;
+      lines.forEach(line=>{
+        html+=`<div class="prep-item"><span class="prep-item-icon">📌</span><span>${line.trim()}</span></div>`;
+      });
+      html+='</div>';
+    }
+  }
+
+  // Se tiver tips relevantes (não começar com ⚠️ de cobrança)
+  if(e.tips){
+    const tipsClean=e.tips.replace(/<[^>]+>/g,'').trim();
+    const isCobranca=tipsClean.includes('cobrar')||tipsClean.includes('LANÇAR COMO');
+    if(!isCobranca){
+      html+=`<div class="prep-section"><div class="prep-section-title">Atenção</div>`;
+      tipsClean.split('\n').filter(l=>l.trim()).forEach(line=>{
+        html+=`<div class="prep-item warn"><span class="prep-item-icon">⚠️</span><span>${line.replace(/^⚠️\s*/,'').trim()}</span></div>`;
+      });
+      html+='</div>';
+    }
+  }
+
+  // Informações padrão sempre mostradas
+  html+=`<div class="prep-section"><div class="prep-section-title">Trazer no dia</div>
+    <div class="prep-item info"><span class="prep-item-icon">🪪</span><span>RG ou CPF</span></div>
+    <div class="prep-item info"><span class="prep-item-icon">📄</span><span>Pedido médico</span></div>
+    <div class="prep-item info"><span class="prep-item-icon">💳</span><span>Cartão de Todos (se tiver)</span></div>
+  </div>`;
+
+  html+=`<div class="prep-section"><div class="prep-section-title">Localização</div>
+    <div class="prep-item"><span class="prep-item-icon">📍</span><span>Av. Dr. Felipe Pinel, 367 - Pirituba (em frente à UPA)</span></div>
+  </div>`;
+
+  container.innerHTML=html;
+}
+
+function closePrepModal(){document.getElementById('prepOverlay').classList.remove('open');prepExam=null;}
+function closePrepOnBg(e){if(e.target===document.getElementById('prepOverlay'))closePrepModal();}
+
+function copyPrep(){
+  if(!prepExam)return;
+  const e=prepExam;
+  const lines=[`🩺 PREPARO — ${e.name}`, '─'.repeat(40)];
+
+  if(e.prepKey&&PREPS[e.prepKey]){
+    PREPS[e.prepKey].sections.forEach(sec=>{
+      lines.push(`\n${sec.title.toUpperCase()}`);
+      sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
+    });
+  }
+  if(e.prep_text){lines.push('\nINFORMAÇÕES ADICIONAIS');e.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(`📌 ${l.trim()}`);});}
+
+  lines.push('\n─'.repeat(20));
+  lines.push('📌 Trazer: RG/CPF + Pedido Médico + Cartão de Todos');
+  lines.push('📍 Av. Dr. Felipe Pinel, 367 - Pirituba (em frente à UPA)');
+
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>{
+    const btn=document.getElementById('prepCopyBtn');
+    btn.textContent='✅ Copiado!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 Copiar Preparo';btn.classList.remove('copied');},2500);
+  });
+}
+
+// ─────────────────────────────────────────────
+// EXAM MODAL
+// ─────────────────────────────────────────────
+function openModal(id){
+  selectedExam=EXAMS.find(e=>e.id===id);selectedPIdx=null;
+  if(!selectedExam)return;
+  document.getElementById('modalCat').textContent=selectedExam.cat;
+  document.getElementById('modalTitle').textContent=selectedExam.name;
+  renderModalBody();
+  document.getElementById('overlay').classList.add('open');
+}
+function renderModalBody(){
+  const e=selectedExam;
+  let html='';
+  if(e.desc)html+=`<div class="info-box desc"><div class="info-box-label">📋 Descrição</div>${e.desc}</div>`;
+  if(e.prep_text)html+=`<div class="info-box prep"><div class="info-box-label">⚠️ Preparo</div>${e.prep_text}</div>`;
+  else if(e.prepKey&&PREPS[e.prepKey]){
+    const pd=PREPS[e.prepKey];
+    let prepSummary=pd.sections.flatMap(s=>s.items).slice(0,3).map(i=>i.text).join(' · ');
+    if(prepSummary)html+=`<div class="info-box prep"><div class="info-box-label">⚠️ Preparo</div>${prepSummary}…</div>`;
+  }
+  if(e.tips){const tipsHtml=e.tips.replace(/\n/g,'<br>');html+=`<div class="info-box tips"><div class="info-box-label">💡 Atenção / Regras</div>${tipsHtml}</div>`;}
+
+  if(e.type==='partner'){
+    html+=`<div class="partner-section-title">Selecione o local / parceiro</div><div class="partner-cards">`;
+    e.partners.forEach((p,i)=>{
+      html+=`<div class="partner-card ${selectedPIdx===i?'selected':''}" onclick="selectPartner(${i})">
+        <div class="partner-card-header">
+          <div><div class="partner-name">${p.name}</div><div class="partner-location">📍 ${p.local}</div></div>
+          <button class="partner-select-btn" onclick="event.stopPropagation();selectAndAdd(${i})">Selecionar</button>
+        </div>
+        <div class="partner-prices">
+          <div class="price-col"><div class="price-col-label">💳 Guia (aqui)</div><div class="price-col-val clinic">${fmtMoney(p.valueClin)}</div></div>
+          <div class="price-col"><div class="price-col-label">📍 No local</div><div class="price-col-val partner">${p.valuePartner>0?fmtMoney(p.valuePartner):'<span style="color:var(--accent2);font-size:10px">incluso</span>'}</div></div>
+          <div class="price-col"><div class="price-col-label">🧾 Total</div><div class="price-col-val total">${fmtMoney(p.total)}</div></div>
+        </div>
+      </div>`;
+    });
+    html+=`</div><button class="modal-add-btn" onclick="addToBudget()" ${selectedPIdx===null?'disabled':''}>➕ Adicionar ao Orçamento</button>`;
+  } else if(e.type==='rule'){
+    html+=`<button class="modal-add-btn" onclick="closeModal()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2)">✓ Entendido</button>`;
+  } else {
+    const hasVal=e.value&&(e.value.ct>0||e.value.part>0);
+    if(hasVal){
+      html+=`<div class="option-group">
+        <div class="option-card selected"><div class="option-label">💳 Cartão de Todos</div><div class="option-price">${fmtMoney(e.value.ct)}</div><div class="option-tag">Convênio</div></div>
+        <div class="option-card" style="opacity:.7"><div class="option-label">💵 Particular</div><div class="option-price" style="color:var(--gold)">${fmtMoney(e.value.part)}</div><div class="option-tag">Sem convênio</div></div>
+      </div>
+      <button class="modal-add-btn" onclick="addToBudget()">➕ Adicionar ao Orçamento</button>`;
+    } else {
+      html+=`<button class="modal-add-btn" onclick="closeModal()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2)">✓ Entendido</button>`;
+    }
+  }
+  document.getElementById('modalBody').innerHTML=html;
+}
+function selectPartner(i){selectedPIdx=i;renderModalBody();}
+function selectAndAdd(i){selectedPIdx=i;addToBudget();}
+function closeModal(){document.getElementById('overlay').classList.remove('open');selectedExam=null;selectedPIdx=null;}
+function closeModalOnBg(e){if(e.target===document.getElementById('overlay'))closeModal();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closePrepModal();closeMsgModal();}});
+
+// ─────────────────────────────────────────────
+// Budget
+// ─────────────────────────────────────────────
+function addToBudget(){
+  const e=selectedExam;
+  let item={id:Date.now(),examId:e.id,name:e.name,cat:e.cat};
+  if(e.type==='partner'){
+    if(selectedPIdx===null)return;
+    const p=e.partners[selectedPIdx];
+    item.partner=p.name;item.location=p.local;item.valueClin=p.valueClin;item.valuePartner=p.valuePartner;item.total=p.total;
+  }else{item.total=e.value.ct;item.partner=null;}
+  budget.push(item);renderBudget();closeModal();
+}
+function renderBudget(){
+  const container=document.getElementById('budgetItems');
+  document.getElementById('budgetCount').textContent=budget.length;
+  const pc=budget.filter(i=>i.partner).length;
+  const total=budget.reduce((s,i)=>s+i.total,0);
+  document.getElementById('stat-items').textContent=budget.length;
+  document.getElementById('stat-partner').textContent=pc;
+  document.getElementById('stat-total').textContent=fmtMoney(total);
+  document.getElementById('subtotalVal').textContent=fmtMoney(total);
+  document.getElementById('totalVal').textContent=fmtMoney(total);
+  const has=budget.length>0;
+  document.getElementById('printBtn').disabled=!has;document.getElementById('copyBtn').disabled=!has;
+  if(!has){container.innerHTML=`<div class="budget-empty"><div class="icon">📋</div><div>Nenhum exame adicionado</div><div style="margin-top:6px;font-size:11px;color:var(--text3)">Clique em um exame para adicionar</div></div>`;return;}
+  container.innerHTML=budget.map(item=>`
+    <div class="budget-item">
+      <div class="bi-info">
+        <div class="bi-name">${item.name}</div>
+        <div class="bi-sub"><span>${item.cat}</span>${item.partner?`<span style="color:var(--blue)">${item.partner}</span>`:''}</div>
+        ${item.valueClin!==undefined&&item.valuePartner>0?`<div style="font-size:10px;color:var(--text3);margin-top:3px">Guia: <span style="color:var(--warning)">${fmtMoney(item.valueClin)}</span> · Local: <span style="color:var(--text2)">${fmtMoney(item.valuePartner)}</span></div>`:''}
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:6px;flex-shrink:0">
+        <div class="bi-price">${fmtMoney(item.total)}</div>
+        <button class="remove-btn" onclick="removeItem(${item.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+function removeItem(id){budget=budget.filter(i=>i.id!==id);renderBudget();}
+function clearBudget(){if(!budget.length)return;if(confirm('Limpar todo o orçamento?')){budget=[];renderBudget();}}
+
+// ─────────────────────────────────────────────
+// Message Modal
+// ─────────────────────────────────────────────
+function generateMessage(exam,pIdx){
+  const lines=[];
+
+  // ── Exames normais (realizados na própria clínica) ──
+  if(exam.type==='normal'||exam.type==='rule'){
+    lines.push(`*${exam.name.toUpperCase()}*`,'');
+
+    if(exam.value&&exam.value.ct>0){
+      lines.push(`💰 *Valor:* ${fmtMoney(exam.value.ct)} pelo Cartão de Todos`);
+      if(exam.value.part&&exam.value.part!==exam.value.ct)
+        lines.push(`💵 *Particular:* ${fmtMoney(exam.value.part)}`);
+    }
+
+    // Agendamento/horário a partir de tips
+    if(exam.tips){
+      const t = exam.tips.replace(/<[^>]+>/g,'').trim();
+      if(t.startsWith('📋')){
+        lines.push('', t);
+      }
+    }
+
+    if(exam.prep_text||exam.prepKey){
+      lines.push('','📌 *Preparo:*');
+      if(exam.prep_text){
+        exam.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(l.trim());});
+      } else if(exam.prepKey&&PREPS[exam.prepKey]){
+        PREPS[exam.prepKey].sections.forEach(sec=>{
+          lines.push(`\n*${sec.title}*`);
+          sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
+        });
+      }
+    }
+
+    lines.push('','• Trazer: RG/CPF, pedido médico e Cartão de Todos.');
+    return lines.join('\n');
+  }
+
+  // ── Exames de parceiros ──
+  const p    = exam.partners[pIdx];
+  const info = CLINIC_INFO[p.name] || CLINIC_INFO[p.name.split('—')[0].trim()] || null;
+
+  // Médicos internos (USG/exames realizados na própria clínica)
+  const isInternal = !['Scoppeta','Auri Medicina','Prezecor','IMADI',
+    'Prezecor (Santana)','Dra. Silvia']
+    .some(n => p.name.startsWith(n.split('—')[0].trim()));
+
+  if(isInternal){
+    lines.push(`*${exam.name.toUpperCase()}*`,'');
+    lines.push(`Este exame é realizado em nossa unidade pelo(a) *${p.name}*.`);
+    if(p.local) lines.push(`🗓️ Dias: ${p.local}`);
+    lines.push('');
+    lines.push(`💰 *Valor total:* ${fmtMoney(p.total)} pelo Cartão de Todos`);
+    if(exam.prep_text||exam.prepKey){
+      lines.push('','📌 *Preparo:*');
+      if(exam.prep_text){
+        exam.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(l.trim());});
+      } else if(exam.prepKey&&PREPS[exam.prepKey]){
+        PREPS[exam.prepKey].sections.forEach(sec=>{
+          lines.push(`\n*${sec.title}*`);
+          sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
+        });
+      }
+    }
+    lines.push('','• Trazer: RG/CPF, pedido médico e Cartão de Todos.');
+    return lines.join('\n');
+  }
+
+  // ── Clínica parceira externa ──
+  lines.push(`*${exam.name.toUpperCase()}*`,'');
+
+  lines.push(`Este exame é realizado em uma parceira nossa, a *${p.name}*, sendo necessário pagar a Guia de Encaminhamento na nossa unidade antes de realizar o exame.`);
+  lines.push(`O pagamento pode ser feito presencialmente ou via PIX pelo WhatsApp.`,'');
+
+  // Valores
+  lines.push(`💰 *Valor total:* ${fmtMoney(p.total)} pelo Cartão de Todos`);
+  if(p.valueClin>0)
+    lines.push(`   ↳ *Encaminhamento (AmorSaúde):* ${fmtMoney(p.valueClin)}`);
+  if(p.valuePartner>0)
+    lines.push(`   ↳ *Restante (${p.name}):* ${fmtMoney(p.valuePartner)}`);
+
+  // Biópsia / extra
+  if(exam.tips){
+    const tipsTxt = exam.tips.replace(/<[^>]+>/g,'').trim();
+    const bioMatch = tipsTxt.match(/bi[oó]psia[^\d]*R\$\s*[\d,.]+/i);
+    if(bioMatch){
+      const bioVal = (bioMatch[0].match(/R\$\s*[\d,.]+/)||[''])[0];
+      lines.push(`   ↳ *Biópsia (se realizada):* ${bioVal} — pago na parceira no dia do exame`);
+    }
+  }
+
+  // Endereço e contato — SEM horários de agendamento
+  lines.push('');
+  if(info){
+    if(info.address) lines.push(`📍 *Endereço:* ${info.address}`);
+    if(info.tel)     lines.push(`📞 *Telefone:* ${info.tel}`);
+    // Sem schedule — paciente agenda diretamente com a parceira
+  } else if(p.local && !p.local.includes('unidades') && !p.local.includes('chegada') && !p.local.includes('Seg')){
+    lines.push(`📍 *Local:* ${p.local}`);
+  }
+
+  // Preparo
+  if(exam.prep_text||exam.prepKey){
+    lines.push('','📌 *Preparo:*');
+    if(exam.prep_text){
+      exam.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(l.trim());});
+    } else if(exam.prepKey&&PREPS[exam.prepKey]){
+      PREPS[exam.prepKey].sections.forEach(sec=>{
+        lines.push(`\n*${sec.title}*`);
+        sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
+      });
+    }
+  }
+
+  // Nota especial Scoppeta (PIX obrigatório)
+  if(p.name.startsWith('Scoppeta')){
+    lines.push('','💳 Após o agendamento, o pagamento da entrada é via *PIX*. O restante é pago na clínica no dia do exame.');
+  }
+
+  lines.push('','• Trazer: RG/CPF, pedido médico e Cartão de Todos.');
+  return lines.join('\n');
+}
+
+function openMsgModal(id){
+  msgExam=EXAMS.find(e=>e.id===id);
+  if(!msgExam)return;
+  msgPIdx=0;
+  const partnerSel=document.getElementById('msgPartnerSelect');
+  const pillsContainer=document.getElementById('msgPartnerBtns');
+  if(msgExam.type==='partner'&&msgExam.partners.length>1){
+    partnerSel.classList.add('show');
+    pillsContainer.innerHTML=msgExam.partners.map((p,i)=>`<button class="msg-partner-pill ${i===0?'active':''}" onclick="selectMsgPartner(${i},this)">${p.name}</button>`).join('');
+  }else{partnerSel.classList.remove('show');}
+  updateMsgText();
+  document.getElementById('msgOverlay').classList.add('open');
+  document.getElementById('msgCopyBtn').textContent='📋 Copiar Mensagem';
+  document.getElementById('msgCopyBtn').classList.remove('copied');
+}
+function selectMsgPartner(i,el){msgPIdx=i;document.querySelectorAll('.msg-partner-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');updateMsgText();}
+function updateMsgText(){document.getElementById('msgText').value=generateMessage(msgExam,msgPIdx);}
+function copyMsg(){
+  const text=document.getElementById('msgText').value;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('msgCopyBtn');btn.textContent='✅ Copiado!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 Copiar Mensagem';btn.classList.remove('copied');},2500);
+  });
+}
+function closeMsgModal(){document.getElementById('msgOverlay').classList.remove('open');msgExam=null;}
+function closeMsgOnBg(e){if(e.target===document.getElementById('msgOverlay'))closeMsgModal();}
+
+// Print/Copy budget
+function copyBudget(){
+  if(!budget.length)return;
+  const lines=['ORÇAMENTO DE EXAMES','='.repeat(40)];
+  budget.forEach((item,i)=>{lines.push(`${i+1}. ${item.name}`);if(item.partner)lines.push(`   • Local: ${item.partner}`);lines.push(`   • Valor: ${fmtMoney(item.total)}`);if(item.valueClin!==undefined&&item.valuePartner>0)lines.push(`     (Guia: ${fmtMoney(item.valueClin)} + Local: ${fmtMoney(item.valuePartner)})`);});
+  lines.push('='.repeat(40));lines.push(`TOTAL: ${fmtMoney(budget.reduce((s,i)=>s+i.total,0))}`);
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>alert('Orçamento copiado!')).catch(()=>alert('Não foi possível copiar.'));
+}
+function printBudget(){
+  if(!budget.length)return;
+  const total=budget.reduce((s,i)=>s+i.total,0);
+  const rows=budget.map((item,i)=>`<tr><td>${i+1}</td><td>${item.name}</td><td>${item.partner||'—'}</td><td style="text-align:right">${item.valueClin!==undefined&&item.valuePartner>0?`${fmtMoney(item.valueClin)} + ${fmtMoney(item.valuePartner)} =`:''} <strong>${fmtMoney(item.total)}</strong></td></tr>`).join('');
+  const win=window.open('','_blank');
+  const logoHtmlOrc = LOGO_ORC ? `<img src="${LOGO_ORC}" style="height:55px;width:auto;max-width:180px;object-fit:contain;display:block;margin-bottom:14px;" alt="Logo">` : `<div style="font-size:18px;font-weight:900;color:#0A1F44;margin-bottom:14px;">🏥 Amor Saúde</div>`;
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Orçamento</title><style>@page{size:A4;margin:2cm}body{font-family:Arial,sans-serif;padding:0;max-width:750px;margin:0 auto}.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #0A1F44}h2{font-size:20px;margin-bottom:4px;color:#0A1F44}.sub{color:#666;font-size:12px;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{background:#f0f0f0;padding:8px 10px;text-align:left;font-size:12px;border-bottom:2px solid #ddd}td{padding:8px 10px;font-size:13px;border-bottom:1px solid #eee}.tf td{font-weight:700;font-size:15px;border-top:2px solid #333;background:#fafafa}</style></head><body><div class="header"><div>${logoHtmlOrc}</div><div style="text-align:right"><h2>Orçamento de Exames</h2><div class="sub">Emitido em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div></div></div><table><thead><tr><th>#</th><th>Exame</th><th>Local/Parceiro</th><th style="text-align:right">Valor</th></tr></thead><tbody>${rows}<tr class="tf"><td colspan="3">TOTAL</td><td style="text-align:right">${fmtMoney(total)}</td></tr></tbody></table><p style="margin-top:20px;font-size:11px;color:#999">* Valores sujeitos a alteração. Confirmar disponibilidade na recepção.</p><sc'+'ript>window.print();<'+'/script></body></html>`);
+  win.document.close();
+}
+
+
+// ─────────────────────────────────────────────
+// EXPORTAR PLANILHA DE PARCEIROS
+// ─────────────────────────────────────────────
+function gerarTextoMensagem(exam, p) {
+  // Gera o texto da orientação completa para a planilha
+  const info = CLINIC_INFO[p.name] || CLINIC_INFO[p.name.split('—')[0].trim()] || null;
+  const isInternal = !['Scoppeta','Auri Medicina','Prezecor','IMADI','Prezecor (Santana)','Dra. Silvia'].some(n => p.name.startsWith(n.split('—')[0].trim()));
+
+  let txt = '';
+  if (isInternal) {
+    txt += `Este exame é realizado em nossa unidade pelo(a) ${p.name}.`;
+    txt += `\nValor: ${fmtMoney(p.total)} pelo Cartão de Todos.`;
+    if (p.local) txt += `\nDias: ${p.local}`;
+  } else {
+    txt += `Este exame é realizado em uma parceira nossa, a ${p.name}, sendo necessário vir até a nossa unidade para realizar o agendamento.\n`;
+    txt += `\nValor total: ${fmtMoney(p.total)} pelo Cartão de Todos`;
+    if (p.valueClin > 0) txt += `\n  • Encaminhamento/Agendamento (AmorSaúde): ${fmtMoney(p.valueClin)}`;
+    if (p.valuePartner > 0) txt += `\n  • Restante (${p.name}): ${fmtMoney(p.valuePartner)}`;
+    if (info) {
+      if (info.address) txt += `\n\nEndereço: ${info.address}`;
+      if (info.tel) txt += `\nTelefone: ${info.tel}`;
+      if (info.schedule) txt += `\nHorário: ${info.schedule}`;
+    }
+    txt += `\n\n--- ORIENTAÇÕES ---`;
+    txt += `\n1. Agendar primeiramente na AMORSAÚDE PIRITUBA e pagar a Guia de Encaminhamento: ${fmtMoney(p.valueClin)}.`;
+    if (p.valuePartner > 0) txt += `\n2. O valor restante de ${fmtMoney(p.valuePartner)} é pago diretamente na ${p.name} no dia do exame.`;
+    if (p.name.startsWith('Scoppeta')) txt += `\n   Pagamento da entrada via PIX após agendamento.`;
+    if (p.name.includes('EL Diag')) txt += `\n   Informar ao agendar que será encaminhado pelo BUSCANDO SAÚDE.`;
+    
+  }
+  // Preparo
+  if (exam.prep_text) {
+    txt += `\n\nPREPARO: ${exam.prep_text.replace(/\n/g,' | ')}`;
+  } else if (exam.prepKey && PREPS[exam.prepKey]) {
+    const itens = PREPS[exam.prepKey].sections.flatMap(s => s.items).map(i => i.text);
+    txt += `\n\nPREPARO: ${itens.join(' | ')}`;
+  }
+  return txt.trim();
+}
+
+function exportarPlanilha() {
+  // Coleta todos os exames parceiros
+  const linhas = [['PARCEIRO', 'EXAME', 'CATEGORIA', 'VALOR TOTAL (R$)', 'GUIA AMORSAÚDE (R$)', 'PAGO NO LOCAL (R$)', 'ENDEREÇO', 'TELEFONE', 'ORIENTAÇÃO COMPLETA']];
+
+  EXAMS.forEach(exam => {
+    if (exam.type !== 'partner') return;
+    exam.partners.forEach(p => {
+      const info = CLINIC_INFO[p.name] || CLINIC_INFO[p.name.split('—')[0].trim()] || null;
+      const endereco = info ? (info.address || p.local || '') : (p.local || '');
+      const tel = info ? (info.tel || '') : '';
+      const orientacao = gerarTextoMensagem(exam, p);
+
+      linhas.push([
+        p.name,
+        exam.name,
+        exam.cat,
+        Number(p.total).toFixed(2).replace('.', ','),
+        Number(p.valueClin).toFixed(2).replace('.', ','),
+        Number(p.valuePartner).toFixed(2).replace('.', ','),
+        endereco,
+        tel,
+        orientacao
+      ]);
+    });
+  });
+
+  // Criar workbook
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(linhas);
+
+  // Larguras das colunas
+  ws['!cols'] = [
+    {wch:22}, // Parceiro
+    {wch:40}, // Exame
+    {wch:16}, // Categoria
+    {wch:16}, // Valor Total
+    {wch:20}, // Guia
+    {wch:20}, // Local
+    {wch:45}, // Endereço
+    {wch:22}, // Tel
+    {wch:80}, // Orientação
+  ];
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Parceiros e Orientações');
+
+  // Segunda aba: resumo por parceiro
+  const parceiros = {};
+  EXAMS.forEach(exam => {
+    if (exam.type !== 'partner') return;
+    exam.partners.forEach(p => {
+      if (!parceiros[p.name]) parceiros[p.name] = [];
+      parceiros[p.name].push(exam.name);
+    });
+  });
+  const linhas2 = [['PARCEIRO', 'TOTAL DE EXAMES', 'LISTA DE EXAMES']];
+  Object.entries(parceiros).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([nome, exames]) => {
+    linhas2.push([nome, exames.length, exames.join(' | ')]);
+  });
+  const ws2 = XLSX.utils.aoa_to_sheet(linhas2);
+  ws2['!cols'] = [{wch:28},{wch:16},{wch:100}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Resumo por Parceiro');
+
+  const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
+  XLSX.writeFile(wb, `AmorSaude_Parceiros_${dataHoje}.xlsx`);
+}
+
+function exportarPlanilha(){
+  // Gera CSV com todos os exames de parceiros externos
+  const rows=[['Parceiro','Exame','Categoria','Valor Guia (R$)','Valor Parceiro (R$)','Valor Total (R$)','Endereço / Local','Orientação Completa']];
+
+  const externos=['Scoppeta','Auri Medicina','Prezecor','IMADI','Prezecor (Santana)','Dra. Silvia'];
+
+  EXAMS.forEach(exam=>{
+    if(exam.type!=='partner') return;
+    exam.partners.forEach(p=>{
+      const isExterno = externos.some(n=>p.name.startsWith(n.split('—')[0].trim()));
+      if(!isExterno) return; // pula médicos internos
+
+      const info = CLINIC_INFO[p.name] || CLINIC_INFO[p.name.split('—')[0].trim()] || null;
+      const endereco = info ? (info.address||(info.schedule?'Horário: '+info.schedule:'')) : (p.local||'');
+      const msg = generateMessage(exam, exam.partners.indexOf(p));
+      // Limpa asteriscos e emojis para a planilha ficar mais limpa
+      const msgLimpa = msg
+        .replace(/\*/g,'')
+        .replace(/[🏥📋💰📌📍📞🕐🔬🗓️⚠️💳ℹ️❌✅─━]/gu,' ')
+        .replace(/\s{3,}/g,' ')
+        .trim();
+
+      rows.push([
+        p.name,
+        exam.name,
+        exam.cat,
+        p.valueClin.toFixed(2).replace('.',','),
+        p.valuePartner.toFixed(2).replace('.',','),
+        p.total.toFixed(2).replace('.',','),
+        endereco,
+        msgLimpa
+      ]);
+    });
+  });
+
+  // Converte para CSV com separador ; (compatível com Excel BR)
+  const csvContent = rows.map(row=>
+    row.map(cell=>{
+      const s = String(cell).replace(/"/g,'""');
+      return `"${s}"`;
+    }).join(';')
+  ).join('\r\n');
+
+  // BOM para Excel reconhecer UTF-8
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM+csvContent],{type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'parceiros_orcamentos_amorsaude.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+
+  /* ── Navegação robusta (funciona no GitHub Pages) ── */
+  function irPara(arquivo) {
+      var href = window.location.href.split('?')[0].split('#')[0];
+      var base = href.substring(0, href.lastIndexOf('/') + 1);
+      window.location.replace(base + arquivo);
+    }
+
+init();
+window.dispatchEvent(new Event("examsReady"));
+
+  // ── Logo dinâmica Firebase ──
+  let LOGO_ORC = sessionStorage.getItem('logoDataUrl') || '';
+  (async function() {
+    try {
+      if (!LOGO_ORC) {
+        const r = await fetch('https://clinica-pirituba-default-rtdb.firebaseio.com/admin/logo.json');
+        const d = await r.json();
+        if (d && d.dataUrl) { LOGO_ORC = d.dataUrl; sessionStorage.setItem('logoDataUrl', d.dataUrl); }
+      }
+      if (LOGO_ORC) document.querySelectorAll('.logo-icon img').forEach(img => img.src = LOGO_ORC);
+    } catch(e) {}
+  })();
+
+</script>
+</body>
+</html>

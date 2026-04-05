@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Página não encontrada — Amor Saúde</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+
+  <script>
+    // GitHub Pages SPA redirect
+    // Detecta o caminho base (repo) e redireciona para login.html
+    (function() {
+      var path = window.location.pathname;
+      // No GitHub Pages: /repo-name/arquivo.html
+      // Em domínio próprio ou raiz: /arquivo.html
+      var parts = path.split('/').filter(Boolean); // remove strings vazias
+      var base;
+
+      if (window.location.hostname.includes('github.io')) {
+        // GitHub Pages: primeiro segmento é o repo
+        base = '/' + (parts[0] || '') + '/';
+      } else {
+        // Outro host: usa o diretório atual
+        base = path.replace(/[^\/]*$/, '');
+        if (!base) base = '/';
+      }
+
+      setTimeout(function() {
+        window.location.replace(base + 'login.html');
+      }, 1800);
+    })();
+  </script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0A1F44;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+      padding: 24px;
+    }
+    .icon  { font-size: 54px; animation: pop .4s cubic-bezier(0.34,1.56,0.64,1) both; }
+    @keyframes pop { from{opacity:0;transform:scale(.3)} to{opacity:1;transform:scale(1)} }
+    h1   { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+    p    { font-size: 14px; color: rgba(255,255,255,0.45); max-width: 300px; line-height: 1.65; }
+    .btn {
+      margin-top: 6px;
+      padding: 13px 30px;
+      background: #C62828;
+      color: white;
+      border: none;
+      border-radius: 11px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .btn:hover { background: #ad1f1f; transform: translateY(-1px); }
+    .sub { font-size: 11px; color: rgba(255,255,255,0.18); margin-top: 4px; }
+    .progress {
+      width: 200px;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #C62828;
+      border-radius: 2px;
+      animation: prog 1.8s linear forwards;
+    }
+    @keyframes prog { from{width:0} to{width:100%} }
+  </style>
+</head>
+<body>
+  <div class="icon">🏥</div>
+  <h1>Página não encontrada</h1>
+  <p>Redirecionando para o portal automaticamente...</p>
+  <div class="progress"><div class="progress-bar"></div></div>
+  <button class="btn" onclick="irParaLogin()">🏠 Ir para o Login agora</button>
+  <div class="sub">Amor Saúde · Pirituba</div>
+
+  <script>
+    function irParaLogin() {
+      var path = window.location.pathname;
+      var parts = path.split('/').filter(Boolean);
+      var base;
+      if (window.location.hostname.includes('github.io')) {
+        base = '/' + (parts[0] || '') + '/';
+      } else {
+        base = path.replace(/[^\/]*$/, '');
+        if (!base) base = '/';
+      }
+      window.location.replace(base + 'login.html');
+    }
+  </script>
+</body>
+</html>
