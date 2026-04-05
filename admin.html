@@ -183,7 +183,7 @@
 
   <div class="s-header">
     <div class="s-logo">
-      <div class="s-logo-icon"><img src="__logoamor.ico__" alt="" onerror="this.style.display='none'" id="headerLogo"></div>
+      <div class="s-logo-icon"><img src="assets/favicon.png" alt="" onerror="this.style.display='none'" id="headerLogo"></div>
       <div>
         <div class="s-logo-name">Amor Saúde</div>
         <div class="s-logo-sub">Gerenciamento · Pirituba</div>
@@ -471,17 +471,10 @@
   </script>
 
   <script>
-    if (typeof window.FIREBASE_CONFIG === 'undefined') {
-      window.FIREBASE_CONFIG = {
-        apiKey:            "AIzaSyAJwgap1ZVgRsjEW5G9idhuiG0SHowPUUg",
-        authDomain:        "clinica-pirituba.firebaseapp.com",
-        databaseURL:       "https://clinica-pirituba-default-rtdb.firebaseio.com",
-        projectId:         "clinica-pirituba",
-        storageBucket:     "clinica-pirituba.firebasestorage.app",
-        messagingSenderId: "873516334703",
-        appId:             "1:873516334703:web:1e20dc20b1c68e388a179a"
-      };
-    }
+    <script src="js/firebase-config.js"></script>
+  <script src="js/shared-utils.js"></script>
+  <script>
+    if (false) {
   </script>
 
   <script type="module">
@@ -746,10 +739,12 @@
       } catch(e) { console.error('atendentes:', e); }
     }
 
-    async function seedAtendentes() {
-      for (const nome of ATENDENTES_DEFAULT) {
-        await push(ref(db, 'admin/atendentes'), { nome: nome.toUpperCase(), apelido: nome.split(' ')[0], criadoEm: new Date().toISOString() });
-      }
+   async function seedAtendentes() {
+      const payload = {};
+      ATENDENTES_DEFAULT.forEach((nome, i) => {
+        payload['at_' + i] = { nome: nome.toUpperCase(), apelido: nome.split(' ')[0], criadoEm: new Date().toISOString() };
+      });
+      try { await set(ref(db, 'admin/atendentes'), payload); } catch(e) { console.warn('seedAtendentes:', e.message); }
     }
 
     function renderAtendentes(lista) {
@@ -829,10 +824,8 @@
     window.adicionarEmailFin = async function() {
       const email = document.getElementById('novoEmailFin').value.trim();
       if (!email) { toast('Informe o e-mail', 'error'); return; }
-      await push(ref(db, 'admin/acessoFinanceiro'), { email, adicionadoEm: new Date().toISOString() });
-      document.getElementById('novoEmailFin').value = '';
-      toast(`${email} adicionado ao financeiro!`, 'success');
-    };
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('E-mail inválido', 'error'); return; }
+      await push(ref(db, 'admin/acessoFinanceiro');
 
     window.removerEmailFin = async function(id) {
       if (!confirm('Remover acesso ao financeiro?')) return;
