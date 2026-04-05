@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/shared-utils.js"></script>
   <link rel="icon" href="assets/favicon.png" type="image/png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -500,19 +502,6 @@
       body, #mainSystem { background: white !important; color: black !important; padding: 0 !important; margin: 0 !important; }
     }
   </style>
-  <script>
-    if (typeof window.FIREBASE_CONFIG === 'undefined') {
-      window.FIREBASE_CONFIG = {
-        apiKey:            "AIzaSyAJwgap1ZVgRsjEW5G9idhuiG0SHowPUUg",
-        authDomain:        "clinica-pirituba.firebaseapp.com",
-        databaseURL:       "https://clinica-pirituba-default-rtdb.firebaseio.com",
-        projectId:         "clinica-pirituba",
-        storageBucket:     "clinica-pirituba.firebasestorage.app",
-        messagingSenderId: "873516334703",
-        appId:             "1:873516334703:web:1e20dc20b1c68e388a179a"
-      };
-    }
-  </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
     import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
@@ -584,7 +573,7 @@
   <div id="mainSystem">
     <header>
       <div style="display:inline-flex;align-items:center;gap:12px;background:#0A1F44;color:white;padding:10px 24px;border-radius:12px;margin-bottom:10px;">
-        <img src="__logoamor.ico__" alt="Logo" style="width:32px;height:32px;object-fit:contain;" onerror="this.style.display='none'">
+        <img src="assets/favicon.png" alt="Logo" style="width:32px;height:32px;object-fit:contain;" onerror="this.style.display='none'">
         <div>
           <div style="font-size:17px;font-weight:800;letter-spacing:-0.3px;">Fechamento Médico</div>
           <div style="font-size:10px;font-weight:400;opacity:0.5;letter-spacing:0.5px;">Amor Saúde · Pirituba</div>
