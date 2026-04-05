@@ -143,7 +143,6 @@
   <div class="red-bar"></div>
   <div class="toast-box" id="toastBox"></div>
 
-  <!-- Modal Permissões -->
   <div class="modal-bg" id="modalPerms">
     <div class="modal-box">
       <div class="modal-hdr">
@@ -161,7 +160,6 @@
     </div>
   </div>
 
-  <!-- Modal Preço Exame -->
   <div class="modal-bg" id="modalExame">
     <div class="modal-box">
       <div class="modal-hdr">
@@ -183,7 +181,6 @@
     </div>
   </div>
 
-  <!-- Header -->
   <div class="s-header">
     <div class="s-logo">
       <div class="s-logo-icon"><img src="__logoamor.ico__" alt="" onerror="this.style.display='none'" id="headerLogo"></div>
@@ -199,7 +196,6 @@
   </div>
 
   <div class="content">
-    <!-- Tabs -->
     <div class="tabs">
       <button class="tab-btn active" id="tabUsuarios"  onclick="mudarTab('usuarios')"><i class="fas fa-users"></i> Usuários</button>
       <button class="tab-btn"        id="tabClinica"   onclick="mudarTab('clinica')"><i class="fas fa-hospital"></i> Clínica</button>
@@ -210,7 +206,6 @@
       <button class="tab-btn"        id="tabImportar"  onclick="mudarTab('importar')"><i class="fas fa-file-import"></i> Importar Exames</button>
     </div>
 
-    <!-- ══ TAB USUÁRIOS ══ -->
     <div class="tab-pane active" id="paneUsuarios">
       <div class="panel">
         <div class="panel-title"><i class="fas fa-user-plus"></i> Criar novo usuário</div>
@@ -240,7 +235,6 @@
       </div>
     </div>
 
-    <!-- ══ TAB CLÍNICA ══ -->
     <div class="tab-pane" id="paneClinica">
       <div class="panel">
         <div class="panel-title"><i class="fas fa-hospital"></i> Informações da Clínica</div>
@@ -258,7 +252,6 @@
       </div>
     </div>
 
-    <!-- ══ TAB ATENDENTES ══ -->
     <div class="tab-pane" id="paneAtendentes">
       <div class="panel">
         <div class="panel-title"><i class="fas fa-user-plus"></i> Adicionar atendente</div>
@@ -274,7 +267,6 @@
       </div>
     </div>
 
-    <!-- ══ TAB ACESSOS ══ -->
     <div class="tab-pane" id="paneAcessos">
       <div class="panel">
         <div class="panel-title"><i class="fas fa-shield-halved"></i> Redefinir senha de usuário</div>
@@ -294,7 +286,6 @@
       </div>
     </div>
 
-    <!-- ══ TAB EXAMES ══ -->
     <div class="tab-pane" id="paneExames">
       <div class="panel">
         <div class="panel-title"><i class="fas fa-search"></i> Buscar e editar preços</div>
@@ -305,7 +296,6 @@
       </div>
     </div>
 
-    <!-- ══ TAB LOGO ══ -->
     <div class="tab-pane" id="paneLogo">
       <div class="panel">
         <div class="panel-title"><i class="fas fa-image"></i> Logo da Clínica</div>
@@ -342,7 +332,6 @@
       </div>
     </div>
 
-    <!-- ══ TAB IMPORTAR EXAMES ══ -->
     <div class="tab-pane" id="paneImportar">
       <div class="panel">
         <div class="panel-title" style="margin-bottom:6px;"><i class="fas fa-file-import"></i> Importar planilhas de retirada de exames</div>
@@ -350,7 +339,6 @@
           Importe as planilhas ECO, NEURO e USG. Apenas pacientes com exame <strong>OK</strong> e <strong>sem data de retirada</strong> serão importados.
         </p>
         <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:22px;">
-          <!-- ECO -->
           <div>
             <div style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;">Ecocardiograma</div>
             <div class="import-drop" id="dropEco" onclick="document.getElementById('inputEco').click()"
@@ -371,7 +359,6 @@
             </div>
             <input type="file" id="inputEco" accept=".xlsx,.xls" style="display:none;" onchange="handleXlsxFile(event,'eco')">
           </div>
-          <!-- NEURO -->
           <div>
             <div style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;">Neurológico (EEG + Potencial Evocado)</div>
             <div class="import-drop" id="dropNeuro" onclick="document.getElementById('inputNeuro').click()"
@@ -392,7 +379,6 @@
             </div>
             <input type="file" id="inputNeuro" accept=".xlsx,.xls" style="display:none;" onchange="handleXlsxFile(event,'neuro')">
           </div>
-          <!-- USG -->
           <div>
             <div style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;">Ultrassom</div>
             <div class="import-drop" id="dropUsg" onclick="document.getElementById('inputUsg').click()"
@@ -414,7 +400,6 @@
             <input type="file" id="inputUsg" accept=".xlsx,.xls" style="display:none;" onchange="handleXlsxFile(event,'usg')">
           </div>
         </div>
-        <!-- Resumo + Botão -->
         <div id="importResumoBar" style="display:none;padding:14px 16px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;margin-bottom:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
             <div><div style="font-size:13px;font-weight:800;color:var(--navy);">Total de exames pendentes</div><div style="font-size:11px;color:var(--gray-500);" id="importResumoSub">—</div></div>
@@ -426,7 +411,6 @@
             <i class="fas fa-upload"></i> Importar para a Gaveta (<span id="importCount">0</span> exames)
           </button>
         </div>
-        <!-- Sucesso -->
         <div id="importSucesso" style="display:none;text-align:center;padding:28px;background:var(--green-bg);border-radius:14px;margin-top:14px;">
           <div style="font-size:36px;margin-bottom:10px;">✅</div>
           <div style="font-size:16px;font-weight:800;color:var(--green);margin-bottom:6px;" id="importSucessoMsg">Importação concluída!</div>
@@ -436,10 +420,7 @@
       </div>
     </div>
 
-  </div><!-- /content -->
-
-  <!-- Safety stubs — executam ANTES do módulo carregar -->
-  <script>
+  </div><script>
     window.irPara = function(arquivo) {
       var h = window.location.href.split('?')[0].split('#')[0];
       var b = h.substring(0, h.lastIndexOf('/') + 1);
@@ -1491,354 +1472,629 @@
    desc:'Avalia a tolerância ao açúcar do leite por coletas sequenciais.',value:{ct:60,part:100}},
   {id:721,name:'Microalbuminúria (Amostra Isolada)',cat:'Laboratorial',type:'normal',
    desc:'Dosagem de albumina na urina.',prep_text:'Colher a primeira urina da manhã ou com no mínimo 4h sem urinar. Desprezar o primeiro jato e coletar o segundo.',value:{ct:20,part:35}}
-]
-    let EXAMS_ADMIN = EXAMS;
+];
 
-    as
+// ─────────────────────────────────────────────
+// Estado
+// ─────────────────────────────────────────────
+let currentCat='all', currentClinic=null, currentSearch='', sortAZ=true;
+let budget=[], selectedExam=null, selectedPIdx=null;
+let msgExam=null, msgPIdx=0;
+let prepExam=null;
 
-      el.innerHTML = `<div class="item-list">${lista.map(e => {
-        const custom = precosDB[e.id];
+// ─────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────
+window.EXAMS_GLOBAL = EXAMS;
+function reRenderExams(){ renderExams(); updateStats(); }
+function init(){
+  updateCounts();
+  buildClinicFilters();
+  renderExams();
+  renderBudget();
+  document.getElementById('totalExamsCount').textContent=EXAMS.length;
+  const inp=document.getElementById('searchInput');
+  inp.addEventListener('input',e=>{
+    currentSearch=e.target.value.trim();
+    document.getElementById('clearBtn').classList.toggle('visible',currentSearch.length>0);
+    renderExams();
+  });
+}
 
-    // ── Exames (preços) ──
-    async function carregarExamesAdmin() {
-      const snap = await get(ref(db, 'admin/precos'));
-      examesCache = snap.val() || {};
-      renderExamesAdmin(EXAMS, examesCache);
+function updateCounts(){
+  const cats={};
+  EXAMS.forEach(e=>{cats[e.cat]=(cats[e.cat]||0)+1;});
+  document.getElementById('cnt-all').textContent=EXAMS.length;
+  Object.keys(cats).forEach(c=>{const el=document.getElementById('cnt-'+c);if(el)el.textContent=cats[c];});
+}
+
+function buildClinicFilters(){
+  const m={};
+  EXAMS.forEach(e=>{if(e.type==='partner')e.partners.forEach(p=>{
+    let k=p.name.startsWith('Scoppeta')?'Scoppeta':p.name;
+    m[k]=(m[k]||0)+1;
+  });});
+  const container=document.getElementById('clinicFilters');
+  container.innerHTML=Object.keys(m).sort().map(name=>{
+    const icon=CLINIC_ICONS[name]||'🏢';
+    return `<div class="chip" onclick="setClinic('${name}',this)"><span class="chip-icon">${icon}</span>${name}<span class="chip-count">${m[name]}</span></div>`;
+  }).join('');
+}
+
+function setCategory(cat,el){
+  currentCat=cat;
+  document.querySelectorAll('#catFilters .chip').forEach(c=>c.classList.remove('cat-active'));
+  el.classList.add('cat-active');
+  renderExams();
+}
+function setClinic(name,el){
+  if(currentClinic===name){clearClinic();return;}
+  currentClinic=name;
+  document.querySelectorAll('#clinicFilters .chip').forEach(c=>c.classList.remove('cli-active'));
+  el.classList.add('cli-active');
+  document.getElementById('clinicTagName').textContent=name;
+  document.getElementById('clinicTag').classList.add('show');
+  renderExams();
+}
+function clearClinic(){
+  currentClinic=null;
+  document.querySelectorAll('#clinicFilters .chip').forEach(c=>c.classList.remove('cli-active'));
+  document.getElementById('clinicTag').classList.remove('show');
+  renderExams();
+}
+function toggleSort(){sortAZ=!sortAZ;document.getElementById('sortLabel').textContent=sortAZ?'A–Z':'Z–A';renderExams();}
+function clearSearch(){currentSearch='';document.getElementById('searchInput').value='';document.getElementById('clearBtn').classList.remove('visible');renderExams();}
+function highlight(text,q){if(!q)return text;return text.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');}
+function fmtMoney(v){if(v===undefined||v===null)return'—';return'R$ '+Number(v).toFixed(2).replace('.',',');}
+function examMatchesClinic(e){if(!currentClinic)return true;if(e.type!=='partner')return false;return e.partners.some(p=>{let k=p.name.startsWith('Scoppeta')?'Scoppeta':p.name;return k===currentClinic;});}
+
+function hasPrep(e){return !!(e.prepKey||e.prep_text);}
+
+// ─────────────────────────────────────────────
+// Render cards
+// ─────────────────────────────────────────────
+function renderExams(){
+  const q=currentSearch.toLowerCase();
+  let list=EXAMS.filter(e=>{
+    if(currentCat!=='all'&&e.cat!==currentCat)return false;
+    if(!examMatchesClinic(e))return false;
+    if(!q)return true;
+    return(e.name+' '+(e.desc||'')+' '+(e.cat||'')).toLowerCase().includes(q);
+  });
+  list.sort((a,b)=>sortAZ?a.name.localeCompare(b.name,'pt'):b.name.localeCompare(a.name,'pt'));
+  const container=document.getElementById('examsList');
+  document.getElementById('resultsCount').innerHTML=`<strong>${list.length}</strong> exame${list.length!==1?'s':''} encontrado${list.length!==1?'s':''}`;
+  if(!list.length){container.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nenhum exame encontrado</div><div>Tente outra busca ou mude o filtro</div></div>`;return;}
+
+  container.innerHTML=list.map(e=>{
+    const isPartner=e.type==='partner', isRule=e.type==='rule';
+    let badge,badgeCls,priceHtml;
+    if(isPartner){badge='Parceiro';badgeCls='badge-partner';const min=Math.min(...e.partners.map(p=>p.total));priceHtml=`<span class="card-price-label">a partir de</span><span class="card-price">${fmtMoney(min)}</span>`;}
+    else if(isRule){badge='Regra';badgeCls='badge-rule';priceHtml=`<span class="card-price" style="color:var(--text3);font-size:10px">Ver modal</span>`;}
+    else{badge='Normal';badgeCls='badge-normal';priceHtml=`<span class="card-price-label">CT</span><span class="card-price">${fmtMoney(e.value.ct)}</span>`;}
+    const desc=highlight(e.desc?e.desc.substring(0,78)+(e.desc.length>78?'...':''):'',currentSearch);
+    const ptags=isPartner?`<div class="partner-tags">${[...new Set(e.partners.map(p=>p.name.startsWith('Scoppeta')?'Scoppeta':p.name))].map(n=>`<span class="ptag">${n}</span>`).join('')}</div>`:''
+
+    const hasPrepBtn = hasPrep(e);
+    const prepBtn = hasPrepBtn
+      ? `<button class="card-prep-btn" onclick="event.stopPropagation();openPrepModal(${e.id})">🩺 Preparo</button>`
+      : '';
+
+    return `<div class="exam-card ${isPartner?'partner':isRule?'lab-rule':''}" onclick="openModal(${e.id})">
+      <div class="card-header"><div class="card-name">${highlight(e.name,currentSearch)}</div><span class="card-badge ${badgeCls}">${badge}</span></div>
+      <div class="card-desc">${desc}</div>
+      ${ptags}
+      <div class="card-footer">
+        <div class="card-price-area">${priceHtml}<div class="card-cat">${e.cat}</div></div>
+        <div class="card-actions">
+          ${prepBtn}
+          <button class="card-msg-btn" onclick="event.stopPropagation();openMsgModal(${e.id})">📩 Mensagem</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// PREPARO MODAL
+// ─────────────────────────────────────────────
+function openPrepModal(id){
+  prepExam=EXAMS.find(e=>e.id===id);
+  if(!prepExam)return;
+  document.getElementById('prepModalSubtitle').textContent=prepExam.name;
+  renderPrepBody();
+  document.getElementById('prepOverlay').classList.add('open');
+  document.getElementById('prepCopyBtn').textContent='📋 Copiar Preparo';
+  document.getElementById('prepCopyBtn').classList.remove('copied');
+}
+
+function renderPrepBody(){
+  const e=prepExam;
+  const container=document.getElementById('prepModalBody');
+  let html='';
+
+  // Se tiver prepKey, usar PREPS estruturado
+  if(e.prepKey && PREPS[e.prepKey]){
+    const pd=PREPS[e.prepKey];
+    pd.sections.forEach(sec=>{
+      html+=`<div class="prep-section"><div class="prep-section-title">${sec.title}</div>`;
+      sec.items.forEach(item=>{
+        const cls=item.type?` ${item.type}`:'';
+        html+=`<div class="prep-item${cls}"><span class="prep-item-icon">${item.icon}</span><span>${item.text}</span></div>`;
+      });
+      html+='</div>';
+    });
+  }
+
+  // Se tiver prep_text simples, mostrar também
+  if(e.prep_text){
+    const lines=e.prep_text.split('\n').filter(l=>l.trim());
+    if(lines.length>0){
+      html+=`<div class="prep-section"><div class="prep-section-title">Informações adicionais</div>`;
+      lines.forEach(line=>{
+        html+=`<div class="prep-item"><span class="prep-item-icon">📌</span><span>${line.trim()}</span></div>`;
+      });
+      html+='</div>';
+    }
+  }
+
+  // Se tiver tips relevantes (não começar com ⚠️ de cobrança)
+  if(e.tips){
+    const tipsClean=e.tips.replace(/<[^>]+>/g,'').trim();
+    const isCobranca=tipsClean.includes('cobrar')||tipsClean.includes('LANÇAR COMO');
+    if(!isCobranca){
+      html+=`<div class="prep-section"><div class="prep-section-title">Atenção</div>`;
+      tipsClean.split('\n').filter(l=>l.trim()).forEach(line=>{
+        html+=`<div class="prep-item warn"><span class="prep-item-icon">⚠️</span><span>${line.replace(/^⚠️\s*/,'').trim()}</span></div>`;
+      });
+      html+='</div>';
+    }
+  }
+
+  // Informações padrão sempre mostradas
+  html+=`<div class="prep-section"><div class="prep-section-title">Trazer no dia</div>
+    <div class="prep-item info"><span class="prep-item-icon">🪪</span><span>RG ou CPF</span></div>
+    <div class="prep-item info"><span class="prep-item-icon">📄</span><span>Pedido médico</span></div>
+    <div class="prep-item info"><span class="prep-item-icon">💳</span><span>Cartão de Todos (se tiver)</span></div>
+  </div>`;
+
+  html+=`<div class="prep-section"><div class="prep-section-title">Localização</div>
+    <div class="prep-item"><span class="prep-item-icon">📍</span><span>Av. Dr. Felipe Pinel, 367 - Pirituba (em frente à UPA)</span></div>
+  </div>`;
+
+  container.innerHTML=html;
+}
+
+function closePrepModal(){document.getElementById('prepOverlay').classList.remove('open');prepExam=null;}
+function closePrepOnBg(e){if(e.target===document.getElementById('prepOverlay'))closePrepModal();}
+
+function copyPrep(){
+  if(!prepExam)return;
+  const e=prepExam;
+  const lines=[`🩺 PREPARO — ${e.name}`, '─'.repeat(40)];
+
+  if(e.prepKey&&PREPS[e.prepKey]){
+    PREPS[e.prepKey].sections.forEach(sec=>{
+      lines.push(`\n${sec.title.toUpperCase()}`);
+      sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
+    });
+  }
+  if(e.prep_text){lines.push('\nINFORMAÇÕES ADICIONAIS');e.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(`📌 ${l.trim()}`);});}
+
+  lines.push('\n─'.repeat(20));
+  lines.push('📌 Trazer: RG/CPF + Pedido Médico + Cartão de Todos');
+  lines.push('📍 Av. Dr. Felipe Pinel, 367 - Pirituba (em frente à UPA)');
+
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>{
+    const btn=document.getElementById('prepCopyBtn');
+    btn.textContent='✅ Copiado!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 Copiar Preparo';btn.classList.remove('copied');},2500);
+  });
+}
+
+// ─────────────────────────────────────────────
+// EXAM MODAL
+// ─────────────────────────────────────────────
+function openModal(id){
+  selectedExam=EXAMS.find(e=>e.id===id);selectedPIdx=null;
+  if(!selectedExam)return;
+  document.getElementById('modalCat').textContent=selectedExam.cat;
+  document.getElementById('modalTitle').textContent=selectedExam.name;
+  renderModalBody();
+  document.getElementById('overlay').classList.add('open');
+}
+function renderModalBody(){
+  const e=selectedExam;
+  let html='';
+  if(e.desc)html+=`<div class="info-box desc"><div class="info-box-label">📋 Descrição</div>${e.desc}</div>`;
+  if(e.prep_text)html+=`<div class="info-box prep"><div class="info-box-label">⚠️ Preparo</div>${e.prep_text}</div>`;
+  else if(e.prepKey&&PREPS[e.prepKey]){
+    const pd=PREPS[e.prepKey];
+    let prepSummary=pd.sections.flatMap(s=>s.items).slice(0,3).map(i=>i.text).join(' · ');
+    if(prepSummary)html+=`<div class="info-box prep"><div class="info-box-label">⚠️ Preparo</div>${prepSummary}…</div>`;
+  }
+  if(e.tips){const tipsHtml=e.tips.replace(/\n/g,'<br>');html+=`<div class="info-box tips"><div class="info-box-label">💡 Atenção / Regras</div>${tipsHtml}</div>`;}
+
+  if(e.type==='partner'){
+    html+=`<div class="partner-section-title">Selecione o local / parceiro</div><div class="partner-cards">`;
+    e.partners.forEach((p,i)=>{
+      html+=`<div class="partner-card ${selectedPIdx===i?'selected':''}" onclick="selectPartner(${i})">
+        <div class="partner-card-header">
+          <div><div class="partner-name">${p.name}</div><div class="partner-location">📍 ${p.local}</div></div>
+          <button class="partner-select-btn" onclick="event.stopPropagation();selectAndAdd(${i})">Selecionar</button>
+        </div>
+        <div class="partner-prices">
+          <div class="price-col"><div class="price-col-label">💳 Guia (aqui)</div><div class="price-col-val clinic">${fmtMoney(p.valueClin)}</div></div>
+          <div class="price-col"><div class="price-col-label">📍 No local</div><div class="price-col-val partner">${p.valuePartner>0?fmtMoney(p.valuePartner):'<span style="color:var(--accent2);font-size:10px">incluso</span>'}</div></div>
+          <div class="price-col"><div class="price-col-label">🧾 Total</div><div class="price-col-val total">${fmtMoney(p.total)}</div></div>
+        </div>
+      </div>`;
+    });
+    html+=`</div><button class="modal-add-btn" onclick="addToBudget()" ${selectedPIdx===null?'disabled':''}>➕ Adicionar ao Orçamento</button>`;
+  } else if(e.type==='rule'){
+    html+=`<button class="modal-add-btn" onclick="closeModal()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2)">✓ Entendido</button>`;
+  } else {
+    const hasVal=e.value&&(e.value.ct>0||e.value.part>0);
+    if(hasVal){
+      html+=`<div class="option-group">
+        <div class="option-card selected"><div class="option-label">💳 Cartão de Todos</div><div class="option-price">${fmtMoney(e.value.ct)}</div><div class="option-tag">Convênio</div></div>
+        <div class="option-card" style="opacity:.7"><div class="option-label">💵 Particular</div><div class="option-price" style="color:var(--gold)">${fmtMoney(e.value.part)}</div><div class="option-tag">Sem convênio</div></div>
+      </div>
+      <button class="modal-add-btn" onclick="addToBudget()">➕ Adicionar ao Orçamento</button>`;
+    } else {
+      html+=`<button class="modal-add-btn" onclick="closeModal()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2)">✓ Entendido</button>`;
+    }
+  }
+  document.getElementById('modalBody').innerHTML=html;
+}
+function selectPartner(i){selectedPIdx=i;renderModalBody();}
+function selectAndAdd(i){selectedPIdx=i;addToBudget();}
+function closeModal(){document.getElementById('overlay').classList.remove('open');selectedExam=null;selectedPIdx=null;}
+function closeModalOnBg(e){if(e.target===document.getElementById('overlay'))closeModal();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closePrepModal();closeMsgModal();}});
+
+// ─────────────────────────────────────────────
+// Budget
+// ─────────────────────────────────────────────
+function addToBudget(){
+  const e=selectedExam;
+  let item={id:Date.now(),examId:e.id,name:e.name,cat:e.cat};
+  if(e.type==='partner'){
+    if(selectedPIdx===null)return;
+    const p=e.partners[selectedPIdx];
+    item.partner=p.name;item.location=p.local;item.valueClin=p.valueClin;item.valuePartner=p.valuePartner;item.total=p.total;
+  }else{item.total=e.value.ct;item.partner=null;}
+  budget.push(item);renderBudget();closeModal();
+}
+function renderBudget(){
+  const container=document.getElementById('budgetItems');
+  document.getElementById('budgetCount').textContent=budget.length;
+  const pc=budget.filter(i=>i.partner).length;
+  const total=budget.reduce((s,i)=>s+i.total,0);
+  document.getElementById('stat-items').textContent=budget.length;
+  document.getElementById('stat-partner').textContent=pc;
+  document.getElementById('stat-total').textContent=fmtMoney(total);
+  document.getElementById('subtotalVal').textContent=fmtMoney(total);
+  document.getElementById('totalVal').textContent=fmtMoney(total);
+  const has=budget.length>0;
+  document.getElementById('printBtn').disabled=!has;document.getElementById('copyBtn').disabled=!has;
+  if(!has){container.innerHTML=`<div class="budget-empty"><div class="icon">📋</div><div>Nenhum exame adicionado</div><div style="margin-top:6px;font-size:11px;color:var(--text3)">Clique em um exame para adicionar</div></div>`;return;}
+  container.innerHTML=budget.map(item=>`
+    <div class="budget-item">
+      <div class="bi-info">
+        <div class="bi-name">${item.name}</div>
+        <div class="bi-sub"><span>${item.cat}</span>${item.partner?`<span style="color:var(--blue)">${item.partner}</span>`:''}</div>
+        ${item.valueClin!==undefined&&item.valuePartner>0?`<div style="font-size:10px;color:var(--text3);margin-top:3px">Guia: <span style="color:var(--warning)">${fmtMoney(item.valueClin)}</span> · Local: <span style="color:var(--text2)">${fmtMoney(item.valuePartner)}</span></div>`:''}
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:6px;flex-shrink:0">
+        <div class="bi-price">${fmtMoney(item.total)}</div>
+        <button class="remove-btn" onclick="removeItem(${item.id})">✕</button>
+      </div>
+    </div>`).join('');
+}
+function removeItem(id){budget=budget.filter(i=>i.id!==id);renderBudget();}
+function clearBudget(){if(!budget.length)return;if(confirm('Limpar todo o orçamento?')){budget=[];renderBudget();}}
+
+// ─────────────────────────────────────────────
+// Message Modal
+// ─────────────────────────────────────────────
+function generateMessage(exam,pIdx){
+  const lines=[];
+
+  // ── Exames normais (realizados na própria clínica) ──
+  if(exam.type==='normal'||exam.type==='rule'){
+    lines.push(`*${exam.name.toUpperCase()}*`,'');
+
+    if(exam.value&&exam.value.ct>0){
+      lines.push(`💰 *Valor:* ${fmtMoney(exam.value.ct)} pelo Cartão de Todos`);
+      if(exam.value.part&&exam.value.part!==exam.value.ct)
+        lines.push(`💵 *Particular:* ${fmtMoney(exam.value.part)}`);
     }
 
-    function renderExamesAdmin(lista, precos) {
-      const el = document.getElementById('examesLista');
-      if (!lista || !lista.length) {
-        el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray-400);">Nenhum exame encontrado.</div>';
-        return;
+    // Agendamento/horário a partir de tips
+    if(exam.tips){
+      const t = exam.tips.replace(/<[^>]+>/g,'').trim();
+      if(t.startsWith('📋')){
+        lines.push('', t);
       }
-      // Build HTML in chunks to avoid UI freeze with 250+ items
-      const html = lista.map((e, i) => {
-        const p    = precos[e.id] || {};
-        const ct   = p.ct   || e.ct   || '—';
-        const part = p.part || e.part || '—';
-        const bg   = i % 2 === 0 ? 'white' : 'var(--gray-50)';
-        const nomeSafe = e.nome.replace(/'/g,"&#39;").replace(/"/g,'&quot;');
-        return `<div class="exam-row" style="background:${bg};">
-          <div class="exam-nome">${e.nome}</div>
-          <div class="exam-precos">CT: ${ct} &nbsp;|&nbsp; Part: ${part}</div>
-          <button class="btn-reset-sm" onclick="abrirModalExame('${e.id}','${nomeSafe}','${ct}','${part}')"><i class="fas fa-pen"></i></button>
-        </div>`;
-      }).join('');
-      requestAnimationFrame(() => { el.innerHTML = html; });
     }
 
-    window.filtrarExamesAdmin = function(q) {
-      if (!EXAMS) return;
-      const f = q ? EXAMS.filter(e => e.nome.toLowerCase().includes(q.toLowerCase())) : EXAMS;
-      renderExamesAdmin(f, examesCache);
-    };
-
-    window.abrirModalExame = function(id, nome, ct, part) {
-      document.getElementById('modalExameId').value          = id;
-      document.getElementById('modalExameNome').textContent  = nome;
-      document.getElementById('modalExameCT').value          = ct === '—' ? '' : ct;
-      document.getElementById('modalExamePart').value        = part === '—' ? '' : part;
-      document.getElementById('modalExame').classList.add('open');
-    };
-
-    window.fecharModalExame = function() { document.getElementById('modalExame').classList.remove('open'); };
-
-    window.salvarPrecoExame = async function() {
-      const id   = document.getElementById('modalExameId').value;
-      const ct   = document.getElementById('modalExameCT').value.trim();
-      const part = document.getElementById('modalExamePart').value.trim();
-      await set(ref(db, `admin/precos/${id}`), { ct, part, editadoEm: new Date().toISOString() });
-      examesCache[id] = { ct, part };
-      fecharModalExame();
-      filtrarExamesAdmin(document.getElementById('exameBusca').value);
-      toast('✅ Preço atualizado!', 'success');
-    };
-
-    // ── Logo ──
-    let novaLogoDataUrl = null;
-
-    window.handleLogoDrop = function(e) {
-      e.preventDefault();
-      const drop = document.getElementById('logoDropZone');
-      drop.style.borderColor = 'var(--gray-300)'; drop.style.background = 'white';
-      const file = e.dataTransfer.files[0];
-      if (file && file.type.startsWith('image/')) processarLogo(file);
-      else toast('Selecione uma imagem', 'error');
-    };
-    window.handleLogoSelect = function(e) { const f = e.target.files[0]; if(f) processarLogo(f); };
-
-    function processarLogo(file) {
-      const reader = new FileReader();
-      reader.onload = ev => {
-        novaLogoDataUrl = ev.target.result;
-        document.getElementById('logoNovaImg').src          = novaLogoDataUrl;
-        document.getElementById('logoNovaName').textContent = file.name;
-        document.getElementById('logoNovaSize').textContent = (file.size/1024).toFixed(0) + ' KB';
-        document.getElementById('logoNovaPreview').style.display = 'block';
-      };
-      reader.readAsDataURL(file);
-    }
-
-    window.salvarLogoFirebase = async function() {
-      if (!novaLogoDataUrl) { toast('Nenhuma imagem selecionada', 'error'); return; }
-      const btn = document.getElementById('btnSalvarLogo');
-      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
-      try {
-        const logoVersao = Date.now().toString();
-        await set(ref(db, 'admin/logo'), { dataUrl: novaLogoDataUrl, atualizadoEm: new Date().toISOString(), versao: logoVersao });
-        sessionStorage.setItem('logoVersao', logoVersao);
-        sessionStorage.setItem('logoDataUrl', novaLogoDataUrl);
-        aplicarLogo(novaLogoDataUrl);
-        document.getElementById('logoNomeAtual').textContent = 'Logo atualizada ✅';
-        cancelarNovaLogo();
-        toast('✅ Logo salva! Todos os usuários verão a nova logo.', 'success');
-      } catch(e) { toast('Erro ao salvar: ' + e.message, 'error'); }
-      btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-up"></i> Salvar logo no portal';
-    };
-
-    window.cancelarNovaLogo = function() {
-      novaLogoDataUrl = null;
-      document.getElementById('logoNovaPreview').style.display = 'none';
-      document.getElementById('logoFileInput').value = '';
-    };
-
-    // ── XLSX Import ──
-    let importParsed  = [];
-    let importLoaded  = { eco: false, neuro: false, usg: false };
-
-    function capFirst(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-
-    window.handleXlsxDrop = function(e, tipo) {
-      e.preventDefault();
-      const drop = document.getElementById('drop' + capFirst(tipo));
-      if (drop) { drop.style.borderColor = 'var(--gray-300)'; }
-      const file = e.dataTransfer.files[0];
-      if (file) processXlsx(file, tipo);
-      else toast('Selecione um arquivo .xlsx', 'error');
-    };
-
-    window.handleXlsxFile = function(e, tipo) {
-      const file = e.target.files[0];
-      if (file) processXlsx(file, tipo);
-    };
-
-    async function processXlsx(file, tipo) {
-      const ct = capFirst(tipo);
-      const drop = document.getElementById('drop' + ct);
-      if (drop) { drop.style.opacity = '.5'; drop.style.pointerEvents = 'none'; }
-      try {
-        const data = await file.arrayBuffer();
-        const wb   = XLSX.read(data, { type:'array', cellDates:true });
-        let found  = 0;
-
-        if (tipo === 'eco') {
-          for (const sname of wb.SheetNames) {
-            const rows = XLSX.utils.sheet_to_json(wb.Sheets[sname], { header:1, defval:'' });
-            let hdr = rows.findIndex(r => r.some(v => String(v).toUpperCase().includes('NOME')));
-            if (hdr < 0) continue;
-            let dateStr = '';
-            for (let i = 0; i < hdr; i++) {
-              const m = String(rows[i][0]||'').match(/(\d{2}[\/\-]\d{2}[\/\-]\d{2,4})/);
-              if (m) { dateStr = m[1]; break; }
-            }
-            for (let i = hdr+1; i < rows.length; i++) {
-              const r = rows[i];
-              const nome  = String(r[0]||'').trim().toUpperCase().replace(/\*+$/,'');
-              const ok    = String(r[1]||'').toUpperCase().includes('OK');
-              const dtret = r[2];
-              const ret   = dtret && String(dtret).trim() !== '' && String(dtret).trim() !== 'NaT';
-              if (nome && nome.length > 3 && ok && !ret) {
-                importParsed.push({ paciente:nome, tipo:'Ecocardiograma', dataExame:dateStr, fonte:'ECO' });
-                found++;
-              }
-            }
-          }
-        } else if (tipo === 'neuro') {
-          for (const sname of wb.SheetNames) {
-            const rows = XLSX.utils.sheet_to_json(wb.Sheets[sname], { header:1, defval:'' });
-            let hdr = rows.findIndex(r => r.some(v => String(v).toUpperCase().includes('NOME')));
-            if (hdr < 0) continue;
-            for (let i = hdr+1; i < rows.length; i++) {
-              const r = rows[i];
-              const nome = String(r[0]||'').trim().toUpperCase();
-              if (nome && nome.length > 3 && String(r[2]||'').toUpperCase().includes('OK') && !(r[3] && String(r[3]).trim())) {
-                importParsed.push({ paciente:nome, tipo:'Eletroencefalograma (EEG)', dataExame:'', fonte:'NEURO' }); found++;
-              }
-              if (r.length > 7) {
-                const nome2 = String(r[7]||'').trim().toUpperCase();
-                if (nome2 && nome2.length > 3 && String(r[9]||'').toUpperCase().includes('OK') && !(r[10] && String(r[10]).trim())) {
-                  importParsed.push({ paciente:nome2, tipo:'Potencial Evocado', dataExame:'', fonte:'NEURO' }); found++;
-                }
-              }
-            }
-          }
-        } else if (tipo === 'usg') {
-          for (const sname of wb.SheetNames) {
-            const rows = XLSX.utils.sheet_to_json(wb.Sheets[sname], { header:1, defval:'' });
-            let hdr = rows.findIndex(r => r.some(v => String(v).toUpperCase().includes('NOME')));
-            if (hdr < 0) continue;
-            let dateStr = '';
-            for (let i = 0; i < hdr; i++) {
-              const m = String(rows[i][0]||'').match(/DIA\s*(\d{1,2})\s*\/\s*(\d{1,2})\s*\/\s*(\d{2,4})/i);
-              if (m) { dateStr = m[1].padStart(2,'0')+'/'+m[2].padStart(2,'0')+'/'+(m[3].length===2?'20'+m[3]:m[3]); break; }
-            }
-            for (let i = hdr+1; i < rows.length; i++) {
-              const r = rows[i];
-              const nome  = String(r[0]||'').trim().toUpperCase();
-              const exame = String(r[1]||'').trim();
-              const ok    = String(r[2]||'').toUpperCase().includes('OK');
-              const dtret = r[3];
-              const ret   = dtret && String(dtret).trim() && String(dtret).trim() !== 'AUSENTE NA GAVETA';
-              if (nome && nome.length > 3 && ok && !ret) {
-                const te = exame ? 'Ultrassom - '+exame.charAt(0).toUpperCase()+exame.slice(1).toLowerCase() : 'Ultrassom';
-                importParsed.push({ paciente:nome, tipo:te, dataExame:dateStr, fonte:'USG' }); found++;
-              }
-            }
-          }
-        }
-
-        // Dedup
-        const vistos = new Set();
-        importParsed = importParsed.filter(p => {
-          const k = p.paciente + '|' + p.tipo;
-          if (vistos.has(k)) return false;
-          vistos.add(k); return true;
+    if(exam.prep_text||exam.prepKey){
+      lines.push('','📌 *Preparo:*');
+      if(exam.prep_text){
+        exam.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(l.trim());});
+      } else if(exam.prepKey&&PREPS[exam.prepKey]){
+        PREPS[exam.prepKey].sections.forEach(sec=>{
+          lines.push(`\n*${sec.title}*`);
+          sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
         });
-
-        importLoaded[tipo] = true;
-        if (drop) { drop.style.display = 'none'; drop.style.opacity = '1'; drop.style.pointerEvents = ''; }
-        const card = document.getElementById('card' + ct);
-        if (card) {
-          card.style.display = 'block';
-          document.getElementById(tipo + 'FileName').textContent = file.name;
-          document.getElementById(tipo + 'FileInfo').textContent = (file.size/1024).toFixed(0) + ' KB · ' + found + ' pendentes';
-          document.getElementById(tipo + 'Count').textContent    = found;
-        }
-        atualizarResumo();
-        toast(found + ' exames carregados!', 'success');
-      } catch(err) {
-        if (drop) { drop.style.opacity = '1'; drop.style.pointerEvents = ''; drop.style.borderColor = 'var(--red)'; }
-        toast('Erro ao processar: ' + (err.message || err), 'error');
-        console.error(err);
       }
     }
 
-    function atualizarResumo() {
-      const total = importParsed.length;
-      const bar   = document.getElementById('importResumoBar');
-      const wrap  = document.getElementById('importBtnWrap');
-      if (!bar || !wrap) return;
-      if (!total) { bar.style.display = 'none'; wrap.style.display = 'none'; return; }
-      bar.style.display = 'block'; wrap.style.display = 'block';
-      document.getElementById('importTotalNum').textContent = total;
-      document.getElementById('importCount').textContent    = total;
-      const partes = [];
-      if (importLoaded.eco)   partes.push(importParsed.filter(p=>p.fonte==='ECO').length   + ' ECO');
-      if (importLoaded.neuro) partes.push(importParsed.filter(p=>p.fonte==='NEURO').length + ' Neuro');
-      if (importLoaded.usg)   partes.push(importParsed.filter(p=>p.fonte==='USG').length   + ' USG');
-      document.getElementById('importResumoSub').textContent = partes.join(' · ');
-    }
+    lines.push('','• Trazer: RG/CPF, pedido médico e Cartão de Todos.');
+    return lines.join('\n');
+  }
 
-    window.removerArquivo = function(tipo) {
-      const ct   = capFirst(tipo);
-      const drop = document.getElementById('drop' + ct);
-      const card = document.getElementById('card' + ct);
-      if (drop) { drop.style.display = ''; drop.style.borderColor = 'var(--gray-300)'; }
-      if (card) card.style.display = 'none';
-      importParsed = importParsed.filter(p => p.fonte !== tipo.toUpperCase());
-      importLoaded[tipo] = false;
-      const inp = document.getElementById('input' + ct);
-      if (inp) inp.value = '';
-      atualizarResumo();
-    };
+  // ── Exames de parceiros ──
+  const p    = exam.partners[pIdx];
+  const info = CLINIC_INFO[p.name] || CLINIC_INFO[p.name.split('—')[0].trim()] || null;
 
-    window.executarImportacao = async function() {
-      if (!importParsed.length) return;
-      const btn = document.getElementById('btnImportar');
-      btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importando...';
-      const usuario = auth.currentUser?.email || 'Admin';
-      let ok = 0, erros = 0;
-      const porFonte = {};
+  // Médicos internos (USG/exames realizados na própria clínica)
+  const isInternal = !['Scoppeta','Auri Medicina','Prezecor','IMADI',
+    'Prezecor (Santana)','Dra. Silvia']
+    .some(n => p.name.startsWith(n.split('—')[0].trim()));
 
-      for (const p of importParsed) {
-        try {
-          const novoRef = push(ref(db, 'exames/pendentes'));
-          await set(novoRef, {
-            paciente:     p.paciente,
-            tipo:         p.tipo,
-            dataExame:    p.dataExame || '',
-            obs:          'Importado de planilha ' + p.fonte,
-            atendenteCad: usuario,
-            cadastradoEm: new Date().toISOString()
-          });
-          ok++;
-          porFonte[p.fonte] = (porFonte[p.fonte] || 0) + 1;
-        } catch(e) { erros++; }
+  if(isInternal){
+    lines.push(`*${exam.name.toUpperCase()}*`,'');
+    lines.push(`Este exame é realizado em nossa unidade pelo(a) *${p.name}*.`);
+    if(p.local) lines.push(`🗓️ Dias: ${p.local}`);
+    lines.push('');
+    lines.push(`💰 *Valor total:* ${fmtMoney(p.total)} pelo Cartão de Todos`);
+    if(exam.prep_text||exam.prepKey){
+      lines.push('','📌 *Preparo:*');
+      if(exam.prep_text){
+        exam.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(l.trim());});
+      } else if(exam.prepKey&&PREPS[exam.prepKey]){
+        PREPS[exam.prepKey].sections.forEach(sec=>{
+          lines.push(`\n*${sec.title}*`);
+          sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
+        });
       }
-
-      document.getElementById('importResumoBar').style.display = 'none';
-      document.getElementById('importBtnWrap').style.display   = 'none';
-      const suc = document.getElementById('importSucesso');
-      suc.style.display = 'block';
-      document.getElementById('importSucessoMsg').textContent = ok + ' exames importados com sucesso!' + (erros ? ` (${erros} com erro)` : '');
-      document.getElementById('importSucessoBreakdown').innerHTML = Object.entries(porFonte).map(([f, cnt]) =>
-        `<div style="background:white;border-radius:10px;padding:8px 14px;text-align:center;min-width:70px;">
-          <div style="font-size:20px;font-weight:900;color:var(--navy);">${cnt}</div>
-          <div style="font-size:10px;color:var(--gray-500);">${f}</div>
-        </div>`).join('');
-      btn.disabled = false; btn.innerHTML = '<i class="fas fa-upload"></i> Importar';
-    };
-
-    window.limparImport = function() {
-      importParsed = []; importLoaded = { eco:false, neuro:false, usg:false };
-      ['Eco','Neuro','Usg'].forEach(t => {
-        const d = document.getElementById('drop' + t);
-        const c = document.getElementById('card' + t);
-        if (d) { d.style.display = ''; d.style.borderColor = 'var(--gray-300)'; }
-        if (c) c.style.display = 'none';
-        const inp = document.getElementById('input' + t);
-        if (inp) inp.value = '';
-      });
-      document.getElementById('importSucesso').style.display = 'none';
-    };
-
-    // ── Tab navigation ──
-    window.mudarTab = function(tab) {
-      const tabs = ['usuarios','clinica','atendentes','acessos','exames','logo','importar'];
-      tabs.forEach(t => {
-        const btn  = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
-        const pane = document.getElementById('pane' + t.charAt(0).toUpperCase() + t.slice(1));
-        if (btn)  btn.classList.remove('active');
-        if (pane) pane.classList.remove('active');
-      });
-      const activeBtn  = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
-      const activePane = document.getElementById('pane' + tab.charAt(0).toUpperCase() + tab.slice(1));
-      if (activeBtn)  activeBtn.classList.add('active');
-      if (activePane) activePane.classList.add('active');
-      if (tab === 'clinica') carregarClinica();
-    };
-
-    // ── Toast ──
-    window.toast = function(msg, tipo) {
-      tipo = tipo || 'info';
-      const box = document.getElementById('toastBox');
-      const t   = document.createElement('div');
-      t.className = 'toast ' + tipo;
-      const icons = { success:'fa-check-circle', error:'fa-exclamation-circle', info:'fa-info-circle' };
-      t.innerHTML = '<i class="fas ' + (icons[tipo] || icons.info) + '"></i>' + msg;
-      box.appendChild(t);
-      setTimeout(function() { t.remove(); }, 3500);
-    };
-
-    // ── Module ready — flush queued calls ──
-    window._adminReady = true;
-    if (window._adminQueue) {
-      window._adminQueue.forEach(function(item) {
-        if (typeof window[item.fn] === 'function') window[item.fn].apply(null, item.args);
-      });
-      window._adminQueue = [];
     }
-  </script>
+    lines.push('','• Trazer: RG/CPF, pedido médico e Cartão de Todos.');
+    return lines.join('\n');
+  }
+
+  // ── Clínica parceira externa ──
+  lines.push(`*${exam.name.toUpperCase()}*`,'');
+
+  lines.push(`Este exame é realizado em uma parceira nossa, a *${p.name}*, sendo necessário pagar a Guia de Encaminhamento na nossa unidade antes de realizar o exame.`);
+  lines.push(`O pagamento pode ser feito presencialmente ou via PIX pelo WhatsApp.`,'');
+
+  // Valores
+  lines.push(`💰 *Valor total:* ${fmtMoney(p.total)} pelo Cartão de Todos`);
+  if(p.valueClin>0)
+    lines.push(`   ↳ *Encaminhamento (AmorSaúde):* ${fmtMoney(p.valueClin)}`);
+  if(p.valuePartner>0)
+    lines.push(`   ↳ *Restante (${p.name}):* ${fmtMoney(p.valuePartner)}`);
+
+  // Biópsia / extra
+  if(exam.tips){
+    const tipsTxt = exam.tips.replace(/<[^>]+>/g,'').trim();
+    const bioMatch = tipsTxt.match(/bi[oó]psia[^\d]*R\$\s*[\d,.]+/i);
+    if(bioMatch){
+      const bioVal = (bioMatch[0].match(/R\$\s*[\d,.]+/)||[''])[0];
+      lines.push(`   ↳ *Biópsia (se realizada):* ${bioVal} — pago na parceira no dia do exame`);
+    }
+  }
+
+  // Endereço e contato — SEM horários de agendamento
+  lines.push('');
+  if(info){
+    if(info.address) lines.push(`📍 *Endereço:* ${info.address}`);
+    if(info.tel)     lines.push(`📞 *Telefone:* ${info.tel}`);
+    // Sem schedule — paciente agenda diretamente com a parceira
+  } else if(p.local && !p.local.includes('unidades') && !p.local.includes('chegada') && !p.local.includes('Seg')){
+    lines.push(`📍 *Local:* ${p.local}`);
+  }
+
+  // Preparo
+  if(exam.prep_text||exam.prepKey){
+    lines.push('','📌 *Preparo:*');
+    if(exam.prep_text){
+      exam.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(l.trim());});
+    } else if(exam.prepKey&&PREPS[exam.prepKey]){
+      PREPS[exam.prepKey].sections.forEach(sec=>{
+        lines.push(`\n*${sec.title}*`);
+        sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
+      });
+    }
+  }
+
+  // Nota especial Scoppeta (PIX obrigatório)
+  if(p.name.startsWith('Scoppeta')){
+    lines.push('','💳 Após o agendamento, o pagamento da entrada é via *PIX*. O restante é pago na clínica no dia do exame.');
+  }
+
+  lines.push('','• Trazer: RG/CPF, pedido médico e Cartão de Todos.');
+  return lines.join('\n');
+}
+
+function openMsgModal(id){
+  msgExam=EXAMS.find(e=>e.id===id);
+  if(!msgExam)return;
+  msgPIdx=0;
+  const partnerSel=document.getElementById('msgPartnerSelect');
+  const pillsContainer=document.getElementById('msgPartnerBtns');
+  if(msgExam.type==='partner'&&msgExam.partners.length>1){
+    partnerSel.classList.add('show');
+    pillsContainer.innerHTML=msgExam.partners.map((p,i)=>`<button class="msg-partner-pill ${i===0?'active':''}" onclick="selectMsgPartner(${i},this)">${p.name}</button>`).join('');
+  }else{partnerSel.classList.remove('show');}
+  updateMsgText();
+  document.getElementById('msgOverlay').classList.add('open');
+  document.getElementById('msgCopyBtn').textContent='📋 Copiar Mensagem';
+  document.getElementById('msgCopyBtn').classList.remove('copied');
+}
+function selectMsgPartner(i,el){msgPIdx=i;document.querySelectorAll('.msg-partner-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');updateMsgText();}
+function updateMsgText(){document.getElementById('msgText').value=generateMessage(msgExam,msgPIdx);}
+function copyMsg(){
+  const text=document.getElementById('msgText').value;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('msgCopyBtn');btn.textContent='✅ Copiado!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 Copiar Mensagem';btn.classList.remove('copied');},2500);
+  });
+}
+function closeMsgModal(){document.getElementById('msgOverlay').classList.remove('open');msgExam=null;}
+function closeMsgOnBg(e){if(e.target===document.getElementById('msgOverlay'))closeMsgModal();}
+
+// Print/Copy budget
+function copyBudget(){
+  if(!budget.length)return;
+  const lines=['ORÇAMENTO DE EXAMES','='.repeat(40)];
+  budget.forEach((item,i)=>{lines.push(`${i+1}. ${item.name}`);if(item.partner)lines.push(`   • Local: ${item.partner}`);lines.push(`   • Valor: ${fmtMoney(item.total)}`);if(item.valueClin!==undefined&&item.valuePartner>0)lines.push(`     (Guia: ${fmtMoney(item.valueClin)} + Local: ${fmtMoney(item.valuePartner)})`);});
+  lines.push('='.repeat(40));lines.push(`TOTAL: ${fmtMoney(budget.reduce((s,i)=>s+i.total,0))}`);
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>alert('Orçamento copiado!')).catch(()=>alert('Não foi possível copiar.'));
+}
+function printBudget(){
+  if(!budget.length)return;
+  const total=budget.reduce((s,i)=>s+i.total,0);
+  const rows=budget.map((item,i)=>`<tr><td>${i+1}</td><td>${item.name}</td><td>${item.partner||'—'}</td><td style="text-align:right">${item.valueClin!==undefined&&item.valuePartner>0?`${fmtMoney(item.valueClin)} + ${fmtMoney(item.valuePartner)} =`:''} <strong>${fmtMoney(item.total)}</strong></td></tr>`).join('');
+  const win=window.open('','_blank');
+  const logoHtmlOrc = LOGO_ORC ? `<img src="${LOGO_ORC}" style="height:55px;width:auto;max-width:180px;object-fit:contain;display:block;margin-bottom:14px;" alt="Logo">` : `<div style="font-size:18px;font-weight:900;color:#0A1F44;margin-bottom:14px;">🏥 Amor Saúde</div>`;
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Orçamento</title><style>@page{size:A4;margin:2cm}body{font-family:Arial,sans-serif;padding:0;max-width:750px;margin:0 auto}.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #0A1F44}h2{font-size:20px;margin-bottom:4px;color:#0A1F44}.sub{color:#666;font-size:12px;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{background:#f0f0f0;padding:8px 10px;text-align:left;font-size:12px;border-bottom:2px solid #ddd}td{padding:8px 10px;font-size:13px;border-bottom:1px solid #eee}.tf td{font-weight:700;font-size:15px;border-top:2px solid #333;background:#fafafa}</style></head><body><div class="header"><div>${logoHtmlOrc}</div><div style="text-align:right"><h2>Orçamento de Exames</h2><div class="sub">Emitido em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div></div></div><table><thead><tr><th>#</th><th>Exame</th><th>Local/Parceiro</th><th style="text-align:right">Valor</th></tr></thead><tbody>${rows}<tr class="tf"><td colspan="3">TOTAL</td><td style="text-align:right">${fmtMoney(total)}</td></tr></tbody></table><p style="margin-top:20px;font-size:11px;color:#999">* Valores sujeitos a alteração. Confirmar disponibilidade na recepção.</p><sc'+'ript>window.print();<'+'/script></body></html>`);
+  win.document.close();
+}
+
+
+// ─────────────────────────────────────────────
+// EXPORTAR PLANILHA DE PARCEIROS
+// ─────────────────────────────────────────────
+function gerarTextoMensagem(exam, p) {
+  // Gera o texto da orientação completa para a planilha
+  const info = CLINIC_INFO[p.name] || CLINIC_INFO[p.name.split('—')[0].trim()] || null;
+  const isInternal = !['Scoppeta','Auri Medicina','Prezecor','IMADI','Prezecor (Santana)','Dra. Silvia'].some(n => p.name.startsWith(n.split('—')[0].trim()));
+
+  let txt = '';
+  if (isInternal) {
+    txt += `Este exame é realizado em nossa unidade pelo(a) ${p.name}.`;
+    txt += `\nValor: ${fmtMoney(p.total)} pelo Cartão de Todos.`;
+    if (p.local) txt += `\nDias: ${p.local}`;
+  } else {
+    txt += `Este exame é realizado em uma parceira nossa, a ${p.name}, sendo necessário vir até a nossa unidade para realizar o agendamento.\n`;
+    txt += `\nValor total: ${fmtMoney(p.total)} pelo Cartão de Todos`;
+    if (p.valueClin > 0) txt += `\n  • Encaminhamento/Agendamento (AmorSaúde): ${fmtMoney(p.valueClin)}`;
+    if (p.valuePartner > 0) txt += `\n  • Restante (${p.name}): ${fmtMoney(p.valuePartner)}`;
+    if (info) {
+      if (info.address) txt += `\n\nEndereço: ${info.address}`;
+      if (info.tel) txt += `\nTelefone: ${info.tel}`;
+      if (info.schedule) txt += `\nHorário: ${info.schedule}`;
+    }
+    txt += `\n\n--- ORIENTAÇÕES ---`;
+    txt += `\n1. Agendar primeiramente na AMORSAÚDE PIRITUBA e pagar a Guia de Encaminhamento: ${fmtMoney(p.valueClin)}.`;
+    if (p.valuePartner > 0) txt += `\n2. O valor restante de ${fmtMoney(p.valuePartner)} é pago diretamente na ${p.name} no dia do exame.`;
+    if (p.name.startsWith('Scoppeta')) txt += `\n   Pagamento da entrada via PIX após agendamento.`;
+    if (p.name.includes('EL Diag')) txt += `\n   Informar ao agendar que será encaminhado pelo BUSCANDO SAÚDE.`;
+    
+  }
+  // Preparo
+  if (exam.prep_text) {
+    txt += `\n\nPREPARO: ${exam.prep_text.replace(/\n/g,' | ')}`;
+  } else if (exam.prepKey && PREPS[exam.prepKey]) {
+    const itens = PREPS[exam.prepKey].sections.flatMap(s => s.items).map(i => i.text);
+    txt += `\n\nPREPARO: ${itens.join(' | ')}`;
+  }
+  return txt.trim();
+}
+
+function exportarPlanilha() {
+  // Coleta todos os exames parceiros
+  const linhas = [['PARCEIRO', 'EXAME', 'CATEGORIA', 'VALOR TOTAL (R$)', 'GUIA AMORSAÚDE (R$)', 'PAGO NO LOCAL (R$)', 'ENDEREÇO', 'TELEFONE', 'ORIENTAÇÃO COMPLETA']];
+
+  EXAMS.forEach(exam => {
+    if (exam.type !== 'partner') return;
+    exam.partners.forEach(p => {
+      const info = CLINIC_INFO[p.name] || CLINIC_INFO[p.name.split('—')[0].trim()] || null;
+      const endereco = info ? (info.address || p.local || '') : (p.local || '');
+      const tel = info ? (info.tel || '') : '';
+      const orientacao = gerarTextoMensagem(exam, p);
+
+      linhas.push([
+        p.name,
+        exam.name,
+        exam.cat,
+        Number(p.total).toFixed(2).replace('.', ','),
+        Number(p.valueClin).toFixed(2).replace('.', ','),
+        Number(p.valuePartner).toFixed(2).replace('.', ','),
+        endereco,
+        tel,
+        orientacao
+      ]);
+    });
+  });
+
+  // Criar workbook
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(linhas);
+
+  // Larguras das colunas
+  ws['!cols'] = [
+    {wch:22}, // Parceiro
+    {wch:40}, // Exame
+    {wch:16}, // Categoria
+    {wch:16}, // Valor Total
+    {wch:20}, // Guia
+    {wch:20}, // Local
+    {wch:45}, // Endereço
+    {wch:22}, // Tel
+    {wch:80}, // Orientação
+  ];
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Parceiros e Orientações');
+
+  // Segunda aba: resumo por parceiro
+  const parceiros = {};
+  EXAMS.forEach(exam => {
+    if (exam.type !== 'partner') return;
+    exam.partners.forEach(p => {
+      if (!parceiros[p.name]) parceiros[p.name] = [];
+      parceiros[p.name].push(exam.name);
+    });
+  });
+  const linhas2 = [['PARCEIRO', 'TOTAL DE EXAMES', 'LISTA DE EXAMES']];
+  Object.entries(parceiros).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([nome, exames]) => {
+    linhas2.push([nome, exames.length, exames.join(' | ')]);
+  });
+  const ws2 = XLSX.utils.aoa_to_sheet(linhas2);
+  ws2['!cols'] = [{wch:28},{wch:16},{wch:100}];
+  XLSX.utils.book_append_sheet(wb, ws2, 'Resumo por Parceiro');
+
+  const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
+  XLSX.writeFile(wb, `AmorSaude_Parceiros_${dataHoje}.xlsx`);
+}
+
+  /* ── Navegação robusta (funciona no GitHub Pages) ── */
+  function irPara(arquivo) {
+      var href = window.location.href.split('?')[0].split('#')[0];
+      var base = href.substring(0, href.lastIndexOf('/') + 1);
+      window.location.replace(base + arquivo);
+    }
+
+init();
+window.dispatchEvent(new Event("examsReady"));
+
+  // ── Logo dinâmica Firebase ──
+  let LOGO_ORC = sessionStorage.getItem('logoDataUrl') || '';
+  (async function() {
+    try {
+      if (!LOGO_ORC) {
+        const r = await fetch('https://clinica-pirituba-default-rtdb.firebaseio.com/admin/logo.json');
+        const d = await r.json();
+        if (d && d.dataUrl) { LOGO_ORC = d.dataUrl; sessionStorage.setItem('logoDataUrl', d.dataUrl); }
+      }
+      if (LOGO_ORC) document.querySelectorAll('.logo-icon img').forEach(img => img.src = LOGO_ORC);
+    } catch(e) {}
+  })();
+
+</script>
 </body>
 </html>
