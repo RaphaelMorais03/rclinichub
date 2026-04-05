@@ -217,21 +217,9 @@
   .msg-close-btn{padding:10px 16px;background:var(--surface2);color:var(--text2);border:1px solid var(--border2);border-radius:var(--radius);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;}
   .msg-close-btn:hover{color:var(--text);}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script>
-  // Firebase config inline (centralizado)
-  if (typeof window.FIREBASE_CONFIG === 'undefined') {
-    window.FIREBASE_CONFIG = {
-      apiKey:            "AIzaSyAJwgap1ZVgRsjEW5G9idhuiG0SHowPUUg",
-      authDomain:        "clinica-pirituba.firebaseapp.com",
-      databaseURL:       "https://clinica-pirituba-default-rtdb.firebaseio.com",
-      projectId:         "clinica-pirituba",
-      storageBucket:     "clinica-pirituba.firebasestorage.app",
-      messagingSenderId: "873516334703",
-      appId:             "1:873516334703:web:1e20dc20b1c68e388a179a"
-    };
-  }
-</script>
+<script src="js/firebase-config.js"></script>
+  <script src="js/shared-utils.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
   import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
@@ -264,7 +252,7 @@
 <body>
 <div class="red-bar"></div>
 <header>
-  <div class="logo"><div class="logo-icon"><img src="__logoamor.ico__" alt="Amor Saúde" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'"></div><div><div style="color:#0A1F44;font-weight:800;letter-spacing:-.3px">Amor Saúde</div><div style="font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.3px">Orçamentos · Pirituba</div></div></div>
+  <div class="logo"><div class="logo-icon"><img src="assets/favicon.png" alt="Amor Saúde" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'"></div><div><div style="color:#0A1F44;font-weight:800;letter-spacing:-.3px">Amor Saúde</div><div style="font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.3px">Orçamentos · Pirituba</div></div></div>
   <div class="header-right"><div class="status-dot"></div><span style="color:var(--text2)">Online · <span id="totalExamsCount">0</span> exames</span><button onclick="irPara('login.html')" style="background:#C62828;border:none;color:white;font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:inherit;margin-left:8px;">🏠 Portal</button></div>
 </header>
 <div class="layout">
@@ -1466,10 +1454,11 @@ function init(){
   renderBudget();
   document.getElementById('totalExamsCount').textContent=EXAMS.length;
   const inp=document.getElementById('searchInput');
+  const _renderDebounced = debounce(renderExams, 250);
   inp.addEventListener('input',e=>{
     currentSearch=e.target.value.trim();
     document.getElementById('clearBtn').classList.toggle('visible',currentSearch.length>0);
-    renderExams();
+    _renderDebounced();
   });
 }
 
@@ -1932,7 +1921,8 @@ function printBudget(){
   const total=budget.reduce((s,i)=>s+i.total,0);
   const rows=budget.map((item,i)=>`<tr><td>${i+1}</td><td>${item.name}</td><td>${item.partner||'—'}</td><td style="text-align:right">${item.valueClin!==undefined&&item.valuePartner>0?`${fmtMoney(item.valueClin)} + ${fmtMoney(item.valuePartner)} =`:''} <strong>${fmtMoney(item.total)}</strong></td></tr>`).join('');
   const win=window.open('','_blank');
-  const logoHtmlOrc = LOGO_ORC ? `<img src="${LOGO_ORC}" style="height:55px;width:auto;max-width:180px;object-fit:contain;display:block;margin-bottom:14px;" alt="Logo">` : `<div style="font-size:18px;font-weight:900;color:#0A1F44;margin-bottom:14px;">🏥 Amor Saúde</div>`;
+  if(!win){alert('Permita pop-ups no navegador para imprimir.');return;}
+  const logoHtmlOrc ? `<img src="${LOGO_ORC}" style="height:55px;width:auto;max-width:180px;object-fit:contain;display:block;margin-bottom:14px;" alt="Logo">` : `<div style="font-size:18px;font-weight:900;color:#0A1F44;margin-bottom:14px;">🏥 Amor Saúde</div>`;
   win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Orçamento</title><style>@page{size:A4;margin:2cm}body{font-family:Arial,sans-serif;padding:0;max-width:750px;margin:0 auto}.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #0A1F44}h2{font-size:20px;margin-bottom:4px;color:#0A1F44}.sub{color:#666;font-size:12px;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{background:#f0f0f0;padding:8px 10px;text-align:left;font-size:12px;border-bottom:2px solid #ddd}td{padding:8px 10px;font-size:13px;border-bottom:1px solid #eee}.tf td{font-weight:700;font-size:15px;border-top:2px solid #333;background:#fafafa}</style></head><body><div class="header"><div>${logoHtmlOrc}</div><div style="text-align:right"><h2>Orçamento de Exames</h2><div class="sub">Emitido em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div></div></div><table><thead><tr><th>#</th><th>Exame</th><th>Local/Parceiro</th><th style="text-align:right">Valor</th></tr></thead><tbody>${rows}<tr class="tf"><td colspan="3">TOTAL</td><td style="text-align:right">${fmtMoney(total)}</td></tr></tbody></table><p style="margin-top:20px;font-size:11px;color:#999">* Valores sujeitos a alteração. Confirmar disponibilidade na recepção.</p><sc'+'ript>window.print();<'+'/script></body></html>`);
   win.document.close();
 }
