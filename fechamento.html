@@ -501,7 +501,6 @@
     }
   </style>
   <script>
-    // Firebase config inline fallback (centralizado em firebase-config.js)
     if (typeof window.FIREBASE_CONFIG === 'undefined') {
       window.FIREBASE_CONFIG = {
         apiKey:            "AIzaSyAJwgap1ZVgRsjEW5G9idhuiG0SHowPUUg",
@@ -516,8 +515,11 @@
   </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
-    const _fbApp = initializeApp(FIREBASE_CONFIG)();
+    import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+    
+    // Corrigido erro de sintaxe na inicialização
+    const _fbApp = initializeApp(window.FIREBASE_CONFIG);
+    const _fbDb = getDatabase(_fbApp);
 
     // Busca nome completo do usuário logado
     (async () => {
@@ -531,11 +533,33 @@
           sessionStorage.setItem('primeiroNome', nome.split(' ')[0]);
           const greet = document.getElementById('userGreeting');
           if (greet) greet.textContent = `Olá, ${nome.split(' ')[0]}! 👋`;
-          // Atualiza variável global do sistema legado
           if (typeof window._setUsuario === 'function') window._setUsuario(nome);
         }
-      } catch(e) {}
+      } catch(e) { console.warn('Erro ao buscar nome:', e); }
     })();
+
+    // Integração Firebase SaaS para Médicos (Substitui LocalStorage)
+    window.fechamentoExtras = [];
+    window.fechamentoDeleted = [];
+
+    onValue(ref(_fbDb, 'fechamento/profissionais_extras'), snap => {
+      window.fechamentoExtras = snap.val() || [];
+      if(window.atualizarListaGeralFechamento) window.atualizarListaGeralFechamento();
+    });
+
+    onValue(ref(_fbDb, 'fechamento/profissionais_apagados'), snap => {
+      window.fechamentoDeleted = snap.val() || [];
+      if(window.atualizarListaGeralFechamento) window.atualizarListaGeralFechamento();
+    });
+
+    window.saveFechamentoExtras = async function(arr) { 
+      await set(ref(_fbDb, 'fechamento/profissionais_extras'), arr); 
+    };
+    
+    window.saveFechamentoDeleted = async function(arr) { 
+      await set(ref(_fbDb, 'fechamento/profissionais_apagados'), arr); 
+    };
+
   </script>
 </head>
 <body>
@@ -553,7 +577,6 @@
     </div>
   </div>
 
-  <!-- Botão voltar ao portal -->
   <button class="back-portal no-print" onclick="irPara('login.html')">
     🏠 Voltar ao Portal
   </button>
@@ -647,10 +670,6 @@
         <div id="semProfissionais" class="empty-state hidden">
           <i class="fas fa-users"></i>
           <p>Nenhum cadastro encontrado</p>
-        </div>
-        <div style="margin-bottom:14px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;" class="no-print">
-          <button class="btn-small btn-primary" onclick="exportarDados()"><i class="fas fa-download"></i> Exportar</button>
-          <button class="btn-small btn-primary" onclick="importarDados()"><i class="fas fa-upload"></i> Importar</button>
         </div>
         <div id="listaProfissionais"></div>
       </div>
@@ -831,13 +850,27 @@
       {nome:'Anne Yoshimura Pestana',documento:'446.944.098-16',categoria:'repasse'}
     ];
 
-    let profissionais=JSON.parse(localStorage.getItem('profissionais'))||[];
+    let profissionais = []; // Agora preenchido via Nuvem/Base
     let itens=[];
     let dadosCalculo=null;
     let usuario=null;
     let currentStep=1;
 
-    profissionais.sort((a,b)=>a.nome.localeCompare(b.nome));
+    // Sincronizador de lista com o Firebase
+    window.atualizarListaGeralFechamento = function() {
+      const extras = window.fechamentoExtras || [];
+      const apagados = window.fechamentoDeleted || [];
+      
+      const overridden = extras.filter(e => e.overrideCpf).map(e => e.overrideCpf);
+      
+      // Base formatada para ter ID como CPF limpo
+      const base = baseProfissionais
+        .filter(b => !apagados.includes(b.documento.replace(/\D/g,'')) && !overridden.includes(b.documento.replace(/\D/g,'')))
+        .map(b => ({ ...b, id: b.documento.replace(/\D/g,'') }));
+
+      profissionais = [...base, ...extras].sort((a,b) => a.nome.localeCompare(b.nome));
+      atualizarListas();
+    }
 
     // Ler usuário da sessão
     const usuSessao=sessionStorage.getItem('usuario');
@@ -845,7 +878,6 @@
       usuario=usuSessao;
       document.getElementById('userGreeting').textContent=`Olá, ${usuSessao.split(' ')[0]}! 👋`;
     }
-    // Permite que o módulo Firebase atualize o nome após buscar no DB
     window._setUsuario = function(nome) { usuario = nome; };
     window._setLogoRecibo = function(url) { LOGO_RECIBO = url; };
     let LOGO_RECIBO = sessionStorage.getItem('logoDataUrl') || '';
@@ -885,8 +917,6 @@
       r.classList.remove('hidden');r.dataset.currentResults=JSON.stringify(f);
     },300);
 
-
-    /* Navegação robusta (GitHub Pages) */
     function irPara(arquivo) {
       var href = window.location.href.split('?')[0].split('#')[0];
       var base = href.substring(0, href.lastIndexOf('/') + 1);
@@ -906,31 +936,46 @@
       atualizarResumoProfissional(nome,doc);
     }
 
-    function salvarCadastro(){const id=document.getElementById('profId').value;if(id)editarProfissional(parseInt(id,10));else cadastrar();}
+    function salvarCadastro(){const id=document.getElementById('profId').value;if(id)editarProfissional(id);else cadastrar();}
 
     function cadastrar(){
       const nome=document.getElementById('profNome').value,doc=document.getElementById('profCpf').value,regime=document.getElementById('profRegime').value,cat=document.getElementById('profCategoria').value;
       if(!nome||!doc||!regime||!cat){showToast('Preencha todos os campos obrigatórios','error');return;}
       if(!validarCPF(doc)){showToast('CPF inválido','error');return;}
-      if(profissionais.some(p=>p.documento===doc)){showToast('Documento já cadastrado','error');return;}
-      const np={id:Date.now()+Math.floor(Math.random()*1000),nome,documento:doc,regime,categoria:cat,chavePix:document.getElementById('profChavePix').value};
-      profissionais.push(np);profissionais.sort((a,b)=>a.nome.localeCompare(b.nome));
-      localStorage.setItem('profissionais',JSON.stringify(profissionais));atualizarListas();
-      document.getElementById('profId').value=np.id;showToast('Cadastro realizado!','success');
+      
+      const docLimpo = doc.replace(/\D/g,'');
+      if(profissionais.some(p=>p.documento.replace(/\D/g,'')===docLimpo)){showToast('Documento já cadastrado','error');return;}
+      
+      const newExtras = [...(window.fechamentoExtras||[]), {id: docLimpo, nome, documento:doc, regime, categoria:cat, chavePix:document.getElementById('profChavePix').value}];
+      window.saveFechamentoExtras(newExtras);
+      document.getElementById('profId').value = docLimpo;
+      showToast('Cadastro realizado!','success');
     }
 
     function editarProfissional(id){
-      const p=profissionais.find(x=>x.id===id);if(!p)return;
       const nome=document.getElementById('profNome').value,doc=document.getElementById('profCpf').value,regime=document.getElementById('profRegime').value,cat=document.getElementById('profCategoria').value,pix=document.getElementById('profChavePix').value;
       if(!nome||!doc||!regime||!cat){showToast('Preencha todos os campos','error');return;}
       if(!validarCPF(doc)){showToast('CPF inválido','error');return;}
-      if(profissionais.some(x=>x.documento===doc&&x.id!==id)){showToast('Documento já cadastrado','error');return;}
-      p.nome=nome;p.documento=doc;p.regime=regime;p.categoria=cat;p.chavePix=pix;
-      profissionais.sort((a,b)=>a.nome.localeCompare(b.nome));localStorage.setItem('profissionais',JSON.stringify(profissionais));atualizarListas();showToast('Atualizado!','success');
+      
+      const docLimpo = doc.replace(/\D/g,'');
+      if(profissionais.some(x=>x.documento.replace(/\D/g,'')===docLimpo && x.id !== id)){showToast('Documento já em uso','error');return;}
+      
+      const extrasCpy = [...(window.fechamentoExtras||[])];
+      const idx = extrasCpy.findIndex(x => x.id === id);
+      if(idx !== -1) {
+        extrasCpy[idx] = {id: docLimpo, nome, documento:doc, regime, categoria:cat, chavePix:pix};
+      } else {
+        extrasCpy.push({id: docLimpo, nome, documento:doc, regime, categoria:cat, chavePix:pix, overrideCpf: id});
+      }
+      window.saveFechamentoExtras(extrasCpy);
+      showToast('Atualizado!','success');
     }
 
     function preencherEdicao(id){
-      const p=profissionais.find(x=>x.id===id);if(!p)return;
+      // Converte para string para busca exata
+      const strId = String(id);
+      const p = profissionais.find(x => x.id === strId); 
+      if(!p) return;
       document.getElementById('profId').value=p.id;document.getElementById('profNome').value=p.nome;document.getElementById('profCpf').value=p.documento;
       document.getElementById('profRegime').value=p.regime;document.getElementById('profCategoria').value=p.categoria;document.getElementById('profChavePix').value=p.chavePix||'';
       atualizarResumoProfissional(p.nome,p.documento);
@@ -944,17 +989,26 @@
       let opts='<option value="">Selecione...</option>';
       profissionais.forEach(p=>{
         const t=p.regime==='funcionario'?'Sem Descontos':'PJ';
-        html+=`<tr><td>${escapeHtml(p.nome)}</td><td><span class="badge ${escapeHtml(p.regime)}">${t}</span></td><td><button class="btn-primary btn-small" onclick="preencherEdicao(${p.id})"><i class="fas fa-edit"></i></button> <button class="btn-danger btn-small" onclick="excluir(${p.id})"><i class="fas fa-trash"></i></button></td></tr>`;
+        // Enviar o ID como string na chamada onlick para evitar erro no javascript com números iniciados em zero
+        html+=`<tr><td>${escapeHtml(p.nome)}</td><td><span class="badge ${escapeHtml(p.regime)}">${t}</span></td><td><button class="btn-primary btn-small" onclick="preencherEdicao('${p.id}')"><i class="fas fa-edit"></i></button> <button class="btn-danger btn-small" onclick="excluir('${p.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
         opts+=`<option value="${p.id}">${escapeHtml(p.nome)} (${t})</option>`;
       });
       html+='</table></div>';lista.innerHTML=html;sel.innerHTML=opts;
     }
 
-    async function excluir(id){if(await confirmar('Excluir este cadastro?')){profissionais=profissionais.filter(p=>p.id!==id);localStorage.setItem('profissionais',JSON.stringify(profissionais));atualizarListas();showToast('Excluído','success');}}
-
-    function exportarDados(){const d=JSON.stringify({version:1,profissionais},null,2);const b=new Blob([d],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`profissionais_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(u);showToast('Exportado!','success');}
-
-    async function importarDados(){if(!await confirmar('Importar vai substituir dados atuais. Continuar?'))return;const i=document.createElement('input');i.type='file';i.accept='application/json';i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);const l=Array.isArray(d)?d:d.profissionais;if(Array.isArray(l)){profissionais=l;profissionais.sort((a,b)=>a.nome.localeCompare(b.nome));localStorage.setItem('profissionais',JSON.stringify(profissionais));atualizarListas();showToast('Importado!','success');}else showToast('Arquivo inválido','error');}catch{showToast('Erro ao ler','error');};};r.readAsText(f);};i.click();}
+    async function excluir(id){
+      if(await confirmar('Excluir este cadastro?')){
+        const isBase = baseProfissionais.find(b => b.documento.replace(/\D/g,'') === id);
+        if (isBase) {
+           const newDel = [...(window.fechamentoDeleted||[]), id];
+           window.saveFechamentoDeleted(newDel);
+        } else {
+           const newExtras = (window.fechamentoExtras||[]).filter(p => p.id !== id);
+           window.saveFechamentoExtras(newExtras);
+        }
+        showToast('Excluído','success');
+      }
+    }
 
     function adicionarItem(){itens.push({id:Date.now()+Math.floor(Math.random()*1000),qtd:1,descricao:'',valorUnitario:0,valorTotal:0});renderizarItens();}
     function removerItem(id){itens=itens.filter(i=>i.id!==id);renderizarItens();}
@@ -976,7 +1030,8 @@
     function togglePagoCheckbox(){const f=document.getElementById('formaPagamento').value,c=document.getElementById('pagoHojeContainer');if(f==='dinheiro')c.style.display='flex';else{c.style.display='none';document.getElementById('pagoHojeCheckbox').checked=false;}}
 
     function calcular(){
-      const idP=parseInt(document.getElementById('selectProfissional').value,10),p=profissionais.find(x=>x.id===idP);
+      const idSelecionado = document.getElementById('selectProfissional').value;
+      const p = profissionais.find(x => x.id === idSelecionado);
       if(!p){showToast('Selecione um profissional','error');return false;}
       if(!validarItensAntesDoCalculo())return false;
       const sub=itens.reduce((s,i)=>s+i.valorTotal,0);
@@ -1033,7 +1088,10 @@
       });
       document.getElementById('themeToggle').addEventListener('click',toggleTheme);
       atualizarResumoProfissional('','');
-      atualizarListas();
+      
+      // Chamada para forçar sincronismo inicial com a base hardcoded caso não puxe logo
+      window.atualizarListaGeralFechamento();
+
       if(!itens.length)adicionarItem();
       atualizarEtapas();
     });
