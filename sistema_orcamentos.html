@@ -85,10 +85,8 @@
   .card-price-label{font-size:9px;color:var(--text3);margin-right:3px;}
   .card-cat{font-size:10px;color:var(--text3);}
   .card-actions{display:flex;gap:3px;flex-shrink:0;align-items:center;}
-  /* Botão Preparo */
   .card-prep-btn{font-size:10px;font-weight:600;background:rgba(57,211,83,.1);color:#39d353;border:1px solid rgba(57,211,83,.25);padding:3px 7px;border-radius:5px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:3px;white-space:nowrap;}
   .card-prep-btn:hover{background:#39d353;color:#000;border-color:#39d353;}
-  /* Botão Mensagem */
   .card-msg-btn{font-size:10px;font-weight:600;background:rgba(163,113,247,.12);color:var(--purple);border:1px solid rgba(163,113,247,.25);padding:3px 7px;border-radius:5px;cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:3px;white-space:nowrap;}
   .card-msg-btn:hover{background:var(--purple);color:#fff;border-color:var(--purple);}
   .empty-state{grid-column:1/-1;text-align:center;padding:60px 20px;color:#94a3b8;}
@@ -220,28 +218,46 @@
   .msg-close-btn:hover{color:var(--text);}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script>
-    // Firebase config inline (centralizado)
-    if (typeof window.FIREBASE_CONFIG === 'undefined') {
-      window.FIREBASE_CONFIG = {
-        apiKey:            "AIzaSyAJwgap1ZVgRsjEW5G9idhuiG0SHowPUUg",
-        authDomain:        "clinica-pirituba.firebaseapp.com",
-        databaseURL:       "https://clinica-pirituba-default-rtdb.firebaseio.com",
-        projectId:         "clinica-pirituba",
-        storageBucket:     "clinica-pirituba.firebasestorage.app",
-        messagingSenderId: "873516334703",
-        appId:             "1:873516334703:web:1e20dc20b1c68e388a179a"
-      };
-    }
-  </script>
-  <script type="module">
+<script>
+  // Firebase config inline (centralizado)
+  if (typeof window.FIREBASE_CONFIG === 'undefined') {
+    window.FIREBASE_CONFIG = {
+      apiKey:            "AIzaSyAJwgap1ZVgRsjEW5G9idhuiG0SHowPUUg",
+      authDomain:        "clinica-pirituba.firebaseapp.com",
+      databaseURL:       "https://clinica-pirituba-default-rtdb.firebaseio.com",
+      projectId:         "clinica-pirituba",
+      storageBucket:     "clinica-pirituba.firebasestorage.app",
+      messagingSenderId: "873516334703",
+      appId:             "1:873516334703:web:1e20dc20b1c68e388a179a"
+    };
+  }
+</script>
+<script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
   import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
-  const _app = initializeApp(FIREBASE_CONFIG);
-        // Re-render se já inicializado
+  
+  const _app = initializeApp(window.FIREBASE_CONFIG);
+  const _db = getDatabase(_app);
+
+  // Busca preços atualizados do Painel Admin (Firebase) para sobrescrever os hardcoded
+  (async function() {
+    try {
+      const snap = await get(ref(_db, 'admin/precos'));
+      if (snap.exists()) {
+        const precosDB = snap.val();
+        window.EXAMS_GLOBAL.forEach(ex => {
+          if (precosDB[ex.id]) {
+            if (ex.value) {
+              ex.value.ct = precosDB[ex.id].ct !== undefined ? parseFloat(String(precosDB[ex.id].ct).replace(',','.')) : ex.value.ct;
+              ex.value.part = precosDB[ex.id].part !== undefined ? parseFloat(String(precosDB[ex.id].part).replace(',','.')) : ex.value.part;
+            }
+          }
+        });
         if (typeof window.reRenderExams === 'function') window.reRenderExams();
-      });
-    } catch(e) { console.warn('Firebase precos:', e); }
+      }
+    } catch(e) {
+      console.warn('Erro ao sincronizar preços do Firebase:', e);
+    }
   })();
 </script>
 </head>
@@ -291,7 +307,6 @@
   </aside>
 
   <main class="center">
-    <!-- Search bar centralizado no topo -->
     <div style="padding:12px 20px 10px;border-bottom:1px solid #e2e8f0;background:#ffffff;">
       <div class="search-wrap" style="max-width:560px;margin:0 auto;">
         <span class="search-icon">🔍</span>
@@ -332,7 +347,6 @@
   </aside>
 </div>
 
-<!-- EXAM MODAL -->
 <div class="overlay" id="overlay" onclick="closeModalOnBg(event)">
   <div class="modal">
     <div class="modal-header">
@@ -343,7 +357,6 @@
   </div>
 </div>
 
-<!-- PREPARO MODAL -->
 <div class="overlay" id="prepOverlay" onclick="closePrepOnBg(event)">
   <div class="prep-modal">
     <div class="prep-modal-header">
@@ -360,7 +373,6 @@
   </div>
 </div>
 
-<!-- MESSAGE MODAL -->
 <div id="msgOverlay" onclick="closeMsgOnBg(event)">
   <div class="msg-modal">
     <div class="msg-modal-header">
@@ -1024,7 +1036,7 @@ const EXAMS = [
    desc:'Avaliação da força e funcionalidade muscular. Somente Dra. Cinthya.',
    prep_text:'Não realizar exercícios intensos 24h antes.',value:{ct:80,part:100}},
   {id:56,name:'Bioimpedanciometria',cat:'Outros',type:'normal',
-   desc:'Avaliação de composição corporal — gordura, músculo e água.',
+   desc:'Avaliação de composition corporal — gordura, músculo e água.',
    prep_text:'Não praticar exercícios intensos 24h antes. Necessário realizar consulta com a doutora antes de agendar o exame.',value:{ct:80,part:100}},
   {id:60,name:'Fisioterapia Ortopédica (sessão)',cat:'Outros',type:'normal',
    desc:'Sessão de fisioterapia ortopédica.',
@@ -2031,61 +2043,6 @@ function exportarPlanilha() {
   const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
   XLSX.writeFile(wb, `AmorSaude_Parceiros_${dataHoje}.xlsx`);
 }
-
-function exportarPlanilha(){
-  // Gera CSV com todos os exames de parceiros externos
-  const rows=[['Parceiro','Exame','Categoria','Valor Guia (R$)','Valor Parceiro (R$)','Valor Total (R$)','Endereço / Local','Orientação Completa']];
-
-  const externos=['Scoppeta','Auri Medicina','Prezecor','IMADI','Prezecor (Santana)','Dra. Silvia'];
-
-  EXAMS.forEach(exam=>{
-    if(exam.type!=='partner') return;
-    exam.partners.forEach(p=>{
-      const isExterno = externos.some(n=>p.name.startsWith(n.split('—')[0].trim()));
-      if(!isExterno) return; // pula médicos internos
-
-      const info = CLINIC_INFO[p.name] || CLINIC_INFO[p.name.split('—')[0].trim()] || null;
-      const endereco = info ? (info.address||(info.schedule?'Horário: '+info.schedule:'')) : (p.local||'');
-      const msg = generateMessage(exam, exam.partners.indexOf(p));
-      // Limpa asteriscos e emojis para a planilha ficar mais limpa
-      const msgLimpa = msg
-        .replace(/\*/g,'')
-        .replace(/[🏥📋💰📌📍📞🕐🔬🗓️⚠️💳ℹ️❌✅─━]/gu,' ')
-        .replace(/\s{3,}/g,' ')
-        .trim();
-
-      rows.push([
-        p.name,
-        exam.name,
-        exam.cat,
-        p.valueClin.toFixed(2).replace('.',','),
-        p.valuePartner.toFixed(2).replace('.',','),
-        p.total.toFixed(2).replace('.',','),
-        endereco,
-        msgLimpa
-      ]);
-    });
-  });
-
-  // Converte para CSV com separador ; (compatível com Excel BR)
-  const csvContent = rows.map(row=>
-    row.map(cell=>{
-      const s = String(cell).replace(/"/g,'""');
-      return `"${s}"`;
-    }).join(';')
-  ).join('\r\n');
-
-  // BOM para Excel reconhecer UTF-8
-  const BOM = '\uFEFF';
-  const blob = new Blob([BOM+csvContent],{type:'text/csv;charset=utf-8;'});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = 'parceiros_orcamentos_amorsaude.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 
   /* ── Navegação robusta (funciona no GitHub Pages) ── */
   function irPara(arquivo) {
