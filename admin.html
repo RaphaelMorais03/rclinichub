@@ -6,2088 +6,590 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin — Amor Saúde Pirituba</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="js/firebase-config.js"></script>
+  <script src="js/shared-utils.js"></script>
   <style>
-    :root{
-      --navy:#0A1F44;--navy-mid:#122b5e;
-      --red:#C62828;--red-h:#ad1f1f;
-      --teal:#61C1D0;
-      --gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;
-      --gray-300:#cbd5e1;--gray-400:#94a3b8;--gray-500:#64748b;
-      --gray-600:#475569;--gray-700:#334155;--gray-800:#1e293b;
-      --green:#15803d;--green-bg:#dcfce7;
-      --amber:#b45309;--amber-bg:#fef3c7;
-      --shadow:0 4px 20px rgba(10,31,68,.1);
-    }
-    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:'Inter',sans-serif;background:#f0f4f8;color:var(--gray-800);min-height:100vh;}
+    :root{--navy:#0A1F44;--navy-mid:#122b5e;--red:#C62828;--red-h:#ad1f1f;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#cbd5e1;--gray-400:#94a3b8;--gray-500:#64748b;--gray-600:#475569;--gray-800:#1e293b;--green:#15803d;--amber:#b45309;--shadow:0 4px 20px rgba(10,31,68,.1);}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:"Inter",sans-serif;background:#f0f4f8;color:var(--gray-800);min-height:100vh;}
     .red-bar{height:3px;background:var(--red);position:fixed;top:0;left:0;right:0;z-index:200;}
-
-    /* Header */
-    .s-header{background:white;border-bottom:2px solid var(--gray-200);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:3px;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+    .s-header{background:#fff;border-bottom:2px solid var(--gray-200);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:3px;z-index:100;}
     .s-logo{display:flex;align-items:center;gap:12px;}
-    .s-logo-icon{width:40px;height:40px;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--navy);}
+    .s-logo-icon{width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;}
     .s-logo-icon img{width:100%;height:100%;object-fit:contain;}
     .s-logo-name{font-size:16px;font-weight:800;color:var(--navy);}
     .s-logo-sub{font-size:10px;color:var(--gray-400);}
-    .admin-badge{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:white;font-size:9px;font-weight:800;letter-spacing:1px;padding:3px 9px;border-radius:20px;text-transform:uppercase;}
-    .back-btn{background:var(--red);color:white;border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;}
+    .back-btn{background:var(--red);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
     .back-btn:hover{background:var(--red-h);}
-
-    .content{max-width:1000px;margin:0 auto;padding:24px 24px 60px;}
-
-    /* Tabs */
-    .tabs{display:flex;gap:4px;margin-bottom:22px;background:white;border:1px solid var(--gray-200);border-radius:14px;padding:6px;box-shadow:var(--shadow);flex-wrap:wrap;}
-    .tab-btn{padding:9px 14px;border:none;background:none;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;gap:6px;transition:all .18s;white-space:nowrap;}
+    .content{max-width:1100px;margin:0 auto;padding:28px 24px 60px;}
+    .tabs{display:flex;gap:4px;margin-bottom:22px;background:#fff;border:1px solid var(--gray-200);border-radius:14px;padding:6px;box-shadow:var(--shadow);}
+    .tab-btn{flex:1;padding:9px 10px;border:none;background:none;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .18s;}
     .tab-btn:hover{color:var(--navy);background:var(--gray-50);}
-    .tab-btn.active{color:white;background:var(--navy);box-shadow:0 4px 12px rgba(10,31,68,.25);}
-    .tab-pane{display:none;}
-    .tab-pane.active{display:block;}
-
-    /* Panel */
-    .panel{background:white;border:1px solid var(--gray-200);border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:var(--shadow);}
-    .panel-title{font-size:14px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+    .tab-btn.active{color:#fff;background:var(--navy);}
+    .tab-pane{display:none;}.tab-pane.active{display:block;}
+    .panel{background:#fff;border:1px solid var(--gray-200);border-radius:16px;padding:24px;margin-bottom:18px;box-shadow:var(--shadow);}
+    .panel-title{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:8px;}
     .panel-title i{color:var(--red);}
-
-    /* Forms */
-    .f-row{display:grid;gap:12px;margin-bottom:14px;}
-    .f-row.c2{grid-template-columns:1fr 1fr;}
-    .f-row.c3{grid-template-columns:1fr 1fr 1fr;}
-    .f-label{font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:5px;}
-    .f-input,.f-select{padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:13px;color:var(--gray-800);background:var(--gray-50);outline:none;transition:border-color .2s;width:100%;}
-    .f-input:focus,.f-select:focus{border-color:var(--navy);background:white;}
-
-    /* Buttons */
-    .btn-primary{padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .2s;}
-    .btn-primary:hover{background:var(--navy-mid);}
-    .btn-secondary{padding:8px 14px;background:var(--gray-100);color:var(--gray-600);border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
-    .btn-secondary:hover{background:var(--gray-200);}
-    .btn-danger{padding:8px 14px;background:var(--red);color:white;border:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
-    .btn-danger:hover{background:var(--red-h);}
-
-    /* Item list */
-    .item-list{display:flex;flex-direction:column;gap:8px;}
-    .item-row{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:11px;}
-    .item-row:hover{border-color:var(--navy);}
-    .item-info{flex:1;min-width:0;}
-    .item-nome{font-size:13px;font-weight:700;color:var(--navy);}
-    .item-sub{font-size:11px;color:var(--gray-400);margin-top:1px;}
-    .item-badge{font-size:9px;font-weight:800;padding:3px 9px;border-radius:8px;text-transform:uppercase;flex-shrink:0;}
-    .badge-admin{background:#f3e8ff;color:#7c3aed;}
-    .badge-fin{background:var(--amber-bg);color:var(--amber);}
-    .badge-user{background:var(--green-bg);color:var(--green);}
-    .btn-reset-sm{width:30px;height:30px;background:white;border:1.5px solid var(--gray-200);border-radius:7px;cursor:pointer;color:var(--gray-500);font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .btn-reset-sm:hover{border-color:var(--navy);color:var(--navy);}
-    .btn-danger-sm{width:30px;height:30px;background:rgba(198,40,40,.06);border:1.5px solid #fecaca;border-radius:7px;cursor:pointer;color:var(--red);font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-    .btn-danger-sm:hover{background:var(--red);color:white;}
-
-    /* Permissions */
-    .perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
-    .perm-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:9px;}
-    .perm-item input{width:15px;height:15px;accent-color:var(--navy);}
-    .perm-item label{font-size:12px;font-weight:600;color:var(--gray-700);}
-
-    /* Exam search */
-    .exam-row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--gray-100);}
-    .exam-row:last-child{border-bottom:none;}
-    .exam-nome{flex:1;font-size:13px;color:var(--gray-700);}
-    .exam-precos{font-size:11px;color:var(--gray-400);min-width:140px;text-align:right;}
-
-    /* Logo */
-    .logo-preview-box{width:80px;height:80px;border-radius:12px;background:var(--navy);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;}
-    .logo-preview-box img{width:100%;height:100%;object-fit:contain;}
-    .drop-zone{border:2.5px dashed var(--gray-300);border-radius:14px;padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:white;}
-    .drop-zone:hover{border-color:var(--navy);background:var(--gray-50);}
-
-    /* Modal */
-    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px);}
-    .modal-bg.open{display:flex;}
-    .modal-box{background:white;border-radius:18px;width:100%;max-width:520px;box-shadow:0 24px 60px rgba(0,0,0,.3);}
-    .modal-hdr{padding:18px 22px;border-bottom:1.5px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;}
-    .modal-hdr h3{font-size:16px;font-weight:800;color:var(--navy);}
-    .modal-body{padding:20px 22px;}
-    .modal-footer{padding:14px 22px;border-top:1px solid var(--gray-100);display:flex;gap:10px;justify-content:flex-end;}
-    .modal-close{width:30px;height:30px;background:var(--gray-100);border:none;border-radius:7px;cursor:pointer;color:var(--gray-500);font-size:14px;display:flex;align-items:center;justify-content:center;}
-
-    /* Import */
-    .import-drop{border:2px dashed var(--gray-300);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:white;}
-    .import-drop:hover{border-color:var(--navy);background:var(--gray-50);}
-    .import-card{display:none;padding:14px 16px;background:var(--green-bg);border:1.5px solid #bbf7d0;border-radius:12px;margin-top:10px;}
-    .import-card-inner{display:flex;align-items:center;gap:12px;}
-
-    /* Toast */
-    .toast-box{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
-    .toast{padding:11px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;color:white;box-shadow:0 4px 14px rgba(0,0,0,.2);animation:sIn .3s ease;max-width:320px;}
-    @keyframes sIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .toast.success{background:var(--green);}
-    .toast.error{background:var(--red);}
-    .toast.info{background:var(--navy);}
-    .spinner-sm{width:14px;height:14px;border:2px solid rgba(255,255,255,.4);border-top-color:white;border-radius:50%;animation:spin .8s linear infinite;display:none;}
-
-    /* Search */
-    .search-wrap{position:relative;margin-bottom:14px;}
-    .search-wrap input{padding:9px 12px 9px 34px;border:1.5px solid var(--gray-200);border-radius:10px;font-family:inherit;font-size:13px;width:100%;outline:none;background:white;}
-    .search-wrap input:focus{border-color:var(--navy);}
-    .search-wrap i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--gray-400);font-size:12px;}
-
-    @media(max-width:768px){
-      .f-row.c2,.f-row.c3{grid-template-columns:1fr;}
-      .tabs{gap:3px;}
-      .tab-btn{padding:8px 10px;font-size:11px;}
-    }
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+    .form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
+    .form-group{display:flex;flex-direction:column;gap:6px;}
+    .f-label{font-size:11px;font-weight:700;letter-spacing:.7px;text-transform:uppercase;color:var(--gray-500);}
+    .f-input,.f-select,.f-textarea{padding:10px 13px;border:1.5px solid var(--gray-200);border-radius:10px;font-family:inherit;font-size:14px;color:var(--gray-800);background:var(--gray-50);outline:none;transition:border-color .2s;width:100%;}
+    .f-input:focus,.f-select:focus,.f-textarea:focus{border-color:var(--navy);background:#fff;}
+    .f-textarea{resize:vertical;min-height:80px;}
+    .btn-p{padding:10px 20px;background:var(--navy);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .2s;}
+    .btn-p:hover{background:var(--navy-mid);transform:translateY(-1px);}
+    .btn-r{padding:10px 16px;background:var(--red);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:7px;}
+    .btn-r:hover{background:var(--red-h);}
+    .btn-s{padding:10px 16px;background:var(--gray-100);color:var(--gray-600);border:1.5px solid var(--gray-200);border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;}
+    .list-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:10px;margin-bottom:7px;}
+    .list-item:hover{border-color:var(--navy);}
+    .li-info{flex:1;min-width:0;}
+    .li-name{font-size:13px;font-weight:700;color:var(--gray-800);}
+    .li-sub{font-size:11px;color:var(--gray-400);margin-top:1px;}
+    .btn-del{width:28px;height:28px;background:rgba(198,40,40,.08);border:none;border-radius:7px;cursor:pointer;color:var(--red);font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .btn-del:hover{background:var(--red);color:#fff;}
+    .btn-edit{width:28px;height:28px;background:rgba(10,31,68,.08);border:none;border-radius:7px;cursor:pointer;color:var(--navy);font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .btn-edit:hover{background:var(--navy);color:#fff;}
+    .badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;}
+    .badge-admin{background:rgba(180,83,9,.15);color:var(--amber);}
+    .badge-user{background:rgba(10,31,68,.12);color:var(--navy);}
+    .badge-fin{background:rgba(21,128,61,.15);color:var(--green);}
+    .toast-box{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{padding:11px 18px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:9px;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.2);animation:sIn .3s ease;max-width:320px;}
+    @keyframes sIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+    .toast.success{background:var(--green);}.toast.error{background:var(--red);}.toast.info{background:var(--navy);}
+    .logo-preview{width:100px;height:100px;border-radius:12px;border:2px solid var(--gray-200);object-fit:contain;background:var(--gray-50);}
+    .upload-zone{border:2px dashed var(--gray-300);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s;}
+    .upload-zone:hover{border-color:var(--navy);}
+    .price-search{display:flex;gap:8px;margin-bottom:14px;}
+    .price-search .f-input{flex:1;}
+    .exam-price-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;margin-bottom:6px;}
+    .exam-price-item:hover{border-color:var(--navy);}
+    .epi-name{flex:1;font-size:13px;font-weight:600;color:var(--gray-800);}
+    .epi-cat{font-size:10px;color:var(--gray-400);width:100px;flex-shrink:0;}
+    .epi-price{width:110px;flex-shrink:0;}
+    .epi-price input{padding:5px 8px;border:1px solid var(--gray-200);border-radius:6px;font-family:inherit;font-size:12px;font-weight:700;color:var(--red);width:100%;text-align:right;outline:none;}
+    .epi-price input:focus{border-color:var(--navy);}
+    .atend-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+    .atend-tag{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;}
+    .atend-tag button{background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:13px;}
+    .atend-tag button:hover{color:var(--red);}
+    @media(max-width:768px){.form-row,.form-row-3{grid-template-columns:1fr;}.tabs{flex-wrap:wrap;}}
   </style>
 </head>
 <body>
   <div class="red-bar"></div>
   <div class="toast-box" id="toastBox"></div>
 
-  <div class="modal-bg" id="modalPerms">
-    <div class="modal-box">
-      <div class="modal-hdr">
-        <h3><i class="fas fa-shield-halved" style="color:var(--red)"></i> Permissões</h3>
-        <button class="modal-close" onclick="fecharModalPerms()"><i class="fas fa-xmark"></i></button>
-      </div>
-      <div class="modal-body">
-        <div style="font-size:12px;color:var(--gray-500);margin-bottom:12px;" id="permsUserEmail">—</div>
-        <div class="perm-grid" id="permsCheckboxes"></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" onclick="fecharModalPerms()">Cancelar</button>
-        <button class="btn-primary" onclick="salvarPermissoes()"><i class="fas fa-save"></i> Salvar</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal-bg" id="modalExame">
-    <div class="modal-box">
-      <div class="modal-hdr">
-        <h3><i class="fas fa-flask" style="color:var(--red)"></i> Editar Preço</h3>
-        <button class="modal-close" onclick="fecharModalExame()"><i class="fas fa-xmark"></i></button>
-      </div>
-      <div class="modal-body">
-        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:16px;" id="modalExameNome">—</div>
-        <input type="hidden" id="modalExameId">
-        <div class="f-row c2">
-          <div><label class="f-label">Valor CT / Convênio</label><input class="f-input" id="modalExameCT" placeholder="0,00"></div>
-          <div><label class="f-label">Valor Particular</label><input class="f-input" id="modalExamePart" placeholder="0,00"></div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-secondary" onclick="fecharModalExame()">Cancelar</button>
-        <button class="btn-primary" onclick="salvarPrecoExame()"><i class="fas fa-save"></i> Salvar</button>
-      </div>
-    </div>
-  </div>
-
   <div class="s-header">
     <div class="s-logo">
-      <div class="s-logo-icon"><img src="assets/favicon.png" alt="" onerror="this.style.display='none'" id="headerLogo"></div>
-      <div>
-        <div class="s-logo-name">Amor Saúde</div>
-        <div class="s-logo-sub">Gerenciamento · Pirituba</div>
-      </div>
+      <div class="s-logo-icon"><img src="assets/favicon.png" alt="Logo" id="headerLogo"></div>
+      <div><div class="s-logo-name">Amor Saúde</div><div class="s-logo-sub">Painel Admin · Pirituba</div></div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <span class="admin-badge"><i class="fas fa-shield-halved"></i> Admin</span>
+      <span style="font-size:11px;background:rgba(180,83,9,.15);color:var(--amber);border-radius:20px;padding:4px 12px;font-weight:700;"><i class="fas fa-shield-halved"></i> Admin</span>
       <button class="back-btn" onclick="irPara('login.html')"><i class="fas fa-home"></i> Portal</button>
     </div>
   </div>
 
   <div class="content">
     <div class="tabs">
-      <button class="tab-btn active" id="tabUsuarios"  onclick="mudarTab('usuarios')"><i class="fas fa-users"></i> Usuários</button>
-      <button class="tab-btn"        id="tabClinica"   onclick="mudarTab('clinica')"><i class="fas fa-hospital"></i> Clínica</button>
-      <button class="tab-btn"        id="tabAtendentes"onclick="mudarTab('atendentes')"><i class="fas fa-user-tie"></i> Atendentes</button>
-      <button class="tab-btn"        id="tabAcessos"   onclick="mudarTab('acessos')"><i class="fas fa-key"></i> Acessos</button>
-      <button class="tab-btn"        id="tabExames"    onclick="mudarTab('exames')"><i class="fas fa-flask"></i> Exames</button>
-      <button class="tab-btn"        id="tabLogo"      onclick="mudarTab('logo')"><i class="fas fa-image"></i> Logo</button>
-      <button class="tab-btn"        id="tabImportar"  onclick="mudarTab('importar')"><i class="fas fa-file-import"></i> Importar Exames</button>
+      <button class="tab-btn active" id="tabUsuarios"   onclick="tab('usuarios')"><i class="fas fa-users"></i> Usuários</button>
+      <button class="tab-btn"        id="tabClinica"    onclick="tab('clinica')"><i class="fas fa-hospital"></i> Clínica</button>
+      <button class="tab-btn"        id="tabAtendentes" onclick="tab('atendentes')"><i class="fas fa-user-headset"></i> Atendentes</button>
+      <button class="tab-btn"        id="tabAcessos"    onclick="tab('acessos')"><i class="fas fa-key"></i> Acessos</button>
+      <button class="tab-btn"        id="tabExames"     onclick="tab('exames')"><i class="fas fa-file-medical"></i> Preços</button>
+      <button class="tab-btn"        id="tabLogo"       onclick="tab('logo')"><i class="fas fa-image"></i> Logo</button>
     </div>
 
+    <!-- USUÁRIOS -->
     <div class="tab-pane active" id="paneUsuarios">
       <div class="panel">
-        <div class="panel-title"><i class="fas fa-user-plus"></i> Criar novo usuário</div>
-        <div class="f-row c3">
-          <div><label class="f-label">Nome completo</label><input class="f-input" id="novoNomeCompleto" placeholder="Ex: MARIA SILVA" oninput="this.value=this.value.toUpperCase()"></div>
-          <div><label class="f-label">E-mail</label><input class="f-input" id="novoEmail" type="email" placeholder="usuario@email.com"></div>
-          <div><label class="f-label">Senha (mín. 6 dígitos)</label><input class="f-input" id="novaSenha" type="password" placeholder="••••••"></div>
+        <div class="panel-title"><i class="fas fa-user-plus"></i> Criar Usuário</div>
+        <div class="form-row">
+          <div class="form-group"><label class="f-label">Nome completo *</label><input class="f-input" type="text" id="uNome" placeholder="Nome completo"></div>
+          <div class="form-group"><label class="f-label">E-mail *</label><input class="f-input" type="email" id="uEmail" placeholder="usuario@email.com"></div>
         </div>
-        <div style="margin-bottom:14px;">
-          <label class="f-label" style="margin-bottom:8px;">Permissões iniciais</label>
-          <div class="perm-grid">
-            <div class="perm-item"><input type="checkbox" id="pNovFin"><label for="pNovFin">💰 Financeiro</label></div>
-            <div class="perm-item"><input type="checkbox" id="pNovOrc"><label for="pNovOrc">📋 Orçamentos</label></div>
-            <div class="perm-item"><input type="checkbox" id="pNovExm"><label for="pNovExm">🔬 Retirada de Exames</label></div>
-            <div class="perm-item"><input type="checkbox" id="pNovCrn" checked><label for="pNovCrn">📅 Cronograma</label></div>
+        <div class="form-row">
+          <div class="form-group"><label class="f-label">Senha provisória *</label><input class="f-input" type="password" id="uSenha" placeholder="mínimo 6 caracteres"></div>
+          <div class="form-group"><label class="f-label">Perfil *</label>
+            <select class="f-select" id="uPerfil">
+              <option value="">Selecione...</option>
+              <option value="user">Usuário padrão</option>
+              <option value="financeiro">Acesso Financeiro</option>
+              <option value="admin">Administrador</option>
+            </select>
           </div>
         </div>
-        <button class="btn-primary" onclick="criarUsuario()">
-          <span class="spinner-sm" id="spinCriar"></span>
-          <i class="fas fa-user-plus" id="icoCriar"></i> Criar Usuário
-        </button>
+        <button class="btn-p" onclick="criarUsuario()"><i class="fas fa-user-plus"></i> Criar Usuário</button>
       </div>
       <div class="panel">
-        <div class="panel-title"><i class="fas fa-list"></i> Usuários cadastrados</div>
-        <div class="search-wrap"><i class="fas fa-search"></i><input type="text" placeholder="Buscar..." oninput="filtrarUsuarios(this.value)"></div>
-        <div id="listaUsuarios"><div style="text-align:center;padding:20px;color:var(--gray-400);">Carregando...</div></div>
+        <div class="panel-title"><i class="fas fa-users"></i> Usuários Cadastrados</div>
+        <div id="listaUsuarios"><div style="text-align:center;padding:20px;color:var(--gray-400);font-size:13px;">Carregando...</div></div>
       </div>
     </div>
 
+    <!-- CLÍNICA -->
     <div class="tab-pane" id="paneClinica">
       <div class="panel">
         <div class="panel-title"><i class="fas fa-hospital"></i> Informações da Clínica</div>
-        <div class="f-row c2">
-          <div><label class="f-label">Nome da Clínica</label><input class="f-input" id="cNome" placeholder="Amor Saúde Pirituba"></div>
-          <div><label class="f-label">CNPJ</label><input class="f-input" id="cCnpj" placeholder="00.000.000/0001-00"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="f-label">Nome *</label><input class="f-input" type="text" id="cliNome" placeholder="Nome da clínica"></div>
+          <div class="form-group"><label class="f-label">CNPJ</label><input class="f-input" type="text" id="cliCnpj" placeholder="00.000.000/0001-00"></div>
         </div>
-        <div class="f-row"><label class="f-label">Endereço</label><input class="f-input" id="cEndereco"></div>
-        <div class="f-row c2">
-          <div><label class="f-label">Telefone</label><input class="f-input" id="cTelefone"></div>
-          <div><label class="f-label">Horário</label><input class="f-input" id="cHorario"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="f-label">Endereço</label><input class="f-input" type="text" id="cliEndereco" placeholder="Endereço completo"></div>
+          <div class="form-group"><label class="f-label">Telefone</label><input class="f-input" type="tel" id="cliTelefone" placeholder="(11) 00000-0000"></div>
         </div>
-        <div class="f-row"><label class="f-label">Razão Social (recibos)</label><input class="f-input" id="cEmpresa" placeholder="SIM CLÍNICA MÉDICA E ODONTOLÓGICA LTDA"></div>
-        <button class="btn-primary" onclick="salvarClinica()"><i class="fas fa-save"></i> Salvar</button>
+        <div class="form-group" style="margin-bottom:16px;">
+          <label class="f-label">E-mail da clínica</label>
+          <input class="f-input" type="email" id="cliEmail" placeholder="contato@clinica.com">
+        </div>
+        <button class="btn-p" onclick="salvarClinica()"><i class="fas fa-save"></i> Salvar</button>
       </div>
     </div>
 
+    <!-- ATENDENTES -->
     <div class="tab-pane" id="paneAtendentes">
       <div class="panel">
-        <div class="panel-title"><i class="fas fa-user-plus"></i> Adicionar atendente</div>
-        <div class="f-row c2" style="align-items:flex-end;">
-          <div><label class="f-label">Nome completo</label><input class="f-input" id="atenNome" placeholder="Ex: JOANA SILVA" oninput="this.value=this.value.toUpperCase()"></div>
-          <div><label class="f-label">Apelido (dropdowns)</label><input class="f-input" id="atenApelido" placeholder="Ex: Joana"></div>
+        <div class="panel-title"><i class="fas fa-user-plus"></i> Adicionar Atendente</div>
+        <div style="display:flex;gap:8px;">
+          <input class="f-input" type="text" id="atNome" placeholder="Nome do atendente" oninput="this.value=this.value.toUpperCase()">
+          <input class="f-input" type="text" id="atApelido" placeholder="Apelido" style="max-width:140px;">
+          <button class="btn-p" onclick="adicionarAtendente()"><i class="fas fa-plus"></i> Adicionar</button>
         </div>
-        <button class="btn-primary" onclick="adicionarAtendente()"><i class="fas fa-plus"></i> Adicionar</button>
       </div>
       <div class="panel">
-        <div class="panel-title"><i class="fas fa-list"></i> Lista de atendentes <span style="font-size:11px;color:var(--gray-400);font-weight:400;margin-left:6px;">aparece nos dropdowns de todos os sistemas</span></div>
-        <div id="listaAtendentes"><div style="text-align:center;padding:20px;color:var(--gray-400);">Carregando...</div></div>
+        <div class="panel-title"><i class="fas fa-user-headset"></i> Atendentes</div>
+        <div class="atend-list" id="listaAtendentes"><span style="color:var(--gray-400);font-size:13px;">Carregando...</span></div>
       </div>
     </div>
 
+    <!-- ACESSOS FINANCEIROS -->
     <div class="tab-pane" id="paneAcessos">
       <div class="panel">
-        <div class="panel-title"><i class="fas fa-shield-halved"></i> Redefinir senha de usuário</div>
-        <div class="f-row c2" style="align-items:flex-end;">
-          <div><label class="f-label">E-mail do usuário</label><input class="f-input" id="emailReset" type="email" placeholder="usuario@email.com"></div>
-          <button class="btn-primary" onclick="enviarReset()"><i class="fas fa-paper-plane"></i> Enviar link de redefinição</button>
+        <div class="panel-title"><i class="fas fa-key"></i> Permissões de Acesso Financeiro</div>
+        <div style="display:flex;gap:8px;margin-bottom:4px;">
+          <input class="f-input" type="email" id="novoEmailFin" placeholder="email@usuario.com">
+          <button class="btn-p" onclick="adicionarEmailFin()"><i class="fas fa-plus"></i> Adicionar</button>
         </div>
-      </div>
-      <div class="panel">
-        <div class="panel-title"><i class="fas fa-key"></i> Acesso ao Financeiro</div>
-        <p style="font-size:13px;color:var(--gray-500);margin-bottom:14px;">Usuários abaixo têm acesso ao módulo Financeiro.</p>
-        <div class="f-row c2" style="align-items:flex-end;margin-bottom:0;">
-          <div><label class="f-label">E-mail</label><input class="f-input" id="novoEmailFin" type="email" placeholder="usuario@email.com"></div>
-          <button class="btn-primary" onclick="adicionarEmailFin()"><i class="fas fa-plus"></i> Adicionar</button>
-        </div>
-        <div id="listaEmailsFin" style="margin-top:14px;"></div>
+        <div style="font-size:11px;color:var(--gray-400);margin-bottom:14px;">Usuários com acesso ao módulo Financeiro</div>
+        <div id="listaAcessos"></div>
       </div>
     </div>
 
+    <!-- PREÇOS DE EXAMES -->
     <div class="tab-pane" id="paneExames">
       <div class="panel">
-        <div class="panel-title"><i class="fas fa-search"></i> Buscar e editar preços</div>
-        <div class="search-wrap"><i class="fas fa-search"></i><input type="text" id="exameBusca" placeholder="Digite o nome do exame..." oninput="filtrarExamesAdmin(this.value)"></div>
-        <div id="examesLista" style="max-height:500px;overflow-y:auto;border:1px solid var(--gray-200);border-radius:10px;">
-          <div style="text-align:center;padding:20px;color:var(--gray-400);">Carregando exames...</div>
+        <div class="panel-title"><i class="fas fa-file-medical"></i> Gerenciar Preços dos Exames</div>
+        <div class="price-search">
+          <input class="f-input" type="text" id="priceSearch" placeholder="Buscar exame..." oninput="filtrarPrecos()">
+          <button class="btn-p" onclick="salvarPrecos()"><i class="fas fa-save"></i> Salvar Preços</button>
+          <button class="btn-s" onclick="resetarPrecos()"><i class="fas fa-rotate-left"></i> Resetar</button>
         </div>
+        <div id="examePriceList"></div>
       </div>
     </div>
 
+    <!-- LOGO -->
     <div class="tab-pane" id="paneLogo">
       <div class="panel">
         <div class="panel-title"><i class="fas fa-image"></i> Logo da Clínica</div>
-        <div style="display:flex;align-items:center;gap:18px;padding:14px;background:var(--gray-50);border-radius:12px;margin-bottom:18px;">
-          <div class="logo-preview-box"><img id="logoPreviewAdmin" src="__logoamor.ico__" alt="Logo" onerror="this.style.display='none'"></div>
+        <div style="display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;">
           <div>
-            <div style="font-size:14px;font-weight:700;color:var(--navy);">Logo atual</div>
-            <div style="font-size:11px;color:var(--gray-400);margin-top:3px;" id="logoNomeAtual">Carregando...</div>
+            <div style="font-size:11px;color:var(--gray-400);margin-bottom:8px;">Logo atual</div>
+            <img id="logoPreviewAdmin" class="logo-preview" src="assets/favicon.png" alt="Logo">
           </div>
-        </div>
-        <div class="drop-zone" id="logoDropZone"
-          onclick="document.getElementById('logoFileInput').click()"
-          ondragover="event.preventDefault();this.style.borderColor='var(--navy)';this.style.background='var(--gray-50)'"
-          ondragleave="this.style.borderColor='var(--gray-300)';this.style.background='white'"
-          ondrop="handleLogoDrop(event)">
-          <i class="fas fa-cloud-arrow-up" style="font-size:32px;color:var(--gray-300);display:block;margin-bottom:10px;"></i>
-          <div style="font-size:14px;font-weight:700;color:var(--gray-600);margin-bottom:4px;">Clique ou arraste a nova logo</div>
-          <div style="font-size:11px;color:var(--gray-400);">PNG, JPG, SVG · Recomendado 200×200px</div>
-        </div>
-        <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="handleLogoSelect(event)">
-        <div id="logoNovaPreview" style="display:none;margin-top:16px;padding:16px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;">
-          <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
-            <div class="logo-preview-box"><img id="logoNovaImg" src="" alt=""></div>
-            <div>
-              <div style="font-size:13px;font-weight:700;color:var(--navy);" id="logoNovaName">—</div>
-              <div style="font-size:11px;color:var(--gray-400);" id="logoNovaSize">—</div>
+          <div style="flex:1;min-width:200px;">
+            <div class="upload-zone" onclick="document.getElementById('logoFileInput').click()" id="uploadZone">
+              <i class="fas fa-cloud-arrow-up" style="font-size:28px;color:var(--gray-300);margin-bottom:10px;display:block;"></i>
+              <div style="font-size:13px;font-weight:700;color:var(--gray-600);margin-bottom:4px;">Clique para selecionar</div>
+              <div style="font-size:11px;color:var(--gray-400);">PNG, JPG ou SVG — recomendado 512×512px</div>
             </div>
-          </div>
-          <div style="display:flex;gap:10px;">
-            <button class="btn-primary" onclick="salvarLogoFirebase()" id="btnSalvarLogo"><i class="fas fa-cloud-arrow-up"></i> Salvar logo no portal</button>
-            <button class="btn-secondary" onclick="cancelarNovaLogo()"><i class="fas fa-xmark"></i> Cancelar</button>
+            <input type="file" id="logoFileInput" accept=".png,.jpg,.jpeg,.svg,.webp" style="display:none;" onchange="previewLogo(event)">
+            <button class="btn-p" onclick="salvarLogo()" style="width:100%;justify-content:center;margin-top:10px;" id="btnSalvarLogo" disabled>
+              <i class="fas fa-save"></i> Salvar Logo
+            </button>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="tab-pane" id="paneImportar">
-      <div class="panel">
-        <div class="panel-title" style="margin-bottom:6px;"><i class="fas fa-file-import"></i> Importar planilhas de retirada de exames</div>
-        <p style="font-size:13px;color:var(--gray-500);margin-bottom:20px;">
-          Importe as planilhas ECO, NEURO e USG. Apenas pacientes com exame <strong>OK</strong> e <strong>sem data de retirada</strong> serão importados.
-        </p>
-        <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:22px;">
-          <div>
-            <div style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;">Ecocardiograma</div>
-            <div class="import-drop" id="dropEco" onclick="document.getElementById('inputEco').click()"
-              ondragover="event.preventDefault();this.style.borderColor='var(--navy)'"
-              ondragleave="this.style.borderColor='var(--gray-300)'"
-              ondrop="handleXlsxDrop(event,'eco')">
-              <i class="fas fa-heart" style="font-size:24px;color:#fca5a5;display:block;margin-bottom:8px;"></i>
-              <div style="font-size:13px;font-weight:700;color:var(--gray-600);margin-bottom:2px;">Clique ou arraste o arquivo</div>
-              <div style="font-size:11px;color:var(--gray-400);">ECOCARDIOGRAMA_RESULTADOS.xlsx</div>
-            </div>
-            <div class="import-card" id="cardEco">
-              <div class="import-card-inner">
-                <div style="width:44px;height:44px;background:#fee2e2;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-file-excel" style="font-size:20px;color:var(--red);"></i></div>
-                <div style="flex:1;"><div style="font-size:13px;font-weight:800;color:var(--green);" id="ecoFileName">—</div><div style="font-size:11px;color:var(--gray-600);" id="ecoFileInfo">—</div></div>
-                <div style="text-align:right;"><div style="font-size:22px;font-weight:900;color:var(--red);" id="ecoCount">0</div><div style="font-size:10px;color:var(--gray-400);">pendentes</div></div>
-                <button class="btn-danger-sm" onclick="removerArquivo('eco')"><i class="fas fa-xmark"></i></button>
-              </div>
-            </div>
-            <input type="file" id="inputEco" accept=".xlsx,.xls" style="display:none;" onchange="handleXlsxFile(event,'eco')">
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;">Neurológico (EEG + Potencial Evocado)</div>
-            <div class="import-drop" id="dropNeuro" onclick="document.getElementById('inputNeuro').click()"
-              ondragover="event.preventDefault();this.style.borderColor='var(--navy)'"
-              ondragleave="this.style.borderColor='var(--gray-300)'"
-              ondrop="handleXlsxDrop(event,'neuro')">
-              <i class="fas fa-brain" style="font-size:24px;color:#c4b5fd;display:block;margin-bottom:8px;"></i>
-              <div style="font-size:13px;font-weight:700;color:var(--gray-600);margin-bottom:2px;">Clique ou arraste o arquivo</div>
-              <div style="font-size:11px;color:var(--gray-400);">RESULTADO_EXAME_NEURO_.xlsx</div>
-            </div>
-            <div class="import-card" id="cardNeuro">
-              <div class="import-card-inner">
-                <div style="width:44px;height:44px;background:#ede9fe;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-file-excel" style="font-size:20px;color:#7c3aed;"></i></div>
-                <div style="flex:1;"><div style="font-size:13px;font-weight:800;color:var(--green);" id="neuroFileName">—</div><div style="font-size:11px;color:var(--gray-600);" id="neuroFileInfo">—</div></div>
-                <div style="text-align:right;"><div style="font-size:22px;font-weight:900;color:#7c3aed;" id="neuroCount">0</div><div style="font-size:10px;color:var(--gray-400);">pendentes</div></div>
-                <button class="btn-danger-sm" onclick="removerArquivo('neuro')"><i class="fas fa-xmark"></i></button>
-              </div>
-            </div>
-            <input type="file" id="inputNeuro" accept=".xlsx,.xls" style="display:none;" onchange="handleXlsxFile(event,'neuro')">
-          </div>
-          <div>
-            <div style="font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;">Ultrassom</div>
-            <div class="import-drop" id="dropUsg" onclick="document.getElementById('inputUsg').click()"
-              ondragover="event.preventDefault();this.style.borderColor='var(--navy)'"
-              ondragleave="this.style.borderColor='var(--gray-300)'"
-              ondrop="handleXlsxDrop(event,'usg')">
-              <i class="fas fa-wave-square" style="font-size:24px;color:#7dd3fc;display:block;margin-bottom:8px;"></i>
-              <div style="font-size:13px;font-weight:700;color:var(--gray-600);margin-bottom:2px;">Clique ou arraste o arquivo</div>
-              <div style="font-size:11px;color:var(--gray-400);">ULTRASSOM_-_RESULTADOS.xlsx</div>
-            </div>
-            <div class="import-card" id="cardUsg">
-              <div class="import-card-inner">
-                <div style="width:44px;height:44px;background:#e0f2fe;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-file-excel" style="font-size:20px;color:#0369a1;"></i></div>
-                <div style="flex:1;"><div style="font-size:13px;font-weight:800;color:var(--green);" id="usgFileName">—</div><div style="font-size:11px;color:var(--gray-600);" id="usgFileInfo">—</div></div>
-                <div style="text-align:right;"><div style="font-size:22px;font-weight:900;color:#0369a1;" id="usgCount">0</div><div style="font-size:10px;color:var(--gray-400);">pendentes</div></div>
-                <button class="btn-danger-sm" onclick="removerArquivo('usg')"><i class="fas fa-xmark"></i></button>
-              </div>
-            </div>
-            <input type="file" id="inputUsg" accept=".xlsx,.xls" style="display:none;" onchange="handleXlsxFile(event,'usg')">
-          </div>
-        </div>
-        <div id="importResumoBar" style="display:none;padding:14px 16px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;margin-bottom:14px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-            <div><div style="font-size:13px;font-weight:800;color:var(--navy);">Total de exames pendentes</div><div style="font-size:11px;color:var(--gray-500);" id="importResumoSub">—</div></div>
-            <div style="font-size:28px;font-weight:900;color:var(--navy);" id="importTotalNum">0</div>
-          </div>
-        </div>
-        <div id="importBtnWrap" style="display:none;">
-          <button class="btn-primary" onclick="executarImportacao()" id="btnImportar" style="width:100%;justify-content:center;padding:12px;font-size:14px;">
-            <i class="fas fa-upload"></i> Importar para a Gaveta (<span id="importCount">0</span> exames)
-          </button>
-        </div>
-        <div id="importSucesso" style="display:none;text-align:center;padding:28px;background:var(--green-bg);border-radius:14px;margin-top:14px;">
-          <div style="font-size:36px;margin-bottom:10px;">✅</div>
-          <div style="font-size:16px;font-weight:800;color:var(--green);margin-bottom:6px;" id="importSucessoMsg">Importação concluída!</div>
-          <div id="importSucessoBreakdown" style="display:flex;justify-content:center;gap:12px;margin-top:10px;flex-wrap:wrap;"></div>
-          <button class="btn-primary" onclick="limparImport()" style="margin-top:14px;background:var(--green);"><i class="fas fa-rotate-left"></i> Nova importação</button>
-        </div>
-      </div>
-    </div>
+  <script>
+const EXAMS = [
+  // ── NEUROLÓGICO ──
+  {id:"eletro",name:"Eletroencefalograma (EEG)",cat:"Neurológico",desc:"Exame que registra a atividade elétrica do cérebro.",prep:"eeg",price:180,priceLabel:"R$ 180,00"},
+  {id:"eeg-sono",name:"EEG com privação do sono",cat:"Neurológico",desc:"EEG realizado após privação parcial de sono.",prep:"eeg-sono",price:220,priceLabel:"R$ 220,00"},
+  {id:"potencial-auditivo",name:"Potencial Evocado Auditivo (BERA)",cat:"Neurológico",desc:"Avalia a via auditiva do ouvido até o cérebro.",prep:null,price:280,priceLabel:"R$ 280,00"},
+  {id:"potencial-visual",name:"Potencial Evocado Visual (PEV)",cat:"Neurológico",desc:"Avalia a via visual do olho até o córtex occipital.",prep:null,price:280,priceLabel:"R$ 280,00"},
+  {id:"potencial-somatossensorial",name:"Potencial Evocado Somatossensorial",cat:"Neurológico",desc:"Avalia as vias sensitivas do corpo.",prep:null,price:300,priceLabel:"R$ 300,00"},
+  {id:"enmg",name:"Eletroneuromiografia (ENMG)",cat:"Neurológico",desc:"Avalia nervos e músculos para diagnosticar neuropatias.",prep:null,price:350,priceLabel:"R$ 350,00"},
+  {id:"doppler-transcraniano",name:"Doppler Transcraniano",cat:"Neurológico",desc:"Avalia o fluxo sanguíneo nas artérias cerebrais.",prep:null,price:320,priceLabel:"R$ 320,00"},
 
-  </div><script>
-    window.irPara = function(arquivo) {
-      var h = window.location.href.split('?')[0].split('#')[0];
-      var b = h.substring(0, h.lastIndexOf('/') + 1);
-      window.location.replace(b + arquivo);
-    };
+  // ── CARDIOLÓGICO ──
+  {id:"ecg",name:"Eletrocardiograma (ECG)",cat:"Cardiológico",desc:"Registro da atividade elétrica do coração em repouso.",prep:null,price:60,priceLabel:"R$ 60,00"},
+  {id:"eco",name:"Ecocardiograma",cat:"Cardiológico",desc:"Ultrassom do coração — avalia estrutura e função cardíaca.",prep:"eco",price:250,priceLabel:"R$ 250,00"},
+  {id:"holter",name:"Holter 24h",cat:"Cardiológico",desc:"Monitoramento contínuo do coração por 24 horas.",prep:"holter",price:220,priceLabel:"R$ 220,00"},
+  {id:"mapa",name:"MAPA 24h",cat:"Cardiológico",desc:"Monitoramento ambulatorial da pressão arterial por 24h.",prep:"mapa",price:200,priceLabel:"R$ 200,00"},
+  {id:"ergometrico",name:"Teste Ergométrico",cat:"Cardiológico",desc:"Avalia a resposta do coração durante esforço físico na esteira.",prep:"ergometrico",price:280,priceLabel:"R$ 280,00"},
 
-    window._adminReady = false;
-    window._adminQueue = [];
-    function _adminCall(fn, args) {
-      if (window._adminReady && typeof window[fn] === 'function') {
-        window[fn].apply(null, args);
-      } else {
-        window._adminQueue.push({fn: fn, args: args});
-      }
-    }
+  // ── GINECOLÓGICO ──
+  {id:"colposcopia",name:"Colposcopia",cat:"Ginecológico",desc:"Exame visual do colo do útero com colposcópio.",prep:"colposcopia",price:220,priceLabel:"R$ 220,00"},
+  {id:"histeroscopia",name:"Histeroscopia Diagnóstica",cat:"Ginecológico",desc:"Visualização interna do útero com câmera.",prep:"histeroscopia",price:450,priceLabel:"R$ 450,00"},
+  {id:"papanicolau",name:"Papanicolau (Preventivo)",cat:"Ginecológico",desc:"Coleta de células do colo do útero para análise.",prep:"papanicolau",price:80,priceLabel:"R$ 80,00"},
+  {id:"usg-transvag",name:"Ultrassom Transvaginal",cat:"Ginecológico",desc:"Avaliação dos órgãos pélvicos por via transvaginal.",prep:"usg-transvag",price:150,priceLabel:"R$ 150,00"},
+  {id:"usg-obst",name:"Ultrassom Obstétrico",cat:"Ginecológico",desc:"Avaliação do bebê e placenta durante a gravidez.",prep:null,price:160,priceLabel:"R$ 160,00"},
+  {id:"usg-morf-1t",name:"Ultrassom Morfológico 1º Trimestre",cat:"Ginecológico",desc:"Avaliação morfológica entre 11–14 semanas.",prep:null,price:320,priceLabel:"R$ 320,00"},
+  {id:"usg-morf-2t",name:"Ultrassom Morfológico 2º Trimestre",cat:"Ginecológico",desc:"Avaliação morfológica entre 20–24 semanas.",prep:null,price:320,priceLabel:"R$ 320,00"},
+  {id:"densitometria",name:"Densitometria Óssea",cat:"Ginecológico",desc:"Mede a densidade mineral dos ossos.",prep:"densitometria",price:180,priceLabel:"R$ 180,00"},
 
-    ['criarUsuario','editarNomeUsuario','removerUsuario','adicionarAtendente',
-     'removerAtendente','salvarClinica','carregarClinica','abrirModalExame',
-     'fecharModalExame','salvarPrecoExame','filtrarExamesAdmin','handleLogoSelect',
-     'handleLogoDrop','salvarLogoFirebase','cancelarNovaLogo','handleXlsxFile',
-     'handleXlsxDrop','removerArquivo','limparImport','executarImportacao',
-     'enviarReset','adicionarEmailFin','removerEmailFin','abrirModalPerms',
-     'fecharModalPerms','salvarPermissoes','filtrarUsuarios'
-    ].forEach(function(fn) {
-      window[fn] = function() { _adminCall(fn, Array.from(arguments)); };
+  // ── ORTOPÉDICO ──
+  {id:"rx-coluna",name:"Raio-X de Coluna",cat:"Ortopédico",desc:"Imagem da coluna vertebral em incidências específicas.",prep:null,price:80,priceLabel:"R$ 80,00"},
+  {id:"rx-joelho",name:"Raio-X de Joelho",cat:"Ortopédico",desc:"Imagem do joelho em AP e perfil.",prep:null,price:80,priceLabel:"R$ 80,00"},
+  {id:"rx-quadril",name:"Raio-X de Quadril",cat:"Ortopédico",desc:"Imagem do quadril bilateral.",prep:null,price:80,priceLabel:"R$ 80,00"},
+
+  // ── OTORRINOLARINGOLÓGICO ──
+  {id:"audiometria",name:"Audiometria Tonal",cat:"Otorrinolaringológico",desc:"Avalia a acuidade auditiva em diferentes frequências.",prep:null,price:100,priceLabel:"R$ 100,00"},
+  {id:"audiometria-vocal",name:"Audiometria Vocal (Logoaudiometria)",cat:"Otorrinolaringológico",desc:"Avalia a compreensão da fala.",prep:null,price:120,priceLabel:"R$ 120,00"},
+  {id:"timpanometria",name:"Timpanometria",cat:"Otorrinolaringológico",desc:"Avalia a mobilidade do tímpano e pressão do ouvido médio.",prep:null,price:80,priceLabel:"R$ 80,00"},
+  {id:"nasofibroscopia",name:"Nasofibroscopia",cat:"Otorrinolaringológico",desc:"Exame endoscópico das fossas nasais e laringe.",prep:null,price:200,priceLabel:"R$ 200,00"},
+
+  // ── DERMATOLÓGICO ──
+  {id:"dermatoscopia",name:"Dermatoscopia",cat:"Dermatológico",desc:"Análise ampliada de lesões de pele com dermatoscópio.",prep:null,price:120,priceLabel:"R$ 120,00"},
+  {id:"biopsia-pele",name:"Biópsia de Pele",cat:"Dermatológico",desc:"Retirada de fragmento de pele para análise histológica.",prep:null,price:220,priceLabel:"R$ 220,00"},
+  {id:"patch-test",name:"Teste de Contato (Patch Test)",cat:"Dermatológico",desc:"Identifica alergias de contato na pele.",prep:"patch-test",price:280,priceLabel:"R$ 280,00"},
+  {id:"prick-test",name:"Teste de Alergia (Prick Test)",cat:"Dermatológico",desc:"Testa sensibilidade a alérgenos inalatórios e alimentares.",prep:null,price:180,priceLabel:"R$ 180,00"},
+
+  // ── OFTALMOLÓGICO ──
+  {id:"campimetria",name:"Campimetria (Campo Visual)",cat:"Oftalmológico",desc:"Avalia o campo de visão e detecta perda periférica.",prep:null,price:150,priceLabel:"R$ 150,00"},
+  {id:"paquimetria",name:"Paquimetria",cat:"Oftalmológico",desc:"Mede a espessura da córnea.",prep:null,price:120,priceLabel:"R$ 120,00"},
+  {id:"topografia-corneal",name:"Topografia de Córnea",cat:"Oftalmológico",desc:"Mapeia a superfície e curvatura da córnea.",prep:null,price:180,priceLabel:"R$ 180,00"},
+  {id:"oct",name:"OCT (Tomografia de Coerência Óptica)",cat:"Oftalmológico",desc:"Imagem de alta resolução da retina e nervo óptico.",prep:null,price:280,priceLabel:"R$ 280,00"},
+  {id:"ret-fund",name:"Retinografia",cat:"Oftalmológico",desc:"Fotografia colorida do fundo de olho.",prep:null,price:120,priceLabel:"R$ 120,00"},
+  {id:"tonometria",name:"Tonometria",cat:"Oftalmológico",desc:"Mede a pressão intraocular (screening de glaucoma).",prep:null,price:80,priceLabel:"R$ 80,00"},
+
+  // ── ULTRASSOM ──
+  {id:"usg-abdomen-total",name:"Ultrassom de Abdome Total",cat:"Ultrassom",desc:"Avaliação de fígado, baço, rins, pâncreas e bexiga.",prep:"usg-abdome",price:180,priceLabel:"R$ 180,00"},
+  {id:"usg-abdomen-sup",name:"Ultrassom de Abdome Superior",cat:"Ultrassom",desc:"Avaliação de fígado, vesícula biliar, vias biliares e pâncreas.",prep:"usg-abdome",price:150,priceLabel:"R$ 150,00"},
+  {id:"usg-pelve",name:"Ultrassom Pélvico",cat:"Ultrassom",desc:"Avaliação dos órgãos pélvicos.",prep:"usg-pelve",price:150,priceLabel:"R$ 150,00"},
+  {id:"usg-tireoid",name:"Ultrassom de Tireoide",cat:"Ultrassom",desc:"Avaliação da tireoide e nódulos.",prep:null,price:140,priceLabel:"R$ 140,00"},
+  {id:"usg-renal",name:"Ultrassom Renal e Vias Urinárias",cat:"Ultrassom",desc:"Avaliação dos rins, ureteres e bexiga.",prep:"usg-renal",price:160,priceLabel:"R$ 160,00"},
+  {id:"usg-mamas",name:"Ultrassom de Mamas",cat:"Ultrassom",desc:"Avaliação do parênquima mamário.",prep:null,price:160,priceLabel:"R$ 160,00"},
+  {id:"usg-prostata",name:"Ultrassom de Próstata (Transabdominal)",cat:"Ultrassom",desc:"Avaliação da próstata por via abdominal.",prep:"usg-prostata",price:140,priceLabel:"R$ 140,00"},
+  {id:"usg-carotidas",name:"Doppler de Carótidas e Vertebrais",cat:"Ultrassom",desc:"Avalia o fluxo das artérias do pescoço.",prep:null,price:220,priceLabel:"R$ 220,00"},
+  {id:"usg-membros-inf",name:"Doppler Venoso de Membros Inferiores",cat:"Ultrassom",desc:"Avalia as veias profundas das pernas (trombose).",prep:null,price:220,priceLabel:"R$ 220,00"},
+  {id:"usg-ombro",name:"Ultrassom de Ombro",cat:"Ultrassom",desc:"Avaliação dos tendões e estruturas do ombro.",prep:null,price:160,priceLabel:"R$ 160,00"},
+  {id:"usg-joelho",name:"Ultrassom de Joelho",cat:"Ultrassom",desc:"Avaliação dos tendões e ligamentos do joelho.",prep:null,price:160,priceLabel:"R$ 160,00"},
+  {id:"usg-tornozelo",name:"Ultrassom de Tornozelo",cat:"Ultrassom",desc:"Avaliação dos tendões e estruturas do tornozelo.",prep:null,price:160,priceLabel:"R$ 160,00"},
+  {id:"usg-testiculo",name:"Ultrassom de Testículo",cat:"Ultrassom",desc:"Avaliação do parênquima testicular e epidídimo.",prep:null,price:150,priceLabel:"R$ 150,00"},
+  {id:"elastografia",name:"Elastografia Hepática",cat:"Ultrassom",desc:"Avalia a rigidez do fígado — fibrose hepática.",prep:"usg-abdome",price:280,priceLabel:"R$ 280,00"},
+
+  // ── RAIO-X ──
+  {id:"rx-torax",name:"Raio-X de Tórax",cat:"Raio-X",desc:"PA e Perfil. Principal exame de triagem pulmonar.",prep:null,price:80,priceLabel:"R$ 80,00"},
+  {id:"rx-maos",name:"Raio-X de Mãos",cat:"Raio-X",desc:"Imagem das mãos e punhos.",prep:null,price:80,priceLabel:"R$ 80,00"},
+  {id:"rx-pes",name:"Raio-X de Pés",cat:"Raio-X",desc:"Imagem dos pés em diferentes incidências.",prep:null,price:80,priceLabel:"R$ 80,00"},
+  {id:"rx-bacia",name:"Raio-X de Bacia (Pelve)",cat:"Raio-X",desc:"Imagem da bacia óssea.",prep:null,price:80,priceLabel:"R$ 80,00"},
+  {id:"rx-cranio",name:"Raio-X de Crânio",cat:"Raio-X",desc:"Imagem do crânio em múltiplas incidências.",prep:null,price:80,priceLabel:"R$ 80,00"},
+  {id:"rx-coluna-cervical",name:"Raio-X de Coluna Cervical",cat:"Raio-X",desc:"AP, perfil e dinâmicas da cervical.",prep:null,price:90,priceLabel:"R$ 90,00"},
+  {id:"rx-coluna-lombar",name:"Raio-X de Coluna Lombar",cat:"Raio-X",desc:"AP e perfil da coluna lombar.",prep:null,price:90,priceLabel:"R$ 90,00"},
+  {id:"rx-umero",name:"Raio-X de Úmero",cat:"Raio-X",desc:"Imagem do braço.",prep:null,price:80,priceLabel:"R$ 80,00"},
+
+  // ── TOMOGRAFIA ──
+  {id:"tc-cranio",name:"Tomografia de Crânio",cat:"Tomografia",desc:"TC sem contraste do crânio.",prep:null,price:280,priceLabel:"R$ 280,00"},
+  {id:"tc-torax",name:"Tomografia de Tórax",cat:"Tomografia",desc:"TC do tórax — avaliação pulmonar e mediastinal.",prep:null,price:320,priceLabel:"R$ 320,00"},
+  {id:"tc-abdome",name:"Tomografia de Abdome Total",cat:"Tomografia",desc:"TC de abdome e pelve com ou sem contraste.",prep:"tc-abdome",price:380,priceLabel:"R$ 380,00"},
+  {id:"tc-coluna-cervical",name:"Tomografia de Coluna Cervical",cat:"Tomografia",desc:"TC da coluna cervical com cortes finos.",prep:null,price:280,priceLabel:"R$ 280,00"},
+  {id:"tc-coluna-lombar",name:"Tomografia de Coluna Lombossacra",cat:"Tomografia",desc:"TC da coluna lombar e sacro.",prep:null,price:280,priceLabel:"R$ 280,00"},
+  {id:"tc-seios",name:"Tomografia de Seios da Face",cat:"Tomografia",desc:"TC dos seios paranasais.",prep:null,price:220,priceLabel:"R$ 220,00"},
+  {id:"tc-joelho",name:"Tomografia de Joelho",cat:"Tomografia",desc:"TC articular do joelho.",prep:null,price:280,priceLabel:"R$ 280,00"},
+
+  // ── RESSONÂNCIA ──
+  {id:"rm-cranio",name:"Ressonância de Crânio",cat:"Ressonância",desc:"RM do encéfalo para avaliação estrutural.",prep:"rm-geral",price:480,priceLabel:"R$ 480,00"},
+  {id:"rm-coluna-cervical",name:"Ressonância de Coluna Cervical",cat:"Ressonância",desc:"RM da coluna cervical para hérnias e compressões.",prep:"rm-geral",price:480,priceLabel:"R$ 480,00"},
+  {id:"rm-coluna-lombar",name:"Ressonância de Coluna Lombar",cat:"Ressonância",desc:"RM da coluna lombossacra.",prep:"rm-geral",price:480,priceLabel:"R$ 480,00"},
+  {id:"rm-joelho",name:"Ressonância de Joelho",cat:"Ressonância",desc:"RM articular do joelho — ligamentos e meniscos.",prep:"rm-geral",price:480,priceLabel:"R$ 480,00"},
+  {id:"rm-ombro",name:"Ressonância de Ombro",cat:"Ressonância",desc:"RM do ombro — manguito rotador.",prep:"rm-geral",price:480,priceLabel:"R$ 480,00"},
+  {id:"rm-quadril",name:"Ressonância de Quadril",cat:"Ressonância",desc:"RM articular do quadril.",prep:"rm-geral",price:480,priceLabel:"R$ 480,00"},
+  {id:"rm-abdome",name:"Ressonância de Abdome",cat:"Ressonância",desc:"RM de fígado, pâncreas e rins.",prep:"rm-geral",price:560,priceLabel:"R$ 560,00"},
+  {id:"rm-pelve",name:"Ressonância de Pelve",cat:"Ressonância",desc:"RM da pelve feminina ou masculina.",prep:"rm-geral",price:520,priceLabel:"R$ 520,00"},
+
+  // ── GASTROINTESTINAL ──
+  {id:"endoscopia",name:"Endoscopia Digestiva Alta",cat:"Gastrointestinal",desc:"Visualização do esôfago, estômago e duodeno.",prep:"endoscopia",price:380,priceLabel:"R$ 380,00"},
+  {id:"colonoscopia",name:"Colonoscopia",cat:"Gastrointestinal",desc:"Visualização do intestino grosso (cólon e reto).",prep:"colonoscopia",price:580,priceLabel:"R$ 580,00"},
+  {id:"retossigmoidoscopia",name:"Retossigmoidoscopia",cat:"Gastrointestinal",desc:"Visualização do reto e sigmóide.",prep:"retossig",price:280,priceLabel:"R$ 280,00"},
+  {id:"manometria",name:"Manometria Esofagiana",cat:"Gastrointestinal",desc:"Mede a pressão ao longo do esôfago.",prep:"manometria",price:420,priceLabel:"R$ 420,00"},
+  {id:"ph-metria",name:"pHmetria Esofagiana",cat:"Gastrointestinal",desc:"Monitora o pH no esôfago por 24h — diagnóstico de refluxo.",prep:"phmetria",price:380,priceLabel:"R$ 380,00"},
+  {id:"broncoscopia",name:"Broncoscopia",cat:"Gastrointestinal",desc:"Visualização das vias aéreas inferiores.",prep:"broncoscopia",price:600,priceLabel:"R$ 600,00"},
+  {id:"proctoscopia",name:"Proctoscopia",cat:"Gastrointestinal",desc:"Exame do canal anal e reto distal.",prep:"retossig",price:180,priceLabel:"R$ 180,00"},
+
+  // ── LABORATORIAL ──
+  {id:"hemo-completo",name:"Hemograma Completo",cat:"Laboratorial",desc:"Análise das células sanguíneas — série vermelha e branca.",prep:"lab-jejum",price:35,priceLabel:"R$ 35,00"},
+  {id:"glicose",name:"Glicose em Jejum",cat:"Laboratorial",desc:"Dosagem da glicose após jejum de 8–12 horas.",prep:"lab-jejum",price:20,priceLabel:"R$ 20,00"},
+  {id:"colesterol",name:"Perfil Lipídico Completo",cat:"Laboratorial",desc:"Colesterol total, LDL, HDL e triglicerídeos.",prep:"lab-jejum",price:45,priceLabel:"R$ 45,00"},
+  {id:"tsh",name:"TSH e T4 Livre (Tireóide)",cat:"Laboratorial",desc:"Avaliação da função da tireoide.",prep:"lab-jejum",price:55,priceLabel:"R$ 55,00"},
+  {id:"psa",name:"PSA Total e Livre",cat:"Laboratorial",desc:"Antígeno prostático específico — rastreio de câncer de próstata.",prep:null,price:50,priceLabel:"R$ 50,00"},
+  {id:"urocultura",name:"Urocultura com Antibiograma",cat:"Laboratorial",desc:"Cultura de urina para identificar infecção urinária.",prep:"urocultura",price:45,priceLabel:"R$ 45,00"},
+  {id:"hemoglobina-glicada",name:"Hemoglobina Glicada (HbA1c)",cat:"Laboratorial",desc:"Controle glicêmico dos últimos 3 meses.",prep:null,price:35,priceLabel:"R$ 35,00"},
+  {id:"proteina-c",name:"Proteína C Reativa (PCR)",cat:"Laboratorial",desc:"Marcador de inflamação aguda.",prep:null,price:25,priceLabel:"R$ 25,00"},
+  {id:"coagulograma",name:"Coagulograma Completo",cat:"Laboratorial",desc:"Avalia os fatores de coagulação do sangue.",prep:null,price:40,priceLabel:"R$ 40,00"},
+  {id:"urina-tipo-1",name:"Urina Tipo 1 (EAS)",cat:"Laboratorial",desc:"Análise física, química e microscópica da urina.",prep:"urocultura",price:20,priceLabel:"R$ 20,00"},
+  {id:"creatinina",name:"Creatinina e Ureia",cat:"Laboratorial",desc:"Avalia a função renal.",prep:"lab-jejum",price:30,priceLabel:"R$ 30,00"},
+  {id:"vitamina-d",name:"Vitamina D (25-OH)",cat:"Laboratorial",desc:"Dosagem de vitamina D no sangue.",prep:null,price:55,priceLabel:"R$ 55,00"},
+  {id:"ferritina",name:"Ferritina e Ferro Sérico",cat:"Laboratorial",desc:"Avalia os estoques de ferro do organismo.",prep:"lab-jejum",price:40,priceLabel:"R$ 40,00"},
+
+  // ── OUTROS ──
+  {id:"espirometria",name:"Espirometria",cat:"Outros",desc:"Mede a capacidade e o fluxo pulmonar.",prep:"espirometria",price:140,priceLabel:"R$ 140,00"},
+  {id:"polissonografia",name:"Polissonografia",cat:"Outros",desc:"Monitoramento do sono — diagnóstico de apneia.",prep:"polissonografia",price:600,priceLabel:"R$ 600,00"},
+  {id:"cintilografia-ossea",name:"Cintilografia Óssea",cat:"Outros",desc:"Imagem nuclear para lesões ósseas.",prep:null,price:580,priceLabel:"R$ 580,00"},
+  {id:"pet-ct",name:"PET-CT",cat:"Outros",desc:"Imagem metabólica — estadiamento de tumores.",prep:"pet-ct",price:2800,priceLabel:"R$ 2.800,00"},
+  {id:"capnografia",name:"Capnografia",cat:"Outros",desc:"Mede o CO₂ expirado em tempo real.",prep:null,price:180,priceLabel:"R$ 180,00"},
+];
+
+  // ── Preços locais ──
+  let customPrices = {};
+  let atendentesRef = null;
+  let acessosRef    = null;
+
+  function fmt(v){ return "R$ " + Number(v||0).toFixed(2).replace(".",",").replace(/\B(?=(\d{3})+(?!\d))/g,"."); }
+
+  window.tab = function(t) {
+    ["usuarios","clinica","atendentes","acessos","exames","logo"].forEach(x => {
+      const T = x.charAt(0).toUpperCase()+x.slice(1);
+      document.getElementById("tab"+T)?.classList.remove("active");
+      document.getElementById("pane"+T)?.classList.remove("active");
     });
+    const T = t.charAt(0).toUpperCase()+t.slice(1);
+    document.getElementById("tab"+T)?.classList.add("active");
+    document.getElementById("pane"+T)?.classList.add("active");
+  };
 
-    // ── mudarTab: funciona IMEDIATAMENTE, sem esperar o módulo Firebase ──
-    window.mudarTab = function(tab) {
-      var tabs = ['usuarios','clinica','atendentes','acessos','exames','logo','importar'];
-      tabs.forEach(function(t) {
-        var cap  = t.charAt(0).toUpperCase() + t.slice(1);
-        var btn  = document.getElementById('tab'  + cap);
-        var pane = document.getElementById('pane' + cap);
-        if (btn)  btn.classList.remove('active');
-        if (pane) pane.classList.remove('active');
-      });
-      var capTab = tab.charAt(0).toUpperCase() + tab.slice(1);
-      var btn  = document.getElementById('tab'  + capTab);
-      var pane = document.getElementById('pane' + capTab);
-      if (btn)  btn.classList.add('active');
-      if (pane) pane.classList.add('active');
-      // Trigger clinica load if module is ready
-      if (tab === 'clinica' && window._adminReady && typeof window.carregarClinica === 'function') {
-        window.carregarClinica();
-      }
+  // ── PREÇOS ──
+  function renderPrecos() {
+    const busca = (document.getElementById("priceSearch")?.value || "").toLowerCase();
+    const lista = busca ? EXAMS.filter(e => e.name.toLowerCase().includes(busca) || e.cat.toLowerCase().includes(busca)) : EXAMS;
+    document.getElementById("examePriceList").innerHTML = lista.map(e => {
+      const current = customPrices[e.id] !== undefined ? customPrices[e.id] : e.price;
+      return `<div class="exam-price-item">
+        <div class="epi-name">${esc(e.name)}</div>
+        <div class="epi-cat">${esc(e.cat)}</div>
+        <div class="epi-price"><input type="text" id="price_${e.id}" value="${current.toFixed(2).replace(".",",")}" onblur="this.value=parseFloat(this.value.replace(/\./g,\'\').replace(\',\',\'.\'))||${e.price};this.value=Number(this.value).toFixed(2).replace(\'.\',\',\')"></div>
+      </div>`;
+    }).join("");
+  }
+
+  window.filtrarPrecos = function() { renderPrecos(); };
+
+  window.salvarPrecos = function() {
+    EXAMS.forEach(e => {
+      const el = document.getElementById("price_" + e.id);
+      if (el) customPrices[e.id] = parseFloat(el.value.replace(/\./g,"").replace(",",".")) || e.price;
+    });
+    if (window.fbSet) window.fbSet("admin/precos", customPrices).then(() => toast("Preços salvos!", "success")).catch(er => toast("Erro: " + er.message, "error"));
+    else toast("Firebase não conectado", "error");
+  };
+
+  window.resetarPrecos = function() {
+    if (!confirm("Resetar todos os preços para os valores padrão?")) return;
+    customPrices = {};
+    if (window.fbSet) window.fbSet("admin/precos", {}).then(() => { renderPrecos(); toast("Preços resetados!", "info"); });
+  };
+
+  // ── LOGO ──
+  let logoDataUrl = null;
+
+  window.previewLogo = function(e) {
+    const file = e.target.files[0]; if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { toast("Arquivo muito grande. Máximo 2MB.", "error"); return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      logoDataUrl = ev.target.result;
+      document.getElementById("logoPreviewAdmin").src = logoDataUrl;
+      document.getElementById("btnSalvarLogo").disabled = false;
+      toast("Logo carregada. Clique em Salvar.", "info");
     };
-  </script>
+    reader.readAsDataURL(file);
+  };
 
-  <script>
-    <script src="js/firebase-config.js"></script>
-  <script src="js/shared-utils.js"></script>
-  <script>
-    if (false) {
+  window.salvarLogo = function() {
+    if (!logoDataUrl) { toast("Selecione uma logo primeiro", "error"); return; }
+    if (!window.fbSet) { toast("Firebase não conectado", "error"); return; }
+    window.fbSet("admin/logo", { dataUrl: logoDataUrl, atualizadoEm: new Date().toISOString() })
+      .then(() => {
+        sessionStorage.setItem("logoDataUrl", logoDataUrl);
+        toast("Logo salva com sucesso!", "success");
+        document.getElementById("btnSalvarLogo").disabled = true;
+      })
+      .catch(er => toast("Erro: " + er.message, "error"));
+  };
+
+  // ── CLÍNICA ──
+  window.salvarClinica = function() {
+    const dados = { nome: document.getElementById("cliNome").value, cnpj: document.getElementById("cliCnpj").value, endereco: document.getElementById("cliEndereco").value, telefone: document.getElementById("cliTelefone").value, email: document.getElementById("cliEmail").value };
+    if (!dados.nome) { toast("Informe o nome da clínica", "error"); return; }
+    if (!window.fbSet) { toast("Firebase não conectado", "error"); return; }
+    window.fbSet("admin/clinica", dados).then(() => toast("Dados salvos!", "success")).catch(er => toast("Erro: " + er.message, "error"));
+  };
+
+  // ── ATENDENTES ──
+  window.adicionarAtendente = function() {
+    const nome = document.getElementById("atNome").value.trim().toUpperCase();
+    const apelido = document.getElementById("atApelido").value.trim() || nome.split(" ")[0];
+    if (!nome) { toast("Informe o nome", "error"); return; }
+    if (!window.fbPush) { toast("Firebase não conectado", "error"); return; }
+    window.fbPush("admin/atendentes", { nome, apelido, criadoEm: new Date().toISOString() })
+      .then(() => { document.getElementById("atNome").value = ""; document.getElementById("atApelido").value = ""; toast(nome + " adicionado!", "success"); })
+      .catch(er => toast("Erro: " + er.message, "error"));
+  };
+
+  // ── ACESSOS FINANCEIROS ──
+  window.adicionarEmailFin = function() {
+    const email = document.getElementById("novoEmailFin").value.trim();
+    if (!email) { toast("Informe o e-mail", "error"); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast("E-mail inválido", "error"); return; }
+    if (!window.fbPush) { toast("Firebase não conectado", "error"); return; }
+    window.fbPush("admin/acessoFinanceiro", { email, criadoEm: new Date().toISOString() })
+      .then(() => { document.getElementById("novoEmailFin").value = ""; toast("Acesso adicionado!", "success"); })
+      .catch(er => toast("Erro: " + er.message, "error"));
+  };
+
+  // ── USUÁRIOS ──
+  window.criarUsuario = function() {
+    const nome   = document.getElementById("uNome").value.trim();
+    const email  = document.getElementById("uEmail").value.trim();
+    const senha  = document.getElementById("uSenha").value;
+    const perfil = document.getElementById("uPerfil").value;
+    if (!nome)   { toast("Informe o nome", "error"); return; }
+    if (!email)  { toast("Informe o e-mail", "error"); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast("E-mail inválido", "error"); return; }
+    if (!senha || senha.length < 6) { toast("Senha mínima: 6 caracteres", "error"); return; }
+    if (!perfil) { toast("Selecione o perfil", "error"); return; }
+    if (!window.fbAuth2) { toast("Firebase admin não conectado", "error"); return; }
+    window.fbAuth2.createUserWithEmailAndPassword(email, senha)
+      .then(cred => {
+        const uid = cred.user.uid;
+        const perms = { orcamento: true, cronograma: true };
+        if (perfil === "financeiro") perms.financeiro = true;
+        if (perfil === "admin") { perms.financeiro = true; perms.admin = true; }
+        return window.fbSet(`admin/usuarios/${uid}`, { nomeCompleto: nome, email, perms, criadoEm: new Date().toISOString() });
+      })
+      .then(() => {
+        toast(nome + " criado com sucesso!", "success");
+        ["uNome","uEmail","uSenha","uPerfil"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+      })
+      .catch(er => {
+        let msg = er.message;
+        if (er.code === "auth/email-already-in-use") msg = "E-mail já cadastrado";
+        else if (er.code === "auth/weak-password") msg = "Senha fraca";
+        toast(msg, "error");
+      });
+  };
+
+  renderPrecos();
+  carregarLogoGlobal(["#headerLogo","#logoPreviewAdmin"]);
   </script>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
-             sendPasswordResetEmail, signOut }
-             from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-    import { getDatabase, ref, set, get, push, remove, onValue }
-             from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+    import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getDatabase, ref, set, push, get, onValue, remove } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
-    const ADMIN_EMAIL = 'raphael@amorsaude.com';
-    const ATENDENTES_DEFAULT = [
-      'Alice Vitoria','Carolina Pires','Caroline Paola','Emily Eshe',
-      'Fernanda Clara','Giovanna Pereira','Jessica da Cruz','Joao Victor',
-      'Kauanny Rosa','Kauany Silva','Kauany Nunes','Leticia Nolasco',
-      'Lorena Pinhoti','Mariana Santos','Pamela Urias','Raphael Morais',
-      'Taina Sabino','Tayna Sampaio','Viviane Luciene'
-    ];
+    const app  = initializeApp(window.FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getDatabase(app);
 
-    const app   = initializeApp(window.FIREBASE_CONFIG);
-    const auth  = getAuth(app);
-    const db    = getDatabase(app);
-    const app2  = initializeApp(window.FIREBASE_CONFIG, 'secondary');
+    // App secundário para criar usuários sem deslogar o admin
+    let app2;
+    try { app2 = initializeApp(window.FIREBASE_CONFIG, "secondary"); }
+    catch(e) { app2 = getApp("secondary"); }
     const auth2 = getAuth(app2);
+    window.fbAuth2 = auth2;
+    window.fbSet   = (path, data) => set(ref(db, path), data);
+    window.fbPush  = (path, data) => push(ref(db, path), data);
 
-    let todosUsuarios = [];
-    let examesCache   = {};
-    let permTargetUid = null;
-
-    // ── Auth ──
     onAuthStateChanged(auth, async user => {
-      if (!user) { irPara('login.html'); return; }
+      if (!user) { irPara("login.html"); return; }
 
-      // raphael always has access (hardcoded owner)
-      const isOwner = user.email === ADMIN_EMAIL;
+      // Verificar se é admin
+      const snap = await get(ref(db, `admin/usuarios/${user.uid}/perms/admin`)).catch(()=>null);
+      const isAdmin = snap?.val() === true || user.email === "raphael@amorsaude.com";
+      if (!isAdmin) { alert("Acesso restrito a administradores."); irPara("login.html"); return; }
 
-      // Other users: check perms.admin in Firebase
-      if (!isOwner) {
-        try {
-          const snap = await get(ref(db, `admin/usuarios/${user.uid}/perms`));
-          const perms = snap.val() || {};
-          if (!perms.admin) { irPara('login.html'); return; }
-        } catch(e) {
-          irPara('login.html'); return;
-        }
-      }
+      carregarLogoGlobal(["#headerLogo","#logoPreviewAdmin"]);
 
-      // Update last access
-      set(ref(db, `admin/usuarios/${user.uid}/ultimoAcesso`), new Date().toISOString()).catch(()=>{});
-      if (isOwner) garantirAdminDB(user.uid);
-      carregarTudo();
-    });
-
-    async function garantirAdminDB(uid) {
-      try {
-        const snap = await get(ref(db, `admin/usuarios/${uid}`));
-        if (!snap.exists()) {
-          await set(ref(db, `admin/usuarios/${uid}`), {
-            email: ADMIN_EMAIL, nomeCompleto: 'RAPHAEL MORAIS DA SILVA',
-            criadoEm: new Date().toISOString(),
-            perms: { financeiro:true, orcamento:true, exames:true, cronograma:true, admin:true }
-          });
-        } else {
-          const d = snap.val() || {};
-          if (!d.perms || !d.perms.admin) {
-            await set(ref(db, `admin/usuarios/${uid}/perms`), {
-              financeiro:true, orcamento:true, exames:true, cronograma:true, admin:true
-            });
-          }
-        }
-      } catch(e) {}
-    }
-
-    function carregarTudo() {
-      carregarLogo();
-      carregarUsuariosDB();
-      carregarAtendentes();
-      carregarClinica();
-      carregarEmailsFin();
-      carregarExamesAdmin();
-    }
-
-    // ── Logo ──
-    async function carregarLogo() {
-      try {
-        // Always check Firebase for version so all users get the latest logo
-        const r = await fetch('https://clinica-pirituba-default-rtdb.firebaseio.com/admin/logo.json');
-        const d = await r.json();
-        if (d && d.dataUrl) {
-          const cachedVer = sessionStorage.getItem('logoVersao');
-          const fbVer = d.versao || d.atualizadoEm || '';
-          if (!cachedVer || cachedVer !== fbVer) {
-            sessionStorage.setItem('logoDataUrl', d.dataUrl);
-            sessionStorage.setItem('logoVersao', fbVer);
-          }
-          aplicarLogo(sessionStorage.getItem('logoDataUrl') || d.dataUrl);
-        }
-        const nomeEl = document.getElementById('logoNomeAtual');
-        if (nomeEl) nomeEl.textContent = d && d.dataUrl ? 'Logo carregada do Firebase ✅' : 'Nenhuma logo salva ainda';
-      } catch(e) {}
-    }
-    function aplicarLogo(url) {
-      ['headerLogo','logoPreviewAdmin'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.src = url;
-      });
-    }
-
-    // ── Usuários ──
-    function carregarUsuariosDB() {
-      onValue(ref(db, 'admin/usuarios'), snap => {
+      // Usuários
+      onValue(ref(db, "admin/usuarios"), snap => {
         const d = snap.val() || {};
-        todosUsuarios = Object.entries(d).map(([id, u]) => ({ id, ...u }));
-        renderUsuarios(todosUsuarios);
-      });
-    }
-
-    function renderUsuarios(lista) {
-      const el = document.getElementById('listaUsuarios');
-      if (!lista.length) { el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray-400);">Nenhum usuário cadastrado.</div>'; return; }
-      const PERM_LABELS = { financeiro:'💰 Fin', orcamento:'📋 Orc', exames:'🔬 Exm', cronograma:'📅 Crn', admin:'🛡️ Adm' };
-      el.innerHTML = '<div class="item-list">' + lista
-        .sort((a,b) => (a.email||'').localeCompare(b.email||''))
-        .map(u => {
-          const isAdmin = u.email === ADMIN_EMAIL;
-          const perms   = u.perms || {};
-          if (u.acessoFinanceiro) perms.financeiro = true; // legado
-          const permTags = Object.entries(perms).filter(([,v])=>v).map(([k]) =>
-            `<span style="font-size:9px;background:var(--gray-100);border-radius:5px;padding:2px 6px;color:var(--gray-600);">${PERM_LABELS[k]||k}</span>`
-          ).join(' ');
-          const badge = isAdmin ? '<span class="item-badge badge-admin">Admin</span>'
-                                : '<span class="item-badge badge-user">Usuário</span>';
-          const delBtn = isAdmin ? '' : `<button class="btn-danger-sm" onclick="removerUsuario('${u.id}','${u.email}')" title="Remover"><i class="fas fa-trash"></i></button>`;
-          const ua = u.ultimoAcesso ? ' · ' + new Date(u.ultimoAcesso).toLocaleDateString('pt-BR') : '';
-          return `<div class="item-row">
-            ${badge}
-            <div class="item-info">
-              <div class="item-nome">${u.nomeCompleto || u.email}</div>
-              <div class="item-sub">${u.email}${ua}</div>
-              <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">${permTags}</div>
+        const el = document.getElementById("listaUsuarios");
+        if (!el) return;
+        const lista = Object.entries(d).sort((a,b) => (a[1].nomeCompleto||"").localeCompare(b[1].nomeCompleto||""));
+        if (!lista.length) { el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray-400);font-size:13px;">Nenhum usuário</div>'; return; }
+        el.innerHTML = lista.map(([uid, u]) => {
+          const badgeTxt = u.perms?.admin ? "Admin" : u.perms?.financeiro ? "Financeiro" : "Usuário";
+          const badgeCls = u.perms?.admin ? "badge-admin" : u.perms?.financeiro ? "badge-fin" : "badge-user";
+          return `<div class="list-item">
+            <div class="li-info">
+              <div class="li-name">${esc(u.nomeCompleto||"—")}</div>
+              <div class="li-sub">${esc(u.email||"—")}</div>
             </div>
-            <button class="btn-reset-sm" onclick="abrirModalPerms('${u.id}')" title="Permissões"><i class="fas fa-shield-halved"></i></button>
-            ${!isAdmin ? `<button class="btn-reset-sm" onclick="editarNomeUsuario('${u.id}','${u.email}','${(u.nomeCompleto||'').replace(/'/g,"&#39;")}')" title="Editar nome"><i class="fas fa-pen"></i></button>` : ''}
-            ${delBtn}
+            <span class="badge ${badgeCls}">${badgeTxt}</span>
+            <button class="btn-del" onclick="removerUsuario('${uid}')"><i class="fas fa-trash"></i></button>
           </div>`;
-        }).join('') + '</div>';
-    }
-
-    window.filtrarUsuarios = function(q) {
-      const f = todosUsuarios.filter(u =>
-        (u.email||'').toLowerCase().includes(q.toLowerCase()) ||
-        (u.nomeCompleto||'').toLowerCase().includes(q.toLowerCase())
-      );
-      renderUsuarios(f);
-    };
-
-    window.criarUsuario = async function() {
-      const nome  = document.getElementById('novoNomeCompleto').value.trim();
-      const email = document.getElementById('novoEmail').value.trim();
-      const senha = document.getElementById('novaSenha').value.trim();
-      if (!nome)            { toast('Informe o nome completo', 'error'); return; }
-      if (!email)           { toast('Informe o e-mail', 'error'); return; }
-      if (senha.length < 6) { toast('Senha deve ter mínimo 6 caracteres', 'error'); return; }
-
-      document.getElementById('spinCriar').style.display = 'block';
-      document.getElementById('icoCriar').style.display  = 'none';
-      try {
-        const cred = await createUserWithEmailAndPassword(auth2, email, senha);
-        await set(ref(db, `admin/usuarios/${cred.user.uid}`), {
-          email, nomeCompleto: nome, criadoEm: new Date().toISOString(),
-          perms: {
-            financeiro: document.getElementById('pNovFin').checked,
-            orcamento:  document.getElementById('pNovOrc').checked,
-            exames:     document.getElementById('pNovExm').checked,
-            cronograma: document.getElementById('pNovCrn').checked,
-            admin: false
-          }
-        });
-        await auth2.signOut();
-        ['novoNomeCompleto','novoEmail','novaSenha'].forEach(id => document.getElementById(id).value = '');
-        ['pNovFin','pNovOrc','pNovExm'].forEach(id => document.getElementById(id).checked = false);
-        document.getElementById('pNovCrn').checked = true;
-        toast(`Usuário ${email} criado!`, 'success');
-      } catch(e) {
-        if (e.code === 'auth/email-already-in-use') toast('E-mail já cadastrado', 'error');
-        else toast('Erro: ' + e.message, 'error');
-      }
-      document.getElementById('spinCriar').style.display = 'none';
-      document.getElementById('icoCriar').style.display  = '';
-    };
-
-    window.editarNomeUsuario = async function(id, email, nomeAtual) {
-      const novo = prompt(`Nome completo de ${email}:`, nomeAtual);
-      if (!novo || !novo.trim()) return;
-      const snap = await get(ref(db, `admin/usuarios/${id}`));
-      await set(ref(db, `admin/usuarios/${id}`), { ...(snap.val()||{}), nomeCompleto: novo.trim().toUpperCase() });
-      toast('Nome atualizado!', 'success');
-    };
-
-    window.removerUsuario = async function(id, email) {
-      if (!confirm(`Remover ${email}?\n\nIsso remove do registro mas não desativa o login no Firebase Auth.`)) return;
-      await remove(ref(db, `admin/usuarios/${id}`));
-      toast('Usuário removido do registro', 'info');
-    };
-
-    window.enviarReset = async function() {
-      const email = document.getElementById('emailReset').value.trim();
-      if (!email) { toast('Informe o e-mail', 'error'); return; }
-      try {
-        await sendPasswordResetEmail(auth, email);
-        toast(`Link enviado para ${email}`, 'success');
-      } catch(e) { toast('Erro: ' + e.message, 'error'); }
-    };
-
-    // ── Permissões modal ──
-    window.abrirModalPerms = function(uid) {
-      const u = todosUsuarios.find(x => x.id === uid);
-      if (!u) return;
-      permTargetUid = uid;
-      document.getElementById('permsUserEmail').textContent = `${u.nomeCompleto || u.email} · ${u.email}`;
-      const perms = u.perms || {};
-      const isAdmin = u.email === ADMIN_EMAIL;
-      const PERMS = [
-        { key:'financeiro', label:'💰 Financeiro' },
-        { key:'orcamento',  label:'📋 Orçamentos' },
-        { key:'exames',     label:'🔬 Retirada de Exames' },
-        { key:'cronograma', label:'📅 Cronograma' },
-        { key:'admin',      label:'🛡️ Painel Admin' },
-      ];
-      document.getElementById('permsCheckboxes').innerHTML = PERMS.map(p =>
-        `<div class="perm-item">
-          <input type="checkbox" id="perm_${p.key}" ${perms[p.key]||p.key==='cronograma'?'checked':''} ${isAdmin?'disabled':''}>
-          <label for="perm_${p.key}">${p.label}</label>
-        </div>`
-      ).join('');
-      document.getElementById('modalPerms').classList.add('open');
-    };
-    window.fecharModalPerms = function() { document.getElementById('modalPerms').classList.remove('open'); permTargetUid=null; };
-    window.salvarPermissoes = async function() {
-      if (!permTargetUid) return;
-      const snap = await get(ref(db, `admin/usuarios/${permTargetUid}`));
-      const newPerms = {
-        financeiro: document.getElementById('perm_financeiro').checked,
-        orcamento:  document.getElementById('perm_orcamento').checked,
-        exames:     document.getElementById('perm_exames').checked,
-        cronograma: document.getElementById('perm_cronograma').checked,
-        admin:      document.getElementById('perm_admin').checked,
-      };
-      await set(ref(db, `admin/usuarios/${permTargetUid}`), { ...(snap.val()||{}), perms: newPerms });
-      toast('✅ Permissões salvas!', 'success');
-      fecharModalPerms();
-    };
-
-    // ── Atendentes ──
-    async function carregarAtendentes() {
-      try {
-        const snap = await get(ref(db, 'admin/atendentes'));
-        const d    = snap.val() || {};
-        const lista = Object.entries(d).map(([id, a]) => ({ id, ...a }));
-        if (!lista.length) { seedAtendentes(); return; }
-        renderAtendentes(lista);
-      } catch(e) { console.error('atendentes:', e); }
-    }
-
-   async function seedAtendentes() {
-      const payload = {};
-      ATENDENTES_DEFAULT.forEach((nome, i) => {
-        payload['at_' + i] = { nome: nome.toUpperCase(), apelido: nome.split(' ')[0], criadoEm: new Date().toISOString() };
+        }).join("");
       });
-      try { await set(ref(db, 'admin/atendentes'), payload); } catch(e) { console.warn('seedAtendentes:', e.message); }
-    }
 
-    function renderAtendentes(lista) {
-      const el = document.getElementById('listaAtendentes');
-      lista.sort((a,b) => (a.nome||'').localeCompare(b.nome||''));
-      el.innerHTML = '<div class="item-list">' + lista.map(a =>
-        `<div class="item-row">
-          <div class="item-info">
-            <div class="item-nome">${a.nome}</div>
-            ${a.apelido ? `<div class="item-sub">Apelido: ${a.apelido}</div>` : ''}
-          </div>
-          <button class="btn-danger-sm" onclick="removerAtendente('${a.id}')"><i class="fas fa-trash"></i></button>
-        </div>`).join('') + '</div>';
-    }
-
-    window.adicionarAtendente = async function() {
-      const nome    = document.getElementById('atenNome').value.trim().toUpperCase();
-      const apelido = document.getElementById('atenApelido').value.trim();
-      if (!nome) { toast('Informe o nome', 'error'); return; }
-      const snap = await get(ref(db, 'admin/atendentes'));
-      const existe = Object.values(snap.val()||{}).some(a => a.nome === nome);
-      if (existe) { toast('Atendente já cadastrado', 'error'); return; }
-      await push(ref(db, 'admin/atendentes'), { nome, apelido, criadoEm: new Date().toISOString() });
-      document.getElementById('atenNome').value    = '';
-      document.getElementById('atenApelido').value = '';
-      toast(`✅ ${nome} adicionado!`, 'success');
-    };
-
-    window.removerAtendente = async function(id) {
-      if (!confirm('Remover este atendente?')) return;
-      await remove(ref(db, `admin/atendentes/${id}`));
-      toast('Atendente removido', 'info');
-    };
-
-    // ── Clínica ──
-    window.carregarClinica = async function() {
-      const snap = await get(ref(db, 'admin/clinica'));
-      const d = snap.val() || {};
-      const map = { cNome:'nome', cCnpj:'cnpj', cEndereco:'endereco', cTelefone:'telefone', cHorario:'horario', cEmpresa:'empresa' };
-      Object.entries(map).forEach(([id, key]) => { const el = document.getElementById(id); if(el) el.value = d[key]||''; });
-    };
-
-    window.salvarClinica = async function() {
-      await set(ref(db, 'admin/clinica'), {
-        nome:     document.getElementById('cNome').value.trim(),
-        cnpj:     document.getElementById('cCnpj').value.trim(),
-        endereco: document.getElementById('cEndereco').value.trim(),
-        telefone: document.getElementById('cTelefone').value.trim(),
-        horario:  document.getElementById('cHorario').value.trim(),
-        empresa:  document.getElementById('cEmpresa').value.trim(),
-        atualizadoEm: new Date().toISOString()
+      // Clínica
+      onValue(ref(db, "admin/clinica"), snap => {
+        const d = snap.val(); if (!d) return;
+        ["nome","cnpj","endereco","telefone","email"].forEach(k => { const el = document.getElementById("cli" + k.charAt(0).toUpperCase() + k.slice(1)); if (el && d[k]) el.value = d[k]; });
       });
-      toast('✅ Dados da clínica salvos!', 'success');
-    };
 
-    // ── Acesso Financeiro (legado) ──
-    async function carregarEmailsFin() {
-      try {
-        const snap = await get(ref(db, 'admin/acessoFinanceiro'));
-        const d    = snap.val() || {};
-        const lista = Object.entries(d).map(([id, e]) => ({ id, ...e }));
-        renderEmailsFin(lista);
-      } catch(e) { console.error('emailsFin:', e); }
-    }
-
-    function renderEmailsFin(lista) {
-      const el = document.getElementById('listaEmailsFin');
-      const fixos = [{ email: ADMIN_EMAIL, fixo: true }];
-      const todos = [...fixos, ...lista.filter(e => e.email !== ADMIN_EMAIL)];
-      el.innerHTML = '<div class="item-list">' + todos.map(e =>
-        `<div class="item-row">
-          <div class="item-info"><div class="item-nome">${e.email}</div></div>
-          ${e.fixo ? '<span class="item-badge badge-admin">Admin</span>' : `<button class="btn-danger-sm" onclick="removerEmailFin('${e.id}')"><i class="fas fa-trash"></i></button>`}
-        </div>`).join('') + '</div>';
-    }
-
-    window.adicionarEmailFin = async function() {
-      const email = document.getElementById('novoEmailFin').value.trim();
-      if (!email) { toast('Informe o e-mail', 'error'); return; }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { toast('E-mail inválido', 'error'); return; }
-      await push(ref(db, 'admin/acessoFinanceiro');
-
-    window.removerEmailFin = async function(id) {
-      if (!confirm('Remover acesso ao financeiro?')) return;
-      await remove(ref(db, `admin/acessoFinanceiro/${id}`));
-      toast('Acesso removido', 'info');
-    };
-
-    const EXAMS = [
-  // NEUROLÓGICO
-  {id:1,name:'Eletroneuromiografia Facial',cat:'Neurológico',type:'normal',prepKey:'eletroneuromiografia',
-   desc:'Avalia integridade dos músculos faciais e identifica distrofias musculares.',value:{ct:330,part:410}},
-  {id:2,name:'Eletroneuromiografia Membros Superiores',cat:'Neurológico',type:'normal',prepKey:'eletroneuromiografia',
-   desc:'Avaliação eletrofisiológica dos membros superiores (MSS).',
-   tips:'⚠️ Se solicitado MSS E MII juntos, cobrar 4× o valor unitário.',value:{ct:330,part:410}},
-  {id:3,name:'Eletroneuromiografia Membros Inferiores',cat:'Neurológico',type:'normal',prepKey:'eletroneuromiografia',
-   desc:'Avaliação eletrofisiológica dos membros inferiores (MII).',
-   tips:'⚠️ Se solicitado MSS E MII juntos, cobrar 4× o valor unitário.',value:{ct:330,part:410}},
-  {id:4,name:'Eletroneuromiografia — Superiores + Inferiores (4 membros)',cat:'Neurológico',type:'normal',prepKey:'eletroneuromiografia',
-   desc:'Avaliação completa de membros superiores e inferiores — equivale a 4× o valor unitário.',
-   tips:'⚠️ CT: R$ 1.320,00 · Particular: R$ 1.640,00.',value:{ct:1320,part:1640}},
-  {id:5,name:'Eletroencefalograma com Fotoestímulo',cat:'Neurológico',type:'normal',prepKey:'eletroencefalograma',
-   desc:'Registro da atividade elétrica cerebral com estimulação luminosa.',value:{ct:420,part:500}},
-  {id:6,name:'Potencial Evocado Auditivo',cat:'Neurológico',type:'normal',prepKey:'potencial_evocado',
-   desc:'Avaliação da via auditiva. Bilateral = cobrar o dobro.',
-   tips:'⚠️ Bilateral = dobrar: R$ 620,00 (CT) / R$ 740,00 (Particular).',value:{ct:310,part:370}},
-  {id:7,name:'Potencial Evocado Visual',cat:'Neurológico',type:'normal',prepKey:'potencial_evocado',
-   desc:'Avaliação da via visual. Bilateral = cobrar o dobro.',
-   tips:'⚠️ Bilateral = dobrar: R$ 620,00 (CT) / R$ 740,00 (Particular).',value:{ct:310,part:370}},
-  // CARDIOLÓGICO
-  {id:10,name:'Ecocardiograma',cat:'Cardiológico',type:'normal',
-   desc:'Ultrassonografia do coração avaliando estrutura e função cardíaca. Sem preparo especial.',
-   tips:'📋 Agenda do Dr. Sérgio Alejandro — 08h às 11h por ordem de chegada. Seg–Sex.',value:{ct:210,part:300}},
-  {id:11,name:'Teste Ergométrico',cat:'Cardiológico',type:'normal',prepKey:'ergometrico',
-   desc:'Avalia resposta cardiovascular ao esforço em esteira.',
-   tips:'📋 Agendamento via sistema AMEI — Agenda de Marlene Rodrigues. Horário: 08h30 às 11h. Seg–Sex.',value:{ct:170,part:250}},
-  {id:12,name:'Holter 24h',cat:'Cardiológico',type:'normal',prepKey:'holter',
-   desc:'Monitorização contínua por 24h do ritmo cardíaco.',
-   tips:'📋 Agendamento via sistema AMEI — Agenda de Vinicius Rodrigo Da Silva Oliveira. Horário: 07h às 08h10. Seg–Sex.',value:{ct:100,part:195}},
-  {id:120,name:'MAPA 24h',cat:'Cardiológico',type:'normal',prepKey:'mapa',
-   desc:'Monitorização ambulatorial da pressão arterial por 24h.',
-   tips:'📋 Agendamento via sistema AMEI — Agenda de João Victor Sousa. Horário: 07h às 08h10. Seg–Sex.',value:{ct:100,part:195}},
-  {id:13,name:'Eletrocardiograma (ECG)',cat:'Cardiológico',type:'normal',
-   desc:'Registro da atividade elétrica do coração. Sem preparo especial.',
-   tips:'📋 07h às 15h por ordem de chegada. Seg–Sex.',value:{ct:50,part:80}},
-  // GINECOLÓGICO
-  {id:20,name:'Colocação de DIU',cat:'Ginecológico',type:'normal',
-   desc:'Inserção de dispositivo intrauterino. Dr. Fábio e Dra. Leticia.',
-   prep_text:'Agendar de preferência nos primeiros dias após menstruação.',value:{ct:500,part:700}},
-  {id:21,name:'Retirada de DIU',cat:'Ginecológico',type:'normal',
-   desc:'Remoção do DIU. Dr. Fábio e Dra. Leticia.',value:{ct:400,part:660}},
-  {id:22,name:'Retirada de Cisto Vaginal',cat:'Ginecológico',type:'normal',
-   desc:'Remoção de cisto vaginal. Dra. Leticia.',
-   tips:'⚠️ Acrescentar anatomopatológico no orçamento.',value:{ct:250,part:350}},
-  {id:23,name:'Streptococcus Anal',cat:'Ginecológico',type:'normal',
-   desc:'Cultura para Streptococcus. Somente Dra. Leticia.',
-   prep_text:'Não realizar higiene íntima 24h antes.',value:{ct:70,part:150}},
-  {id:24,name:'Streptococcus Vaginal',cat:'Ginecológico',type:'normal',
-   desc:'Cultura para Streptococcus vaginal. Somente Dra. Leticia.',
-   prep_text:'Não realizar higiene íntima 24h antes. Não usar medicamentos vaginais 3 dias antes.',value:{ct:70,part:150}},
-  {id:25,name:'Cauterização Colo de Útero',cat:'Ginecológico',type:'normal',
-   desc:'Tratamento de lesões no colo uterino. Somente Dr. Fábio.',
-   prep_text:'Agendar fora do período menstrual.',value:{ct:350,part:480}},
-  {id:26,name:'Cauterização Química ATA (verrugas)',cat:'Ginecológico',type:'normal',
-   desc:'Tratamento de verrugas com ácido tricloroacético. Dra. Leticia.',
-   tips:'⚠️ Somente para verrugas.',value:{ct:250,part:360}},
-  {id:27,name:'Implante de Implanon / Interino',cat:'Ginecológico',type:'normal',
-   desc:'Inserção de implante contraceptivo subdérmico. Dra. Leticia.',
-   prep_text:'Manga larga ou removível. Sem jejum.',value:{ct:450,part:600}},
-  {id:28,name:'Retirada de Implanon / Síntese',cat:'Ginecológico',type:'normal',
-   desc:'Remoção de implante contraceptivo. Dra. Leticia.',value:{ct:350,part:500}},
-  {id:29,name:'Cultura de Secreção e Bacterioscopia',cat:'Ginecológico',type:'normal',prepKey:'cultura_vaginal',
-   desc:'Análise microbiológica de secreção vaginal. Somente Dra. Leticia.',value:{ct:70,part:130}},
-  {id:2900,name:'Papanicolau (Preventivo)',cat:'Ginecológico',type:'normal',prepKey:'papanicolau',
-   desc:'Coleta cérvico-vaginal para rastreamento de alterações celulares do colo uterino.',value:{ct:40,part:80}},
-  {id:610,name:'Colposcopia',cat:'Ginecológico',type:'partner',
-   desc:'Exame de imagem amplificada do colo uterino. Prezecor — Unidade Santana.',
-   prep_text:'Fora do período menstrual. Sem relação sexual 48h antes. Sem cremes vaginais.',
-   tips:'Anatomopatológico cobrado à parte na Prezecor: R$ 80,00 por fragmento.',
-   partners:[{name:'Prezecor (Santana)',local:'Unidade Santana',valueClin:20,valuePartner:80,total:100}]},
-  {id:611,name:'Vulvoscopia',cat:'Ginecológico',type:'partner',
-   desc:'Exame colposcópico da vulva. Prezecor — Unidade Santana.',
-   prep_text:'Mesmas orientações da colposcopia.',
-   partners:[{name:'Prezecor (Santana)',local:'Unidade Santana',valueClin:20,valuePartner:80,total:100}]},
-  {id:620,name:'PAAF de Mama (guiada por USG)',cat:'Ginecológico',type:'partner',
-   desc:'Punção aspirativa de nódulo de mama guiada por ultrassom.',
-   prep_text:'Trazer exames de imagem anteriores.',
-   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:450,total:550}]},
-  {id:623,name:'Core Biópsia de Mama (guiada por USG)',cat:'Ginecológico',type:'partner',
-   desc:'Biópsia core de mama guiada por ultrassom.',
-   prep_text:'Trazer exames de imagem. Informar anticoagulantes.',
-   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:600,total:700}]},
-  // ORTOPÉDICO
-  {id:30,name:'Infiltração Ortopédica / Punção',cat:'Ortopédico',type:'normal',
-   desc:'Aplicação de medicamento ou aspiração articular. André, Thales ou Ronaldo.',
-   tips:'⚠️ Cobrar por cada infiltração/articulação.',value:{ct:250,part:370}},
-  {id:31,name:'Infiltração com Ácido Hialurônico',cat:'Ortopédico',type:'normal',
-   desc:'Viscosuplementação articular. André, Thales ou Ronaldo.',
-   tips:'⚠️ Cobrar por cada articulação tratada.',value:{ct:900,part:1100}},
-  // OTORRINO
-  {id:40,name:'Nasofibrolaringoscopia',cat:'Otorrinolaringológico',type:'normal',prepKey:'nasofibrolaringoscopia',
-   desc:'Endoscopia de nariz, faringe e laringe. Drs. Larissa, Wania e Breno.',
-   tips:'⚠️ Mínimo 7 anos. NÃO realizar com gripe/resfriado.',value:{ct:290,part:380}},
-  {id:41,name:'Cauterização Nasal',cat:'Otorrinolaringológico',type:'normal',
-   desc:'Tratamento de vasos nasais.',
-   tips:'⚠️ Exame pouco solicitado. Verificar repasse antes de orçar.',value:{ct:350,part:490}},
-  {id:42,name:'Remoção de Corpo Estranho ORL',cat:'Otorrinolaringológico',type:'normal',
-   desc:'Remoção de corpo estranho de nariz, ouvido ou garganta.',
-   tips:'⚠️ Exame pouco solicitado. Verificar repasse.',value:{ct:140,part:210}},
-  {id:43,name:'Remoção de Cerume',cat:'Otorrinolaringológico',type:'normal',
-   desc:'Limpeza do canal auditivo.',
-   tips:'⚠️ Cobrar por cada ouvido tratado.',value:{ct:60,part:90}},
-  // DERMATOLÓGICO
-  {id:70,name:'Patch Teste (Dr. Vinicius)',cat:'Dermatológico',type:'normal',
-   desc:'Teste de contato para diagnóstico de dermatite alérgica.',
-   prep_text:'Não usar corticoides tópicos nas costas por 7 dias. Sem sol.',value:{ct:700,part:1120}},
-  {id:71,name:'Peeling Químico ATA/TCA — sessão (Cód. 100)',cat:'Dermatológico',type:'normal',
-   desc:'Peeling com Ácido Tricloroacético. Dr. Vinicius Alencar.',
-   prep_text:'Não expor ao sol 7 dias antes. Sem retinoides 7 dias antes.',value:{ct:140,part:190}},
-  {id:72,name:'Cauterização Eletrocauterização 5–10 lesões (Cód. 150)',cat:'Dermatológico',type:'normal',
-   desc:'Tratamento de 5 a 10 lesões cutâneas. Dr. Vinicius Alencar.',value:{ct:210,part:260}},
-  {id:73,name:'Curetagem Simples até 5 Lesões (Cód. 200)',cat:'Dermatológico',type:'normal',
-   desc:'Curetagem de até 5 lesões de pele. Dr. Vinicius Alencar.',value:{ct:280,part:330}},
-  {id:74,name:'Biópsia de Face (Cód. 220)',cat:'Dermatológico',type:'normal',
-   desc:'Biópsia facial. Dr. Vinicius Alencar.',value:{ct:308,part:358}},
-  {id:75,name:'Biópsia / Exérese Lesão de Pele e Mucosas (Cód. 250)',cat:'Dermatológico',type:'normal',
-   desc:'Biópsia ou exérese de lesão/tumor. Dr. Vinicius Alencar.',value:{ct:350,part:400}},
-  {id:76,name:'Eletrocauterização 15 Lesões (Cód. 300)',cat:'Dermatológico',type:'normal',
-   desc:'Tratamento de 15 lesões. Dr. Vinicius Alencar.',value:{ct:450,part:500}},
-  {id:77,name:'Exérese Tumor Benigno / Cisto / Fístula (Cód. 350)',cat:'Dermatológico',type:'normal',
-   desc:'Exérese cirúrgica de tumor benigno, cisto ou fístula. Dr. Vinicius.',value:{ct:490,part:540}},
-  {id:78,name:'Exérese Lesão/Tumor Extra Grande (Cód. 400)',cat:'Dermatológico',type:'normal',
-   desc:'Exérese de lesão ou tumor extra grande. Dr. Vinicius.',value:{ct:560,part:610}},
-  {id:79,name:'Exérese Lesão/Tumor de Pele e Mucosas (Cód. 450)',cat:'Dermatológico',type:'normal',
-   desc:'Exérese de lesão ou tumor. Dr. Vinicius Alencar.',value:{ct:630,part:680}},
-  {id:80,name:'Eletrocoagulação 10–20 Lesões (Cód. 500)',cat:'Dermatológico',type:'normal',
-   desc:'Eletrocoagulação com ou sem curetagem — 10 a 20 lesões. Dr. Vinicius.',
-   tips:'⚠️ Informar se usa marca-passo.',value:{ct:700,part:750}},
-  {id:81,name:'Toxina Botulínica (Botox) Face (Cód. 800)',cat:'Dermatológico',type:'normal',
-   desc:'Aplicação de toxina botulínica. Dr. Vinicius Alencar.',
-   prep_text:'Sem álcool 24h antes. Sem AAS/anti-inflamatório 7 dias antes.',value:{ct:1120,part:1170}},
-  {id:82,name:'Dermato P1 — Curetagem e eletrocoagulação CA de pele (por lesão)',cat:'Dermatológico',type:'normal',
-   desc:'Curetagem e eletrocoagulação de carcinoma de pele — por lesão. Dr. Juliano.',value:{ct:162,part:260}},
-  {id:83,name:'Dermato P2 — Eletrocoagulação de lesões cutâneas',cat:'Dermatológico',type:'normal',
-   desc:'Eletrocoagulação cutânea. Dr. Juliano.',value:{ct:242,part:390}},
-  {id:84,name:'Dermato P3 — Eletrocoagulação até 5 lesões',cat:'Dermatológico',type:'normal',
-   desc:'Eletrocoagulação com ou sem curetagem — até 5 lesões. Dr. Juliano.',value:{ct:323,part:520}},
-  {id:85,name:'Dermato P4 — Exérese lesão/tumor de pele (média)',cat:'Dermatológico',type:'normal',
-   desc:'Exérese de lesão ou tumor de tamanho médio. Dr. Juliano.',value:{ct:404,part:650}},
-  {id:86,name:'Dermato P5 — Exérese e sutura com rotação de retalhos',cat:'Dermatológico',type:'normal',
-   desc:'Exérese e sutura com rotação de retalhos cutâneos. Dr. Juliano.',value:{ct:484,part:780}},
-  {id:87,name:'Dermato P6 — Exérese lesão/tumor de pele (grande)',cat:'Dermatológico',type:'normal',
-   desc:'Exérese de lesão ou tumor grande. Dr. Juliano.',value:{ct:565,part:905}},
-  {id:88,name:'Dermato P7 — Alopecia parcial — exérese e sutura',cat:'Dermatológico',type:'normal',
-   desc:'Exérese e sutura para alopecia parcial. Dr. Juliano.',value:{ct:646,part:1035}},
-  {id:89,name:'Dermato P8 — Exérese ou excisão de mucocele',cat:'Dermatológico',type:'normal',
-   desc:'Remoção de mucocele. Dr. Juliano.',value:{ct:726,part:1165}},
-  {id:90,name:'Dermato P9 — Biópsia Excisional',cat:'Dermatológico',type:'normal',
-   desc:'Biópsia excisional. Dr. Juliano.',value:{ct:807,part:1295}},
-  {id:91,name:'Dermato P10 — Exérese tangencial (shaving) até 5 lesões',cat:'Dermatológico',type:'normal',
-   desc:'Exérese tangencial (shaving) — por grupo de até 5 lesões. Dr. Juliano.',value:{ct:887,part:1420}},
-  {id:92,name:'Dermato P11 — Incisão e drenagem de flegmão',cat:'Dermatológico',type:'normal',
-   desc:'Incisão e drenagem de flegmão. Dr. Juliano.',value:{ct:968,part:1550}},
-  {id:93,name:'Dermato P12 — Incisão e drenagem de tenossinovites',cat:'Dermatológico',type:'normal',
-   desc:'Incisão e drenagem de tenossinovites purulentas. Dr. Juliano.',value:{ct:1049,part:1680}},
-  {id:94,name:'Dermato P13 — Infiltração intralesional (sessão)',cat:'Dermatológico',type:'normal',
-   desc:'Infiltração intralesional por sessão. Dr. Juliano.',value:{ct:1129,part:1810}},
-  {id:95,name:'Dermato P14 — Exérese de lipoma até 5cm',cat:'Dermatológico',type:'normal',
-   desc:'Remoção cirúrgica de lipoma até 5cm. Dr. Juliano.',value:{ct:1210,part:1940}},
-  {id:96,name:'Dermato P15 — Biópsia incisional',cat:'Dermatológico',type:'normal',
-   desc:'Biópsia incisional de pele e tecido subcutâneo. Dr. Juliano.',value:{ct:1291,part:2070}},
-  {id:97,name:'Dermato P16 — Cauterização lesões de colo uterino',cat:'Dermatológico',type:'normal',
-   desc:'Cauterização química, eletrocauterização ou criocauterização. Dr. Juliano.',value:{ct:1371,part:2195}},
-  {id:98,name:'Dermato P17 — Exérese de cisto unilateral',cat:'Dermatológico',type:'normal',
-   desc:'Exérese de cisto unilateral. Dr. Juliano.',value:{ct:1452,part:2325}},
-  {id:99,name:'Dermato P18 — Retirada de corpo estranho (cirúrgico)',cat:'Dermatológico',type:'normal',
-   desc:'Remoção cirúrgica de corpo estranho. Dr. Juliano.',value:{ct:1533,part:2455}},
-  {id:100,name:'Dermato P19 — Miiase furunculóide (por lesão)',cat:'Dermatológico',type:'normal',
-   desc:'Tratamento de miiase furunculóide por lesão. Dr. Juliano.',value:{ct:1613,part:2585}},
-  {id:101,name:'Biópsia Dermatológica — por fragmento',cat:'Dermatológico',type:'normal',
-   desc:'Análise de biópsia cutânea — cobrado por fragmento/frasco.',
-   tips:'CT: R$ 93,50 por fragmento · Particular: R$ 187,00 por fragmento.',value:{ct:93.5,part:187}},
-  {id:1000,name:'Peeling Químico TCA Face/Mãos (Cód. 220)',cat:'Dermatológico',type:'normal',
-   desc:'Peeling com ácido tricloroacético. Dr. Vinicius Alencar.',
-   prep_text:'Não expor ao sol 7 dias antes. Sem retinoides 7 dias antes.',value:{ct:308,part:358}},
-  {id:1001,name:'Remoção de Cisto Sebáceo até 5cm (Cód. 250)',cat:'Dermatológico',type:'normal',
-   desc:'Remoção cirúrgica de cisto sebáceo de até 5cm. Dr. Vinicius Alencar.',value:{ct:350,part:400}},
-  {id:1002,name:'Biópsia de Pele 2 ou 3 Lesões (Cód. 400)',cat:'Dermatológico',type:'normal',
-   desc:'Biópsia de 2 ou 3 lesões cutâneas. Dr. Vinicius Alencar.',value:{ct:560,part:610}},
-  // OFTALMOLÓGICO
-  {id:110,name:'Gonioscopia (Bilateral)',cat:'Oftalmológico',type:'normal',
-   desc:'Avaliação do ângulo da câmara anterior do olho.',
-   prep_text:'Não usar lentes de contato. Trazer óculos e receitas.',
-   tips:'Repasse da equipe: R$ 95,00.',value:{ct:200,part:320}},
-  {id:111,name:'Curva Tensional Diária (Bilateral)',cat:'Oftalmológico',type:'normal',
-   desc:'Medição da pressão intraocular em múltiplos horários.',
-   prep_text:'Comparecer em horários pré-agendados.',
-   tips:'Repasse da equipe: R$ 100,00.',value:{ct:180,part:300}},
-  {id:112,name:'Teste de Schimer (Bilateral)',cat:'Oftalmológico',type:'normal',
-   desc:'Avalia produção de lágrimas.',prep_text:'Sem colírios anestésicos ou maquiagem.',
-   tips:'Repasse da equipe: R$ 100,00.',value:{ct:180,part:300}},
-  {id:113,name:'Biometria Ultrassônica (Bilateral)',cat:'Oftalmológico',type:'normal',
-   desc:'Medição do comprimento axial do olho.',prep_text:'Sem lentes de contato 24h antes.',
-   tips:'Repasse da equipe: R$ 100,00.',value:{ct:200,part:320}},
-  {id:114,name:'Retinografia (Bilateral)',cat:'Oftalmológico',type:'normal',
-   desc:'Fotografia do fundo de olho.',
-   prep_text:'Pode precisar dilatar — evitar dirigir após o exame.',
-   tips:'Repasse da equipe: R$ 93,60.',value:{ct:156,part:210}},
-  {id:115,name:'Tonometria',cat:'Oftalmológico',type:'normal',
-   desc:'Medição da pressão intraocular.',
-   tips:'Repasse via Yuledis: R$ 30,00.',value:{ct:60,part:120}},
-  {id:116,name:'Topografia de Córnea (Bilateral)',cat:'Oftalmológico',type:'normal',
-   desc:'Mapeamento tridimensional da córnea.',prep_text:'Sem lentes de contato 72h antes.',
-   tips:'Repasse da equipe: R$ 144,00.',value:{ct:240,part:290}},
-  {id:117,name:'Paquimetria Ultrassônica (Bilateral)',cat:'Oftalmológico',type:'normal',
-   desc:'Medição da espessura da córnea.',prep_text:'Sem lentes de contato 24h antes.',
-   tips:'Repasse da equipe: R$ 72,00.',value:{ct:120,part:190}},
-  {id:118,name:'Mapeamento de Retina (Bilateral)',cat:'Oftalmológico',type:'normal',
-   desc:'Exame completo da retina periférica.',
-   prep_text:'Dilata pupila — levar óculos escuros e acompanhante.',
-   tips:'Repasse da equipe: R$ 108,00.',value:{ct:200,part:320}},
-  {id:119,name:'Retirada de Corpo Estranho Ocular (Dra. Carid)',cat:'Oftalmológico',type:'normal',
-   desc:'Remoção de corpo estranho ocular. Dra. Carid.',
-   tips:'Repasse da equipe: R$ 150,00.',value:{ct:210,part:336}},
-  // OUTROS
-  {id:50,name:'Escleroterapia de Vasos',cat:'Outros',type:'normal',
-   desc:'Tratamento de varizes e vasinhos por injeção esclerosante. Somente Dr. Ruben.',
-   prep_text:'Não usar hidratante nas pernas no dia.',value:{ct:180,part:280}},
-  {id:55,name:'Avaliação de Função Muscular',cat:'Outros',type:'normal',
-   desc:'Avaliação da força e funcionalidade muscular. Somente Dra. Cinthya.',
-   prep_text:'Não realizar exercícios intensos 24h antes.',value:{ct:80,part:100}},
-  {id:56,name:'Bioimpedanciometria',cat:'Outros',type:'normal',
-   desc:'Avaliação de composição corporal — gordura, músculo e água.',
-   prep_text:'Não praticar exercícios intensos 24h antes. Necessário realizar consulta com a doutora antes de agendar o exame.',value:{ct:80,part:100}},
-  {id:60,name:'Fisioterapia Ortopédica (sessão)',cat:'Outros',type:'normal',
-   desc:'Sessão de fisioterapia ortopédica.',
-   prep_text:'Usar roupas confortáveis que permitam acesso à região.',value:{ct:40,part:120}},
-  {id:61,name:'Fisioterapia Neurológica (sessão)',cat:'Outros',type:'normal',
-   desc:'Sessão de fisioterapia neurológica.',
-   prep_text:'Trazer laudos e relatórios. Roupas confortáveis.',value:{ct:48,part:156}},
-  {id:65,name:'Aplicação de Vitamina B12',cat:'Outros',type:'normal',
-   desc:'Aplicação intramuscular de vitamina B12.',
-   prep_text:'Trazer a prescrição médica e o medicamento.',
-   tips:'⚠️ Realizado apenas de segunda a sexta, das 07h às 15h.',value:{ct:120,part:170}},
-  {id:122,name:'Audiometria Tonal + Vocal + Impedanciometria',cat:'Outros',type:'partner',
-   desc:'Avaliação completa da audição. Dra. Silvia — Clínica Cergoli / Lapa.',
-   prep_text:'Sem cerume. Não expor a ruído intenso 24h antes.',
-   tips:'📍 Rua Cerro Corá, 1145 — Alto da Lapa · Tel: (11) 3021-5058 / 997758497',
-   partners:[{name:'Dra. Silvia (Cergoli - Lapa)',local:'Rua Cerro Corá, 1145 - Alto da Lapa',valueClin:50,valuePartner:200,total:250}]},
-  {id:123,name:'Exame Otoneurológico',cat:'Outros',type:'partner',
-   desc:'Avaliação do sistema vestibular e auditivo. Dra. Silvia — Cergoli / Lapa.',
-   prep_text:'Sem álcool 48h antes. Sem sedativos.',
-   tips:'📍 Rua Cerro Corá, 1145 — Alto da Lapa · Tel: (11) 3021-5058 / 997758497',
-   partners:[{name:'Dra. Silvia (Cergoli - Lapa)',local:'Rua Cerro Corá, 1145 - Alto da Lapa',valueClin:50,valuePartner:300,total:350}]},
-  {id:621,name:'PAAF de Tireoide (guiada por USG)',cat:'Outros',type:'partner',
-   desc:'Punção aspirativa de nódulo de tireoide guiada por ultrassom.',
-   prep_text:'Trazer exames anteriores.',
-   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:450,total:550}]},
-  {id:622,name:'PAAF de Linfonodos (guiada por USG)',cat:'Outros',type:'partner',
-   desc:'Punção aspirativa de linfonodo guiada por ultrassom.',
-   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:450,total:550}]},
-  {id:624,name:'Core Biópsia de Próstata (guiada por USG — até 6 fragmentos)',cat:'Outros',type:'partner',
-   desc:'Biópsia core de próstata com anatomopatológico incluído.',
-   prep_text:'Preparo intestinal. Antibioticoprofilaxia conforme orientação médica.',
-   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:900,total:1000}]},
-  {id:625,name:'Core Biópsia de Linfonodos (guiada por USG)',cat:'Outros',type:'partner',
-   desc:'Biópsia core percutânea de linfonodo guiada por ultrassom.',
-   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:100,valuePartner:600,total:700}]},
-  {id:720,name:'Espirometria',cat:'Outros',type:'partner',
-   desc:'Teste de função pulmonar.',
-   prep_text:'Sem broncodilatadores 4–6h antes. Sem fumar no dia.',
-   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:20,valuePartner:35,total:55}]},
-
-  // ULTRASSOM
-  {id:200,name:'USG Partes Moles (cada região)',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia de tecidos moles superficiais. Cobrar por cada região.',
-   tips:'Para bilateral (ex: 2 ombros), cobrar 2×.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:201,name:'USG Pélvico Transvaginal',cat:'Ultrassom',type:'partner',prepKey:'pelvico_feminino',
-   desc:'Ultrassonografia pélvica transvaginal.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:202,name:'USG Pélvico Feminino (Suprapúbico)',cat:'Ultrassom',type:'partner',prepKey:'pelvico_feminino',
-   desc:'Ultrassonografia pélvica via abdominal — bexiga cheia.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:203,name:'USG Mamas',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia das mamas.',prep_text:'Sem desodorante ou talco no dia.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:204,name:'USG Próstata Abdominal',cat:'Ultrassom',type:'partner',prepKey:'urinario_prostata',
-   desc:'Ultrassonografia da próstata via abdominal — bexiga cheia.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:205,name:'USG Escroto / Bolsa Testicular',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia escrotal.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:206,name:'USG Aparelho Urinário',cat:'Ultrassom',type:'partner',prepKey:'urinario_prostata',
-   desc:'Ultrassonografia do aparelho urinário (rins, bexiga, ureter) — bexiga cheia.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:207,name:'USG Abdome Superior',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia do abdome superior.',prep_text:'Jejum de 6h.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:208,name:'USG Abdome Total',cat:'Ultrassom',type:'partner',prepKey:'abdome_total',
-   desc:'Ultrassonografia completa do abdome (superior + inferior).',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:100,valuePartner:0,total:100},{name:'Dra. Vanessa',local:'Sábados',valueClin:100,valuePartner:0,total:100},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:100,valuePartner:0,total:100}]},
-  {id:209,name:'USG Parede Abdominal',cat:'Ultrassom',type:'partner',prepKey:'parede_abdominal',
-   desc:'Ultrassonografia da parede abdominal.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:210,name:'USG Região Inguinal (cada lado)',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia da região inguinal. Cobrar por cada lado.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:211,name:'USG Articulação (cada)',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia de articulações. Cobrar por articulação.',
-   tips:'Para bilateral, cobrar 2×.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:82,valuePartner:0,total:82},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:212,name:'USG Obstétrico',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia obstétrica.',prep_text:'Bexiga cheia no 1º trimestre. Após 2º trimestre, bexiga vazia.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:100,valuePartner:0,total:100},{name:'Dra. Vanessa',local:'Sábados',valueClin:100,valuePartner:0,total:100}]},
-  {id:213,name:'USG Obstétrico Morfológico (1º Trimestre)',cat:'Ultrassom',type:'partner',
-   desc:'Morfológico do 1º trimestre gestacional. Dr. Luis Massoni.',
-   prep_text:'Bexiga cheia. Gestação entre 11 e 14 semanas.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:260,valuePartner:0,total:260}]},
-  {id:214,name:'USG Transvaginal com Preparo Intestinal',cat:'Ultrassom',type:'partner',prepKey:'transvaginal_preparo',
-   desc:'Transvaginal com preparo intestinal especial.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:360,valuePartner:0,total:360}]},
-  {id:215,name:'USG Tireoide com Doppler',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia com Doppler da tireoide.',prep_text:'Roupa com decote.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:170,valuePartner:0,total:170},{name:'Dra. Vanessa',local:'Sábados',valueClin:82,valuePartner:0,total:82}]},
-  {id:216,name:'USG Mamas com Doppler',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia com Doppler das mamas.',prep_text:'Sem desodorante ou talco.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:170,valuePartner:0,total:170}]},
-  {id:217,name:'USG Transvaginal com Doppler',cat:'Ultrassom',type:'partner',
-   desc:'Transvaginal com avaliação por Doppler.',prep_text:'Bexiga vazia.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:170,valuePartner:0,total:170}]},
-  {id:218,name:'USG Bolsa Escrotal / Escroto com Doppler',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia escrotal com Doppler.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:170,valuePartner:0,total:170}]},
-  {id:219,name:'Doppler Venoso MMII',cat:'Ultrassom',type:'partner',
-   desc:'Avaliação por Doppler das veias dos membros inferiores.',
-   prep_text:'Roupas fáceis de remover. Sem meias compressivas.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:440,valuePartner:0,total:440},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:440,valuePartner:0,total:440}]},
-  {id:220,name:'Doppler Arterial MMII',cat:'Ultrassom',type:'partner',
-   desc:'Avaliação por Doppler das artérias dos membros inferiores.',
-   prep_text:'Não fumar 2h antes. Evitar esforço físico.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:440,valuePartner:0,total:440},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:440,valuePartner:0,total:440}]},
-  {id:221,name:'Doppler Arterial de Abdome',cat:'Ultrassom',type:'partner',
-   desc:'Doppler do abdome.',prep_text:'Jejum de 6h.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:250,valuePartner:0,total:250}]},
-  {id:222,name:'Doppler de Carótidas',cat:'Ultrassom',type:'partner',
-   desc:'Avaliação por Doppler das artérias carótidas.',prep_text:'Sem colar. Roupa com decote.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:290,valuePartner:0,total:290},{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:290,valuePartner:0,total:290}]},
-  {id:223,name:'Globo Ocular (cada olho)',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia ocular. Cobrar por cada olho.',
-   partners:[{name:'Dr. Luis Massoni',local:'Seg, Ter e Qua',valueClin:230,valuePartner:0,total:230}]},
-  {id:224,name:'USG Próstata Transretal',cat:'Ultrassom',type:'partner',prepKey:'transretal',
-   desc:'Ultrassonografia prostática via transretal.',
-   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:230,valuePartner:0,total:230}]},
-  {id:225,name:'USG Pênis',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia do pênis.',
-   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:140,valuePartner:0,total:140}]},
-  {id:226,name:'USG Pênis com Doppler',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia do pênis com Doppler.',
-   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:190,valuePartner:0,total:190}]},
-  {id:227,name:'Doppler Abdome Total (cobrar 2 valores)',cat:'Ultrassom',type:'partner',
-   desc:'Doppler do abdome total — equivale a 2 exames.',
-   tips:'⚠️ Cobrar DOIS valores: R$ 640,00 total.',
-   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:640,valuePartner:0,total:640}]},
-  {id:228,name:'USG Abdome Superior com Doppler',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia com Doppler do abdome superior.',prep_text:'Jejum de 6h.',
-   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:320,valuePartner:0,total:320}]},
-  {id:229,name:'USG Abdome Inferior',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia do abdome inferior.',prep_text:'Bexiga cheia.',
-   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:230,name:'USG Hipocôndrio Direito / Vias Biliares',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia do hipocôndrio direito e vias biliares.',prep_text:'Jejum de 6h.',
-   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:231,name:'USG Axilas (cada lado)',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia das axilas. Cobrar por lado.',
-   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:232,name:'USG Região Cervical',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassonografia da região cervical (pescoço).',
-   partners:[{name:'Dr. Wilson',local:'Terças — por ordem de chegada',valueClin:82,valuePartner:0,total:82}]},
-  {id:233,name:'USG Morfológico (IMADI)',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassom morfológico gestacional.',prep_text:'Orientação conforme trimestre.',
-   tips:'Realizado de Seg, Qui, Sex e Sáb das 8h às 13h.',
-   partners:[{name:'IMADI',local:'Seg / Qui / Sex / Sáb — 8h às 13h',valueClin:55,valuePartner:125,total:180}]},
-  {id:234,name:'USG Obstétrico com Doppler (IMADI)',cat:'Ultrassom',type:'partner',
-   desc:'Ultrassom obstétrico com Doppler fetal.',prep_text:'Bexiga semi-cheia no 1º trimestre.',
-   tips:'Realizado de Seg, Qui, Sex e Sáb das 8h às 13h.',
-   partners:[{name:'IMADI',local:'Seg / Qui / Sex / Sáb — 8h às 13h',valueClin:55,valuePartner:125,total:180}]},
-  // RAIO-X
-  {id:300,name:'Raio-X — Adenoide / Cavum',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia de adenoide ou cavum.',partners:RX_BOTH()},
-  {id:301,name:'Raio-X — Abdome Simples / Agudo',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia de abdome simples ou agudo.',partners:RX_IMADI()},
-  {id:302,name:'Raio-X — Articulação Acromioclavicular',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da articulação acromioclavicular.',partners:RX_BOTH()},
-  {id:303,name:'Raio-X — Ombro (Escapuloumeral)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do ombro.',partners:RX_BOTH()},
-  {id:304,name:'Raio-X — Articulações Sacroilíacas',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia das articulações sacroilíacas.',partners:RX_BOTH()},
-  {id:305,name:'Raio-X — Quadril (Coxofemoral)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do quadril.',partners:RX_BOTH()},
-  {id:306,name:'Raio-X — Tornozelo (Tibiotársica)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do tornozelo.',partners:RX_BOTH()},
-  {id:307,name:'Raio-X — Braço',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do braço.',partners:RX_BOTH()},
-  {id:308,name:'Raio-X — Bacia',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da bacia.',partners:RX_BOTH()},
-  {id:309,name:'Raio-X — Crânio PA e Lateral',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do crânio.',partners:RX_BOTH()},
-  {id:3091,name:'Raio-X — Crânio PA-Lat-Bretton',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do crânio com incidências PA, Lateral e Bretton.',partners:RX_PREZE()},
-  {id:3092,name:'Raio-X — Crânio PA-Lat-Oblíquas-Bretton-Hirtz',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do crânio com múltiplas incidências.',partners:RX_PREZE()},
-  {id:310,name:'Raio-X — Coluna Cervical',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da coluna cervical.',partners:RX_BOTH()},
-  {id:311,name:'Raio-X — Coluna Dorsal / Torácica',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da coluna dorsal ou torácica.',partners:RX_BOTH()},
-  {id:312,name:'Raio-X — Coluna Lombo-Sacra',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da coluna lombo-sacra.',partners:RX_BOTH()},
-  {id:313,name:'Raio-X — Coluna Dorso-Lombar Total (escoliose)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia total da coluna para escoliose.',partners:RX_BOTH()},
-  {id:314,name:'Raio-X — Costelas / Hemitórax',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia de costelas por hemitórax.',partners:RX_BOTH()},
-  {id:315,name:'Raio-X — Clavícula',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da clavícula.',partners:RX_BOTH()},
-  {id:316,name:'Raio-X — Cotovelo',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do cotovelo.',partners:RX_BOTH()},
-  {id:3161,name:'Raio-X — Antebraço',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do antebraço.',partners:RX_PREZE()},
-  {id:317,name:'Raio-X — Coxa',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da coxa.',partners:RX_BOTH()},
-  {id:318,name:'Raio-X — Calcâneo',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do calcâneo.',partners:RX_BOTH()},
-  {id:319,name:'Raio-X — Coração e Vasos da Base',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia de coração e vasos da base.',partners:RX_IMADI()},
-  {id:320,name:'Raio-X — Esterno',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do esterno.',partners:RX_BOTH()},
-  {id:3201,name:'Raio-X — Articulação Esterno-Clavicular',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da articulação esterno-clavicular.',partners:RX_PREZE()},
-  {id:321,name:'Raio-X — Joelho / Patela',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do joelho ou patela.',partners:RX_BOTH()},
-  {id:322,name:'Raio-X — Mão / Quirodáctilo',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da mão ou dedos.',partners:RX_BOTH()},
-  {id:323,name:'Raio-X — Mãos e Punhos para Idade Óssea',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia para avaliação de idade óssea.',partners:RX_BOTH()},
-  {id:324,name:'Raio-X — Órbitas Bilaterais',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia das órbitas.',partners:RX_BOTH()},
-  {id:325,name:'Raio-X — Omoplata / Escápula',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da omoplata.',partners:RX_BOTH()},
-  {id:326,name:'Raio-X — Pé / Pododáctilo',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do pé ou dedos.',partners:RX_BOTH()},
-  {id:327,name:'Raio-X — Perna',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da perna.',partners:RX_BOTH()},
-  {id:328,name:'Raio-X — Punho AP-Lat-Oblíquas',cat:'Raio-X',type:'partner',prepKey:'raio_x',
-   desc:'Radiografia do punho.',tips:'⚠️ Prezecor: guia R$ 20 + local R$ 45 = R$ 65.',
-   partners:[IMADI_RX(25,35,60),PREZECOR_RX(20,45,65)]},
-  {id:329,name:'Raio-X — Tórax PA e Perfil',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do tórax em duas incidências.',partners:RX_BOTH()},
-  {id:3291,name:'Raio-X — Tórax PA (somente)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do tórax somente em PA.',partners:RX_PREZE()},
-  {id:3292,name:'Raio-X — Tórax PA (Insp. e Exp.) + Lateral',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do tórax com inspiração, expiração e perfil.',partners:RX_PREZE()},
-  {id:330,name:'Raio-X — Seios da Face (FN-MN-Lat.)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia dos seios da face com 3 incidências.',partners:RX_BOTH()},
-  {id:3301,name:'Raio-X — Seios da Face (FN-MN-Lat.-Hirtz)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia dos seios da face com 4 incidências.',partners:RX_PREZE()},
-  {id:331,name:'Raio-X — Sela Túrcica',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da sela túrcica.',partners:RX_BOTH()},
-  {id:332,name:'Raio-X — Sacro-Cóccix',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do sacro-cóccix.',partners:RX_BOTH()},
-  {id:333,name:'Mamografia Digital',cat:'Raio-X',type:'partner',prepKey:'mamografia',
-   desc:'Mamografia digital de rastreio ou diagnóstico.',
-   partners:[IMADI_RX(45,75,120),PREZECOR_RX(20,100,120)]},
-  {id:334,name:'Densitometria Óssea',cat:'Raio-X',type:'partner',prepKey:'densitometria',
-   desc:'Avaliação da massa óssea — diagnóstico de osteoporose.',
-   partners:[IMADI_RX(20,80,100),PREZECOR_RX(20,90,110)]},
-  {id:3401,name:'Raio-X — Mastoides / Rochedos (Bilateral)',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia das mastoides bilaterais.',partners:RX_PREZE()},
-  {id:3402,name:'Raio-X — ATM Bilateral',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da articulação temporomandibular, bilateral.',partners:RX_PREZE()},
-  {id:3403,name:'Raio-X — Maxilar Inferior PA-Oblíquas',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia do maxilar inferior.',partners:RX_PREZE()},
-  {id:3404,name:'Raio-X — Ossos da Face',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia dos ossos da face com múltiplas incidências.',partners:RX_PREZE()},
-  {id:3405,name:'Raio-X — Arcada Zigomática / Malar',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia da arcada zigomática ou malar.',partners:RX_PREZE()},
-  {id:3406,name:'Raio-X — Escanometria',cat:'Raio-X',type:'partner',prepKey:'raio_x',desc:'Radiografia para mensuração do comprimento dos membros.',partners:RX_PREZE()},
-  // TOMOGRAFIA
-  {id:400,name:'TC Crânio / Sela Túrcica',cat:'Tomografia',type:'partner',prepKey:'tomografia',
-   desc:'Tomografia do crânio ou sela túrcica.',tips:'⚠️ NÃO realizar em < 7 anos. Peso máx: 140kg.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170}]},
-  {id:401,name:'TC Mastoides',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia das mastoides.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:402,name:'TC Face / Seios da Face',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da face ou seios da face.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:403,name:'TC ATM (Articulação Temporomandibular)',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da articulação temporomandibular.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:404,name:'TC Dental Scan (Maxilar / Mandibular)',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia para planejamento odontológico.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:405,name:'TC Pescoço',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia do pescoço.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:406,name:'TC Tórax',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia do tórax.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:407,name:'TC Abdome Superior',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia do abdome superior.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:408,name:'TC Abdome Total (Superior + Pelve + Retroperitônio)',cat:'Tomografia',type:'partner',prepKey:'tomografia',
-   desc:'TC completa do abdome.',tips:'⚠️ NÃO realizar em < 7 anos.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:420,total:500},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:240,total:290},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:112,valuePartner:220,total:332}]},
-  {id:409,name:'TC Pelve / Bacia',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da pelve ou bacia.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:410,name:'TC Coluna Cervical',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da coluna cervical.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:411,name:'TC Coluna Dorsal / Lombar',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da coluna dorsal ou lombar.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:412,name:'TC Articulações (cada)',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia de articulação. Cobrar por cada articulação.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:413,name:'TC Segmento Apendicular (cada)',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'TC de segmentos apendiculares. Cobrar por cada segmento.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Prezecor',local:'Todas unidades',valueClin:50,valuePartner:120,total:170},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:414,name:'TC Mandíbula / Maxilar',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia da mandíbula ou maxilar.',
-   partners:[{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:415,name:'Urotomografia',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Tomografia do trato urinário.',
-   prep_text:'Jejum de 4h. Bexiga cheia no momento do exame.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:520,total:600}]},
-  {id:416,name:'Angio-TC (Aorta, Crânio, Pescoço, Tórax, Abdome, Pelve, Membros)',cat:'Tomografia',type:'partner',prepKey:'tomografia',
-   desc:'Angio-tomografia arterial ou venosa.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:80,valuePartner:231,total:311},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:80,valuePartner:130,total:210}]},
-  {id:1016,name:'Angio-TC Aorta Torácica',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Angiotomografia de aorta torácica.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:683,total:793}]},
-  {id:1017,name:'Angio-TC Aorta Abdominal',cat:'Tomografia',type:'partner',prepKey:'tomografia',desc:'Angiotomografia de aorta abdominal.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:683,total:793}]},
-  // RESSONÂNCIA
-  {id:500,name:'RM Crânio (Encéfalo)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
-   desc:'Ressonância magnética do crânio/encéfalo.',
-   tips:'⚠️ Não agendar campo aberto para tontura/zumbido ou planejamento cirúrgico.\n⚠️ SEDAÇÃO: R$ 400 (Pix) pago no local. Contraste: R$ 150 à parte.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:501,name:'RM Sela Túrcica (Hipófise)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da sela túrcica / hipófise.',
-   tips:'⚠️ Não agendar em campo aberto.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:502,name:'RM Base do Crânio',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da base do crânio.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:503,name:'RM Órbitas (Bilateral)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM das órbitas, bilateral.',
-   tips:'⚠️ Não agendar campo aberto.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:504,name:'RM Ossos Temporais (Mastoides)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM dos ossos temporais / mastoides.',
-   tips:'⚠️ Não agendar campo aberto.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:505,name:'RM Face (inclui seios da face)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM de face.',
-   tips:'⚠️ Não agendar campo aberto.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:506,name:'RM ATM — Articulação Temporomandibular (Bilateral)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da ATM bilateral.',
-   tips:'⚠️ Não agendar campo aberto.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:507,name:'RM Pescoço',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM de pescoço.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:508,name:'RM Tórax',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM do tórax.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:509,name:'RM Abdome Superior',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM do abdome superior.',
-   prep_text:'Jejum de 4–6h.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:510,name:'RM Abdome Total (lançar pelve + superior)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
-   desc:'RM completa do abdome. Equivale a 2 exames.',prep_text:'Jejum de 6–8h.',
-   tips:'⚠️ Cobrar como 2 exames. Contraste Primovist tem valor diferenciado na Scoppeta.',
-   partners:[{name:'Scoppeta — sem contraste',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:832,total:942},{name:'Scoppeta — c/ Contraste Primovist',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:987,total:1097},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:200,valuePartner:500,total:700}]},
-  {id:511,name:'RM Pelve',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da pelve.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:512,name:'RM Coluna Cervical',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da coluna cervical.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:513,name:'RM Coluna Dorsal / Torácica',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da coluna dorsal.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:514,name:'RM Coluna Lombar / Lombo-Sacra',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da coluna lombar.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:515,name:'RM Articulação — Ombro, Cotovelo, Punho, Joelho etc. (cada)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM de articulação. Cobrar por articulação.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:516,name:'RM Segmento Apendicular — Braço, Coxa, Perna, Pé (cada)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM de segmento apendicular. Cobrar por cada.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:517,name:'RM Bacia (articulações sacroilíacas)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM da bacia / articulações sacroilíacas.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:416,total:526},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:518,name:'RM Mamas (Bilateral)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
-   desc:'RM das mamas bilateral.',prep_text:'Programar para 7–10 dias após início da menstruação.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:624,total:734}]},
-  {id:519,name:'RM Próstata Multiparamétrica',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
-   desc:'RM multiparamétrica da próstata.',prep_text:'Preparo intestinal leve.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:624,total:734}]},
-  {id:520,name:'RM Coração (Morfológica e Funcional)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
-   desc:'RM cardíaca morfológica e funcional.',prep_text:'Sem cafeína 24h antes. Retirar metais.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:832,total:942}]},
-  {id:521,name:'RM Crânio com Fluxo Liquórico',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM do crânio com estudo do fluxo liquórico.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:520,total:630},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:522,name:'RM Colangioressonância',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
-   desc:'RM das vias biliares.',prep_text:'Jejum de 6h. Sem água 4h antes.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:420,total:530}]},
-  {id:523,name:'Uroressonância Magnética',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM das vias urinárias.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:520,total:630}]},
-  {id:524,name:'RM Avaliação de Ferro (Fígado)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM para quantificação de ferro hepático.',
-   partners:[{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:525,name:'RM Fetal',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM fetal.',
-   partners:[{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:526,name:'RM Pênis / Bolsa Escrotal',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM do pênis ou bolsa escrotal.',
-   partners:[{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:527,name:'RM Plexo Braquial / Lombossacral',cat:'Ressonância',type:'partner',prepKey:'ressonancia',desc:'RM do plexo braquial ou lombossacral.',
-   partners:[{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  {id:528,name:'Angio-RM — Arterial ou Venosa (Crânio, Pescoço, Aorta, Pulmonar, Pelve, Membros)',cat:'Ressonância',type:'partner',prepKey:'ressonancia',
-   desc:'Angio-ressonância arterial ou venosa.',
-   tips:'⚠️ Sedação: R$ 400 (Pix) no local.\n⚠️ Máx 100kg, tubo 60cm.',
-   partners:[{name:'Scoppeta',local:'Av. Pompeia, 1137 - Perdizes',valueClin:110,valuePartner:473,total:583},{name:'Auri Medicina',local:'Av. Cruzeiro do Sul, 3337 - Santana',valueClin:110,valuePartner:330,total:440}]},
-  // GASTROINTESTINAL
-  {id:600,name:'Endoscopia Digestiva Alta',cat:'Gastrointestinal',type:'partner',
-   desc:'Exame endoscópico de esôfago, estômago e duodeno.',
-   prep_text:'Jejum de 8–12h. Acompanhante obrigatório.',
-   tips:'⚠️ NÃO realizar em pacientes com mais de 70 anos e/ou mais de 100 kg.\nEm caso de biópsia: R$ 80,00 a mais por fragmento.',
-   partners:[{name:'Prezecor',local:'SANTANA: R. Conselheiro Moreira de Barros, 94',valueClin:60,valuePartner:200,total:260}]},
-  {id:601,name:'Anuscopia (Interna e Externa)',cat:'Gastrointestinal',type:'partner',
-   desc:'Exame proctológico da região anal.',prep_text:'Fleet enema 2h antes.',
-   partners:[{name:'Prezecor',local:'SANTANA: R. Conselheiro Moreira de Barros, 94',valueClin:60,valuePartner:200,total:260}]},
-  {id:602,name:'Colonoscopia (com biópsia e/ou citologia)',cat:'Gastrointestinal',type:'partner',
-   desc:'Exame completo do intestino grosso.',
-   prep_text:'Preparo intestinal rigoroso de 2 dias (dieta + laxantes). Acompanhante obrigatório.',
-   tips:'⚠️ NÃO realiza em mais de 70 anos e/ou mais de 100 kg.\nEm caso de biópsia: R$ 80,00 a mais por fragmento.',
-   partners:[{name:'Prezecor',local:'SANTANA: R. Conselheiro Moreira de Barros, 94',valueClin:60,valuePartner:385,total:445}]},
-  {id:603,name:'Retossigmoidoscopia Flexível (com biópsia)',cat:'Gastrointestinal',type:'partner',
-   desc:'Exame do reto e sigmoide.',prep_text:'Fleet enema 2h antes.',
-   tips:'⚠️ Acima de 60 anos NÃO realiza.',
-   partners:[{name:'Prezecor',local:'SANTANA: R. Conselheiro Moreira de Barros, 94',valueClin:60,valuePartner:290,total:350}]},
-  {id:604,name:'Polipectomia de Esôfago / Estômago / Duodeno',cat:'Gastrointestinal',type:'partner',
-   desc:'Remoção endoscópica de pólipo.',prep_text:'Jejum de 12h. Acompanhante.',
-   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:60,valuePartner:250,total:310}]},
-  {id:605,name:'Polipectomia de Cólon',cat:'Gastrointestinal',type:'partner',
-   desc:'Remoção endoscópica de pólipo de cólon.',prep_text:'Preparo intestinal. Acompanhante.',
-   partners:[{name:'Prezecor',local:'Todas unidades',valueClin:60,valuePartner:250,total:310}]},
-  {id:606,name:'Anatomopatológico por Fragmento (Endoscopia/Colonoscopia)',cat:'Gastrointestinal',type:'normal',
-   desc:'Análise histológica de fragmento coletado.',
-   tips:'Pago diretamente na Prezecor: R$ 80,00 por fragmento.',value:{ct:0,part:80}},
-  // LABORATORIAL
-  {id:700,name:'Regra: Colesterol Total e Frações',cat:'Laboratorial',type:'rule',
-   desc:'Como lançar o colesterol completo no sistema.',
-   tips:'⚠️ LANÇAR COMO: <strong>Lipidograma + Triglicerides</strong>',prep_text:'Jejum de 12 horas.'},
-  {id:701,name:'Regra: Sorologia para Sífilis',cat:'Laboratorial',type:'rule',
-   desc:'Como lançar sorologia de sífilis.',
-   tips:'⚠️ LANÇAR COMO: <strong>FTA ABS IgG + FTA ABS IgM + VDRL</strong>',prep_text:'Sem jejum.'},
-  {id:702,name:'Regra: PSA (Próstata)',cat:'Laboratorial',type:'rule',prepKey:'psa',
-   desc:'Como lançar exame de PSA.',
-   tips:'⚠️ LANÇAR COMO: <strong>PSA Total / Livre</strong>'},
-  {id:703,name:'Regra: Testosterona',cat:'Laboratorial',type:'rule',
-   desc:'Como lançar testosterona.',
-   tips:'⚠️ LANÇAR COMO: <strong>Testosterona + Testosterona Livre</strong>',prep_text:'Coleta preferencialmente pela manhã.'},
-  {id:704,name:'Regra: Estrogênio',cat:'Laboratorial',type:'rule',
-   desc:'Como lançar o painel de estrogênio.',
-   tips:'⚠️ LANÇAR COMO: <strong>E1 (Estrona) + E2 + E3</strong>',prep_text:'Informar fase do ciclo menstrual.'},
-  {id:705,name:'Regra: Beta HCG (teste de gravidez)',cat:'Laboratorial',type:'rule',
-   desc:'Como lançar o Beta HCG.',
-   tips:'⚠️ LANÇAR COMO: <strong>Beta HCG Quantitativo</strong>',prep_text:'Sem jejum.'},
-  {id:706,name:'Regra: Hepatite B (painel completo)',cat:'Laboratorial',type:'rule',
-   desc:'Como lançar o painel de Hepatite B.',
-   tips:'⚠️ LANÇAR COMO: <strong>HBSAG + HBC TOTAL + ANTI HBS + HBEAG</strong>',prep_text:'Sem jejum.'},
-  {id:707,name:'Regra: Curva Glicêmica',cat:'Laboratorial',type:'rule',prepKey:'curva_glicemica',
-   desc:'Regra de coleta da curva glicêmica.',
-   tips:'⚠️ O paciente <strong>SEMPRE realizará coleta de glicose ANTES</strong> de iniciar a curva.'},
-  {id:708,name:'Regra: DHL / Fator Reumatoide / FAN / INR',cat:'Laboratorial',type:'rule',
-   desc:'Equivalências de nomes de exames laboratoriais.',
-   tips:'⚠️ Desidrogenase Lática → <strong>DHL</strong><br>• Waaler Rose → <strong>Fator Reumatoide</strong><br>• Célula LE → <strong>FAN</strong><br>• INR → <strong>Tempo de Protrombina</strong>'},
-  {id:709,name:'Regra: Sexagem Fetal',cat:'Laboratorial',type:'rule',
-   desc:'Descoberta do sexo do bebê pelo sangue materno (a partir de 8 semanas).',
-   tips:'⚠️ Lançar como <strong>Sexagem</strong> no sistema AMEI — o valor irá automático.',prep_text:'Apenas coleta de sangue materno.'},
-  {id:710,name:'Toxicológico CNH',cat:'Laboratorial',type:'normal',
-   desc:'Exame toxicológico para CNH.',prep_text:'Cabelo ou pelos com mínimo 3–4 cm.',value:{ct:135,part:210}},
-  {id:711,name:'Glicose (Destro / Ponta de Dedo)',cat:'Laboratorial',type:'normal',
-   desc:'Medição de glicose capilar. Sem preparo especial.',value:{ct:10,part:10}},
-  {id:712,name:'Urina Tipo I',cat:'Laboratorial',type:'normal',prepKey:'urina1_urocultura',
-   desc:'Exame de urina tipo 1 — avaliação físico-química e microscópica.',value:{ct:15,part:25}},
-  {id:713,name:'Urocultura',cat:'Laboratorial',type:'normal',prepKey:'urina1_urocultura',
-   desc:'Cultura de urina para identificação de bactérias.',value:{ct:20,part:35}},
-  {id:714,name:'Urina 24 Horas',cat:'Laboratorial',type:'normal',prepKey:'urina24',
-   desc:'Coleta de urina por 24 horas para dosagens específicas.',value:{ct:25,part:40}},
-  {id:715,name:'PSA Total / Livre',cat:'Laboratorial',type:'normal',prepKey:'psa',
-   desc:'Dosagem do antígeno prostático específico.',value:{ct:35,part:60}},
-  {id:716,name:'Curva Glicêmica',cat:'Laboratorial',type:'normal',prepKey:'curva_glicemica',
-   desc:'Avalia tolerância à glicose por coletas sequenciais de sangue.',value:{ct:30,part:50}},
-  {id:717,name:'Parasitológico de Fezes (por amostra)',cat:'Laboratorial',type:'normal',prepKey:'parasitologico',
-   desc:'Pesquisa de parasitas nas fezes. Cobrar por amostra.',value:{ct:15,part:25}},
-  {id:718,name:'Sangue Oculto nas Fezes',cat:'Laboratorial',type:'normal',prepKey:'sangue_oculto',
-   desc:'Pesquisa de sangue oculto nas fezes.',value:{ct:18,part:30}},
-  {id:719,name:'Teste de Intolerância à Lactose',cat:'Laboratorial',type:'normal',prepKey:'lactose',
-   desc:'Avalia a tolerância ao açúcar do leite por coletas sequenciais.',value:{ct:60,part:100}},
-  {id:721,name:'Microalbuminúria (Amostra Isolada)',cat:'Laboratorial',type:'normal',
-   desc:'Dosagem de albumina na urina.',prep_text:'Colher a primeira urina da manhã ou com no mínimo 4h sem urinar. Desprezar o primeiro jato e coletar o segundo.',value:{ct:20,part:35}}
-];
-
-// ─────────────────────────────────────────────
-// Estado
-// ─────────────────────────────────────────────
-let currentCat='all', currentClinic=null, currentSearch='', sortAZ=true;
-let budget=[], selectedExam=null, selectedPIdx=null;
-let msgExam=null, msgPIdx=0;
-let prepExam=null;
-
-// ─────────────────────────────────────────────
-// Init
-// ─────────────────────────────────────────────
-window.EXAMS_GLOBAL = EXAMS;
-function reRenderExams(){ renderExams(); updateStats(); }
-function init(){
-  updateCounts();
-  buildClinicFilters();
-  renderExams();
-  renderBudget();
-  document.getElementById('totalExamsCount').textContent=EXAMS.length;
-  const inp=document.getElementById('searchInput');
-  inp.addEventListener('input',e=>{
-    currentSearch=e.target.value.trim();
-    document.getElementById('clearBtn').classList.toggle('visible',currentSearch.length>0);
-    renderExams();
-  });
-}
-
-function updateCounts(){
-  const cats={};
-  EXAMS.forEach(e=>{cats[e.cat]=(cats[e.cat]||0)+1;});
-  document.getElementById('cnt-all').textContent=EXAMS.length;
-  Object.keys(cats).forEach(c=>{const el=document.getElementById('cnt-'+c);if(el)el.textContent=cats[c];});
-}
-
-function buildClinicFilters(){
-  const m={};
-  EXAMS.forEach(e=>{if(e.type==='partner')e.partners.forEach(p=>{
-    let k=p.name.startsWith('Scoppeta')?'Scoppeta':p.name;
-    m[k]=(m[k]||0)+1;
-  });});
-  const container=document.getElementById('clinicFilters');
-  container.innerHTML=Object.keys(m).sort().map(name=>{
-    const icon=CLINIC_ICONS[name]||'🏢';
-    return `<div class="chip" onclick="setClinic('${name}',this)"><span class="chip-icon">${icon}</span>${name}<span class="chip-count">${m[name]}</span></div>`;
-  }).join('');
-}
-
-function setCategory(cat,el){
-  currentCat=cat;
-  document.querySelectorAll('#catFilters .chip').forEach(c=>c.classList.remove('cat-active'));
-  el.classList.add('cat-active');
-  renderExams();
-}
-function setClinic(name,el){
-  if(currentClinic===name){clearClinic();return;}
-  currentClinic=name;
-  document.querySelectorAll('#clinicFilters .chip').forEach(c=>c.classList.remove('cli-active'));
-  el.classList.add('cli-active');
-  document.getElementById('clinicTagName').textContent=name;
-  document.getElementById('clinicTag').classList.add('show');
-  renderExams();
-}
-function clearClinic(){
-  currentClinic=null;
-  document.querySelectorAll('#clinicFilters .chip').forEach(c=>c.classList.remove('cli-active'));
-  document.getElementById('clinicTag').classList.remove('show');
-  renderExams();
-}
-function toggleSort(){sortAZ=!sortAZ;document.getElementById('sortLabel').textContent=sortAZ?'A–Z':'Z–A';renderExams();}
-function clearSearch(){currentSearch='';document.getElementById('searchInput').value='';document.getElementById('clearBtn').classList.remove('visible');renderExams();}
-function highlight(text,q){if(!q)return text;return text.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');}
-function fmtMoney(v){if(v===undefined||v===null)return'—';return'R$ '+Number(v).toFixed(2).replace('.',',');}
-function examMatchesClinic(e){if(!currentClinic)return true;if(e.type!=='partner')return false;return e.partners.some(p=>{let k=p.name.startsWith('Scoppeta')?'Scoppeta':p.name;return k===currentClinic;});}
-
-function hasPrep(e){return !!(e.prepKey||e.prep_text);}
-
-// ─────────────────────────────────────────────
-// Render cards
-// ─────────────────────────────────────────────
-function renderExams(){
-  const q=currentSearch.toLowerCase();
-  let list=EXAMS.filter(e=>{
-    if(currentCat!=='all'&&e.cat!==currentCat)return false;
-    if(!examMatchesClinic(e))return false;
-    if(!q)return true;
-    return(e.name+' '+(e.desc||'')+' '+(e.cat||'')).toLowerCase().includes(q);
-  });
-  list.sort((a,b)=>sortAZ?a.name.localeCompare(b.name,'pt'):b.name.localeCompare(a.name,'pt'));
-  const container=document.getElementById('examsList');
-  document.getElementById('resultsCount').innerHTML=`<strong>${list.length}</strong> exame${list.length!==1?'s':''} encontrado${list.length!==1?'s':''}`;
-  if(!list.length){container.innerHTML=`<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-title">Nenhum exame encontrado</div><div>Tente outra busca ou mude o filtro</div></div>`;return;}
-
-  container.innerHTML=list.map(e=>{
-    const isPartner=e.type==='partner', isRule=e.type==='rule';
-    let badge,badgeCls,priceHtml;
-    if(isPartner){badge='Parceiro';badgeCls='badge-partner';const min=Math.min(...e.partners.map(p=>p.total));priceHtml=`<span class="card-price-label">a partir de</span><span class="card-price">${fmtMoney(min)}</span>`;}
-    else if(isRule){badge='Regra';badgeCls='badge-rule';priceHtml=`<span class="card-price" style="color:var(--text3);font-size:10px">Ver modal</span>`;}
-    else{badge='Normal';badgeCls='badge-normal';priceHtml=`<span class="card-price-label">CT</span><span class="card-price">${fmtMoney(e.value.ct)}</span>`;}
-    const desc=highlight(e.desc?e.desc.substring(0,78)+(e.desc.length>78?'...':''):'',currentSearch);
-    const ptags=isPartner?`<div class="partner-tags">${[...new Set(e.partners.map(p=>p.name.startsWith('Scoppeta')?'Scoppeta':p.name))].map(n=>`<span class="ptag">${n}</span>`).join('')}</div>`:''
-
-    const hasPrepBtn = hasPrep(e);
-    const prepBtn = hasPrepBtn
-      ? `<button class="card-prep-btn" onclick="event.stopPropagation();openPrepModal(${e.id})">🩺 Preparo</button>`
-      : '';
-
-    return `<div class="exam-card ${isPartner?'partner':isRule?'lab-rule':''}" onclick="openModal(${e.id})">
-      <div class="card-header"><div class="card-name">${highlight(e.name,currentSearch)}</div><span class="card-badge ${badgeCls}">${badge}</span></div>
-      <div class="card-desc">${desc}</div>
-      ${ptags}
-      <div class="card-footer">
-        <div class="card-price-area">${priceHtml}<div class="card-cat">${e.cat}</div></div>
-        <div class="card-actions">
-          ${prepBtn}
-          <button class="card-msg-btn" onclick="event.stopPropagation();openMsgModal(${e.id})">📩 Mensagem</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ─────────────────────────────────────────────
-// PREPARO MODAL
-// ─────────────────────────────────────────────
-function openPrepModal(id){
-  prepExam=EXAMS.find(e=>e.id===id);
-  if(!prepExam)return;
-  document.getElementById('prepModalSubtitle').textContent=prepExam.name;
-  renderPrepBody();
-  document.getElementById('prepOverlay').classList.add('open');
-  document.getElementById('prepCopyBtn').textContent='📋 Copiar Preparo';
-  document.getElementById('prepCopyBtn').classList.remove('copied');
-}
-
-function renderPrepBody(){
-  const e=prepExam;
-  const container=document.getElementById('prepModalBody');
-  let html='';
-
-  // Se tiver prepKey, usar PREPS estruturado
-  if(e.prepKey && PREPS[e.prepKey]){
-    const pd=PREPS[e.prepKey];
-    pd.sections.forEach(sec=>{
-      html+=`<div class="prep-section"><div class="prep-section-title">${sec.title}</div>`;
-      sec.items.forEach(item=>{
-        const cls=item.type?` ${item.type}`:'';
-        html+=`<div class="prep-item${cls}"><span class="prep-item-icon">${item.icon}</span><span>${item.text}</span></div>`;
+      // Atendentes
+      onValue(ref(db, "admin/atendentes"), snap => {
+        const d = snap.val() || {};
+        const el = document.getElementById("listaAtendentes");
+        if (!el) return;
+        const lista = Object.entries(d);
+        if (!lista.length) { el.innerHTML = '<span style="color:var(--gray-400);font-size:13px;">Nenhum atendente cadastrado</span>'; return; }
+        el.innerHTML = lista.sort((a,b) => (a[1].apelido||"").localeCompare(b[1].apelido||"")).map(([id, a]) =>
+          `<div class="atend-tag">${esc(a.apelido||a.nome||"—")}<button onclick="removerAtendente('${id}')"><i class="fas fa-times"></i></button></div>`
+        ).join("");
       });
-      html+='</div>';
+
+      // Acessos financeiros
+      onValue(ref(db, "admin/acessoFinanceiro"), snap => {
+        const d = snap.val() || {};
+        const el = document.getElementById("listaAcessos");
+        if (!el) return;
+        const lista = Object.entries(d);
+        if (!lista.length) { el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray-400);font-size:13px;">Nenhum acesso configurado</div>'; return; }
+        el.innerHTML = lista.map(([id, a]) =>
+          `<div class="list-item"><div class="li-info"><div class="li-name">${esc(a.email||"—")}</div></div><button class="btn-del" onclick="removerAcesso('${id}')"><i class="fas fa-trash"></i></button></div>`
+        ).join("");
+      });
+
+      // Preços
+      onValue(ref(db, "admin/precos"), snap => {
+        const d = snap.val(); if (d) { Object.assign(window.customPrices, d); renderPrecos(); }
+      });
     });
-  }
 
-  // Se tiver prep_text simples, mostrar também
-  if(e.prep_text){
-    const lines=e.prep_text.split('\n').filter(l=>l.trim());
-    if(lines.length>0){
-      html+=`<div class="prep-section"><div class="prep-section-title">Informações adicionais</div>`;
-      lines.forEach(line=>{
-        html+=`<div class="prep-item"><span class="prep-item-icon">📌</span><span>${line.trim()}</span></div>`;
-      });
-      html+='</div>';
-    }
-  }
+    window.removerUsuario = async uid => {
+      if (!confirm("Remover este usuário do banco?")) return;
+      remove(ref(db, `admin/usuarios/${uid}`)).then(() => toast("Removido", "success")).catch(er => toast("Erro: " + er.message, "error"));
+    };
 
-  // Se tiver tips relevantes (não começar com ⚠️ de cobrança)
-  if(e.tips){
-    const tipsClean=e.tips.replace(/<[^>]+>/g,'').trim();
-    const isCobranca=tipsClean.includes('cobrar')||tipsClean.includes('LANÇAR COMO');
-    if(!isCobranca){
-      html+=`<div class="prep-section"><div class="prep-section-title">Atenção</div>`;
-      tipsClean.split('\n').filter(l=>l.trim()).forEach(line=>{
-        html+=`<div class="prep-item warn"><span class="prep-item-icon">⚠️</span><span>${line.replace(/^⚠️\s*/,'').trim()}</span></div>`;
-      });
-      html+='</div>';
-    }
-  }
+    window.removerAtendente = async id => {
+      if (!confirm("Remover atendente?")) return;
+      remove(ref(db, `admin/atendentes/${id}`)).then(() => toast("Removido", "success")).catch(er => toast("Erro: " + er.message, "error"));
+    };
 
-  // Informações padrão sempre mostradas
-  html+=`<div class="prep-section"><div class="prep-section-title">Trazer no dia</div>
-    <div class="prep-item info"><span class="prep-item-icon">🪪</span><span>RG ou CPF</span></div>
-    <div class="prep-item info"><span class="prep-item-icon">📄</span><span>Pedido médico</span></div>
-    <div class="prep-item info"><span class="prep-item-icon">💳</span><span>Cartão de Todos (se tiver)</span></div>
-  </div>`;
-
-  html+=`<div class="prep-section"><div class="prep-section-title">Localização</div>
-    <div class="prep-item"><span class="prep-item-icon">📍</span><span>Av. Dr. Felipe Pinel, 367 - Pirituba (em frente à UPA)</span></div>
-  </div>`;
-
-  container.innerHTML=html;
-}
-
-function closePrepModal(){document.getElementById('prepOverlay').classList.remove('open');prepExam=null;}
-function closePrepOnBg(e){if(e.target===document.getElementById('prepOverlay'))closePrepModal();}
-
-function copyPrep(){
-  if(!prepExam)return;
-  const e=prepExam;
-  const lines=[`🩺 PREPARO — ${e.name}`, '─'.repeat(40)];
-
-  if(e.prepKey&&PREPS[e.prepKey]){
-    PREPS[e.prepKey].sections.forEach(sec=>{
-      lines.push(`\n${sec.title.toUpperCase()}`);
-      sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
-    });
-  }
-  if(e.prep_text){lines.push('\nINFORMAÇÕES ADICIONAIS');e.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(`📌 ${l.trim()}`);});}
-
-  lines.push('\n─'.repeat(20));
-  lines.push('📌 Trazer: RG/CPF + Pedido Médico + Cartão de Todos');
-  lines.push('📍 Av. Dr. Felipe Pinel, 367 - Pirituba (em frente à UPA)');
-
-  navigator.clipboard.writeText(lines.join('\n')).then(()=>{
-    const btn=document.getElementById('prepCopyBtn');
-    btn.textContent='✅ Copiado!';btn.classList.add('copied');
-    setTimeout(()=>{btn.textContent='📋 Copiar Preparo';btn.classList.remove('copied');},2500);
-  });
-}
-
-// ─────────────────────────────────────────────
-// EXAM MODAL
-// ─────────────────────────────────────────────
-function openModal(id){
-  selectedExam=EXAMS.find(e=>e.id===id);selectedPIdx=null;
-  if(!selectedExam)return;
-  document.getElementById('modalCat').textContent=selectedExam.cat;
-  document.getElementById('modalTitle').textContent=selectedExam.name;
-  renderModalBody();
-  document.getElementById('overlay').classList.add('open');
-}
-function renderModalBody(){
-  const e=selectedExam;
-  let html='';
-  if(e.desc)html+=`<div class="info-box desc"><div class="info-box-label">📋 Descrição</div>${e.desc}</div>`;
-  if(e.prep_text)html+=`<div class="info-box prep"><div class="info-box-label">⚠️ Preparo</div>${e.prep_text}</div>`;
-  else if(e.prepKey&&PREPS[e.prepKey]){
-    const pd=PREPS[e.prepKey];
-    let prepSummary=pd.sections.flatMap(s=>s.items).slice(0,3).map(i=>i.text).join(' · ');
-    if(prepSummary)html+=`<div class="info-box prep"><div class="info-box-label">⚠️ Preparo</div>${prepSummary}…</div>`;
-  }
-  if(e.tips){const tipsHtml=e.tips.replace(/\n/g,'<br>');html+=`<div class="info-box tips"><div class="info-box-label">💡 Atenção / Regras</div>${tipsHtml}</div>`;}
-
-  if(e.type==='partner'){
-    html+=`<div class="partner-section-title">Selecione o local / parceiro</div><div class="partner-cards">`;
-    e.partners.forEach((p,i)=>{
-      html+=`<div class="partner-card ${selectedPIdx===i?'selected':''}" onclick="selectPartner(${i})">
-        <div class="partner-card-header">
-          <div><div class="partner-name">${p.name}</div><div class="partner-location">📍 ${p.local}</div></div>
-          <button class="partner-select-btn" onclick="event.stopPropagation();selectAndAdd(${i})">Selecionar</button>
-        </div>
-        <div class="partner-prices">
-          <div class="price-col"><div class="price-col-label">💳 Guia (aqui)</div><div class="price-col-val clinic">${fmtMoney(p.valueClin)}</div></div>
-          <div class="price-col"><div class="price-col-label">📍 No local</div><div class="price-col-val partner">${p.valuePartner>0?fmtMoney(p.valuePartner):'<span style="color:var(--accent2);font-size:10px">incluso</span>'}</div></div>
-          <div class="price-col"><div class="price-col-label">🧾 Total</div><div class="price-col-val total">${fmtMoney(p.total)}</div></div>
-        </div>
-      </div>`;
-    });
-    html+=`</div><button class="modal-add-btn" onclick="addToBudget()" ${selectedPIdx===null?'disabled':''}>➕ Adicionar ao Orçamento</button>`;
-  } else if(e.type==='rule'){
-    html+=`<button class="modal-add-btn" onclick="closeModal()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2)">✓ Entendido</button>`;
-  } else {
-    const hasVal=e.value&&(e.value.ct>0||e.value.part>0);
-    if(hasVal){
-      html+=`<div class="option-group">
-        <div class="option-card selected"><div class="option-label">💳 Cartão de Todos</div><div class="option-price">${fmtMoney(e.value.ct)}</div><div class="option-tag">Convênio</div></div>
-        <div class="option-card" style="opacity:.7"><div class="option-label">💵 Particular</div><div class="option-price" style="color:var(--gold)">${fmtMoney(e.value.part)}</div><div class="option-tag">Sem convênio</div></div>
-      </div>
-      <button class="modal-add-btn" onclick="addToBudget()">➕ Adicionar ao Orçamento</button>`;
-    } else {
-      html+=`<button class="modal-add-btn" onclick="closeModal()" style="background:var(--surface2);color:var(--text);border:1px solid var(--border2)">✓ Entendido</button>`;
-    }
-  }
-  document.getElementById('modalBody').innerHTML=html;
-}
-function selectPartner(i){selectedPIdx=i;renderModalBody();}
-function selectAndAdd(i){selectedPIdx=i;addToBudget();}
-function closeModal(){document.getElementById('overlay').classList.remove('open');selectedExam=null;selectedPIdx=null;}
-function closeModalOnBg(e){if(e.target===document.getElementById('overlay'))closeModal();}
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closePrepModal();closeMsgModal();}});
-
-// ─────────────────────────────────────────────
-// Budget
-// ─────────────────────────────────────────────
-function addToBudget(){
-  const e=selectedExam;
-  let item={id:Date.now(),examId:e.id,name:e.name,cat:e.cat};
-  if(e.type==='partner'){
-    if(selectedPIdx===null)return;
-    const p=e.partners[selectedPIdx];
-    item.partner=p.name;item.location=p.local;item.valueClin=p.valueClin;item.valuePartner=p.valuePartner;item.total=p.total;
-  }else{item.total=e.value.ct;item.partner=null;}
-  budget.push(item);renderBudget();closeModal();
-}
-function renderBudget(){
-  const container=document.getElementById('budgetItems');
-  document.getElementById('budgetCount').textContent=budget.length;
-  const pc=budget.filter(i=>i.partner).length;
-  const total=budget.reduce((s,i)=>s+i.total,0);
-  document.getElementById('stat-items').textContent=budget.length;
-  document.getElementById('stat-partner').textContent=pc;
-  document.getElementById('stat-total').textContent=fmtMoney(total);
-  document.getElementById('subtotalVal').textContent=fmtMoney(total);
-  document.getElementById('totalVal').textContent=fmtMoney(total);
-  const has=budget.length>0;
-  document.getElementById('printBtn').disabled=!has;document.getElementById('copyBtn').disabled=!has;
-  if(!has){container.innerHTML=`<div class="budget-empty"><div class="icon">📋</div><div>Nenhum exame adicionado</div><div style="margin-top:6px;font-size:11px;color:var(--text3)">Clique em um exame para adicionar</div></div>`;return;}
-  container.innerHTML=budget.map(item=>`
-    <div class="budget-item">
-      <div class="bi-info">
-        <div class="bi-name">${item.name}</div>
-        <div class="bi-sub"><span>${item.cat}</span>${item.partner?`<span style="color:var(--blue)">${item.partner}</span>`:''}</div>
-        ${item.valueClin!==undefined&&item.valuePartner>0?`<div style="font-size:10px;color:var(--text3);margin-top:3px">Guia: <span style="color:var(--warning)">${fmtMoney(item.valueClin)}</span> · Local: <span style="color:var(--text2)">${fmtMoney(item.valuePartner)}</span></div>`:''}
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:6px;flex-shrink:0">
-        <div class="bi-price">${fmtMoney(item.total)}</div>
-        <button class="remove-btn" onclick="removeItem(${item.id})">✕</button>
-      </div>
-    </div>`).join('');
-}
-function removeItem(id){budget=budget.filter(i=>i.id!==id);renderBudget();}
-function clearBudget(){if(!budget.length)return;if(confirm('Limpar todo o orçamento?')){budget=[];renderBudget();}}
-
-// ─────────────────────────────────────────────
-// Message Modal
-// ─────────────────────────────────────────────
-function generateMessage(exam,pIdx){
-  const lines=[];
-
-  // ── Exames normais (realizados na própria clínica) ──
-  if(exam.type==='normal'||exam.type==='rule'){
-    lines.push(`*${exam.name.toUpperCase()}*`,'');
-
-    if(exam.value&&exam.value.ct>0){
-      lines.push(`💰 *Valor:* ${fmtMoney(exam.value.ct)} pelo Cartão de Todos`);
-      if(exam.value.part&&exam.value.part!==exam.value.ct)
-        lines.push(`💵 *Particular:* ${fmtMoney(exam.value.part)}`);
-    }
-
-    // Agendamento/horário a partir de tips
-    if(exam.tips){
-      const t = exam.tips.replace(/<[^>]+>/g,'').trim();
-      if(t.startsWith('📋')){
-        lines.push('', t);
-      }
-    }
-
-    if(exam.prep_text||exam.prepKey){
-      lines.push('','📌 *Preparo:*');
-      if(exam.prep_text){
-        exam.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(l.trim());});
-      } else if(exam.prepKey&&PREPS[exam.prepKey]){
-        PREPS[exam.prepKey].sections.forEach(sec=>{
-          lines.push(`\n*${sec.title}*`);
-          sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
-        });
-      }
-    }
-
-    lines.push('','• Trazer: RG/CPF, pedido médico e Cartão de Todos.');
-    return lines.join('\n');
-  }
-
-  // ── Exames de parceiros ──
-  const p    = exam.partners[pIdx];
-  const info = CLINIC_INFO[p.name] || CLINIC_INFO[p.name.split('—')[0].trim()] || null;
-
-  // Médicos internos (USG/exames realizados na própria clínica)
-  const isInternal = !['Scoppeta','Auri Medicina','Prezecor','IMADI',
-    'Prezecor (Santana)','Dra. Silvia']
-    .some(n => p.name.startsWith(n.split('—')[0].trim()));
-
-  if(isInternal){
-    lines.push(`*${exam.name.toUpperCase()}*`,'');
-    lines.push(`Este exame é realizado em nossa unidade pelo(a) *${p.name}*.`);
-    if(p.local) lines.push(`🗓️ Dias: ${p.local}`);
-    lines.push('');
-    lines.push(`💰 *Valor total:* ${fmtMoney(p.total)} pelo Cartão de Todos`);
-    if(exam.prep_text||exam.prepKey){
-      lines.push('','📌 *Preparo:*');
-      if(exam.prep_text){
-        exam.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(l.trim());});
-      } else if(exam.prepKey&&PREPS[exam.prepKey]){
-        PREPS[exam.prepKey].sections.forEach(sec=>{
-          lines.push(`\n*${sec.title}*`);
-          sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
-        });
-      }
-    }
-    lines.push('','• Trazer: RG/CPF, pedido médico e Cartão de Todos.');
-    return lines.join('\n');
-  }
-
-  // ── Clínica parceira externa ──
-  lines.push(`*${exam.name.toUpperCase()}*`,'');
-
-  lines.push(`Este exame é realizado em uma parceira nossa, a *${p.name}*, sendo necessário pagar a Guia de Encaminhamento na nossa unidade antes de realizar o exame.`);
-  lines.push(`O pagamento pode ser feito presencialmente ou via PIX pelo WhatsApp.`,'');
-
-  // Valores
-  lines.push(`💰 *Valor total:* ${fmtMoney(p.total)} pelo Cartão de Todos`);
-  if(p.valueClin>0)
-    lines.push(`   ↳ *Encaminhamento (AmorSaúde):* ${fmtMoney(p.valueClin)}`);
-  if(p.valuePartner>0)
-    lines.push(`   ↳ *Restante (${p.name}):* ${fmtMoney(p.valuePartner)}`);
-
-  // Biópsia / extra
-  if(exam.tips){
-    const tipsTxt = exam.tips.replace(/<[^>]+>/g,'').trim();
-    const bioMatch = tipsTxt.match(/bi[oó]psia[^\d]*R\$\s*[\d,.]+/i);
-    if(bioMatch){
-      const bioVal = (bioMatch[0].match(/R\$\s*[\d,.]+/)||[''])[0];
-      lines.push(`   ↳ *Biópsia (se realizada):* ${bioVal} — pago na parceira no dia do exame`);
-    }
-  }
-
-  // Endereço e contato — SEM horários de agendamento
-  lines.push('');
-  if(info){
-    if(info.address) lines.push(`📍 *Endereço:* ${info.address}`);
-    if(info.tel)     lines.push(`📞 *Telefone:* ${info.tel}`);
-    // Sem schedule — paciente agenda diretamente com a parceira
-  } else if(p.local && !p.local.includes('unidades') && !p.local.includes('chegada') && !p.local.includes('Seg')){
-    lines.push(`📍 *Local:* ${p.local}`);
-  }
-
-  // Preparo
-  if(exam.prep_text||exam.prepKey){
-    lines.push('','📌 *Preparo:*');
-    if(exam.prep_text){
-      exam.prep_text.split('\n').forEach(l=>{if(l.trim())lines.push(l.trim());});
-    } else if(exam.prepKey&&PREPS[exam.prepKey]){
-      PREPS[exam.prepKey].sections.forEach(sec=>{
-        lines.push(`\n*${sec.title}*`);
-        sec.items.forEach(item=>lines.push(`${item.icon} ${item.text}`));
-      });
-    }
-  }
-
-  // Nota especial Scoppeta (PIX obrigatório)
-  if(p.name.startsWith('Scoppeta')){
-    lines.push('','💳 Após o agendamento, o pagamento da entrada é via *PIX*. O restante é pago na clínica no dia do exame.');
-  }
-
-  lines.push('','• Trazer: RG/CPF, pedido médico e Cartão de Todos.');
-  return lines.join('\n');
-}
-
-function openMsgModal(id){
-  msgExam=EXAMS.find(e=>e.id===id);
-  if(!msgExam)return;
-  msgPIdx=0;
-  const partnerSel=document.getElementById('msgPartnerSelect');
-  const pillsContainer=document.getElementById('msgPartnerBtns');
-  if(msgExam.type==='partner'&&msgExam.partners.length>1){
-    partnerSel.classList.add('show');
-    pillsContainer.innerHTML=msgExam.partners.map((p,i)=>`<button class="msg-partner-pill ${i===0?'active':''}" onclick="selectMsgPartner(${i},this)">${p.name}</button>`).join('');
-  }else{partnerSel.classList.remove('show');}
-  updateMsgText();
-  document.getElementById('msgOverlay').classList.add('open');
-  document.getElementById('msgCopyBtn').textContent='📋 Copiar Mensagem';
-  document.getElementById('msgCopyBtn').classList.remove('copied');
-}
-function selectMsgPartner(i,el){msgPIdx=i;document.querySelectorAll('.msg-partner-pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');updateMsgText();}
-function updateMsgText(){document.getElementById('msgText').value=generateMessage(msgExam,msgPIdx);}
-function copyMsg(){
-  const text=document.getElementById('msgText').value;
-  navigator.clipboard.writeText(text).then(()=>{
-    const btn=document.getElementById('msgCopyBtn');btn.textContent='✅ Copiado!';btn.classList.add('copied');
-    setTimeout(()=>{btn.textContent='📋 Copiar Mensagem';btn.classList.remove('copied');},2500);
-  });
-}
-function closeMsgModal(){document.getElementById('msgOverlay').classList.remove('open');msgExam=null;}
-function closeMsgOnBg(e){if(e.target===document.getElementById('msgOverlay'))closeMsgModal();}
-
-// Print/Copy budget
-function copyBudget(){
-  if(!budget.length)return;
-  const lines=['ORÇAMENTO DE EXAMES','='.repeat(40)];
-  budget.forEach((item,i)=>{lines.push(`${i+1}. ${item.name}`);if(item.partner)lines.push(`   • Local: ${item.partner}`);lines.push(`   • Valor: ${fmtMoney(item.total)}`);if(item.valueClin!==undefined&&item.valuePartner>0)lines.push(`     (Guia: ${fmtMoney(item.valueClin)} + Local: ${fmtMoney(item.valuePartner)})`);});
-  lines.push('='.repeat(40));lines.push(`TOTAL: ${fmtMoney(budget.reduce((s,i)=>s+i.total,0))}`);
-  navigator.clipboard.writeText(lines.join('\n')).then(()=>alert('Orçamento copiado!')).catch(()=>alert('Não foi possível copiar.'));
-}
-function printBudget(){
-  if(!budget.length)return;
-  const total=budget.reduce((s,i)=>s+i.total,0);
-  const rows=budget.map((item,i)=>`<tr><td>${i+1}</td><td>${item.name}</td><td>${item.partner||'—'}</td><td style="text-align:right">${item.valueClin!==undefined&&item.valuePartner>0?`${fmtMoney(item.valueClin)} + ${fmtMoney(item.valuePartner)} =`:''} <strong>${fmtMoney(item.total)}</strong></td></tr>`).join('');
-  const win=window.open('','_blank');
-  const logoHtmlOrc = LOGO_ORC ? `<img src="${LOGO_ORC}" style="height:55px;width:auto;max-width:180px;object-fit:contain;display:block;margin-bottom:14px;" alt="Logo">` : `<div style="font-size:18px;font-weight:900;color:#0A1F44;margin-bottom:14px;">🏥 Amor Saúde</div>`;
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Orçamento</title><style>@page{size:A4;margin:2cm}body{font-family:Arial,sans-serif;padding:0;max-width:750px;margin:0 auto}.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-bottom:12px;border-bottom:2px solid #0A1F44}h2{font-size:20px;margin-bottom:4px;color:#0A1F44}.sub{color:#666;font-size:12px;margin-bottom:20px}table{width:100%;border-collapse:collapse}th{background:#f0f0f0;padding:8px 10px;text-align:left;font-size:12px;border-bottom:2px solid #ddd}td{padding:8px 10px;font-size:13px;border-bottom:1px solid #eee}.tf td{font-weight:700;font-size:15px;border-top:2px solid #333;background:#fafafa}</style></head><body><div class="header"><div>${logoHtmlOrc}</div><div style="text-align:right"><h2>Orçamento de Exames</h2><div class="sub">Emitido em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div></div></div><table><thead><tr><th>#</th><th>Exame</th><th>Local/Parceiro</th><th style="text-align:right">Valor</th></tr></thead><tbody>${rows}<tr class="tf"><td colspan="3">TOTAL</td><td style="text-align:right">${fmtMoney(total)}</td></tr></tbody></table><p style="margin-top:20px;font-size:11px;color:#999">* Valores sujeitos a alteração. Confirmar disponibilidade na recepção.</p><sc'+'ript>window.print();<'+'/script></body></html>`);
-  win.document.close();
-}
-
-
-// ─────────────────────────────────────────────
-// EXPORTAR PLANILHA DE PARCEIROS
-// ─────────────────────────────────────────────
-function gerarTextoMensagem(exam, p) {
-  // Gera o texto da orientação completa para a planilha
-  const info = CLINIC_INFO[p.name] || CLINIC_INFO[p.name.split('—')[0].trim()] || null;
-  const isInternal = !['Scoppeta','Auri Medicina','Prezecor','IMADI','Prezecor (Santana)','Dra. Silvia'].some(n => p.name.startsWith(n.split('—')[0].trim()));
-
-  let txt = '';
-  if (isInternal) {
-    txt += `Este exame é realizado em nossa unidade pelo(a) ${p.name}.`;
-    txt += `\nValor: ${fmtMoney(p.total)} pelo Cartão de Todos.`;
-    if (p.local) txt += `\nDias: ${p.local}`;
-  } else {
-    txt += `Este exame é realizado em uma parceira nossa, a ${p.name}, sendo necessário vir até a nossa unidade para realizar o agendamento.\n`;
-    txt += `\nValor total: ${fmtMoney(p.total)} pelo Cartão de Todos`;
-    if (p.valueClin > 0) txt += `\n  • Encaminhamento/Agendamento (AmorSaúde): ${fmtMoney(p.valueClin)}`;
-    if (p.valuePartner > 0) txt += `\n  • Restante (${p.name}): ${fmtMoney(p.valuePartner)}`;
-    if (info) {
-      if (info.address) txt += `\n\nEndereço: ${info.address}`;
-      if (info.tel) txt += `\nTelefone: ${info.tel}`;
-      if (info.schedule) txt += `\nHorário: ${info.schedule}`;
-    }
-    txt += `\n\n--- ORIENTAÇÕES ---`;
-    txt += `\n1. Agendar primeiramente na AMORSAÚDE PIRITUBA e pagar a Guia de Encaminhamento: ${fmtMoney(p.valueClin)}.`;
-    if (p.valuePartner > 0) txt += `\n2. O valor restante de ${fmtMoney(p.valuePartner)} é pago diretamente na ${p.name} no dia do exame.`;
-    if (p.name.startsWith('Scoppeta')) txt += `\n   Pagamento da entrada via PIX após agendamento.`;
-    if (p.name.includes('EL Diag')) txt += `\n   Informar ao agendar que será encaminhado pelo BUSCANDO SAÚDE.`;
-    
-  }
-  // Preparo
-  if (exam.prep_text) {
-    txt += `\n\nPREPARO: ${exam.prep_text.replace(/\n/g,' | ')}`;
-  } else if (exam.prepKey && PREPS[exam.prepKey]) {
-    const itens = PREPS[exam.prepKey].sections.flatMap(s => s.items).map(i => i.text);
-    txt += `\n\nPREPARO: ${itens.join(' | ')}`;
-  }
-  return txt.trim();
-}
-
-function exportarPlanilha() {
-  // Coleta todos os exames parceiros
-  const linhas = [['PARCEIRO', 'EXAME', 'CATEGORIA', 'VALOR TOTAL (R$)', 'GUIA AMORSAÚDE (R$)', 'PAGO NO LOCAL (R$)', 'ENDEREÇO', 'TELEFONE', 'ORIENTAÇÃO COMPLETA']];
-
-  EXAMS.forEach(exam => {
-    if (exam.type !== 'partner') return;
-    exam.partners.forEach(p => {
-      const info = CLINIC_INFO[p.name] || CLINIC_INFO[p.name.split('—')[0].trim()] || null;
-      const endereco = info ? (info.address || p.local || '') : (p.local || '');
-      const tel = info ? (info.tel || '') : '';
-      const orientacao = gerarTextoMensagem(exam, p);
-
-      linhas.push([
-        p.name,
-        exam.name,
-        exam.cat,
-        Number(p.total).toFixed(2).replace('.', ','),
-        Number(p.valueClin).toFixed(2).replace('.', ','),
-        Number(p.valuePartner).toFixed(2).replace('.', ','),
-        endereco,
-        tel,
-        orientacao
-      ]);
-    });
-  });
-
-  // Criar workbook
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.aoa_to_sheet(linhas);
-
-  // Larguras das colunas
-  ws['!cols'] = [
-    {wch:22}, // Parceiro
-    {wch:40}, // Exame
-    {wch:16}, // Categoria
-    {wch:16}, // Valor Total
-    {wch:20}, // Guia
-    {wch:20}, // Local
-    {wch:45}, // Endereço
-    {wch:22}, // Tel
-    {wch:80}, // Orientação
-  ];
-
-  XLSX.utils.book_append_sheet(wb, ws, 'Parceiros e Orientações');
-
-  // Segunda aba: resumo por parceiro
-  const parceiros = {};
-  EXAMS.forEach(exam => {
-    if (exam.type !== 'partner') return;
-    exam.partners.forEach(p => {
-      if (!parceiros[p.name]) parceiros[p.name] = [];
-      parceiros[p.name].push(exam.name);
-    });
-  });
-  const linhas2 = [['PARCEIRO', 'TOTAL DE EXAMES', 'LISTA DE EXAMES']];
-  Object.entries(parceiros).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([nome, exames]) => {
-    linhas2.push([nome, exames.length, exames.join(' | ')]);
-  });
-  const ws2 = XLSX.utils.aoa_to_sheet(linhas2);
-  ws2['!cols'] = [{wch:28},{wch:16},{wch:100}];
-  XLSX.utils.book_append_sheet(wb, ws2, 'Resumo por Parceiro');
-
-  const dataHoje = new Date().toLocaleDateString('pt-BR').replace(/\//g,'-');
-  XLSX.writeFile(wb, `AmorSaude_Parceiros_${dataHoje}.xlsx`);
-}
-
-  /* ── Navegação robusta (funciona no GitHub Pages) ── */
-  function irPara(arquivo) {
-      var href = window.location.href.split('?')[0].split('#')[0];
-      var base = href.substring(0, href.lastIndexOf('/') + 1);
-      window.location.replace(base + arquivo);
-    }
-
-init();
-window.dispatchEvent(new Event("examsReady"));
-
-  // ── Logo dinâmica Firebase ──
-  let LOGO_ORC = sessionStorage.getItem('logoDataUrl') || '';
-  (async function() {
-    try {
-      if (!LOGO_ORC) {
-        const r = await fetch('https://clinica-pirituba-default-rtdb.firebaseio.com/admin/logo.json');
-        const d = await r.json();
-        if (d && d.dataUrl) { LOGO_ORC = d.dataUrl; sessionStorage.setItem('logoDataUrl', d.dataUrl); }
-      }
-      if (LOGO_ORC) document.querySelectorAll('.logo-icon img').forEach(img => img.src = LOGO_ORC);
-    } catch(e) {}
-  })();
-
-</script>
+    window.removerAcesso = async id => {
+      if (!confirm("Remover acesso?")) return;
+      remove(ref(db, `admin/acessoFinanceiro/${id}`)).then(() => toast("Removido", "success")).catch(er => toast("Erro: " + er.message, "error"));
+    };
+  </script>
 </body>
 </html>
