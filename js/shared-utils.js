@@ -77,16 +77,31 @@ window.formatCPF = function(cpf) {
   return String(cpf).replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 };
 
-/* Popula um <select> com atendentes buscados do Firebase
- * Uso: await populateAtendentesSelect('meuSelectId')
- * Requer que o Firebase já esteja inicializado na página
+/* Registra as dependências do Firebase SDK para uso pelas funções utilitárias.
+ * Chamado pelas páginas com: window.initFirebaseUtils(db, ref, get)
+ * Deve ser invocado logo após a inicialização do db em cada página.
+ */
+window.initFirebaseUtils = function(db, refFn, getFn) {
+  window.__fb = { db: db, ref: refFn, get: getFn };
+};
+
+/* Popula um <select> com atendentes buscados do Firebase via SDK.
+ * Uso: populateAtendentesSelect('meuSelectId')
+ * Requer que initFirebaseUtils tenha sido chamado antes na mesma página.
  */
 window.populateAtendentesSelect = async function(selectId, selectedValue) {
   var el = document.getElementById(selectId);
   if (!el) return;
   try {
-    var r = await fetch('https://clinica-pirituba-default-rtdb.firebaseio.com/admin/atendentes.json');
-    var d = await r.json();
+    var d;
+    var fu = window.__fb;
+    if (fu && fu.db && fu.ref && fu.get) {
+      var snap = await fu.get(fu.ref(fu.db, 'admin/atendentes'));
+      d = snap.exists() ? snap.val() : null;
+    } else {
+      console.warn('[populateAtendentesSelect] initFirebaseUtils não foi chamado antes desta função.');
+      return;
+    }
     var lista = d ? Object.values(d).map(function(a) { return a.apelido || a.nome; }).sort() : [];
     var prev = el.options[0] ? el.options[0].textContent : 'Selecione...';
     el.innerHTML = '<option value="">' + prev + '</option>';
@@ -102,27 +117,44 @@ window.populateAtendentesSelect = async function(selectId, selectedValue) {
   }
 };
 
-/* Carrega logo do Firebase com cache em sessionStorage */
+/* Carrega logo do Firebase via SDK com cache em sessionStorage.
+ * Exibe a versão em cache imediatamente e verifica se há atualização.
+ * Requer que initFirebaseUtils tenha sido chamado antes na mesma página.
+ */
 window.carregarLogoGlobal = async function(seletores) {
+  var alvos = seletores || ['.logo-icon img','#headerLogo','#logoPreviewAdmin'];
   try {
     var cached = sessionStorage.getItem('logoDataUrl');
     var cachedVer = sessionStorage.getItem('logoVersao');
-    if (!cached) {
-      var r = await fetch('https://clinica-pirituba-default-rtdb.firebaseio.com/admin/logo.json');
-      var d = await r.json();
-      if (d && d.dataUrl) {
-        var ver = d.versao || d.atualizadoEm || '';
-        if (cachedVer !== ver) {
-          sessionStorage.setItem('logoDataUrl', d.dataUrl);
-          sessionStorage.setItem('logoVersao', ver);
-        }
-        cached = d.dataUrl;
-      }
-    }
+
+    // Exibe a versão em cache imediatamente para evitar flash
     if (cached) {
-      (seletores || ['.logo-icon img','#headerLogo','#logoPreviewAdmin']).forEach(function(sel) {
+      alvos.forEach(function(sel) {
         document.querySelectorAll(sel).forEach(function(img) { img.src = cached; });
       });
+    }
+
+    // Busca do Firebase via SDK para verificar atualização
+    var d = null;
+    var fu = window.__fb;
+    if (fu && fu.db && fu.ref && fu.get) {
+      var snap = await fu.get(fu.ref(fu.db, 'admin/logo'));
+      d = snap.exists() ? snap.val() : null;
+    } else {
+      console.warn('[carregarLogoGlobal] initFirebaseUtils não foi chamado antes desta função.');
+      return;
+    }
+
+    if (d && d.dataUrl) {
+      var ver = d.versao || d.atualizadoEm || '';
+      if (!cached || cachedVer !== ver) {
+        // Versão nova: atualiza cache e imagens
+        sessionStorage.setItem('logoDataUrl', d.dataUrl);
+        sessionStorage.setItem('logoVersao', ver);
+        alvos.forEach(function(sel) {
+          document.querySelectorAll(sel).forEach(function(img) { img.src = d.dataUrl; });
+        });
+      }
     }
   } catch(e) {
     console.warn('[carregarLogoGlobal]:', e.message);

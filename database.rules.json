@@ -1,0 +1,42 @@
+{
+  "rules": {
+    ".read":  false,
+    ".write": false,
+
+    "admin": {
+      "logo": {
+        ".read":  true,
+        ".write": "auth != null"
+      },
+      "$rest": {
+        ".read":  "auth != null",
+        ".write": "auth != null"
+      }
+    },
+
+    "financeiro": {
+      ".read":  "auth != null",
+      ".write": "auth != null"
+    },
+
+    "exames": {
+      ".read":  "auth != null",
+      ".write": "auth != null"
+    },
+
+    "crono": {
+      ".read":  "auth != null",
+      ".write": "auth != null"
+    },
+
+    "operacao": {
+      ".read":  "auth != null",
+      ".write": "auth != null"
+    },
+
+    "admin_logs": {
+      ".read":  "auth != null",
+      ".write": "auth != null"
+    }
+  }
+}

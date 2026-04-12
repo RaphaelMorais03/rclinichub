@@ -364,6 +364,7 @@
     const app  = initializeApp(window.FIREBASE_CONFIG);
     const auth = getAuth(app);
     const db   = getDatabase(app);
+    window.initFirebaseUtils(db, ref, get);
 
     // Status de conexão
     onValue(ref(db, '.info/connected'), snap => {

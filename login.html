@@ -178,6 +178,7 @@
     const app  = initializeApp(window.FIREBASE_CONFIG);
     const auth = getAuth(app);
     const db   = getDatabase(app);
+    window.initFirebaseUtils(db, ref, get);
 
     /* Carrega logo dinamicamente */
     carregarLogoGlobal(['#logoHeader','#logoOrc','#logoFech','#logoFin','#logoExm']);

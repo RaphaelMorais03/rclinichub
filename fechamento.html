@@ -500,12 +500,13 @@
 
   <script type="module">
     import { initializeApp }                  from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
-    import { getAuth, onAuthStateChanged }    from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+    import { getAuth, onAuthStateChanged }         from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
 
     const _app  = initializeApp(window.FIREBASE_CONFIG);
     const _db   = getDatabase(_app);
     const _auth = getAuth(_app);
+    window.initFirebaseUtils(_db, ref, get);
 
     onAuthStateChanged(_auth, user => {
       if (!user) return;

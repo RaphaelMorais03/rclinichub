@@ -488,7 +488,6 @@ const EXAMS = [
   };
 
   renderPrecos();
-  carregarLogoGlobal(["#headerLogo","#logoPreviewAdmin"]);
   </script>
 
   <script type="module">
@@ -499,6 +498,7 @@ const EXAMS = [
     const app  = initializeApp(window.FIREBASE_CONFIG);
     const auth = getAuth(app);
     const db   = getDatabase(app);
+    window.initFirebaseUtils(db, ref, get);
 
     // App secundário para criar usuários sem deslogar o admin
     let app2;

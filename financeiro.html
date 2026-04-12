@@ -248,10 +248,11 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+    import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
     const app = initializeApp(window.FIREBASE_CONFIG);
     const db  = getDatabase(app);
+    window.initFirebaseUtils(db, ref, get);
 
     /* Verificação de sessão */
     if (!sessionStorage.getItem('uid')) { irPara('login.html'); }
