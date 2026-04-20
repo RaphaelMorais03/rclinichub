@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financeiro — Amor Saúde Pirituba</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="js/firebase-config.js"></script>
+  <script src="js/shared-utils.js"></script>
+  <style>
+    :root{--navy:#0A1F44;--navy-mid:#122b5e;--red:#C62828;--red-h:#ad1f1f;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#cbd5e1;--gray-400:#94a3b8;--gray-500:#64748b;--gray-600:#475569;--gray-800:#1e293b;--green:#15803d;--green-bg:#dcfce7;--amber:#92400e;--amber-bg:#fef3c7;--shadow:0 4px 20px rgba(10,31,68,.1);}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:#f0f4f8;color:var(--gray-800);min-height:100vh;}
+    .red-bar{height:3px;background:var(--red);position:fixed;top:0;left:0;right:0;z-index:200;}
+    .s-header{background:white;border-bottom:2px solid var(--gray-200);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:3px;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+    .s-logo{display:flex;align-items:center;gap:12px;}
+    .s-logo-icon{width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .s-logo-icon img{width:100%;height:100%;object-fit:contain;}
+    .s-logo-name{font-size:16px;font-weight:800;color:var(--navy);letter-spacing:-.3px;}
+    .s-logo-sub{font-size:10px;color:var(--gray-400);}
+    .header-right{display:flex;align-items:center;gap:10px;}
+    .back-btn{background:var(--red);color:white;border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;}
+    .back-btn:hover{background:var(--red-h);}
+    .content{max-width:1100px;margin:0 auto;padding:24px 24px 60px;}
+    .tabs{display:flex;gap:6px;margin-bottom:22px;background:white;border:1px solid var(--gray-200);border-radius:14px;padding:6px;box-shadow:var(--shadow);}
+    .tab-btn{flex:1;padding:10px 14px;border:none;background:none;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .18s;}
+    .tab-btn:hover{color:var(--navy);background:var(--gray-50);}
+    .tab-btn.active{color:white;background:var(--navy);box-shadow:0 4px 12px rgba(10,31,68,.25);}
+    .tab-pane{display:none;}.tab-pane.active{display:block;}
+    .panel{background:white;border:1px solid var(--gray-200);border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:var(--shadow);}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--gray-100);}
+    .panel-title{font-size:15px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;}
+    .panel-title i{color:var(--red);}
+    .f-label{font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:5px;}
+    .f-input,.f-select{padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:14px;color:var(--gray-800);background:var(--gray-50);outline:none;transition:border-color .2s;width:100%;}
+    .f-input:focus,.f-select:focus{border-color:var(--navy);background:white;}
+    .btn-p{padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .2s,transform .15s;}
+    .btn-p:hover{background:var(--navy-mid);transform:translateY(-1px);}
+    .btn-s{padding:9px 14px;background:var(--gray-100);color:var(--gray-600);border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;}
+    .btn-s:hover{background:var(--gray-200);}
+    .btn-r{padding:9px 14px;background:var(--red);color:white;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .2s;}
+    .btn-r:hover{background:var(--red-h);}
+    .btn-g{padding:9px 14px;background:var(--green);color:white;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .2s;}
+    .btn-g:hover{background:#166534;}
+    .colab-card{background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:14px;padding:16px;margin-bottom:10px;transition:all .18s;}
+    .colab-card:hover{border-color:var(--navy);}
+    .colab-top{display:flex;align-items:center;gap:12px;}
+    .colab-avatar{width:42px;height:42px;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;flex-shrink:0;}
+    .colab-info{flex:1;}
+    .colab-nome{font-size:14px;font-weight:800;color:var(--navy);}
+    .colab-cargo{font-size:11px;color:var(--gray-400);}
+    .colab-actions{display:flex;gap:6px;}
+    .recibo-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:10px;margin-bottom:6px;}
+    .recibo-nome{flex:1;font-size:13px;font-weight:700;color:var(--navy);}
+    .recibo-val{font-size:13px;font-weight:800;color:var(--green);}
+    .recibo-ts{font-size:10px;color:var(--gray-400);}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .itens-list{margin-bottom:14px;}
+    .item-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+    .empty-state{text-align:center;padding:48px;color:var(--gray-400);}
+    .empty-state i{font-size:36px;margin-bottom:12px;opacity:.35;display:block;}
+    .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px;}
+    .stat-card{background:white;border:1px solid var(--gray-200);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);}
+    .stat-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .stat-num{font-size:24px;font-weight:900;color:var(--navy);letter-spacing:-1px;line-height:1;}
+    .stat-lbl{font-size:11px;color:var(--gray-400);margin-top:2px;}
+    .toast-box{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{padding:11px 18px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:9px;color:white;box-shadow:0 4px 14px rgba(0,0,0,.2);animation:sIn .3s ease;max-width:320px;}
+    @keyframes sIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+    .toast.success{background:var(--green);}.toast.error{background:var(--red);}.toast.info{background:var(--navy);}
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
+    .modal-bg.open{display:flex;}
+    .modal-box{background:white;border-radius:18px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.4);}
+    .modal-head{padding:18px 22px 14px;border-bottom:2px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:white;z-index:10;}
+    .modal-title{font-size:16px;font-weight:800;color:var(--navy);}
+    .modal-close{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gray-500);font-size:14px;}
+    .modal-close:hover{background:var(--gray-200);}
+    .modal-body{padding:22px;}
+    @media(max-width:768px){.stats-bar,.form-grid{grid-template-columns:1fr;}.content{padding:14px 14px 60px;}}
+  </style>
+</head>
+<body>
+  <div class="red-bar"></div>
+  <div class="toast-box" id="toastBox"></div>
+
+  <!-- MODAL COLABORADOR -->
+  <div class="modal-bg" id="modalColab">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title" id="modalColabTitle">Novo Colaborador</div>
+        <button class="modal-close" onclick="fecharModalColab()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:14px;">
+          <label class="f-label">Nome completo</label>
+          <input class="f-input" id="cNome" placeholder="Ex: Maria das Dores Silva">
+        </div>
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div>
+            <label class="f-label">Cargo</label>
+            <input class="f-input" id="cCargo" placeholder="Ex: Recepcionista">
+          </div>
+          <div>
+            <label class="f-label">CPF</label>
+            <input class="f-input" id="cCpf" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14">
+          </div>
+        </div>
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div>
+            <label class="f-label">Banco</label>
+            <input class="f-input" id="cBanco" placeholder="Ex: Nubank / Bradesco">
+          </div>
+          <div>
+            <label class="f-label">Chave PIX</label>
+            <input class="f-input" id="cPix" placeholder="CPF / e-mail / celular">
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-s" onclick="fecharModalColab()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
+          <button class="btn-p" onclick="salvarColab()" style="flex:2;justify-content:center;"><i class="fas fa-floppy-disk"></i> Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GERAR RECIBO -->
+  <div class="modal-bg" id="modalRecibo">
+    <div class="modal-box" style="max-width:600px;">
+      <div class="modal-head">
+        <div class="modal-title">Gerar Recibo — <span id="reciboNomeColab">—</span></div>
+        <button class="modal-close" onclick="fecharModalRecibo()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:16px;">
+          <label class="f-label">Descrição do serviço</label>
+          <input class="f-input" id="rDesc" placeholder="Ex: Salário referente ao mês de abril/2026">
+        </div>
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div>
+            <label class="f-label">Valor bruto (R$)</label>
+            <input class="f-input" id="rValor" placeholder="0,00" oninput="mascaraMoeda(this)">
+          </div>
+          <div>
+            <label class="f-label">Forma de pagamento</label>
+            <select class="f-select" id="rForma">
+              <option value="pix">PIX</option>
+              <option value="dinheiro">Dinheiro</option>
+              <option value="transferencia">Transferência</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label class="f-label">Observação (opcional)</label>
+          <input class="f-input" id="rObs" placeholder="Ex: Inclui benefícios">
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;">
+          <input type="checkbox" id="rPago" style="width:18px;height:18px;cursor:pointer;">
+          <label for="rPago" style="font-size:13px;font-weight:700;color:var(--gray-700);cursor:pointer;">Marcar como quitado</label>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-s" onclick="fecharModalRecibo()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
+          <button class="btn-g" onclick="gerarEImprimirRecibo()" style="flex:1;justify-content:center;"><i class="fas fa-print"></i> Gerar e Imprimir</button>
+          <button class="btn-p" onclick="salvarRecibo()" style="flex:2;justify-content:center;"><i class="fas fa-floppy-disk"></i> Salvar e Imprimir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="s-header">
+    <div class="s-logo">
+      <div class="s-logo-icon"><img src="assets/favicon.png" alt="Logo" id="headerLogo"></div>
+      <div><div class="s-logo-name">Amor Saúde</div><div class="s-logo-sub">Financeiro · Pirituba</div></div>
+    </div>
+    <div class="header-right">
+      <button class="back-btn" onclick="irPara('login.html')"><i class="fas fa-home"></i> Portal</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-icon" style="background:#eff6ff;color:#1d4ed8;"><i class="fas fa-users"></i></div><div><div class="stat-num" id="stColab">0</div><div class="stat-lbl">Colaboradores</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:var(--green-bg);color:var(--green);"><i class="fas fa-receipt"></i></div><div><div class="stat-num" id="stRecibos">0</div><div class="stat-lbl">Recibos emitidos</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:var(--amber-bg);color:var(--amber);"><i class="fas fa-money-bill-wave"></i></div><div><div class="stat-num" id="stTotal" style="font-size:16px;">R$ 0,00</div><div class="stat-lbl">Total pago (mês)</div></div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="tab('colaboradores')"><i class="fas fa-users"></i> Colaboradores</button>
+      <button class="tab-btn" onclick="tab('historico')"><i class="fas fa-clock-rotate-left"></i> Histórico</button>
+    </div>
+
+    <!-- ABA COLABORADORES -->
+    <div class="tab-pane active" id="paneColaboradores">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-users"></i> Equipe cadastrada</div>
+          <button class="btn-p" onclick="abrirModalColab()"><i class="fas fa-plus"></i> Novo colaborador</button>
+        </div>
+        <div id="listaColabs"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></div>
+      </div>
+    </div>
+
+    <!-- ABA HISTÓRICO -->
+    <div class="tab-pane" id="paneHistorico">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-clock-rotate-left"></i> Histórico de recibos</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input class="f-input" id="buscaHistorico" placeholder="Buscar colaborador..." oninput="filtrarHistorico()" style="max-width:220px;padding:7px 12px;font-size:13px;">
+            <select class="f-select" id="filtroMes" onchange="filtrarHistorico()" style="max-width:160px;padding:7px 12px;font-size:13px;">
+              <option value="">Todos os meses</option>
+            </select>
+          </div>
+        </div>
+        <div id="listaHistorico"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  let colaboradores = {}, recibos = [], editandoColabKey = null, colabAtualKey = null;
+  let LOGO_FIN = '';
+
+  // ── Tabs ──
+  function tab(t) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    const idx = ['colaboradores','historico'].indexOf(t);
+    if (idx >= 0) document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+    const pane = document.getElementById('pane' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (pane) pane.classList.add('active');
+    if (t === 'historico') renderHistorico();
+  }
+
+  // ── Modal Colaborador ──
+  function abrirModalColab(key) {
+    editandoColabKey = key || null;
+    document.getElementById('modalColabTitle').textContent = key ? 'Editar Colaborador' : 'Novo Colaborador';
+    ['cNome','cCargo','cCpf','cBanco','cPix'].forEach(id => document.getElementById(id).value = '');
+    if (key && colaboradores[key]) {
+      const c = colaboradores[key];
+      document.getElementById('cNome').value  = c.nome || '';
+      document.getElementById('cCargo').value = c.cargo || '';
+      document.getElementById('cCpf').value   = c.cpf || '';
+      document.getElementById('cBanco').value = c.banco || '';
+      document.getElementById('cPix').value   = c.pix || '';
+    }
+    document.getElementById('modalColab').classList.add('open');
+  }
+  function fecharModalColab() { document.getElementById('modalColab').classList.remove('open'); }
+
+  async function salvarColab() {
+    const nome = document.getElementById('cNome').value.trim();
+    if (!nome) { toast('Informe o nome', 'error'); return; }
+    try {
+      const key = editandoColabKey || ('colab_' + Date.now());
+      await window._fbSet('financeiro/colaboradores/' + key, {
+        nome,
+        cargo: document.getElementById('cCargo').value.trim(),
+        cpf:   document.getElementById('cCpf').value.trim(),
+        banco: document.getElementById('cBanco').value.trim(),
+        pix:   document.getElementById('cPix').value.trim(),
+        atualizadoEm: new Date().toISOString()
+      });
+      toast('Colaborador salvo!', 'success');
+      fecharModalColab();
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+
+  function renderColabs() {
+    const el = document.getElementById('listaColabs');
+    const keys = Object.keys(colaboradores);
+    document.getElementById('stColab').textContent = keys.length;
+    if (!keys.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum colaborador cadastrado.</p></div>'; return; }
+    el.innerHTML = keys.map(k => {
+      const c = colaboradores[k];
+      return '<div class="colab-card">' +
+        '<div class="colab-top">' +
+          '<div class="colab-avatar">' + esc((c.nome || '?')[0].toUpperCase()) + '</div>' +
+          '<div class="colab-info">' +
+            '<div class="colab-nome">' + esc(c.nome || '—') + '</div>' +
+            '<div class="colab-cargo">' + esc(c.cargo || '') + (c.cpf ? ' · ' + esc(c.cpf) : '') + '</div>' +
+            (c.pix ? '<div style="font-size:10px;color:var(--gray-400);margin-top:2px;">PIX: ' + esc(c.pix) + '</div>' : '') +
+          '</div>' +
+          '<div class="colab-actions">' +
+            '<button class="btn-g" style="font-size:11px;padding:6px 12px;" onclick="abrirModalRecibo(\'' + k + '\')"><i class="fas fa-receipt"></i> Recibo</button>' +
+            '<button class="btn-s" style="padding:6px 10px;" onclick="abrirModalColab(\'' + k + '\')"><i class="fas fa-pen"></i></button>' +
+            '<button class="btn-r" style="padding:6px 10px;" onclick="excluirColab(\'' + k + '\')"><i class="fas fa-trash"></i></button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  async function excluirColab(key) {
+    if (!confirm('Remover este colaborador?')) return;
+    try { await window._fbRemove('financeiro/colaboradores/' + key); toast('Removido!', 'success'); }
+    catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+
+  // ── Modal Recibo ──
+  function abrirModalRecibo(key) {
+    colabAtualKey = key;
+    const c = colaboradores[key] || {};
+    document.getElementById('reciboNomeColab').textContent = c.nome || '—';
+    document.getElementById('rDesc').value = '';
+    document.getElementById('rValor').value = '';
+    document.getElementById('rObs').value = '';
+    document.getElementById('rForma').value = 'pix';
+    document.getElementById('rPago').checked = false;
+    document.getElementById('modalRecibo').classList.add('open');
+  }
+  function fecharModalRecibo() { document.getElementById('modalRecibo').classList.remove('open'); }
+
+  function montarHtmlRecibo(c, dados, usuario) {
+    const now = new Date();
+    const data = now.toLocaleDateString('pt-BR');
+    const hora = now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+    const fmtPag = {pix:'PIX', dinheiro:'Dinheiro', transferencia:'Transferência'}[dados.forma] || dados.forma;
+    const pago = dados.pago;
+    const dia = String(now.getDate()).padStart(2,'0'), mes = String(now.getMonth()+1).padStart(2,'0'), ano = now.getFullYear();
+    const dataPag = pago ? `${dia}/${mes}/${ano}` : '_______/_______/_____';
+    const logoTag = LOGO_FIN ? `<img src="${LOGO_FIN}" style="height:55px;width:auto;object-fit:contain;" alt="Logo">` : '<strong style="font-size:18px;color:#980000;">Amor Saúde</strong>';
+    return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo — ${esc(c.nome)}</title><style>
+      @page{size:A4;margin:0}body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#000}
+      .recibo{width:210mm;min-height:297mm;box-sizing:border-box;padding:12mm;margin:0 auto}
+      .cab{display:flex;align-items:center;justify-content:space-between;margin-bottom:8mm;border-bottom:3px solid #980000;padding-bottom:6mm}
+      .titulo{font-size:28px;font-weight:700;color:#980000;text-align:center}
+      .subtit{font-size:12px;color:#555;text-align:center;margin-top:2px}
+      .secao{background:#f5f5f5;padding:6mm 8mm;border-radius:6px;margin-bottom:6mm}
+      .secao-titulo{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:4mm}
+      .campo{display:flex;gap:4mm;margin-bottom:3mm;font-size:13px}
+      .campo-lbl{font-weight:700;min-width:120px;color:#333}
+      .campo-val{color:#000}
+      .valor-box{background:#980000;color:white;padding:6mm 10mm;border-radius:8px;text-align:center;margin:8mm 0}
+      .valor-num{font-size:32px;font-weight:900}
+      .valor-lbl{font-size:12px;opacity:.8;margin-top:2px}
+      .declaracao{font-size:12px;color:#333;text-align:center;line-height:1.7;margin:6mm 0;padding:4mm;border:1px solid #ccc;border-radius:6px}
+      .assin-area{display:flex;justify-content:space-between;margin-top:12mm;gap:20mm}
+      .assin{text-align:center;flex:1}
+      .assin-linha{border-top:1px solid #000;margin-bottom:3px}
+      .assin-lbl{font-size:11px;color:#555}
+      .rodape{margin-top:8mm;padding-top:4mm;border-top:2px solid #61C1D0;text-align:center;font-size:10px;color:#555}
+      .status-pago{display:inline-block;padding:3px 12px;background:#dcfce7;color:#15803d;border:2px solid #15803d;border-radius:6px;font-weight:700;font-size:12px}
+    </style></head><body><div class="recibo">
+    <div class="cab"><div>${logoTag}</div><div style="text-align:center"><div class="titulo">RECIBO DE PAGAMENTO</div><div class="subtit">Amor Saúde SP Pirituba</div></div><div style="font-size:12px;text-align:right;color:#555">${data}<br>${hora}</div></div>
+    <div class="secao"><div class="secao-titulo">Dados do Colaborador</div>
+    <div class="campo"><span class="campo-lbl">Nome:</span><span class="campo-val">${esc(c.nome||'—')}</span></div>
+    <div class="campo"><span class="campo-lbl">Cargo:</span><span class="campo-val">${esc(c.cargo||'—')}</span></div>
+    <div class="campo"><span class="campo-lbl">CPF:</span><span class="campo-val">${esc(c.cpf||'—')}</span></div>
+    ${c.banco?`<div class="campo"><span class="campo-lbl">Banco/PIX:</span><span class="campo-val">${esc(c.banco)}${c.pix?' — '+esc(c.pix):''}</span></div>`:''}
+    </div>
+    <div class="secao"><div class="secao-titulo">Descrição do Pagamento</div>
+    <div class="campo"><span class="campo-lbl">Serviço:</span><span class="campo-val">${esc(dados.descricao)}</span></div>
+    <div class="campo"><span class="campo-lbl">Forma:</span><span class="campo-val">${fmtPag}</span></div>
+    ${dados.obs?`<div class="campo"><span class="campo-lbl">Obs.:</span><span class="campo-val">${esc(dados.obs)}</span></div>`:''}
+    </div>
+    <div class="valor-box"><div class="valor-num">R$ ${fmtMoeda(dados.valor)}</div><div class="valor-lbl">VALOR TOTAL</div></div>
+    <div class="declaracao">Declaro que recebi da Amor Saúde SP Pirituba o valor de <strong>R$ ${fmtMoeda(dados.valor)}</strong> referente a "${esc(dados.descricao)}", dando plena quitação.${pago?`<br><br><span class="status-pago">✓ QUITADO em ${dataPag}</span>`:''}</div>
+    <div class="assin-area">
+    <div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do Colaborador</div><div style="font-size:12px;color:#333;margin-top:3px;">${esc(c.nome||'')}</div></div>
+    <div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Responsável Financeiro</div><div style="font-size:12px;color:#333;margin-top:3px;">${esc(usuario||'—')}</div></div>
+    </div>
+    <div class="rodape">Amor Saúde SP Pirituba · Av. Dr. Felipe Pinel — Pirituba/SP · Gerado em: ${data} ${hora}</div>
+    </div><sc`+'ript>window.print();</s'+'cript></body></html>';
+  }
+
+  function gerarEImprimirRecibo() {
+    const c = colaboradores[colabAtualKey] || {};
+    const descricao = document.getElementById('rDesc').value.trim();
+    const valorStr  = document.getElementById('rValor').value.replace(/\./g,'').replace(',','.');
+    const valor     = parseFloat(valorStr) || 0;
+    if (!descricao) { toast('Informe a descrição', 'error'); return; }
+    if (!valor)     { toast('Informe o valor', 'error'); return; }
+    const dados = { descricao, valor, forma: document.getElementById('rForma').value, obs: document.getElementById('rObs').value.trim(), pago: document.getElementById('rPago').checked };
+    const usuario = sessionStorage.getItem('usuario') || 'Financeiro';
+    const w = window.open('', '_blank');
+    if (!w) { toast('Pop-up bloqueado — permita pop-ups', 'error'); return; }
+    w.document.write(montarHtmlRecibo(c, dados, usuario));
+    w.document.close();
+  }
+
+  async function salvarRecibo() {
+    const c = colaboradores[colabAtualKey] || {};
+    const descricao = document.getElementById('rDesc').value.trim();
+    const valorStr  = document.getElementById('rValor').value.replace(/\./g,'').replace(',','.');
+    const valor     = parseFloat(valorStr) || 0;
+    if (!descricao) { toast('Informe a descrição', 'error'); return; }
+    if (!valor)     { toast('Informe o valor', 'error'); return; }
+    const dados = { descricao, valor, forma: document.getElementById('rForma').value, obs: document.getElementById('rObs').value.trim(), pago: document.getElementById('rPago').checked };
+    const usuario = sessionStorage.getItem('usuario') || 'Financeiro';
+    try {
+      await window._fbSet('financeiro/recibos/' + Date.now(), {
+        colabKey: colabAtualKey, colabNome: c.nome || '—', colabCargo: c.cargo || '', colabCpf: c.cpf || '',
+        ...dados, usuario, emitidoEm: new Date().toISOString()
+      });
+      toast('Recibo salvo!', 'success');
+      fecharModalRecibo();
+    } catch(e) { toast('Erro ao salvar: ' + e.message, 'error'); }
+    const w = window.open('', '_blank');
+    if (!w) { toast('Pop-up bloqueado — permita pop-ups', 'error'); return; }
+    w.document.write(montarHtmlRecibo(c, dados, usuario));
+    w.document.close();
+  }
+
+  // ── Histórico ──
+  let todosRecibos = [];
+
+  function renderHistorico() {
+    const q   = (document.getElementById('buscaHistorico').value || '').toLowerCase();
+    const mes = document.getElementById('filtroMes').value;
+    let lista = todosRecibos.filter(r => {
+      const matchNome = !q || (r.colabNome || '').toLowerCase().includes(q);
+      const matchMes  = !mes || (r.emitidoEm || '').startsWith(mes);
+      return matchNome && matchMes;
+    });
+    const el = document.getElementById('listaHistorico');
+    if (!lista.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-clock-rotate-left"></i><p>Nenhum recibo encontrado.</p></div>'; return; }
+    el.innerHTML = lista.map(r => {
+      const dt = r.emitidoEm ? new Date(r.emitidoEm).toLocaleString('pt-BR') : '—';
+      return '<div class="recibo-row">' +
+        '<div style="width:36px;height:36px;border-radius:8px;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;"><i class="fas fa-receipt"></i></div>' +
+        '<div style="flex:1;">' +
+          '<div class="recibo-nome">' + esc(r.colabNome || '—') + (r.colabCargo ? ' <span style="font-weight:400;color:var(--gray-400);">· ' + esc(r.colabCargo) + '</span>' : '') + '</div>' +
+          '<div style="font-size:11px;color:var(--gray-500);">' + esc(r.descricao || '—') + ' · ' + ({pix:'PIX',dinheiro:'Dinheiro',transferencia:'Transferência'}[r.forma]||r.forma||'—') + '</div>' +
+        '</div>' +
+        '<div style="text-align:right;">' +
+          '<div class="recibo-val">R$ ' + fmtMoeda(r.valor) + '</div>' +
+          '<div class="recibo-ts">' + dt + '</div>' +
+          (r.pago ? '<div style="font-size:10px;color:var(--green);font-weight:700;">✓ Quitado</div>' : '') +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function filtrarHistorico() { renderHistorico(); }
+
+  function atualizarStats() {
+    const agora = new Date();
+    const mesAtual = agora.getFullYear() + '-' + String(agora.getMonth()+1).padStart(2,'0');
+    const recibosDoMes = todosRecibos.filter(r => (r.emitidoEm || '').startsWith(mesAtual));
+    const totalMes = recibosDoMes.reduce((s, r) => s + (parseFloat(r.valor) || 0), 0);
+    document.getElementById('stRecibos').textContent = todosRecibos.length;
+    document.getElementById('stTotal').textContent = 'R$ ' + fmtMoeda(totalMes);
+  }
+  </script>
+
+  <script type="module">
+    import { initializeApp }          from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getDatabase, ref, get, set, remove, onValue } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const app  = initializeApp(window.FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getDatabase(app);
+    window.initFirebaseUtils(db, ref, get);
+    window._fbSet    = (path, data) => set(ref(db, path), data);
+    window._fbRemove = (path)       => remove(ref(db, path));
+
+    onAuthStateChanged(auth, user => {
+      if (!user) { irPara('login.html'); return; }
+      carregarLogoGlobal(['#headerLogo']).then(() => {
+        window.LOGO_FIN = sessionStorage.getItem('logoDataUrl') || '';
+      });
+
+      // Colaboradores
+      onValue(ref(db, 'financeiro/colaboradores'), snap => {
+        colaboradores = snap.exists() ? snap.val() : {};
+        renderColabs();
+      });
+
+      // Recibos
+      onValue(ref(db, 'financeiro/recibos'), snap => {
+        const raw = snap.exists() ? snap.val() : {};
+        todosRecibos = Object.entries(raw).map(([k,v]) => ({_key:k,...v})).sort((a,b) => b._key.localeCompare(a._key));
+        atualizarStats();
+        // Preencher filtro de meses
+        const meses = [...new Set(todosRecibos.map(r => (r.emitidoEm||'').slice(0,7)).filter(Boolean))];
+        const sel = document.getElementById('filtroMes');
+        sel.innerHTML = '<option value="">Todos os meses</option>' +
+          meses.map(m => `<option value="${m}">${m}</option>`).join('');
+        if (document.getElementById('paneHistorico').classList.contains('active')) renderHistorico();
+      });
+
+      // Log
+      set(ref(db, 'admin_logs/' + Date.now()), { tipo:'info', msg:(user.email||user.uid)+' acessou Financeiro', ts:new Date().toISOString() }).catch(()=>{});
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Amor Saúde Pirituba</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="js/firebase-config.js"></script>
+  <script src="js/shared-utils.js"></script>
+  <style>
+    :root{--navy:#0A1F44;--navy-mid:#122b5e;--red:#C62828;--red-h:#ad1f1f;--amber:#92400e;--amber-bg:#fef3c7;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#cbd5e1;--gray-400:#94a3b8;--gray-500:#64748b;--gray-600:#475569;--gray-800:#1e293b;--green:#15803d;--green-bg:#dcfce7;--shadow:0 4px 20px rgba(10,31,68,.1);}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:#f0f4f8;color:var(--gray-800);min-height:100vh;}
+    .red-bar{height:3px;background:var(--red);position:fixed;top:0;left:0;right:0;z-index:200;}
+    .s-header{background:white;border-bottom:2px solid var(--gray-200);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:3px;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+    .s-logo{display:flex;align-items:center;gap:12px;}
+    .s-logo-icon{width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .s-logo-icon img{width:100%;height:100%;object-fit:contain;}
+    .s-logo-name{font-size:16px;font-weight:800;color:var(--navy);}
+    .s-logo-sub{font-size:10px;color:var(--gray-400);}
+    .header-right{display:flex;align-items:center;gap:10px;}
+    .admin-badge{background:var(--amber-bg);color:var(--amber);border:1px solid #fde68a;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:800;display:flex;align-items:center;gap:5px;}
+    .back-btn{background:var(--red);color:white;border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;}
+    .back-btn:hover{background:var(--red-h);}
+    .content{max-width:1100px;margin:0 auto;padding:24px 24px 60px;}
+    .page-title{font-size:22px;font-weight:900;color:var(--navy);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
+    .page-title i{color:var(--amber);}
+    .tabs{display:flex;gap:6px;margin-bottom:22px;background:white;border:1px solid var(--gray-200);border-radius:14px;padding:6px;box-shadow:var(--shadow);overflow-x:auto;}
+    .tab-btn{flex:1;min-width:100px;padding:9px 12px;border:none;background:none;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;justify-content:center;gap:5px;transition:all .18s;white-space:nowrap;}
+    .tab-btn:hover{color:var(--navy);background:var(--gray-50);}
+    .tab-btn.active{color:white;background:var(--navy);box-shadow:0 4px 12px rgba(10,31,68,.25);}
+    .tab-pane{display:none;}.tab-pane.active{display:block;}
+    .panel{background:white;border:1px solid var(--gray-200);border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:var(--shadow);}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--gray-100);}
+    .panel-title{font-size:15px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;}
+    .panel-title i{color:var(--red);}
+    .f-label{font-size:10px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:5px;}
+    .f-input,.f-select{padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:14px;color:var(--gray-800);background:var(--gray-50);outline:none;transition:border-color .2s;width:100%;}
+    .f-input:focus,.f-select:focus{border-color:var(--navy);background:white;}
+    .btn-p{padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .2s,transform .15s;}
+    .btn-p:hover{background:var(--navy-mid);transform:translateY(-1px);}
+    .btn-s{padding:9px 14px;background:var(--gray-100);color:var(--gray-600);border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s;}
+    .btn-s:hover{background:var(--gray-200);}
+    .btn-r{padding:9px 14px;background:var(--red);color:white;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .2s;}
+    .btn-r:hover{background:var(--red-h);}
+    .btn-g{padding:9px 14px;background:var(--green);color:white;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .2s;}
+    .btn-g:hover{background:#166534;}
+    .user-row{display:flex;align-items:center;gap:14px;padding:13px 15px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;margin-bottom:9px;transition:all .18s;}
+    .user-row:hover{border-color:var(--navy);}
+    .user-avatar{width:38px;height:38px;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;}
+    .user-info{flex:1;}
+    .user-name{font-size:13px;font-weight:700;color:var(--navy);}
+    .user-email{font-size:11px;color:var(--gray-400);}
+    .user-perms{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;}
+    .perm-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:#eff6ff;color:#1d4ed8;}
+    .perm-tag.admin{background:var(--amber-bg);color:var(--amber);}
+    .empty-state{text-align:center;padding:48px 24px;color:var(--gray-400);}
+    .empty-state i{font-size:38px;margin-bottom:12px;opacity:.35;display:block;}
+    .empty-state p{font-size:14px;}
+    .log-row{padding:11px 14px;border-bottom:1px solid var(--gray-100);display:flex;align-items:flex-start;gap:12px;}
+    .log-row:last-child{border-bottom:none;}
+    .log-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+    .log-info{flex:1;}
+    .log-msg{font-size:13px;color:var(--gray-800);font-weight:500;}
+    .log-ts{font-size:10px;color:var(--gray-400);margin-top:2px;}
+    .logo-preview-box{width:120px;height:120px;border:2px dashed var(--gray-300);border-radius:14px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--gray-50);cursor:pointer;transition:border-color .2s;flex-shrink:0;}
+    .logo-preview-box:hover{border-color:var(--navy);}
+    .logo-preview-box img{width:100%;height:100%;object-fit:contain;}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+    .perm-check{display:flex;align-items:center;gap:8px;padding:8px 12px;border:1.5px solid var(--gray-200);border-radius:9px;cursor:pointer;transition:border-color .2s;}
+    .perm-check:hover{border-color:var(--navy);}
+    .perm-check input{width:16px;height:16px;cursor:pointer;}
+    .perm-check-label{font-size:13px;font-weight:600;color:var(--gray-700);}
+    .perms-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0;}
+    .toast-box{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{padding:11px 18px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:9px;color:white;box-shadow:0 4px 14px rgba(0,0,0,.2);animation:sIn .3s ease;max-width:320px;}
+    @keyframes sIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+    .toast.success{background:var(--green);}.toast.error{background:var(--red);}.toast.info{background:var(--navy);}
+    .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);}
+    .modal-bg.open{display:flex;}
+    .modal-box{background:white;border-radius:18px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.4);}
+    .modal-head{padding:18px 22px 14px;border-bottom:2px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:white;z-index:10;}
+    .modal-title{font-size:16px;font-weight:800;color:var(--navy);}
+    .modal-close{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gray-500);font-size:14px;}
+    .modal-close:hover{background:var(--gray-200);}
+    .modal-body{padding:22px;}
+    @media(max-width:768px){.form-grid,.form-grid-3{grid-template-columns:1fr;}.tabs{gap:4px;}.tab-btn{min-width:80px;font-size:11px;}.content{padding:14px 14px 60px;}.perms-grid{grid-template-columns:1fr 1fr;}}
+  </style>
+</head>
+<body>
+  <div class="red-bar"></div>
+  <div class="toast-box" id="toastBox"></div>
+
+  <!-- MODAL USUÁRIO -->
+  <div class="modal-bg" id="modalUser">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title" id="modalUserTitle">Novo Usuário</div>
+        <button class="modal-close" onclick="fecharModalUser()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:14px;">
+          <label class="f-label">Nome completo</label>
+          <input class="f-input" id="uNome" placeholder="Ex: Maria Silva">
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="f-label">E-mail</label>
+          <input class="f-input" id="uEmail" type="email" placeholder="usuario@amorsaude.com">
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="f-label">Senha (mín. 6 caracteres)</label>
+          <input class="f-input" id="uSenha" type="password" placeholder="••••••••">
+        </div>
+        <div style="margin-bottom:16px;">
+          <label class="f-label">Permissões</label>
+          <div class="perms-grid">
+            <label class="perm-check"><input type="checkbox" id="pOrc"> <span class="perm-check-label">Orçamentos</span></label>
+            <label class="perm-check"><input type="checkbox" id="pExames"> <span class="perm-check-label">Exames</span></label>
+            <label class="perm-check"><input type="checkbox" id="pCrono"> <span class="perm-check-label">Cronograma</span></label>
+            <label class="perm-check"><input type="checkbox" id="pFin"> <span class="perm-check-label">Financeiro</span></label>
+            <label class="perm-check"><input type="checkbox" id="pFech"> <span class="perm-check-label">Fechamento</span></label>
+            <label class="perm-check"><input type="checkbox" id="pAdmin"> <span class="perm-check-label" style="color:var(--amber);">⚡ Admin</span></label>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-s" onclick="fecharModalUser()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
+          <button class="btn-p" onclick="salvarUsuario()" style="flex:2;justify-content:center;" id="btnSalvarUser"><i class="fas fa-floppy-disk"></i> Salvar Usuário</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ATENDENTE -->
+  <div class="modal-bg" id="modalAte">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title" id="modalAteTitle">Novo Atendente</div>
+        <button class="modal-close" onclick="fecharModalAte()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:14px;">
+          <label class="f-label">Nome completo</label>
+          <input class="f-input" id="aNome" placeholder="Ex: Juliana Souza">
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="f-label">Apelido / Como chamar</label>
+          <input class="f-input" id="aApelido" placeholder="Ex: Juli">
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="f-label">Cargo</label>
+          <input class="f-input" id="aCargo" placeholder="Ex: Recepcionista">
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-s" onclick="fecharModalAte()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
+          <button class="btn-p" onclick="salvarAtendente()" style="flex:2;justify-content:center;"><i class="fas fa-floppy-disk"></i> Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PROFISSIONAL -->
+  <div class="modal-bg" id="modalProf">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div class="modal-title" id="modalProfTitle">Novo Profissional</div>
+        <button class="modal-close" onclick="fecharModalProf()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:14px;">
+          <label class="f-label">Nome completo</label>
+          <input class="f-input" id="prNome" placeholder="Ex: Dr. João Silva">
+        </div>
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div>
+            <label class="f-label">Especialidade</label>
+            <input class="f-input" id="prEsp" placeholder="Ex: Cardiologia">
+          </div>
+          <div>
+            <label class="f-label">CRM</label>
+            <input class="f-input" id="prCrm" placeholder="Ex: 12345-SP">
+          </div>
+        </div>
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div>
+            <label class="f-label">CPF / CNPJ</label>
+            <input class="f-input" id="prDoc" placeholder="000.000.000-00">
+          </div>
+          <div>
+            <label class="f-label">Regime</label>
+            <select class="f-select" id="prRegime">
+              <option value="pj-presumido">PJ — Lucro Presumido</option>
+              <option value="funcionario">Funcionário CLT</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="f-label">E-mail</label>
+          <input class="f-input" id="prEmail" type="email" placeholder="medico@email.com">
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-s" onclick="fecharModalProf()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
+          <button class="btn-p" onclick="salvarProfissional()" style="flex:2;justify-content:center;"><i class="fas fa-floppy-disk"></i> Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <div class="s-header">
+    <div class="s-logo">
+      <div class="s-logo-icon"><img src="assets/favicon.png" alt="Logo" id="headerLogo"></div>
+      <div><div class="s-logo-name">Amor Saúde</div><div class="s-logo-sub">Painel Admin · Pirituba</div></div>
+    </div>
+    <div class="header-right">
+      <div class="admin-badge"><i class="fas fa-shield-halved"></i> Administrador</div>
+      <button class="back-btn" onclick="irPara('login.html')"><i class="fas fa-home"></i> Portal</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-title"><i class="fas fa-shield-halved"></i> Painel de Administração</div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="tab('usuarios')"><i class="fas fa-users"></i> Usuários</button>
+      <button class="tab-btn" onclick="tab('atendentes')"><i class="fas fa-id-badge"></i> Atendentes</button>
+      <button class="tab-btn" onclick="tab('clinica')"><i class="fas fa-hospital"></i> Clínica</button>
+      <button class="tab-btn" onclick="tab('profissionais')"><i class="fas fa-user-doctor"></i> Profissionais</button>
+      <button class="tab-btn" onclick="tab('logs')"><i class="fas fa-list-ul"></i> Logs</button>
+      <button class="tab-btn" onclick="tab('config')"><i class="fas fa-gear"></i> Configurações</button>
+    </div>
+
+    <!-- ABA USUÁRIOS -->
+    <div class="tab-pane active" id="paneUsuarios">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-users"></i> Usuários do sistema</div>
+          <button class="btn-p" onclick="abrirModalUser()"><i class="fas fa-plus"></i> Novo usuário</button>
+        </div>
+        <div id="listaUsuarios"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></div>
+      </div>
+    </div>
+
+    <!-- ABA ATENDENTES -->
+    <div class="tab-pane" id="paneAtendentes">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-id-badge"></i> Atendentes cadastrados</div>
+          <button class="btn-p" onclick="abrirModalAte()"><i class="fas fa-plus"></i> Novo atendente</button>
+        </div>
+        <div id="listaAtendentes"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></div>
+      </div>
+    </div>
+
+    <!-- ABA CLÍNICA -->
+    <div class="tab-pane" id="paneClinica">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-hospital"></i> Informações da clínica</div>
+          <button class="btn-p" onclick="salvarClinica()"><i class="fas fa-floppy-disk"></i> Salvar</button>
+        </div>
+        <div class="form-grid" style="margin-bottom:16px;">
+          <div>
+            <label class="f-label">Nome da clínica</label>
+            <input class="f-input" id="cNome" placeholder="Ex: Amor Saúde Pirituba">
+          </div>
+          <div>
+            <label class="f-label">Telefone</label>
+            <input class="f-input" id="cTel" placeholder="(11) 99999-9999">
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label class="f-label">Endereço</label>
+          <input class="f-input" id="cEnd" placeholder="Av. Dr. Felipe Pinel, s/n — Pirituba, São Paulo/SP">
+        </div>
+        <div style="margin-bottom:16px;">
+          <label class="f-label">CNPJ</label>
+          <input class="f-input" id="cCnpj" placeholder="00.000.000/0000-00" style="max-width:260px;">
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-image"></i> Logo da clínica</div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:22px;flex-wrap:wrap;">
+          <div class="logo-preview-box" onclick="document.getElementById('logoFileInput').click()" id="logoPreviewBox">
+            <img id="logoPreviewAdmin" src="assets/favicon.png" alt="Logo">
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <p style="font-size:13px;color:var(--gray-500);margin-bottom:12px;line-height:1.6;">Clique na área ao lado para selecionar uma imagem. Use PNG ou JPG. O logo é armazenado no Firebase e aparece automaticamente em todas as páginas.</p>
+            <input type="file" id="logoFileInput" accept="image/*" style="display:none;" onchange="processarLogo(event)">
+            <button class="btn-p" onclick="document.getElementById('logoFileInput').click()"><i class="fas fa-upload"></i> Selecionar imagem</button>
+            <button class="btn-g" onclick="salvarLogo()" style="margin-left:8px;" id="btnSalvarLogo" disabled><i class="fas fa-cloud-arrow-up"></i> Enviar logo</button>
+            <div id="logoStatus" style="margin-top:10px;font-size:12px;color:var(--gray-400);"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA PROFISSIONAIS -->
+    <div class="tab-pane" id="paneProfissionais">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-user-doctor"></i> Profissionais de saúde</div>
+          <button class="btn-p" onclick="abrirModalProf()"><i class="fas fa-plus"></i> Novo profissional</button>
+        </div>
+        <div style="margin-bottom:14px;">
+          <input class="f-input" id="buscaProf" placeholder="Buscar por nome ou especialidade..." oninput="filtrarProfissionais()" style="max-width:380px;">
+        </div>
+        <div id="listaProfissionais"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></div>
+      </div>
+    </div>
+
+    <!-- ABA LOGS -->
+    <div class="tab-pane" id="paneLogs">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-list-ul"></i> Logs de acesso</div>
+          <button class="btn-s" onclick="carregarLogs()"><i class="fas fa-rotate"></i> Atualizar</button>
+        </div>
+        <div id="listaLogs"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></div>
+      </div>
+    </div>
+
+    <!-- ABA CONFIGURAÇÕES -->
+    <div class="tab-pane" id="paneConfig">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-gear"></i> Configurações do sistema</div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">Limpeza de dados</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;">
+            <button class="btn-s" onclick="limparLogs()"><i class="fas fa-trash"></i> Limpar logs antigos</button>
+            <button class="btn-s" onclick="limparNotas()"><i class="fas fa-eraser"></i> Limpar notas de operação</button>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">Informações do sistema</div>
+          <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:12px;padding:16px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div style="font-size:12px;color:var(--gray-500);">Versão do portal</div><div style="font-size:12px;font-weight:700;color:var(--navy);">2.0.0</div>
+              <div style="font-size:12px;color:var(--gray-500);">Firebase projeto</div><div style="font-size:12px;font-weight:700;color:var(--navy);">clinica-pirituba</div>
+              <div style="font-size:12px;color:var(--gray-500);">Sessão atual</div><div style="font-size:12px;font-weight:700;color:var(--navy);" id="sUserInfo">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // ── Tabs ──
+  function tab(t) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    const idx = ['usuarios','atendentes','clinica','profissionais','logs','config'].indexOf(t);
+    if (idx >= 0) document.querySelectorAll('.tab-btn')[idx].classList.add('active');
+    const pane = document.getElementById('pane' + t.charAt(0).toUpperCase() + t.slice(1));
+    if (pane) pane.classList.add('active');
+    if (t === 'logs') carregarLogs();
+  }
+
+  // ── Dados em memória ──
+  let usuarios = {}, atendentes = {}, profissionais = {}, clinicaData = {};
+  let novoLogoDataUrl = null;
+  let editandoUserId = null, editandoAteKey = null, editandoProfKey = null;
+
+  // ── Modal Usuário ──
+  function abrirModalUser(uid) {
+    editandoUserId = uid || null;
+    document.getElementById('modalUserTitle').textContent = uid ? 'Editar Usuário' : 'Novo Usuário';
+    document.getElementById('btnSalvarUser').innerHTML = uid ? '<i class="fas fa-floppy-disk"></i> Atualizar' : '<i class="fas fa-floppy-disk"></i> Criar Usuário';
+    ['uNome','uEmail','uSenha'].forEach(id => document.getElementById(id).value = '');
+    ['pOrc','pExames','pCrono','pFin','pFech','pAdmin'].forEach(id => document.getElementById(id).checked = false);
+    if (uid && usuarios[uid]) {
+      const u = usuarios[uid];
+      document.getElementById('uNome').value  = u.nomeCompleto || '';
+      document.getElementById('uEmail').value = u.email || '';
+      const p = u.perms || {};
+      document.getElementById('pOrc').checked    = !!p.orcamento;
+      document.getElementById('pExames').checked = !!p.exames;
+      document.getElementById('pCrono').checked  = !!p.cronograma;
+      document.getElementById('pFin').checked    = !!p.financeiro;
+      document.getElementById('pFech').checked   = !!p.fechamento;
+      document.getElementById('pAdmin').checked  = !!p.admin;
+    }
+    document.getElementById('modalUser').classList.add('open');
+  }
+  function fecharModalUser() { document.getElementById('modalUser').classList.remove('open'); }
+
+  async function salvarUsuario() {
+    const nome  = document.getElementById('uNome').value.trim();
+    const email = document.getElementById('uEmail').value.trim();
+    const senha = document.getElementById('uSenha').value;
+    if (!nome)  { toast('Informe o nome', 'error'); return; }
+    if (!email) { toast('Informe o e-mail', 'error'); return; }
+    if (!editandoUserId && senha.length < 6) { toast('Senha deve ter mínimo 6 caracteres', 'error'); return; }
+    const perms = {
+      orcamento:  document.getElementById('pOrc').checked,
+      exames:     document.getElementById('pExames').checked,
+      cronograma: document.getElementById('pCrono').checked,
+      financeiro: document.getElementById('pFin').checked,
+      fechamento: document.getElementById('pFech').checked,
+      admin:      document.getElementById('pAdmin').checked,
+    };
+    const btn = document.getElementById('btnSalvarUser');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+    try {
+      if (editandoUserId) {
+        // Atualizar dados no Realtime DB (não pode alterar email/senha via admin SDK no client)
+        await window._fbSet('admin/usuarios/' + editandoUserId, { nomeCompleto: nome, email, perms });
+        toast('Usuário atualizado!', 'success');
+      } else {
+        // Criar usuário via Firebase Auth (requer função cloud ou admin SDK — aqui apenas salva no DB como pendente)
+        const key = 'pending_' + Date.now();
+        await window._fbSet('admin/usuarios_pendentes/' + key, { nomeCompleto: nome, email, senha, perms, criadoEm: new Date().toISOString() });
+        toast('Usuário salvo como pendente. Crie a conta no Console Firebase.', 'info');
+      }
+      fecharModalUser();
+      carregarUsuarios();
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+    btn.disabled = false; btn.innerHTML = editandoUserId ? '<i class="fas fa-floppy-disk"></i> Atualizar' : '<i class="fas fa-floppy-disk"></i> Criar Usuário';
+  }
+
+  function renderUsuarios() {
+    const el = document.getElementById('listaUsuarios');
+    const keys = Object.keys(usuarios);
+    if (!keys.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum usuário cadastrado.</p></div>'; return; }
+    el.innerHTML = keys.map(uid => {
+      const u = usuarios[uid];
+      const p = u.perms || {};
+      const inicial = (u.nomeCompleto || u.email || '?')[0].toUpperCase();
+      const tags = [];
+      if (p.admin)      tags.push('<span class="perm-tag admin">Admin</span>');
+      if (p.financeiro) tags.push('<span class="perm-tag">Financeiro</span>');
+      if (p.fechamento) tags.push('<span class="perm-tag">Fechamento</span>');
+      if (p.exames)     tags.push('<span class="perm-tag">Exames</span>');
+      if (p.cronograma) tags.push('<span class="perm-tag">Cronograma</span>');
+      if (p.orcamento)  tags.push('<span class="perm-tag">Orçamentos</span>');
+      return '<div class="user-row">' +
+        '<div class="user-avatar">' + esc(inicial) + '</div>' +
+        '<div class="user-info">' +
+          '<div class="user-name">' + esc(u.nomeCompleto || '—') + '</div>' +
+          '<div class="user-email">' + esc(u.email || uid) + '</div>' +
+          '<div class="user-perms">' + (tags.length ? tags.join('') : '<span style="font-size:10px;color:var(--gray-400);">Sem permissões</span>') + '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px;">' +
+          '<button class="btn-s" style="padding:6px 10px;" onclick="abrirModalUser(\'' + uid + '\')"><i class="fas fa-pen"></i></button>' +
+          '<button class="btn-r" style="padding:6px 10px;" onclick="excluirUsuario(\'' + uid + '\')"><i class="fas fa-trash"></i></button>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  async function excluirUsuario(uid) {
+    if (!confirm('Remover permissões deste usuário? (A conta Firebase não será excluída)')) return;
+    try { await window._fbRemove('admin/usuarios/' + uid); toast('Usuário removido', 'success'); carregarUsuarios(); }
+    catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+
+  async function carregarUsuarios() {
+    try {
+      const snap = await window.__fb.get(window.__fb.ref(window.__fb.db, 'admin/usuarios'));
+      usuarios = snap.exists() ? snap.val() : {};
+      renderUsuarios();
+    } catch(e) { document.getElementById('listaUsuarios').innerHTML = '<div class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>Erro ao carregar usuários.</p></div>'; }
+  }
+
+  // ── Modal Atendente ──
+  function abrirModalAte(key) {
+    editandoAteKey = key || null;
+    document.getElementById('modalAteTitle').textContent = key ? 'Editar Atendente' : 'Novo Atendente';
+    ['aNome','aApelido','aCargo'].forEach(id => document.getElementById(id).value = '');
+    if (key && atendentes[key]) {
+      const a = atendentes[key];
+      document.getElementById('aNome').value    = a.nome || '';
+      document.getElementById('aApelido').value = a.apelido || '';
+      document.getElementById('aCargo').value   = a.cargo || '';
+    }
+    document.getElementById('modalAte').classList.add('open');
+  }
+  function fecharModalAte() { document.getElementById('modalAte').classList.remove('open'); }
+
+  async function salvarAtendente() {
+    const nome    = document.getElementById('aNome').value.trim();
+    const apelido = document.getElementById('aApelido').value.trim();
+    const cargo   = document.getElementById('aCargo').value.trim();
+    if (!nome) { toast('Informe o nome', 'error'); return; }
+    try {
+      const key = editandoAteKey || ('ate_' + Date.now());
+      await window._fbSet('admin/atendentes/' + key, { nome, apelido: apelido || nome, cargo, atualizadoEm: new Date().toISOString() });
+      toast('Atendente salvo!', 'success');
+      fecharModalAte(); carregarAtendentes();
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+
+  function renderAtendentes() {
+    const el = document.getElementById('listaAtendentes');
+    const keys = Object.keys(atendentes);
+    if (!keys.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-id-badge"></i><p>Nenhum atendente cadastrado.</p></div>'; return; }
+    el.innerHTML = keys.map(k => {
+      const a = atendentes[k];
+      return '<div class="user-row">' +
+        '<div class="user-avatar" style="background:#1d4ed8;font-size:12px;">' + esc((a.apelido || a.nome || '?')[0].toUpperCase()) + '</div>' +
+        '<div class="user-info">' +
+          '<div class="user-name">' + esc(a.nome || '—') + '</div>' +
+          '<div class="user-email">' + esc(a.cargo || '') + (a.apelido && a.apelido !== a.nome ? ' · ' + esc(a.apelido) : '') + '</div>' +
+        '</div>' +
+        '<div style="display:flex;gap:6px;">' +
+          '<button class="btn-s" style="padding:6px 10px;" onclick="abrirModalAte(\'' + k + '\')"><i class="fas fa-pen"></i></button>' +
+          '<button class="btn-r" style="padding:6px 10px;" onclick="excluirAtendente(\'' + k + '\')"><i class="fas fa-trash"></i></button>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  async function excluirAtendente(key) {
+    if (!confirm('Remover este atendente?')) return;
+    try { await window._fbRemove('admin/atendentes/' + key); toast('Removido!', 'success'); carregarAtendentes(); }
+    catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+
+  async function carregarAtendentes() {
+    try {
+      const snap = await window.__fb.get(window.__fb.ref(window.__fb.db, 'admin/atendentes'));
+      atendentes = snap.exists() ? snap.val() : {};
+      renderAtendentes();
+    } catch(e) {}
+  }
+
+  // ── Clínica ──
+  async function carregarClinica() {
+    try {
+      const snap = await window.__fb.get(window.__fb.ref(window.__fb.db, 'admin/clinica'));
+      clinicaData = snap.exists() ? snap.val() : {};
+      document.getElementById('cNome').value = clinicaData.nome || '';
+      document.getElementById('cTel').value  = clinicaData.telefone || '';
+      document.getElementById('cEnd').value  = clinicaData.endereco || '';
+      document.getElementById('cCnpj').value = clinicaData.cnpj || '';
+    } catch(e) {}
+    try {
+      const snap2 = await window.__fb.get(window.__fb.ref(window.__fb.db, 'admin/logo'));
+      if (snap2.exists() && snap2.val().dataUrl) {
+        document.getElementById('logoPreviewAdmin').src = snap2.val().dataUrl;
+        sessionStorage.setItem('logoDataUrl', snap2.val().dataUrl);
+      }
+    } catch(e) {}
+  }
+
+  async function salvarClinica() {
+    try {
+      await window._fbSet('admin/clinica', {
+        nome:     document.getElementById('cNome').value.trim(),
+        telefone: document.getElementById('cTel').value.trim(),
+        endereco: document.getElementById('cEnd').value.trim(),
+        cnpj:     document.getElementById('cCnpj').value.trim(),
+        atualizadoEm: new Date().toISOString()
+      });
+      toast('Dados da clínica salvos!', 'success');
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+
+  function processarLogo(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      novoLogoDataUrl = e.target.result;
+      document.getElementById('logoPreviewAdmin').src = novoLogoDataUrl;
+      document.getElementById('btnSalvarLogo').disabled = false;
+      document.getElementById('logoStatus').textContent = 'Imagem selecionada. Clique em "Enviar logo" para salvar.';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function salvarLogo() {
+    if (!novoLogoDataUrl) { toast('Selecione uma imagem primeiro', 'error'); return; }
+    const btn = document.getElementById('btnSalvarLogo');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+    try {
+      const ver = new Date().toISOString();
+      await window._fbSet('admin/logo', { dataUrl: novoLogoDataUrl, versao: ver, atualizadoEm: ver });
+      sessionStorage.setItem('logoDataUrl', novoLogoDataUrl);
+      sessionStorage.setItem('logoVersao', ver);
+      toast('Logo atualizado com sucesso!', 'success');
+      document.getElementById('logoStatus').textContent = 'Logo salvo no Firebase!';
+      novoLogoDataUrl = null;
+    } catch(e) { toast('Erro ao salvar logo: ' + e.message, 'error'); }
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-up"></i> Enviar logo';
+  }
+
+  // ── Profissionais ──
+  function abrirModalProf(key) {
+    editandoProfKey = key || null;
+    document.getElementById('modalProfTitle').textContent = key ? 'Editar Profissional' : 'Novo Profissional';
+    ['prNome','prEsp','prCrm','prDoc','prEmail'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('prRegime').value = 'pj-presumido';
+    if (key && profissionais[key]) {
+      const p = profissionais[key];
+      document.getElementById('prNome').value   = p.nome || '';
+      document.getElementById('prEsp').value    = p.especialidade || '';
+      document.getElementById('prCrm').value    = p.crm || '';
+      document.getElementById('prDoc').value    = p.documento || '';
+      document.getElementById('prEmail').value  = p.email || '';
+      document.getElementById('prRegime').value = p.regime || 'pj-presumido';
+    }
+    document.getElementById('modalProf').classList.add('open');
+  }
+  function fecharModalProf() { document.getElementById('modalProf').classList.remove('open'); }
+
+  async function salvarProfissional() {
+    const nome = document.getElementById('prNome').value.trim();
+    if (!nome) { toast('Informe o nome', 'error'); return; }
+    try {
+      const key = editandoProfKey || ('prof_' + Date.now());
+      await window._fbSet('admin/profissionais/' + key, {
+        nome,
+        especialidade: document.getElementById('prEsp').value.trim(),
+        crm:           document.getElementById('prCrm').value.trim(),
+        documento:     document.getElementById('prDoc').value.trim(),
+        email:         document.getElementById('prEmail').value.trim(),
+        regime:        document.getElementById('prRegime').value,
+        atualizadoEm:  new Date().toISOString()
+      });
+      toast('Profissional salvo!', 'success');
+      fecharModalProf(); carregarProfissionais();
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+
+  let profCache = [];
+  function renderProfissionais(lista) {
+    const el = document.getElementById('listaProfissionais');
+    if (!lista.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-user-doctor"></i><p>Nenhum profissional cadastrado.</p></div>'; return; }
+    el.innerHTML = lista.map(({key, p}) =>
+      '<div class="user-row">' +
+      '<div class="user-avatar" style="background:#15803d;font-size:12px;">' + esc((p.nome || '?')[0].toUpperCase()) + '</div>' +
+      '<div class="user-info">' +
+        '<div class="user-name">' + esc(p.nome || '—') + '</div>' +
+        '<div class="user-email">' + esc(p.especialidade || '') + (p.crm ? ' · CRM ' + esc(p.crm) : '') + ' · ' + (p.regime === 'funcionario' ? 'CLT' : 'PJ') + '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:6px;">' +
+        '<button class="btn-s" style="padding:6px 10px;" onclick="abrirModalProf(\'' + key + '\')"><i class="fas fa-pen"></i></button>' +
+        '<button class="btn-r" style="padding:6px 10px;" onclick="excluirProfissional(\'' + key + '\')"><i class="fas fa-trash"></i></button>' +
+      '</div></div>'
+    ).join('');
+  }
+
+  function filtrarProfissionais() {
+    const q = (document.getElementById('buscaProf').value || '').toLowerCase();
+    const filtrado = profCache.filter(({p}) => (p.nome || '').toLowerCase().includes(q) || (p.especialidade || '').toLowerCase().includes(q));
+    renderProfissionais(filtrado);
+  }
+
+  async function excluirProfissional(key) {
+    if (!confirm('Remover este profissional?')) return;
+    try { await window._fbRemove('admin/profissionais/' + key); toast('Removido!', 'success'); carregarProfissionais(); }
+    catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+
+  async function carregarProfissionais() {
+    try {
+      const snap = await window.__fb.get(window.__fb.ref(window.__fb.db, 'admin/profissionais'));
+      profissionais = snap.exists() ? snap.val() : {};
+      profCache = Object.entries(profissionais).map(([key, p]) => ({key, p}));
+      profCache.sort((a,b) => (a.p.nome||'').localeCompare(b.p.nome||''));
+      filtrarProfissionais();
+    } catch(e) {}
+  }
+
+  // ── Logs ──
+  async function carregarLogs() {
+    const el = document.getElementById('listaLogs');
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div>';
+    try {
+      const snap = await window.__fb.get(window.__fb.ref(window.__fb.db, 'admin_logs'));
+      if (!snap.exists()) { el.innerHTML = '<div class="empty-state"><i class="fas fa-list-ul"></i><p>Sem logs registrados.</p></div>'; return; }
+      const logs = snap.val();
+      const lista = Object.entries(logs).map(([k,v]) => ({key:k,...v})).sort((a,b) => b.key.localeCompare(a.key)).slice(0, 80);
+      if (!lista.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-list-ul"></i><p>Sem logs.</p></div>'; return; }
+      el.innerHTML = '<div>' + lista.map(l => {
+        const ts = l.ts ? new Date(l.ts).toLocaleString('pt-BR') : new Date(parseInt(l.key)).toLocaleString('pt-BR');
+        const icoCls = l.tipo === 'error' ? 'var(--red)' : l.tipo === 'success' ? 'var(--green)' : 'var(--navy)';
+        return '<div class="log-row">' +
+          '<div class="log-icon" style="background:' + icoCls + '22;color:' + icoCls + ';"><i class="fas fa-circle-dot" style="font-size:10px;"></i></div>' +
+          '<div class="log-info"><div class="log-msg">' + esc(l.msg || '—') + '</div><div class="log-ts">' + ts + '</div></div>' +
+          '</div>';
+      }).join('') + '</div>';
+    } catch(e) { el.innerHTML = '<div class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>Erro ao carregar logs.</p></div>'; }
+  }
+
+  async function limparLogs() {
+    if (!confirm('Apagar todos os logs de acesso? Esta ação não pode ser desfeita.')) return;
+    try { await window._fbRemove('admin_logs'); toast('Logs apagados', 'success'); carregarLogs(); }
+    catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+
+  async function limparNotas() {
+    if (!confirm('Apagar todas as notas de operação? Esta ação não pode ser desfeita.')) return;
+    try { await window._fbRemove('operacao/notas'); toast('Notas apagadas', 'success'); }
+    catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+  </script>
+
+  <script type="module">
+    import { initializeApp }  from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getDatabase, ref, get, set, remove } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const app  = initializeApp(window.FIREBASE_CONFIG);
+    const auth = getAuth(app);
+    const db   = getDatabase(app);
+    window.initFirebaseUtils(db, ref, get);
+
+    // Helpers globais para operações de escrita/remoção
+    window._fbSet    = (path, data)  => set(ref(db, path), data);
+    window._fbRemove = (path)        => remove(ref(db, path));
+
+    onAuthStateChanged(auth, async user => {
+      if (!user) { irPara('login.html'); return; }
+
+      // Verificar se é admin
+      try {
+        const snap = await get(ref(db, `admin/usuarios/${user.uid}`));
+        const perms = snap.exists() ? (snap.val().perms || {}) : {};
+        if (!perms.admin && user.email !== 'raphael@amorsaude.com') {
+          irPara('login.html'); return;
+        }
+      } catch(e) {
+        if (user.email !== 'raphael@amorsaude.com') { irPara('login.html'); return; }
+      }
+
+      carregarLogoGlobal(['#headerLogo']);
+      document.getElementById('sUserInfo').textContent = user.email || '—';
+
+      // Carregar dados de todas as abas
+      carregarUsuarios();
+      carregarAtendentes();
+      carregarClinica();
+      carregarProfissionais();
+
+      // Log de acesso
+      set(ref(db, 'admin_logs/' + Date.now()), {
+        tipo: 'info',
+        msg:  (user.email || user.uid) + ' acessou o Painel Admin',
+        ts:   new Date().toISOString()
+      }).catch(()=>{});
+    });
+  </script>
+</body>
+</html>

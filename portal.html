@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal — Amor Saúde Pirituba</title>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="js/firebase-config.js"></script>
+  <style>
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:18px;
+    }
+    .sys-card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:var(--radius-lg);
+      padding:24px;
+      display:flex;flex-direction:column;gap:14px;
+      box-shadow:var(--shadow-sm);
+      transition:all .22s ease;
+      position:relative;overflow:hidden;
+      cursor:pointer;
+    }
+    .sys-card::before{
+      content:'';position:absolute;inset:0;
+      background:linear-gradient(135deg,var(--c1),var(--c2));
+      opacity:0;transition:opacity .25s;pointer-events:none;
+    }
+    .sys-card:hover{
+      transform:translateY(-4px);
+      box-shadow:var(--shadow-lg);
+      border-color:transparent;
+    }
+    .sys-card > *{position:relative;z-index:1;}
+    .sys-icon{
+      width:52px;height:52px;border-radius:14px;
+      background:linear-gradient(135deg,var(--c1),var(--c2));
+      color:white;display:grid;place-items:center;
+      font-size:21px;
+      box-shadow:0 8px 20px var(--shadow-c);
+    }
+    .sys-title{font-size:18px;font-weight:800;letter-spacing:-.4px;}
+    .sys-desc{font-size:13px;color:var(--text-mid);line-height:1.55;flex:1;}
+    .sys-foot{
+      display:flex;align-items:center;justify-content:space-between;
+      padding-top:14px;border-top:1px solid var(--border);
+      font-size:12px;color:var(--text-soft);font-weight:600;
+    }
+    .sys-foot .arrow{
+      width:30px;height:30px;border-radius:50%;
+      background:var(--bg);display:grid;place-items:center;
+      color:var(--text-mid);transition:all .2s;
+    }
+    .sys-card:hover .arrow{background:var(--primary);color:white;transform:translateX(3px);}
+
+    .sys-card.locked{cursor:not-allowed;opacity:.65;}
+    .sys-card.locked:hover{transform:none;box-shadow:var(--shadow-sm);border-color:var(--border);}
+    .badge-soon{
+      background:var(--warning-bg);color:var(--warning);
+      font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;
+      letter-spacing:.4px;text-transform:uppercase;
+    }
+
+    .cronograma{--c1:#0ea5e9;--c2:#0284c7;--shadow-c:rgba(14,165,233,.3);}
+    .exames    {--c1:#10b981;--c2:#059669;--shadow-c:rgba(16,185,129,.3);}
+    .fechamento{--c1:#f59e0b;--c2:#d97706;--shadow-c:rgba(245,158,11,.3);}
+    .financeiro{--c1:#ef4444;--c2:#dc2626;--shadow-c:rgba(239,68,68,.3);}
+    .orcamentos{--c1:#8b5cf6;--c2:#7c3aed;--shadow-c:rgba(139,92,246,.3);}
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><i class="fa-solid fa-heart-pulse"></i></div>
+      <div class="brand-text">
+        <strong>Amor Saúde Pirituba</strong>
+        <small>Portal de sistemas</small>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <div class="user-avatar" id="userAvatar">?</div>
+        <span id="userName">carregando…</span>
+      </div>
+      <button class="icon-btn" id="logoutBtn" title="Sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+    </div>
+  </header>
+
+  <main class="shell">
+    <div class="page-head">
+      <div class="page-eyebrow">Início</div>
+      <h1 class="page-title">Olá, <span id="greetName">…</span> 👋</h1>
+      <p class="page-sub">Selecione um sistema abaixo para começar.</p>
+    </div>
+
+    <div class="grid">
+
+      <a href="cronograma.html" class="sys-card cronograma">
+        <div class="sys-icon"><i class="fa-solid fa-calendar-days"></i></div>
+        <div class="sys-title">Cronograma</div>
+        <div class="sys-desc">Agenda do dia, editor semanal e checklist de abertura — em tempo real.</div>
+        <div class="sys-foot"><span><i class="fa-solid fa-bolt" style="color:#0ea5e9"></i> Tempo real</span><div class="arrow"><i class="fa-solid fa-arrow-right"></i></div></div>
+      </a>
+
+      <a href="exames.html" class="sys-card exames">
+        <div class="sys-icon"><i class="fa-solid fa-vial"></i></div>
+        <div class="sys-title">Retirada de Exames</div>
+        <div class="sys-desc">Cadastro e retirada de exames em tempo real, com histórico completo.</div>
+        <div class="sys-foot"><span><i class="fa-solid fa-bolt" style="color:#10b981"></i> Tempo real</span><div class="arrow"><i class="fa-solid fa-arrow-right"></i></div></div>
+      </a>
+
+      <a href="fechamento.html" class="sys-card fechamento">
+        <div class="sys-icon"><i class="fa-solid fa-cash-register"></i></div>
+        <div class="sys-title">Fechamento</div>
+        <div class="sys-desc">Repasses por profissional com cálculo automático de impostos PJ.</div>
+        <div class="sys-foot"><span><i class="fa-solid fa-bolt" style="color:#f59e0b"></i> Tempo real</span><div class="arrow"><i class="fa-solid fa-arrow-right"></i></div></div>
+      </a>
+
+      <a href="financeiro.html" class="sys-card financeiro">
+        <div class="sys-icon"><i class="fa-solid fa-chart-line"></i></div>
+        <div class="sys-title">Financeiro</div>
+        <div class="sys-desc">Recibos de bonificação, vale-transporte, salário e adiantamento.</div>
+        <div class="sys-foot"><span><i class="fa-solid fa-bolt" style="color:#ef4444"></i> Tempo real</span><div class="arrow"><i class="fa-solid fa-arrow-right"></i></div></div>
+      </a>
+
+      <div class="sys-card orcamentos locked">
+        <div class="sys-icon"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+        <div class="sys-title">Orçamentos</div>
+        <div class="sys-desc">Monte, consulte e exporte orçamentos de exames e procedimentos.</div>
+        <div class="sys-foot"><span class="badge-soon">Em breve</span><div class="arrow"><i class="fa-solid fa-lock"></i></div></div>
+      </div>
+
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp }                      from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+
+    const _app  = initializeApp(window.FIREBASE_CONFIG);
+    const _auth = getAuth(_app);
+
+    onAuthStateChanged(_auth, user => {
+      if (!user) { window.location.replace('login.html'); return; }
+      const name = user.displayName || user.email.split('@')[0];
+      const initials = name.split(/[\s@]/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) || '??';
+      if (document.getElementById('userName'))    document.getElementById('userName').textContent    = name;
+      if (document.getElementById('greetName'))   document.getElementById('greetName').textContent   = name;
+      if (document.getElementById('userAvatar'))  document.getElementById('userAvatar').textContent  = initials;
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => signOut(_auth).then(() => window.location.replace('login.html')));
+  </script>
+</body>
+</html>
