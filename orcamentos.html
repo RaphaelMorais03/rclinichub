@@ -1,741 +1,711 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orçamentos · Amor Saúde</title>
-<link rel="stylesheet" href="styles.css">
-<script src="js/firebase-config.js"></script>
-<style>
-  body { background: #f8fafc; }
-  .layout { display: grid; grid-template-columns: 1fr 360px; gap: 24px; max-width: 1400px; margin: 0 auto; padding: 24px; }
-  @media (max-width: 1024px) { .layout { grid-template-columns: 1fr; } }
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orçamentos — Amor Saúde Pirituba</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="js/firebase-config.js"></script>
+  <style>
+    :root{
+      --navy:#0A1F44; --navy-mid:#122b5e;
+      --red:#C62828;  --red-h:#ad1f1f;
+      --teal:#61C1D0; --teal-h:#4fa8b8;
+      --gray-50:#f8fafc; --gray-100:#f1f5f9; --gray-200:#e2e8f0;
+      --gray-300:#cbd5e1; --gray-400:#94a3b8; --gray-500:#64748b;
+      --gray-600:#475569; --gray-800:#1e293b;
+      --green:#15803d; --green-bg:#dcfce7;
+      --shadow:0 4px 20px rgba(10,31,68,.1);
+      --radius:12px;
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:#f0f4f8;color:var(--gray-800);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 
-  .search-hero {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    border-radius: 20px; padding: 40px 32px; margin-bottom: 24px;
-    box-shadow: 0 10px 40px rgba(79, 70, 229, .25);
-  }
-  .search-hero h1 { color: #fff; font-size: 28px; margin: 0 0 8px; font-weight: 700; }
-  .search-hero p { color: rgba(255,255,255,.85); margin: 0 0 24px; font-size: 15px; }
-  .search-box {
-    position: relative; background: #fff; border-radius: 999px;
-    padding: 4px 4px 4px 24px; display: flex; align-items: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,.1);
-  }
-  .search-box svg { color: #94a3b8; flex-shrink: 0; }
-  .search-box input {
-    flex: 1; border: none; outline: none; padding: 16px 12px;
-    font-size: 17px; background: transparent; font-family: inherit;
-  }
-  .search-box .clear-btn {
-    background: #f1f5f9; border: none; border-radius: 999px;
-    width: 36px; height: 36px; cursor: pointer; color: #64748b;
-    display: none; align-items: center; justify-content: center;
-  }
-  .search-box .clear-btn.show { display: flex; }
-  .search-box .clear-btn:hover { background: #e2e8f0; }
+    /* ── Top bar ── */
+    .red-bar{height:3px;background:var(--red);position:fixed;top:0;left:0;right:0;z-index:200;}
+    .s-header{background:white;border-bottom:2px solid var(--gray-200);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+    .s-logo{display:flex;align-items:center;gap:12px;}
+    .s-logo-icon{width:38px;height:38px;border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .s-logo-icon img{width:100%;height:100%;object-fit:contain;}
+    .s-logo-name{font-size:15px;font-weight:800;color:var(--navy);}
+    .s-logo-sub{font-size:10px;color:var(--gray-400);}
+    .header-right{display:flex;align-items:center;gap:10px;}
+    .user-pill{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--gray-600);display:flex;align-items:center;gap:7px;}
+    .user-dot{width:24px;height:24px;border-radius:50%;background:var(--navy);color:white;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+    .btn-sair{background:none;border:1.5px solid var(--gray-200);color:var(--gray-500);border-radius:8px;padding:5px 12px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;}
+    .btn-sair:hover{border-color:var(--red);color:var(--red);}
+    .back-btn{background:var(--red);color:white;border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;}
+    .back-btn:hover{background:var(--red-h);}
 
-  .toolbar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
-  .toolbar .left { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
-  .toolbar .right { display: flex; gap: 8px; }
-  .chip {
-    padding: 8px 16px; border-radius: 999px; background: #fff; border: 1px solid #e2e8f0;
-    cursor: pointer; font-size: 13px; color: #475569; font-weight: 500; transition: all .15s;
-  }
-  .chip:hover { border-color: #c7d2fe; }
-  .chip.active { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+    /* ── Search section ── */
+    .search-section{background:white;border-bottom:1px solid var(--gray-200);padding:16px 24px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.04);}
+    .search-row{display:flex;align-items:center;gap:12px;max-width:900px;margin:0 auto 12px;}
+    .search-wrap{position:relative;flex:1;}
+    .search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--gray-400);font-size:15px;pointer-events:none;}
+    #searchInput{width:100%;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:30px;padding:11px 16px 11px 42px;font-size:14px;font-family:inherit;outline:none;transition:all .2s;color:var(--gray-800);}
+    #searchInput:focus{border-color:var(--navy);background:white;box-shadow:0 0 0 3px rgba(10,31,68,.07);}
+    #searchInput::placeholder{color:var(--gray-400);}
+    .clear-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:var(--gray-200);border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;color:var(--gray-500);font-size:13px;display:none;align-items:center;justify-content:center;line-height:1;transition:background .15s;}
+    .clear-btn.show{display:flex;}
+    .clear-btn:hover{background:var(--gray-300);}
 
-  .results-meta { color: #64748b; font-size: 13px; margin-bottom: 12px; }
+    /* admin buttons inline */
+    .admin-row{display:flex;gap:6px;}
+    .btn-chip-sm{padding:6px 12px;border-radius:20px;background:var(--gray-100);border:1.5px solid var(--gray-200);font-family:inherit;font-size:11px;font-weight:700;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap;}
+    .btn-chip-sm:hover{border-color:var(--navy);color:var(--navy);background:white;}
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-  .card {
-    background: #fff; border-radius: 14px; padding: 18px; cursor: pointer;
-    border: 1px solid #e2e8f0; transition: all .15s;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  .card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.08); border-color: #c7d2fe; }
-  .card .cat-tag {
-    display: inline-block; padding: 3px 10px; border-radius: 999px;
-    background: #ede9fe; color: #6d28d9; font-size: 11px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .3px; align-self: flex-start;
-  }
-  .card h3 { margin: 0; font-size: 15px; color: #0f172a; line-height: 1.35; font-weight: 600; }
-  .card .forn { font-size: 12px; color: #94a3b8; }
-  .card .prices { display: flex; gap: 10px; margin-top: auto; padding-top: 8px; border-top: 1px solid #f1f5f9; }
-  .card .price { flex: 1; }
-  .card .price .label { font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 600; }
-  .card .price .val { font-size: 15px; color: #4f46e5; font-weight: 700; }
-  .card .price.particular .val { color: #db2777; }
+    /* filter chips */
+    .chips-row{display:flex;gap:7px;flex-wrap:wrap;max-width:900px;margin:0 auto;}
+    .chip{padding:6px 14px;border-radius:20px;background:var(--gray-50);border:1.5px solid var(--gray-200);font-family:inherit;font-size:12px;font-weight:600;color:var(--gray-500);cursor:pointer;transition:all .15s;white-space:nowrap;}
+    .chip:hover{border-color:var(--teal);color:var(--teal);}
+    .chip.active{background:var(--navy);color:white;border-color:var(--navy);}
 
-  .empty { text-align: center; padding: 60px 20px; color: #94a3b8; }
-  .empty svg { margin-bottom: 16px; opacity: .5; }
-  .empty h3 { margin: 0 0 8px; color: #475569; }
+    /* ── Main layout ── */
+    .layout{display:grid;grid-template-columns:1fr 320px;flex:1;overflow:hidden;gap:0;}
+    .main-content{overflow-y:auto;padding:20px 20px 20px 24px;}
+    .results-meta{font-size:12px;color:var(--gray-400);font-weight:600;margin-bottom:14px;padding-left:2px;}
 
-  /* Cart sidebar */
-  .cart {
-    background: #fff; border-radius: 16px; padding: 20px;
-    position: sticky; top: 24px; height: fit-content; max-height: calc(100vh - 48px);
-    overflow-y: auto; border: 1px solid #e2e8f0;
-  }
-  .cart h2 { margin: 0 0 16px; font-size: 18px; display: flex; align-items: center; gap: 8px; }
-  .cart .badge { background: #4f46e5; color: #fff; padding: 2px 10px; border-radius: 999px; font-size: 12px; }
-  .cart-empty { color: #94a3b8; text-align: center; padding: 30px 0; font-size: 14px; }
-  .cart-item {
-    padding: 12px 0; border-bottom: 1px solid #f1f5f9;
-    display: flex; gap: 10px; align-items: flex-start;
-  }
-  .cart-item:last-of-type { border-bottom: none; }
-  .cart-item .info { flex: 1; min-width: 0; }
-  .cart-item .nome { font-size: 13px; font-weight: 600; color: #0f172a; margin-bottom: 4px; line-height: 1.3; }
-  .cart-item .meta { font-size: 11px; color: #94a3b8; }
-  .cart-item .preco { font-size: 13px; font-weight: 700; color: #4f46e5; }
-  .cart-item .rm {
-    background: none; border: none; color: #ef4444; cursor: pointer;
-    padding: 2px 6px; border-radius: 4px; font-size: 16px; line-height: 1;
-  }
-  .cart-item .rm:hover { background: #fee2e2; }
-  .cart-totals { padding-top: 16px; border-top: 2px solid #e2e8f0; margin-top: 8px; }
-  .cart-totals .row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; color: #475569; }
-  .cart-totals .row.total { font-size: 18px; font-weight: 700; color: #0f172a; padding-top: 10px; border-top: 1px solid #f1f5f9; margin-top: 6px; }
-  .cart-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
-  .btn-wpp { background: #25d366; color: #fff; border: none; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .btn-wpp:hover { background: #1ea952; }
-  .btn-pdf { background: #fff; color: #4f46e5; border: 1px solid #4f46e5; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .btn-pdf:hover { background: #eef2ff; }
-  .btn-clear { background: none; color: #ef4444; border: none; padding: 8px; cursor: pointer; font-size: 13px; }
+    /* ── Exam cards grid ── */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;align-content:start;}
+    .card{background:white;border:1.5px solid var(--gray-200);border-radius:14px;padding:17px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:9px;position:relative;overflow:hidden;}
+    .card::after{content:'';position:absolute;inset:0;border-radius:14px;box-shadow:0 8px 24px rgba(10,31,68,.12);opacity:0;transition:opacity .2s;}
+    .card:hover{transform:translateY(-3px);border-color:var(--navy);}
+    .card:hover::after{opacity:1;}
+    .cat-tag{display:inline-block;padding:3px 9px;border-radius:20px;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;align-self:flex-start;}
+    .card-name{font-size:14px;font-weight:700;color:var(--navy);line-height:1.35;}
+    .card-forn{font-size:11px;color:var(--gray-400);}
+    .card-prices{display:flex;gap:10px;margin-top:auto;padding-top:10px;border-top:1px solid var(--gray-100);}
+    .price-box{flex:1;text-align:center;padding:7px 6px;border-radius:8px;}
+    .price-box.ct{background:#eff6ff;}
+    .price-box.pt{background:#fff1f2;}
+    .price-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
+    .price-box.ct .price-lbl{color:#3b82f6;}
+    .price-box.pt .price-lbl{color:var(--red);}
+    .price-val{font-size:14px;font-weight:800;}
+    .price-box.ct .price-val{color:#1d4ed8;}
+    .price-box.pt .price-val{color:var(--red);}
+    .price-null{color:var(--gray-300);font-size:12px;}
 
-  /* Modal */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(15,23,42,.6); backdrop-filter: blur(4px);
-    display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal {
-    background: #fff; border-radius: 16px; max-width: 640px; width: 100%;
-    max-height: 90vh; overflow-y: auto; padding: 28px;
-    box-shadow: 0 25px 60px rgba(0,0,0,.3);
-  }
-  .modal-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 20px; }
-  .modal-header .titles { flex: 1; }
-  .modal-header h2 { margin: 0 0 6px; font-size: 22px; color: #0f172a; }
-  .modal-header .meta { display: flex; gap: 8px; flex-wrap: wrap; }
-  .modal-header .meta span { font-size: 11px; padding: 3px 10px; border-radius: 999px; background: #f1f5f9; color: #475569; font-weight: 600; }
-  .close-btn { background: #f1f5f9; border: none; width: 36px; height: 36px; border-radius: 999px; cursor: pointer; font-size: 18px; color: #64748b; flex-shrink: 0; }
-  .close-btn:hover { background: #e2e8f0; }
+    /* empty / loader */
+    .empty{text-align:center;padding:60px 24px;color:var(--gray-400);}
+    .empty i{font-size:36px;margin-bottom:14px;opacity:.3;display:block;}
+    .empty h3{color:var(--gray-500);margin-bottom:6px;font-size:16px;}
+    .empty p{font-size:13px;line-height:1.6;}
+    .loader{text-align:center;padding:48px;}
+    .spinner{display:inline-block;width:34px;height:34px;border:3px solid var(--gray-200);border-top-color:var(--navy);border-radius:50%;animation:spin 1s linear infinite;margin-bottom:10px;}
+    .loader p{color:var(--gray-400);font-size:13px;}
+    @keyframes spin{to{transform:rotate(360deg)}}
 
-  .modal-section { margin-bottom: 18px; }
-  .modal-section .lbl { font-size: 11px; text-transform: uppercase; color: #94a3b8; font-weight: 700; letter-spacing: .5px; margin-bottom: 6px; }
-  .modal-section .val-text { color: #334155; line-height: 1.5; font-size: 14px; }
-  .modal-section textarea {
-    width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px;
-    font-family: inherit; font-size: 14px; resize: vertical; min-height: 70px;
-  }
-  .modal-section textarea:focus { outline: none; border-color: #4f46e5; }
-  .modal-section .edit-hint { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+    /* ── Cart panel ── */
+    .cart-panel{background:white;border-left:1px solid var(--gray-200);display:flex;flex-direction:column;overflow:hidden;}
+    .cart-head{padding:16px 18px;border-bottom:2px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+    .cart-title{font-size:14px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;}
+    .cart-badge{background:var(--navy);color:white;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;}
+    .cart-clear{background:none;border:none;color:var(--gray-400);font-size:11px;font-weight:600;cursor:pointer;transition:color .15s;}
+    .cart-clear:hover{color:var(--red);}
+    .cart-items{flex:1;overflow-y:auto;padding:10px 12px;}
+    .cart-empty{text-align:center;padding:36px 12px;color:var(--gray-400);font-size:13px;line-height:1.6;}
+    .cart-empty i{font-size:28px;margin-bottom:10px;display:block;opacity:.3;}
+    .cart-item{padding:10px 0;border-bottom:1px solid var(--gray-100);display:flex;gap:9px;align-items:flex-start;}
+    .cart-item:last-child{border-bottom:none;}
+    .cart-item-info{flex:1;min-width:0;}
+    .cart-item-name{font-size:12px;font-weight:700;color:var(--navy);line-height:1.3;margin-bottom:2px;}
+    .cart-item-tipo{font-size:10px;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.3px;}
+    .cart-item-preco{font-size:12px;font-weight:800;margin-top:3px;}
+    .cart-item-preco.ct{color:#1d4ed8;}
+    .cart-item-preco.pt{color:var(--red);}
+    .cart-rm{background:none;border:none;color:var(--gray-300);cursor:pointer;font-size:15px;padding:2px 4px;border-radius:4px;line-height:1;transition:all .15s;flex-shrink:0;}
+    .cart-rm:hover{background:#fee2e2;color:var(--red);}
+    .cart-footer{padding:14px 16px;border-top:2px solid var(--gray-100);flex-shrink:0;}
+    .cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .cart-total-lbl{font-size:13px;font-weight:700;color:var(--gray-600);}
+    .cart-total-val{font-size:20px;font-weight:900;color:var(--navy);letter-spacing:-1px;}
+    .cart-btn{width:100%;padding:11px;border-radius:10px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:7px;transition:all .2s;}
+    .cart-btn:last-child{margin-bottom:0;}
+    .cart-btn:disabled{opacity:.4;cursor:not-allowed;}
+    .btn-wpp{background:#25d366;color:white;}
+    .btn-wpp:hover:not(:disabled){background:#1ea952;}
+    .btn-pdf{background:var(--gray-100);color:var(--gray-600);border:1.5px solid var(--gray-200);}
+    .btn-pdf:hover:not(:disabled){background:var(--gray-200);}
 
-  .modal-prices { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px; background: #f8fafc; border-radius: 10px; margin-bottom: 18px; }
-  .modal-prices .pbox { text-align: center; }
-  .modal-prices .pbox .lbl { font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 600; }
-  .modal-prices .pbox .val { font-size: 24px; font-weight: 700; margin-top: 4px; }
-  .modal-prices .pbox.ct .val { color: #4f46e5; }
-  .modal-prices .pbox.pt .val { color: #db2777; }
+    /* ── Modal ── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:500;padding:20px;}
+    .modal-overlay.show{display:flex;}
+    .modal{background:white;border-radius:20px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.3);}
+    .modal-head{padding:20px 24px 16px;border-bottom:2px solid var(--gray-100);display:flex;align-items:flex-start;justify-content:space-between;gap:14px;position:sticky;top:0;background:white;z-index:5;}
+    .modal-titles{flex:1;}
+    .modal-name{font-size:20px;font-weight:900;color:var(--navy);margin-bottom:5px;letter-spacing:-.3px;}
+    .modal-meta{display:flex;gap:6px;flex-wrap:wrap;}
+    .modal-tag{font-size:10px;padding:3px 9px;border-radius:20px;background:var(--gray-100);color:var(--gray-600);font-weight:700;}
+    .modal-close{background:var(--gray-100);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;color:var(--gray-500);font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+    .modal-close:hover{background:var(--gray-200);color:var(--navy);}
+    .modal-body{padding:20px 24px;}
+    .modal-prices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+    .mpbox{padding:14px;border-radius:12px;text-align:center;}
+    .mpbox.ct{background:#eff6ff;border:1.5px solid #bfdbfe;}
+    .mpbox.pt{background:#fff1f2;border:1.5px solid #fecdd3;}
+    .mpbox-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+    .mpbox.ct .mpbox-lbl{color:#3b82f6;}
+    .mpbox.pt .mpbox-lbl{color:var(--red);}
+    .mpbox-val{font-size:22px;font-weight:900;}
+    .mpbox.ct .mpbox-val{color:#1d4ed8;}
+    .mpbox.pt .mpbox-val{color:var(--red);}
+    .modal-section{margin-bottom:14px;}
+    .modal-section-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--gray-400);margin-bottom:5px;}
+    .modal-section textarea{width:100%;border:1.5px solid var(--gray-200);border-radius:9px;padding:10px 12px;font-family:inherit;font-size:13px;resize:vertical;min-height:64px;outline:none;color:var(--gray-800);background:var(--gray-50);transition:border-color .2s;}
+    .modal-section textarea:focus{border-color:var(--navy);background:white;}
+    .modal-actions{display:flex;gap:8px;margin-top:18px;padding-top:18px;border-top:1px solid var(--gray-100);}
+    .modal-actions button{flex:1;padding:11px 8px;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+    .modal-actions button:disabled{opacity:.35;cursor:not-allowed;}
+    .btn-save{background:var(--gray-100);color:var(--gray-600);}
+    .btn-save:hover:not(:disabled){background:var(--gray-200);}
+    .btn-add-ct{background:#1d4ed8;color:white;}
+    .btn-add-ct:hover:not(:disabled){background:#1e40af;}
+    .btn-add-pt{background:var(--red);color:white;}
+    .btn-add-pt:hover:not(:disabled){background:var(--red-h);}
 
-  .modal-actions { display: flex; gap: 10px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #f1f5f9; }
-  .modal-actions button { flex: 1; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; border: none; }
-  .modal-actions .save-edits { background: #f1f5f9; color: #475569; }
-  .modal-actions .save-edits:hover { background: #e2e8f0; }
-  .modal-actions .add-ct { background: #4f46e5; color: #fff; }
-  .modal-actions .add-ct:hover { background: #4338ca; }
-  .modal-actions .add-pt { background: #db2777; color: #fff; }
-  .modal-actions .add-pt:hover { background: #be185d; }
+    /* toast */
+    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:opacity .2s;z-index:2000;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25);}
+    .toast.show{opacity:1;}
+    .toast.success{background:var(--green);}
+    .toast.error{background:var(--red);}
 
-  .toast {
-    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-    background: #0f172a; color: #fff; padding: 12px 24px; border-radius: 10px;
-    font-size: 14px; opacity: 0; transition: opacity .2s; z-index: 2000; pointer-events: none;
-  }
-  .toast.show { opacity: 1; }
+    /* file input */
+    .file-input{display:none;}
 
-  .loader { text-align: center; padding: 40px; color: #64748b; }
-  .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid #e2e8f0; border-top-color: #4f46e5; border-radius: 50%; animation: spin 1s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .file-input { display: none; }
-</style>
+    @media(max-width:900px){
+      .layout{grid-template-columns:1fr;}
+      .cart-panel{border-left:none;border-top:1px solid var(--gray-200);max-height:320px;}
+      .s-header{padding:0 16px;}
+      .main-content{padding:14px;}
+      body{overflow:auto;height:auto;}
+      .layout{overflow:visible;}
+    }
+  </style>
 </head>
 <body>
+  <div class="red-bar"></div>
 
-<header class="topbar">
-  <div class="topbar-inner">
-    <a href="login.html" class="brand">
-      <span class="brand-mark">PJ</span>
-      <span class="brand-text">PJATUAL</span>
-    </a>
-    <div class="page-title">Sistema de Orçamentos</div>
-    <div class="user-area">
-      <div class="user-avatar" id="userAvatar">--</div>
-      <button class="logout-btn" id="logoutBtn">Sair</button>
+  <!-- HEADER -->
+  <div class="s-header">
+    <div class="s-logo">
+      <div class="s-logo-icon"><img src="assets/favicon.png" alt="Logo" id="headerLogo"></div>
+      <div><div class="s-logo-name">Amor Saúde</div><div class="s-logo-sub">Orçamentos · Pirituba</div></div>
+    </div>
+    <div class="header-right">
+      <div class="user-pill"><div class="user-dot" id="userAvatar">--</div><span id="userName" style="max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span></div>
+      <button class="btn-sair" id="logoutBtn"><i class="fas fa-right-from-bracket"></i> Sair</button>
+      <button class="back-btn" onclick="window.location.replace('login.html')"><i class="fas fa-home"></i> Portal</button>
     </div>
   </div>
-</header>
 
-<div class="layout">
-  <div>
-    <div class="search-hero">
-      <h1>🔍 Buscar exames e procedimentos</h1>
-      <p>Digite o nome do exame, categoria ou fornecedor para começar</p>
-      <div class="search-box">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-        </svg>
-        <input type="text" id="searchInput" placeholder="Ex: ressonância, ultrassom, eletro...">
+  <!-- SEARCH SECTION -->
+  <div class="search-section">
+    <div class="search-row">
+      <div class="search-wrap">
+        <i class="fas fa-magnifying-glass search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Buscar exame, categoria ou fornecedor…" autocomplete="off">
         <button class="clear-btn" id="clearBtn">×</button>
       </div>
-    </div>
-
-    <div class="toolbar">
-      <div class="left" id="categoryChips"></div>
-      <div class="right">
+      <div class="admin-row">
         <input type="file" class="file-input" id="fileInput" accept=".xlsx,.xls">
-        <button class="chip" id="importBtn">📥 Importar planilha</button>
-        <button class="chip" id="loadSeedBtn">🌱 Carregar base inicial</button>
+        <button class="btn-chip-sm" id="importBtn"><i class="fas fa-file-arrow-up"></i> Importar</button>
+        <button class="btn-chip-sm" id="loadSeedBtn"><i class="fas fa-database"></i> Base inicial</button>
       </div>
     </div>
-
-    <div class="results-meta" id="resultsMeta"></div>
-    <div id="results"></div>
+    <div class="chips-row" id="categoryChips"></div>
   </div>
 
-  <aside class="cart">
-    <h2>🛒 Orçamento <span class="badge" id="cartBadge">0</span></h2>
-    <div id="cartList"></div>
-    <div id="cartTotals" style="display:none">
-      <div class="cart-totals">
-        <div class="row">
-          <span>Itens:</span>
-          <span id="cartCount">0</span>
-        </div>
-        <div class="row total">
-          <span>Total:</span>
-          <span id="cartTotal">R$ 0,00</span>
-        </div>
+  <!-- MAIN LAYOUT -->
+  <div class="layout">
+    <main class="main-content">
+      <div class="results-meta" id="resultsMeta"></div>
+      <div id="results"></div>
+    </main>
+
+    <!-- CART -->
+    <aside class="cart-panel">
+      <div class="cart-head">
+        <div class="cart-title"><i class="fas fa-clipboard-list"></i> Orçamento <span class="cart-badge" id="cartBadge">0</span></div>
+        <button class="cart-clear" id="btnClear">Limpar</button>
       </div>
-      <div class="cart-actions">
-        <button class="btn-wpp" id="btnWpp">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448L.057 24z"/></svg>
-          Enviar por WhatsApp
+      <div class="cart-items" id="cartList">
+        <div class="cart-empty"><i class="fas fa-clipboard"></i>Nenhum exame adicionado.<br>Clique nos cards para adicionar.</div>
+      </div>
+      <div class="cart-footer" id="cartFooter" style="display:none;">
+        <div class="cart-total-row">
+          <span class="cart-total-lbl">Total</span>
+          <span class="cart-total-val" id="cartTotal">R$ 0,00</span>
+        </div>
+        <button class="cart-btn btn-wpp" id="btnWpp" disabled>
+          <i class="fab fa-whatsapp" style="font-size:16px;"></i> WhatsApp
         </button>
-        <button class="btn-pdf" id="btnPdf">
-          📄 Exportar PDF
+        <button class="cart-btn btn-pdf" id="btnPdf" disabled>
+          <i class="fas fa-file-pdf"></i> Exportar PDF
         </button>
-        <button class="btn-clear" id="btnClear">Limpar orçamento</button>
       </div>
-    </div>
-  </aside>
-</div>
+    </aside>
+  </div>
 
-<!-- Modal -->
-<div class="modal-overlay" id="modal">
-  <div class="modal" id="modalContent"></div>
-</div>
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal" id="modalContent"></div>
+  </div>
 
-<div class="toast" id="toast"></div>
+  <div class="toast" id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script type="module">
-import { initializeApp }                                from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, signOut }         from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDocs, deleteDoc, writeBatch, getDoc, updateDoc }
-                                                        from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script type="module">
+    import { initializeApp }                                from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut }         from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, collection, doc, getDocs, updateDoc, writeBatch, getDoc }
+                                                            from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-const _app  = initializeApp(window.FIREBASE_CONFIG);
-const auth  = getAuth(_app);
-const db    = getFirestore(_app);
+    const _app = initializeApp(window.FIREBASE_CONFIG);
+    const auth = getAuth(_app);
+    const db   = getFirestore(_app);
 
-function initialsFor(user) {
-  const n = user.displayName || user.email || '';
-  return n.split(/[\s@]/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) || '??';
-}
-
-// ============ AUTH ============
-let currentUser = null;
-onAuthStateChanged(auth, user => {
-  if (!user) { window.location.replace('login.html'); return; }
-  currentUser = user;
-  document.getElementById('userAvatar').textContent = initialsFor(user);
-  loadExamsFromFirestore();
-});
-document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth).then(() => window.location.replace('login.html')));
-
-// ============ STATE ============
-let exams = [];        // all exams
-let filtered = [];     // filtered view
-let cart = [];         // {exam, tipo: 'ct'|'pt', preco}
-let activeCategory = null;
-let searchQuery = '';
-
-// ============ TOAST ============
-const toastEl = document.getElementById('toast');
-function toast(msg, ms=2200) {
-  toastEl.textContent = msg;
-  toastEl.classList.add('show');
-  setTimeout(() => toastEl.classList.remove('show'), ms);
-}
-
-// ============ FORMAT ============
-const fmtBRL = v => v == null ? '—' : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-
-// ============ LOAD FROM FIRESTORE ============
-async function loadExamsFromFirestore() {
-  document.getElementById('results').innerHTML = '<div class="loader"><div class="spinner"></div><p>Carregando exames...</p></div>';
-  try {
-    const snap = await getDocs(collection(db, 'orcamentos_exames'));
-    exams = [];
-    snap.forEach(d => exams.push({ id: d.id, ...d.data() }));
-    if (exams.length === 0) {
-      document.getElementById('results').innerHTML = `
-        <div class="empty">
-          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          <h3>Nenhum exame na base ainda</h3>
-          <p>Clique em "Carregar base inicial" para importar os 589 exames pré-cadastrados,<br>ou em "Importar planilha" para carregar sua planilha.</p>
-        </div>`;
-      return;
+    function initialsFor(user) {
+      const n = user.displayName || user.email || '';
+      return n.split(/[\s@]/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) || '??';
     }
-    renderCategories();
-    applyFilters();
-  } catch (e) {
-    console.error(e);
-    document.getElementById('results').innerHTML = `<div class="empty"><h3>Erro ao carregar</h3><p>${e.message}</p></div>`;
-  }
-}
 
-// ============ CATEGORIES ============
-function renderCategories() {
-  const cats = [...new Set(exams.map(e => e.categoria))].sort();
-  const container = document.getElementById('categoryChips');
-  container.innerHTML = `<button class="chip ${!activeCategory ? 'active' : ''}" data-cat="">Todas (${exams.length})</button>` +
-    cats.map(c => {
-      const count = exams.filter(e => e.categoria === c).length;
-      return `<button class="chip ${activeCategory === c ? 'active' : ''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)} (${count})</button>`;
-    }).join('');
-  container.querySelectorAll('.chip').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeCategory = btn.dataset.cat || null;
-      renderCategories();
-      applyFilters();
+    // ── AUTH ──
+    let currentUser = null;
+    onAuthStateChanged(auth, user => {
+      if (!user) { window.location.replace('login.html'); return; }
+      currentUser = user;
+      document.getElementById('userAvatar').textContent = initialsFor(user);
+      const nome = user.displayName || user.email.split('@')[0];
+      document.getElementById('userName').textContent = nome;
+      loadExamsFromFirestore();
     });
-  });
-}
+    document.getElementById('logoutBtn').addEventListener('click', () =>
+      signOut(auth).then(() => window.location.replace('login.html'))
+    );
 
-// ============ SEARCH & FILTER ============
-function normalize(s) {
-  return (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-}
-function applyFilters() {
-  const q = normalize(searchQuery);
-  filtered = exams.filter(e => {
-    if (activeCategory && e.categoria !== activeCategory) return false;
-    if (!q) return true;
-    const hay = normalize(`${e.nome} ${e.categoria} ${e.fornecedor} ${e.observacao || ''} ${e.caracteristica || ''}`);
-    return q.split(/\s+/).every(term => hay.includes(term));
-  });
-  renderResults();
-}
-const searchInput = document.getElementById('searchInput');
-const clearBtn = document.getElementById('clearBtn');
-searchInput.addEventListener('input', e => {
-  searchQuery = e.target.value;
-  clearBtn.classList.toggle('show', !!searchQuery);
-  applyFilters();
-});
-clearBtn.addEventListener('click', () => {
-  searchInput.value = '';
-  searchQuery = '';
-  clearBtn.classList.remove('show');
-  applyFilters();
-  searchInput.focus();
-});
+    // ── STATE ──
+    let exams = [], filtered = [], cart = [];
+    let activeCategory = null, searchQuery = '';
 
-// ============ RENDER RESULTS ============
-function escapeHtml(s) {
-  return (s || '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
-}
-function renderResults() {
-  const meta = document.getElementById('resultsMeta');
-  meta.textContent = filtered.length === exams.length
-    ? `${exams.length} exames disponíveis`
-    : `${filtered.length} de ${exams.length} exames`;
-  const container = document.getElementById('results');
-  if (filtered.length === 0) {
-    container.innerHTML = '<div class="empty"><h3>Nenhum exame encontrado</h3><p>Tente outros termos ou limpe os filtros.</p></div>';
-    return;
-  }
-  container.innerHTML = `<div class="grid">${filtered.map(e => `
-    <div class="card" data-id="${e.id}">
-      <span class="cat-tag">${escapeHtml(e.categoria)}</span>
-      <h3>${escapeHtml(e.nome)}</h3>
-      <div class="forn">${escapeHtml(e.fornecedor || '')}</div>
-      <div class="prices">
-        <div class="price"><div class="label">Cartão</div><div class="val">${fmtBRL(e.preco_ct)}</div></div>
-        <div class="price particular"><div class="label">Particular</div><div class="val">${fmtBRL(e.preco_pt)}</div></div>
-      </div>
-    </div>
-  `).join('')}</div>`;
-  container.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('click', () => openModal(card.dataset.id));
-  });
-}
-
-// ============ MODAL ============
-function openModal(id) {
-  const e = exams.find(x => x.id === id);
-  if (!e) return;
-  const content = document.getElementById('modalContent');
-  content.innerHTML = `
-    <div class="modal-header">
-      <div class="titles">
-        <h2>${escapeHtml(e.nome)}</h2>
-        <div class="meta">
-          <span>${escapeHtml(e.categoria)}</span>
-          <span>${escapeHtml(e.fornecedor || '')}</span>
-        </div>
-      </div>
-      <button class="close-btn" id="closeBtn">×</button>
-    </div>
-
-    <div class="modal-prices">
-      <div class="pbox ct"><div class="lbl">Cartão de Todos</div><div class="val">${fmtBRL(e.preco_ct)}</div></div>
-      <div class="pbox pt"><div class="lbl">Particular</div><div class="val">${fmtBRL(e.preco_pt)}</div></div>
-    </div>
-
-    <div class="modal-section">
-      <div class="lbl">Característica (o que é o exame)</div>
-      <textarea id="editCarac" placeholder="Ex: Exame de imagem que utiliza ondas sonoras...">${escapeHtml(e.caracteristica || '')}</textarea>
-    </div>
-    <div class="modal-section">
-      <div class="lbl">Benefício (o que traz ao paciente)</div>
-      <textarea id="editBenef" placeholder="Ex: Permite identificar precocemente alterações...">${escapeHtml(e.beneficio || '')}</textarea>
-    </div>
-    <div class="modal-section">
-      <div class="lbl">Preparo</div>
-      <textarea id="editPrep" placeholder="Ex: Jejum de 8 horas, beber 1L de água...">${escapeHtml(e.preparo || '')}</textarea>
-    </div>
-    ${e.observacao ? `
-      <div class="modal-section">
-        <div class="lbl">Observação interna</div>
-        <div class="val-text">${escapeHtml(e.observacao)}</div>
-      </div>
-    ` : ''}
-
-    <div class="modal-actions">
-      <button class="save-edits" id="saveEditsBtn">💾 Salvar edições</button>
-      <button class="add-ct" id="addCtBtn" ${e.preco_ct == null ? 'disabled style="opacity:.4"' : ''}>+ Cartão ${e.preco_ct != null ? fmtBRL(e.preco_ct) : ''}</button>
-      <button class="add-pt" id="addPtBtn" ${e.preco_pt == null ? 'disabled style="opacity:.4"' : ''}>+ Particular ${e.preco_pt != null ? fmtBRL(e.preco_pt) : ''}</button>
-    </div>
-  `;
-  document.getElementById('modal').classList.add('show');
-  document.getElementById('closeBtn').addEventListener('click', closeModal);
-  document.getElementById('saveEditsBtn').addEventListener('click', () => saveEdits(id));
-  document.getElementById('addCtBtn').addEventListener('click', () => { addToCart(id, 'ct'); closeModal(); });
-  document.getElementById('addPtBtn').addEventListener('click', () => { addToCart(id, 'pt'); closeModal(); });
-}
-function closeModal() { document.getElementById('modal').classList.remove('show'); }
-document.getElementById('modal').addEventListener('click', e => {
-  if (e.target.id === 'modal') closeModal();
-});
-
-async function saveEdits(id) {
-  const carac = document.getElementById('editCarac').value.trim();
-  const benef = document.getElementById('editBenef').value.trim();
-  const prep = document.getElementById('editPrep').value.trim();
-  try {
-    await updateDoc(doc(db, 'orcamentos_exames', id), {
-      caracteristica: carac, beneficio: benef, preparo: prep,
-      updatedAt: new Date().toISOString(), updatedBy: currentUser.email
-    });
-    const e = exams.find(x => x.id === id);
-    if (e) { e.caracteristica = carac; e.beneficio = benef; e.preparo = prep; }
-    toast('Edições salvas');
-  } catch (err) {
-    toast('Erro ao salvar: ' + err.message, 4000);
-  }
-}
-
-// ============ CART ============
-function addToCart(id, tipo) {
-  const e = exams.find(x => x.id === id);
-  if (!e) return;
-  const preco = tipo === 'ct' ? e.preco_ct : e.preco_pt;
-  if (preco == null) return;
-  cart.push({ id, exam: e, tipo, preco });
-  renderCart();
-  toast(`Adicionado: ${e.nome}`);
-}
-function removeFromCart(idx) {
-  cart.splice(idx, 1);
-  renderCart();
-}
-function renderCart() {
-  const list = document.getElementById('cartList');
-  const totals = document.getElementById('cartTotals');
-  document.getElementById('cartBadge').textContent = cart.length;
-  if (cart.length === 0) {
-    list.innerHTML = '<div class="cart-empty">Nenhum exame adicionado.<br>Clique nos cards para adicionar.</div>';
-    totals.style.display = 'none';
-    return;
-  }
-  list.innerHTML = cart.map((it, i) => `
-    <div class="cart-item">
-      <div class="info">
-        <div class="nome">${escapeHtml(it.exam.nome)}</div>
-        <div class="meta">${it.tipo === 'ct' ? 'Cartão de Todos' : 'Particular'}</div>
-        <div class="preco">${fmtBRL(it.preco)}</div>
-      </div>
-      <button class="rm" data-i="${i}">×</button>
-    </div>
-  `).join('');
-  list.querySelectorAll('.rm').forEach(b => b.addEventListener('click', () => removeFromCart(+b.dataset.i)));
-  const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
-  document.getElementById('cartCount').textContent = cart.length;
-  document.getElementById('cartTotal').textContent = fmtBRL(total);
-  totals.style.display = 'block';
-}
-
-document.getElementById('btnClear').addEventListener('click', () => {
-  if (cart.length && confirm('Limpar todos os exames do orçamento?')) {
-    cart = []; renderCart();
-  }
-});
-
-// ============ WHATSAPP EXPORT ============
-document.getElementById('btnWpp').addEventListener('click', () => {
-  if (cart.length === 0) return;
-  const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
-  let msg = `*ORÇAMENTO - AMOR SAÚDE PIRITUBA*\n\n`;
-  cart.forEach((it, i) => {
-    msg += `${i+1}. *${it.exam.nome}*\n`;
-    msg += `   ${it.tipo === 'ct' ? 'Cartão de Todos' : 'Particular'}: ${fmtBRL(it.preco)}\n`;
-    if (it.exam.preparo) msg += `   _Preparo: ${it.exam.preparo}_\n`;
-    msg += `\n`;
-  });
-  msg += `*TOTAL: ${fmtBRL(total)}*\n\n`;
-  msg += `_Orçamento gerado em ${new Date().toLocaleDateString('pt-BR')}_`;
-  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-});
-
-// ============ PDF EXPORT ============
-document.getElementById('btnPdf').addEventListener('click', () => {
-  if (cart.length === 0) return;
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF();
-  let y = 20;
-  pdf.setFontSize(18); pdf.setFont('helvetica', 'bold');
-  pdf.text('ORÇAMENTO - AMOR SAÚDE PIRITUBA', 105, y, { align: 'center' });
-  y += 8;
-  pdf.setFontSize(10); pdf.setFont('helvetica', 'normal');
-  pdf.text(new Date().toLocaleDateString('pt-BR'), 105, y, { align: 'center' });
-  y += 10;
-  pdf.line(20, y, 190, y); y += 8;
-
-  const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
-  cart.forEach((it, i) => {
-    if (y > 270) { pdf.addPage(); y = 20; }
-    pdf.setFontSize(11); pdf.setFont('helvetica', 'bold');
-    pdf.text(`${i+1}. ${it.exam.nome}`, 20, y); y += 5;
-    pdf.setFontSize(9); pdf.setFont('helvetica', 'normal');
-    pdf.text(`Categoria: ${it.exam.categoria}  -  ${it.tipo === 'ct' ? 'Cartao de Todos' : 'Particular'}`, 20, y); y += 5;
-    pdf.setFont('helvetica', 'bold');
-    pdf.text(fmtBRL(it.preco).replace('R$', 'R$'), 170, y - 5, { align: 'right' });
-    if (it.exam.preparo) {
-      pdf.setFont('helvetica', 'italic'); pdf.setFontSize(8);
-      const lines = pdf.splitTextToSize(`Preparo: ${it.exam.preparo}`, 170);
-      pdf.text(lines, 20, y); y += lines.length * 4;
+    // ── TOAST ──
+    const toastEl = document.getElementById('toast');
+    function toast(msg, tipo, ms = 2400) {
+      toastEl.textContent = msg;
+      toastEl.className = 'toast show' + (tipo ? ' ' + tipo : '');
+      setTimeout(() => toastEl.classList.remove('show'), ms);
     }
-    y += 3;
-  });
-  if (y > 260) { pdf.addPage(); y = 20; }
-  pdf.line(20, y, 190, y); y += 8;
-  pdf.setFontSize(14); pdf.setFont('helvetica', 'bold');
-  pdf.text('TOTAL:', 20, y);
-  pdf.text(fmtBRL(total), 190, y, { align: 'right' });
-  pdf.save(`orcamento-${Date.now()}.pdf`);
-});
 
-// ============ IMPORTER ============
-document.getElementById('importBtn').addEventListener('click', () => document.getElementById('fileInput').click());
-document.getElementById('fileInput').addEventListener('change', async (ev) => {
-  const file = ev.target.files[0];
-  if (!file) return;
-  if (!confirm(`Importar exames da planilha "${file.name}"?\n\nIsso vai SUBSTITUIR a base atual de ${exams.length} exames.\nDeseja continuar?`)) {
-    ev.target.value = ''; return;
-  }
-  try {
-    const buf = await file.arrayBuffer();
-    const wb = XLSX.read(buf, { type: 'array' });
-    const parsed = parseWorkbook(wb);
-    if (parsed.length === 0) { toast('Nenhum exame encontrado na planilha', 3000); return; }
-    if (!confirm(`Foram encontrados ${parsed.length} exames. Importar agora?`)) return;
-    await saveAllExams(parsed);
-    toast(`${parsed.length} exames importados!`, 3000);
-    await loadExamsFromFirestore();
-  } catch (err) {
-    toast('Erro: ' + err.message, 4000);
-    console.error(err);
-  } finally { ev.target.value = ''; }
-});
+    // ── FORMAT ──
+    const fmtBRL = v => v == null ? '—' : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    function escapeHtml(s) {
+      return (s || '').toString().replace(/[&<>"']/g,
+        c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
+    }
+    function normalize(s) {
+      return (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
 
-document.getElementById('loadSeedBtn').addEventListener('click', async () => {
-  if (!confirm('Carregar a base inicial com 589 exames pré-cadastrados?\n\nIsso vai SUBSTITUIR a base atual.')) return;
-  try {
-    document.getElementById('results').innerHTML = '<div class="loader"><div class="spinner"></div><p>Carregando base inicial...</p></div>';
-    const res = await fetch('exams-seed.json');
-    if (!res.ok) throw new Error('Arquivo exams-seed.json não encontrado');
-    const seed = await res.json();
-    await saveAllExams(seed);
-    toast(`${seed.length} exames carregados!`, 3000);
-    await loadExamsFromFirestore();
-  } catch (err) {
-    toast('Erro: ' + err.message, 4000);
-    console.error(err);
-  }
-});
-
-// ============ XLSX PARSER (browser) ============
-function parsePrice(v) {
-  if (v == null || v === '') return null;
-  if (typeof v === 'number') return v;
-  const s = String(v).trim();
-  const m = s.match(/(\d{1,3}(?:[\.\s]\d{3})*(?:,\d{1,2})?|\d+(?:[\.,]\d{1,2})?)/);
-  if (!m) return null;
-  const n = parseFloat(m[1].replace(/\./g, '').replace(',', '.'));
-  return isNaN(n) ? null : n;
-}
-function cleanStr(v) {
-  if (v == null) return '';
-  return String(v).trim().replace(/\n/g, ' ').replace(/\\n/g, ' ');
-}
-function parseWorkbook(wb) {
-  const result = [];
-  const skipNames = new Set(['amor cirugias', 'amor cirugias ']);
-  for (const sheetName of wb.SheetNames) {
-    const lower = sheetName.toLowerCase();
-    if (skipNames.has(lower)) continue;
-    if (lower.includes('desativada')) continue;
-    const ws = wb.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-    if (!rows || rows.length === 0) continue;
-
-    const isAmor = sheetName.toUpperCase().includes('AMOR SAUDE');
-    let currentCat = sheetName.trim();
-    const fornMap = {
-      'EXAMES  AMOR SAUDE ': 'Amor Saúde',
-      'USG ': 'USG (Equipe Interna)',
-      'IMADI-IMAGEM': 'IMADI Imagem',
-      'OFTALMO': 'Oftalmologia',
-      'TC PREZECOR': 'Prezecor (TC)',
-      'SCOPPETA': 'Scoppeta',
-      'PREZECOR 2.0': 'Prezecor 2.0',
-      'DERMATOLOGIA': 'Dermatologia',
-      'EXAMES LABORATORIAIS ': 'Laboratorial',
-      'MEDICOM 2.0': 'Medicom 2.0',
-      'FARAGE - OCULTO': 'Farage',
-      'MARCUS (UROLOGISTA)': 'Marcus (Urologia)',
-      'PREZECOR': 'Prezecor', 'MEDICOM': 'Medicom',
-      'CERGOLI - LAPA': 'Cergoli (Lapa)',
-      'AURI MEDICINA': 'Auri Medicina',
-      'VF': 'VF Oftalmologia'
-    };
-    const fornecedor = fornMap[sheetName] || sheetName.trim();
-
-    if (isAmor) currentCat = 'Geral';
-
-    for (const row of rows) {
-      if (!row || row.length === 0) continue;
-      const nome = cleanStr(row[0]);
-      if (!nome) continue;
-
-      // Amor Saude category headers (with emoji)
-      if (isAmor) {
-        const ct = parsePrice(row[2]); const pt = parsePrice(row[3]);
-        if (/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(nome) && ct == null && pt == null) {
-          currentCat = nome.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').trim();
-          continue;
+    // ── LOAD FROM FIRESTORE ──
+    async function loadExamsFromFirestore() {
+      document.getElementById('results').innerHTML = '<div class="loader"><div class="spinner"></div><p>Carregando exames…</p></div>';
+      try {
+        const snap = await getDocs(collection(db, 'orcamentos_exames'));
+        exams = [];
+        snap.forEach(d => exams.push({ id: d.id, ...d.data() }));
+        if (exams.length === 0) {
+          document.getElementById('results').innerHTML = `
+            <div class="empty">
+              <i class="fas fa-database"></i>
+              <h3>Nenhum exame na base ainda</h3>
+              <p>Clique em <strong>Base inicial</strong> para importar os exames pré-cadastrados,<br>ou em <strong>Importar</strong> para carregar sua planilha.</p>
+            </div>`;
+          document.getElementById('categoryChips').innerHTML = '';
+          document.getElementById('resultsMeta').textContent = '';
+          return;
         }
-        if (!looksLikeExamName(nome)) continue;
-        if (ct == null && pt == null) continue;
-        const obs = cleanStr(row[1]);
-        result.push({
-          nome, categoria: currentCat, fornecedor,
-          preco_ct: ct, preco_pt: pt,
-          observacao: obs, preparo: '', caracteristica: '', beneficio: ''
-        });
-      } else {
-        const cells = row.map(cleanStr);
-        const nums = row.map(parsePrice);
-        const allNullPrices = nums.slice(1).every(n => n == null);
-        if (allNullPrices && looksLikeExamName(nome) && nome.length < 50) {
-          if (/RAIO|DIAGN|EXAMES |PROCEDIMENT|RESSON|TOMOG|GINECO|BIOPSIA|GASTRO/i.test(nome)) {
-            currentCat = nome; continue;
-          }
-        }
-        if (!looksLikeExamName(nome)) continue;
-        const prices = nums.slice(1).filter(n => n != null && n > 0);
-        if (prices.length === 0) continue;
-        const preco_ct = prices[0];
-        const preco_pt = prices.length >= 2 ? Math.max(...prices) : null;
-        let obs = '';
-        for (const c of cells.slice(1)) {
-          if (c && parsePrice(c) == null && c.length > 5) { obs = c; break; }
-        }
-        result.push({
-          nome, categoria: currentCat, fornecedor,
-          preco_ct, preco_pt, observacao: obs, preparo: '', caracteristica: '', beneficio: ''
-        });
+        renderCategories();
+        applyFilters();
+      } catch (e) {
+        document.getElementById('results').innerHTML = `<div class="empty"><i class="fas fa-triangle-exclamation"></i><h3>Erro ao carregar</h3><p>${escapeHtml(e.message)}</p></div>`;
       }
     }
-  }
-  // Add IDs
-  result.forEach((e, i) => e.id = `exam_${String(i+1).padStart(4,'0')}`);
-  return result;
-}
-function looksLikeExamName(s) {
-  if (!s || s.length < 3) return false;
-  const u = s.toUpperCase();
-  const bad = ['NOME DO EXAME', 'CARTÃO DE TODOS', 'PARTICULAR', 'VALOR TOTAL', 'VALOR GUIA',
-    'AGENDAMENTO', 'OBSERVAÇÃO', 'PROCEDIMENTO ', 'PRESTADOR', 'OBS:', 'WHATSAPP',
-    'CONTRASTE', 'ENDEREÇO', 'CNPJ', 'NÃO AGENDAR', 'TODOS OS EXAMES', 'COBRADO', 'COD ', 'PROCEDIMENTO P'];
-  for (const b of bad) if (u.startsWith(b)) return false;
-  if (['NAN', '-', '.'].includes(u)) return false;
-  return true;
-}
 
-async function saveAllExams(list) {
-  // Delete existing
-  const existing = await getDocs(collection(db, 'orcamentos_exames'));
-  const delBatches = [];
-  let cur = writeBatch(db); let cnt = 0;
-  existing.forEach(d => {
-    cur.delete(d.ref); cnt++;
-    if (cnt >= 400) { delBatches.push(cur); cur = writeBatch(db); cnt = 0; }
-  });
-  if (cnt > 0) delBatches.push(cur);
-  for (const b of delBatches) await b.commit();
+    // ── CATEGORIES ──
+    function renderCategories() {
+      const cats = [...new Set(exams.map(e => e.categoria))].sort();
+      const el = document.getElementById('categoryChips');
+      el.innerHTML = `<button class="chip ${!activeCategory ? 'active' : ''}" data-cat="">Todos (${exams.length})</button>` +
+        cats.map(c => {
+          const n = exams.filter(e => e.categoria === c).length;
+          return `<button class="chip ${activeCategory === c ? 'active' : ''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)} (${n})</button>`;
+        }).join('');
+      el.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+        activeCategory = btn.dataset.cat || null;
+        renderCategories();
+        applyFilters();
+      }));
+    }
 
-  // Insert new
-  const insBatches = [];
-  cur = writeBatch(db); cnt = 0;
-  for (const e of list) {
-    const ref = doc(db, 'orcamentos_exames', e.id);
-    const { id, ...data } = e;
-    cur.set(ref, { ...data, createdAt: new Date().toISOString(), createdBy: currentUser.email });
-    cnt++;
-    if (cnt >= 400) { insBatches.push(cur); cur = writeBatch(db); cnt = 0; }
-  }
-  if (cnt > 0) insBatches.push(cur);
-  for (const b of insBatches) await b.commit();
-}
-</script>
+    // ── SEARCH & FILTER ──
+    function applyFilters() {
+      const q = normalize(searchQuery);
+      filtered = exams.filter(e => {
+        if (activeCategory && e.categoria !== activeCategory) return false;
+        if (!q) return true;
+        const hay = normalize(`${e.nome} ${e.categoria} ${e.fornecedor} ${e.observacao||''} ${e.caracteristica||''}`);
+        return q.split(/\s+/).every(t => hay.includes(t));
+      });
+      renderResults();
+    }
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn    = document.getElementById('clearBtn');
+    searchInput.addEventListener('input', e => {
+      searchQuery = e.target.value;
+      clearBtn.classList.toggle('show', !!searchQuery);
+      applyFilters();
+    });
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = ''; searchQuery = '';
+      clearBtn.classList.remove('show');
+      applyFilters(); searchInput.focus();
+    });
+
+    // ── RENDER RESULTS ──
+    function renderResults() {
+      const meta = document.getElementById('resultsMeta');
+      meta.textContent = filtered.length === exams.length
+        ? `${exams.length} exames disponíveis`
+        : `${filtered.length} de ${exams.length} exames`;
+      const el = document.getElementById('results');
+      if (filtered.length === 0) {
+        el.innerHTML = '<div class="empty"><i class="fas fa-magnifying-glass"></i><h3>Nenhum resultado</h3><p>Tente outros termos ou limpe os filtros.</p></div>';
+        return;
+      }
+      el.innerHTML = `<div class="grid">${filtered.map(e => `
+        <div class="card" data-id="${e.id}">
+          <span class="cat-tag">${escapeHtml(e.categoria)}</span>
+          <div class="card-name">${escapeHtml(e.nome)}</div>
+          ${e.fornecedor ? `<div class="card-forn"><i class="fas fa-building" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.fornecedor)}</div>` : ''}
+          <div class="card-prices">
+            <div class="price-box ct">
+              <div class="price-lbl">Cartão</div>
+              <div class="price-val">${e.preco_ct != null ? fmtBRL(e.preco_ct) : '<span class="price-null">—</span>'}</div>
+            </div>
+            <div class="price-box pt">
+              <div class="price-lbl">Particular</div>
+              <div class="price-val">${e.preco_pt != null ? fmtBRL(e.preco_pt) : '<span class="price-null">—</span>'}</div>
+            </div>
+          </div>
+        </div>
+      `).join('')}</div>`;
+      el.querySelectorAll('.card').forEach(card =>
+        card.addEventListener('click', () => openModal(card.dataset.id))
+      );
+    }
+
+    // ── MODAL ──
+    function openModal(id) {
+      const e = exams.find(x => x.id === id);
+      if (!e) return;
+      document.getElementById('modalContent').innerHTML = `
+        <div class="modal-head">
+          <div class="modal-titles">
+            <div class="modal-name">${escapeHtml(e.nome)}</div>
+            <div class="modal-meta">
+              <span class="modal-tag">${escapeHtml(e.categoria)}</span>
+              ${e.fornecedor ? `<span class="modal-tag">${escapeHtml(e.fornecedor)}</span>` : ''}
+            </div>
+          </div>
+          <button class="modal-close" id="closeBtn"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-prices">
+            <div class="mpbox ct">
+              <div class="mpbox-lbl">Cartão de Todos</div>
+              <div class="mpbox-val">${e.preco_ct != null ? fmtBRL(e.preco_ct) : '—'}</div>
+            </div>
+            <div class="mpbox pt">
+              <div class="mpbox-lbl">Particular</div>
+              <div class="mpbox-val">${e.preco_pt != null ? fmtBRL(e.preco_pt) : '—'}</div>
+            </div>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-lbl">O que é o exame</div>
+            <textarea id="editCarac" placeholder="Ex: Exame que utiliza ondas sonoras para…">${escapeHtml(e.caracteristica || '')}</textarea>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-lbl">Benefício ao paciente</div>
+            <textarea id="editBenef" placeholder="Ex: Permite identificar precocemente…">${escapeHtml(e.beneficio || '')}</textarea>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-lbl">Preparo</div>
+            <textarea id="editPrep" placeholder="Ex: Jejum de 8h, bexiga cheia…">${escapeHtml(e.preparo || '')}</textarea>
+          </div>
+          ${e.observacao ? `<div class="modal-section"><div class="modal-section-lbl">Observação interna</div><div style="font-size:13px;color:var(--gray-600);padding:8px 10px;background:var(--gray-50);border-radius:8px;line-height:1.5;">${escapeHtml(e.observacao)}</div></div>` : ''}
+          <div class="modal-actions">
+            <button class="btn-save" id="saveEditsBtn"><i class="fas fa-floppy-disk"></i> Salvar</button>
+            <button class="btn-add-ct" id="addCtBtn" ${e.preco_ct == null ? 'disabled' : ''}><i class="fas fa-plus"></i> Cartão ${e.preco_ct != null ? fmtBRL(e.preco_ct) : ''}</button>
+            <button class="btn-add-pt" id="addPtBtn" ${e.preco_pt == null ? 'disabled' : ''}><i class="fas fa-plus"></i> Particular ${e.preco_pt != null ? fmtBRL(e.preco_pt) : ''}</button>
+          </div>
+        </div>`;
+      document.getElementById('modal').classList.add('show');
+      document.getElementById('closeBtn').addEventListener('click', closeModal);
+      document.getElementById('saveEditsBtn').addEventListener('click', () => saveEdits(id));
+      document.getElementById('addCtBtn').addEventListener('click', () => { addToCart(id, 'ct'); closeModal(); });
+      document.getElementById('addPtBtn').addEventListener('click', () => { addToCart(id, 'pt'); closeModal(); });
+    }
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+    document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
+
+    async function saveEdits(id) {
+      const carac = document.getElementById('editCarac').value.trim();
+      const benef = document.getElementById('editBenef').value.trim();
+      const prep  = document.getElementById('editPrep').value.trim();
+      try {
+        await updateDoc(doc(db, 'orcamentos_exames', id), {
+          caracteristica: carac, beneficio: benef, preparo: prep,
+          updatedAt: new Date().toISOString(), updatedBy: currentUser.email
+        });
+        const e = exams.find(x => x.id === id);
+        if (e) { e.caracteristica = carac; e.beneficio = benef; e.preparo = prep; }
+        toast('Edições salvas!', 'success');
+      } catch (err) { toast('Erro ao salvar: ' + err.message, 'error', 4000); }
+    }
+
+    // ── CART ──
+    function addToCart(id, tipo) {
+      const e = exams.find(x => x.id === id);
+      if (!e) return;
+      const preco = tipo === 'ct' ? e.preco_ct : e.preco_pt;
+      if (preco == null) return;
+      cart.push({ id, exam: e, tipo, preco });
+      renderCart();
+      toast(`Adicionado: ${e.nome}`, 'success');
+    }
+    function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); }
+
+    function renderCart() {
+      const list   = document.getElementById('cartList');
+      const footer = document.getElementById('cartFooter');
+      document.getElementById('cartBadge').textContent = cart.length;
+      if (cart.length === 0) {
+        list.innerHTML = '<div class="cart-empty"><i class="fas fa-clipboard"></i>Nenhum exame adicionado.<br>Clique nos cards para adicionar.</div>';
+        footer.style.display = 'none';
+        document.getElementById('btnWpp').disabled = true;
+        document.getElementById('btnPdf').disabled = true;
+        return;
+      }
+      list.innerHTML = cart.map((it, i) => `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${escapeHtml(it.exam.nome)}</div>
+            <div class="cart-item-tipo">${it.tipo === 'ct' ? 'Cartão de Todos' : 'Particular'}</div>
+            <div class="cart-item-preco ${it.tipo}">${fmtBRL(it.preco)}</div>
+          </div>
+          <button class="cart-rm" data-i="${i}">×</button>
+        </div>`).join('');
+      list.querySelectorAll('.cart-rm').forEach(b =>
+        b.addEventListener('click', () => removeFromCart(+b.dataset.i))
+      );
+      const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
+      document.getElementById('cartTotal').textContent = fmtBRL(total);
+      footer.style.display = 'block';
+      document.getElementById('btnWpp').disabled = false;
+      document.getElementById('btnPdf').disabled = false;
+    }
+
+    document.getElementById('btnClear').addEventListener('click', () => {
+      if (cart.length && confirm('Limpar todos os exames do orçamento?')) { cart = []; renderCart(); }
+    });
+
+    // ── WHATSAPP ──
+    document.getElementById('btnWpp').addEventListener('click', () => {
+      if (!cart.length) return;
+      const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
+      let msg = `*ORÇAMENTO — AMOR SAÚDE PIRITUBA* 🏥\n\n`;
+      cart.forEach((it, i) => {
+        msg += `*${i + 1}. ${it.exam.nome}*\n`;
+        msg += `   ${it.tipo === 'ct' ? 'Cartão de Todos' : 'Particular'}: ${fmtBRL(it.preco)}\n`;
+        if (it.exam.preparo) msg += `   _Preparo: ${it.exam.preparo}_\n`;
+        msg += `\n`;
+      });
+      msg += `*TOTAL: ${fmtBRL(total)}*\n\n`;
+      msg += `_Orçamento gerado em ${new Date().toLocaleDateString('pt-BR')} — Amor Saúde Pirituba_`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    });
+
+    // ── PDF ──
+    document.getElementById('btnPdf').addEventListener('click', () => {
+      if (!cart.length) return;
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+      let y = 20;
+      pdf.setFontSize(18); pdf.setFont('helvetica', 'bold');
+      pdf.text('ORÇAMENTO — AMOR SAÚDE PIRITUBA', 105, y, { align: 'center' }); y += 8;
+      pdf.setFontSize(10); pdf.setFont('helvetica', 'normal');
+      pdf.text(new Date().toLocaleDateString('pt-BR'), 105, y, { align: 'center' }); y += 10;
+      pdf.line(20, y, 190, y); y += 8;
+      const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
+      cart.forEach((it, i) => {
+        if (y > 270) { pdf.addPage(); y = 20; }
+        pdf.setFontSize(11); pdf.setFont('helvetica', 'bold');
+        pdf.text(`${i + 1}. ${it.exam.nome}`, 20, y); y += 5;
+        pdf.setFontSize(9); pdf.setFont('helvetica', 'normal');
+        pdf.text(`${it.exam.categoria}  ·  ${it.tipo === 'ct' ? 'Cartão de Todos' : 'Particular'}`, 20, y);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(fmtBRL(it.preco), 190, y - 5, { align: 'right' }); y += 5;
+        if (it.exam.preparo) {
+          pdf.setFont('helvetica', 'italic'); pdf.setFontSize(8);
+          const lines = pdf.splitTextToSize(`Preparo: ${it.exam.preparo}`, 170);
+          pdf.text(lines, 20, y); y += lines.length * 4;
+        }
+        y += 3;
+      });
+      if (y > 260) { pdf.addPage(); y = 20; }
+      pdf.line(20, y, 190, y); y += 8;
+      pdf.setFontSize(14); pdf.setFont('helvetica', 'bold');
+      pdf.text('TOTAL:', 20, y);
+      pdf.text(fmtBRL(total), 190, y, { align: 'right' });
+      pdf.save(`orcamento-${Date.now()}.pdf`);
+    });
+
+    // ── IMPORT ──
+    document.getElementById('importBtn').addEventListener('click', () => document.getElementById('fileInput').click());
+    document.getElementById('fileInput').addEventListener('change', async ev => {
+      const file = ev.target.files[0];
+      if (!file) return;
+      if (!confirm(`Importar exames de "${file.name}"?\n\nIsso vai SUBSTITUIR a base atual de ${exams.length} exames.`)) {
+        ev.target.value = ''; return;
+      }
+      try {
+        const buf = await file.arrayBuffer();
+        const wb  = XLSX.read(buf, { type: 'array' });
+        const parsed = parseWorkbook(wb);
+        if (parsed.length === 0) { toast('Nenhum exame encontrado na planilha', 'error', 3500); return; }
+        if (!confirm(`${parsed.length} exames encontrados. Importar agora?`)) return;
+        await saveAllExams(parsed);
+        toast(`${parsed.length} exames importados!`, 'success', 3000);
+        await loadExamsFromFirestore();
+      } catch (err) {
+        toast('Erro: ' + err.message, 'error', 4000);
+      } finally { ev.target.value = ''; }
+    });
+
+    document.getElementById('loadSeedBtn').addEventListener('click', async () => {
+      if (!confirm('Carregar a base inicial com 589 exames pré-cadastrados?\n\nIsso vai SUBSTITUIR a base atual.')) return;
+      try {
+        document.getElementById('results').innerHTML = '<div class="loader"><div class="spinner"></div><p>Carregando base inicial…</p></div>';
+        const res = await fetch('exams-seed.json');
+        if (!res.ok) throw new Error('Arquivo exams-seed.json não encontrado');
+        const seed = await res.json();
+        await saveAllExams(seed);
+        toast(`${seed.length} exames carregados!`, 'success', 3000);
+        await loadExamsFromFirestore();
+      } catch (err) { toast('Erro: ' + err.message, 'error', 4000); }
+    });
+
+    // ── XLSX PARSER ──
+    function parsePrice(v) {
+      if (v == null || v === '') return null;
+      if (typeof v === 'number') return v;
+      const m = String(v).trim().match(/(\d{1,3}(?:[\.\s]\d{3})*(?:,\d{1,2})?|\d+(?:[\.,]\d{1,2})?)/);
+      if (!m) return null;
+      const n = parseFloat(m[1].replace(/\./g, '').replace(',', '.'));
+      return isNaN(n) ? null : n;
+    }
+    function cleanStr(v) { return v == null ? '' : String(v).trim().replace(/\n/g, ' ').replace(/\\n/g, ' '); }
+    function looksLikeExamName(s) {
+      if (!s || s.length < 3) return false;
+      const u = s.toUpperCase();
+      const bad = ['NOME DO EXAME','CARTÃO DE TODOS','PARTICULAR','VALOR TOTAL','VALOR GUIA','AGENDAMENTO',
+        'OBSERVAÇÃO','PROCEDIMENTO ','PRESTADOR','OBS:','WHATSAPP','CONTRASTE','ENDEREÇO','CNPJ',
+        'NÃO AGENDAR','TODOS OS EXAMES','COBRADO','COD ','PROCEDIMENTO P'];
+      for (const b of bad) if (u.startsWith(b)) return false;
+      if (['NAN','-','.'].includes(u)) return false;
+      return true;
+    }
+    function parseWorkbook(wb) {
+      const result = [];
+      const skipNames = new Set(['amor cirugias','amor cirugias ']);
+      const fornMap = {
+        'EXAMES  AMOR SAUDE ':'Amor Saúde','USG ':'USG (Equipe Interna)','IMADI-IMAGEM':'IMADI Imagem',
+        'OFTALMO':'Oftalmologia','TC PREZECOR':'Prezecor (TC)','SCOPPETA':'Scoppeta',
+        'PREZECOR 2.0':'Prezecor 2.0','DERMATOLOGIA':'Dermatologia',
+        'EXAMES LABORATORIAIS ':'Laboratorial','MEDICOM 2.0':'Medicom 2.0',
+        'FARAGE - OCULTO':'Farage','MARCUS (UROLOGISTA)':'Marcus (Urologia)',
+        'PREZECOR':'Prezecor','MEDICOM':'Medicom','CERGOLI - LAPA':'Cergoli (Lapa)',
+        'AURI MEDICINA':'Auri Medicina','VF':'VF Oftalmologia'
+      };
+      for (const sheetName of wb.SheetNames) {
+        const lower = sheetName.toLowerCase();
+        if (skipNames.has(lower) || lower.includes('desativada')) continue;
+        const ws = wb.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+        if (!rows || rows.length === 0) continue;
+        const isAmor = sheetName.toUpperCase().includes('AMOR SAUDE');
+        let currentCat = sheetName.trim();
+        const fornecedor = fornMap[sheetName] || sheetName.trim();
+        if (isAmor) currentCat = 'Geral';
+        for (const row of rows) {
+          if (!row || row.length === 0) continue;
+          const nome = cleanStr(row[0]);
+          if (!nome) continue;
+          if (isAmor) {
+            const ct = parsePrice(row[2]), pt = parsePrice(row[3]);
+            if (/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(nome) && ct == null && pt == null) {
+              currentCat = nome.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').trim(); continue;
+            }
+            if (!looksLikeExamName(nome) || (ct == null && pt == null)) continue;
+            result.push({ nome, categoria: currentCat, fornecedor, preco_ct: ct, preco_pt: pt,
+              observacao: cleanStr(row[1]), preparo: '', caracteristica: '', beneficio: '' });
+          } else {
+            const nums = row.map(parsePrice);
+            const allNull = nums.slice(1).every(n => n == null);
+            if (allNull && looksLikeExamName(nome) && nome.length < 50) {
+              if (/RAIO|DIAGN|EXAMES |PROCEDIMENT|RESSON|TOMOG|GINECO|BIOPSIA|GASTRO/i.test(nome)) {
+                currentCat = nome; continue;
+              }
+            }
+            if (!looksLikeExamName(nome)) continue;
+            const prices = nums.slice(1).filter(n => n != null && n > 0);
+            if (prices.length === 0) continue;
+            const preco_ct = prices[0];
+            const preco_pt = prices.length >= 2 ? Math.max(...prices) : null;
+            let obs = '';
+            for (const c of row.slice(1).map(cleanStr)) {
+              if (c && parsePrice(c) == null && c.length > 5) { obs = c; break; }
+            }
+            result.push({ nome, categoria: currentCat, fornecedor, preco_ct, preco_pt,
+              observacao: obs, preparo: '', caracteristica: '', beneficio: '' });
+          }
+        }
+      }
+      result.forEach((e, i) => e.id = `exam_${String(i + 1).padStart(4, '0')}`);
+      return result;
+    }
+
+    async function saveAllExams(list) {
+      const existing = await getDocs(collection(db, 'orcamentos_exames'));
+      let cur = writeBatch(db), cnt = 0;
+      const delBatches = [];
+      existing.forEach(d => { cur.delete(d.ref); if (++cnt >= 400) { delBatches.push(cur); cur = writeBatch(db); cnt = 0; } });
+      if (cnt > 0) delBatches.push(cur);
+      for (const b of delBatches) await b.commit();
+      cur = writeBatch(db); cnt = 0;
+      const insBatches = [];
+      for (const e of list) {
+        const ref = doc(db, 'orcamentos_exames', e.id);
+        const { id, ...data } = e;
+        cur.set(ref, { ...data, createdAt: new Date().toISOString(), createdBy: currentUser.email });
+        if (++cnt >= 400) { insBatches.push(cur); cur = writeBatch(db); cnt = 0; }
+      }
+      if (cnt > 0) insBatches.push(cur);
+      for (const b of insBatches) await b.commit();
+    }
+  </script>
 </body>
 </html>
