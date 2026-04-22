@@ -136,22 +136,22 @@
       </div>
       <div class="portal-grid">
         <div class="portal-card" onclick="abrirSistema('orcamentos.html','Sistema de Orçamentos')">
-          <div class="pc-icon"><img src="assets/favicon.png" alt="" id="logoOrc"></div>
+          <div class="pc-icon" style="background:#0A1F44;"><i class="fas fa-file-invoice-dollar" style="color:white;font-size:22px;"></i></div>
           <div><div class="pc-name">Orçamentos</div><div class="pc-desc">Consulte exames, valores, parceiros e preparos. Gere mensagens para WhatsApp.</div></div>
           <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
         </div>
         <div class="portal-card" onclick="abrirSistema('fechamento.html','Sistema de Fechamento')">
-          <div class="pc-icon"><img src="assets/favicon.png" alt="" id="logoFech"></div>
+          <div class="pc-icon" style="background:#065f46;"><i class="fas fa-receipt" style="color:white;font-size:22px;"></i></div>
           <div><div class="pc-name">Fechamento Médico</div><div class="pc-desc">Cálculo de repasse, impostos PJ e geração de recibo consolidado para impressão.</div></div>
           <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
         </div>
         <div class="portal-card" id="cardFinanceiro" style="display:none;" onclick="abrirSistema('financeiro.html','Sistema Financeiro')">
-          <div class="pc-icon"><img src="assets/favicon.png" alt="" id="logoFin"></div>
+          <div class="pc-icon" style="background:#92400e;"><i class="fas fa-coins" style="color:white;font-size:22px;"></i></div>
           <div><div class="pc-name">Financeiro</div><div class="pc-desc">Geração de recibos em lote para colaboradores. Cadastro e controle de equipe.</div></div>
           <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
         </div>
         <div class="portal-card" onclick="abrirSistema('exames.html','Retirada de Exames')">
-          <div class="pc-icon"><img src="assets/favicon.png" alt="" id="logoExm"></div>
+          <div class="pc-icon" style="background:#1e3a5f;"><i class="fas fa-vials" style="color:white;font-size:22px;"></i></div>
           <div><div class="pc-name">Retirada de Exames</div><div class="pc-desc">Gaveta digital de exames. Cadastre, dê baixa e consulte o histórico completo.</div></div>
           <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
         </div>
@@ -181,7 +181,7 @@
     window.initFirebaseUtils(db, ref, get);
 
     /* Carrega logo dinamicamente */
-    carregarLogoGlobal(['#logoHeader','#logoOrc','#logoFech','#logoFin','#logoExm']);
+    carregarLogoGlobal(['#logoHeader']);
 
     onAuthStateChanged(auth, user => {
       if (user) abrirPortal(user);

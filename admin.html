@@ -297,6 +297,32 @@
           </div>
         </div>
       </div>
+
+      <!-- IMAGEM DE CABEÇALHO DO RELATÓRIO DE CAIXA -->
+      <div class="panel" style="margin-top:18px;">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-print"></i> Imagem de Cabeçalho do Relatório de Caixa</div>
+        </div>
+        <p style="font-size:13px;color:var(--gray-500);margin-bottom:14px;line-height:1.6;">
+          Esta imagem aparece no <strong>centro do cabeçalho</strong> do relatório de caixa impresso.<br>
+          O logo da clínica continua aparecendo no canto superior esquerdo normalmente.
+        </p>
+        <div style="display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;">
+          <div style="width:180px;height:80px;border:2px dashed var(--gray-300);border-radius:12px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--gray-50);flex-shrink:0;">
+            <img id="caixaHeaderPreview" src="" alt="" style="max-width:100%;max-height:100%;object-fit:contain;display:none;">
+            <span id="caixaHeaderPlaceholder" style="font-size:11px;color:var(--gray-400);text-align:center;padding:8px;"><i class="fas fa-image" style="font-size:22px;display:block;margin-bottom:6px;opacity:.4;"></i>Sem imagem</span>
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <input type="file" id="caixaHeaderInput" accept=".png,.jpg,.jpeg,.webp" style="display:none;" onchange="previewCaixaHeader(event)">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn-p" onclick="document.getElementById('caixaHeaderInput').click()"><i class="fas fa-upload"></i> Selecionar imagem</button>
+              <button class="btn-g" onclick="salvarCaixaHeader()" id="btnSalvarCaixaHeader" disabled><i class="fas fa-cloud-arrow-up"></i> Salvar</button>
+              <button class="btn-r" onclick="removerCaixaHeader()"><i class="fas fa-trash"></i> Remover</button>
+            </div>
+            <div id="caixaHeaderStatus" style="margin-top:10px;font-size:12px;color:var(--gray-400);"></div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ABA PROFISSIONAIS -->
@@ -575,6 +601,53 @@
     reader.readAsDataURL(file);
   }
 
+  // ── Cabeçalho do Caixa ──
+  let novaCaixaHeaderDataUrl = null;
+
+  function previewCaixaHeader(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      novaCaixaHeaderDataUrl = e.target.result;
+      document.getElementById('caixaHeaderPreview').src = novaCaixaHeaderDataUrl;
+      document.getElementById('caixaHeaderPreview').style.display = 'block';
+      document.getElementById('caixaHeaderPlaceholder').style.display = 'none';
+      document.getElementById('btnSalvarCaixaHeader').disabled = false;
+      document.getElementById('caixaHeaderStatus').textContent = 'Imagem selecionada. Clique em "Salvar" para confirmar.';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  async function salvarCaixaHeader() {
+    if (!novaCaixaHeaderDataUrl) { toast('Selecione uma imagem primeiro', 'error'); return; }
+    const btn = document.getElementById('btnSalvarCaixaHeader');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+    try {
+      await window._fbSet('admin/caixaHeader', { dataUrl: novaCaixaHeaderDataUrl, atualizadoEm: new Date().toISOString() });
+      sessionStorage.setItem('caixaHeaderImg', novaCaixaHeaderDataUrl);
+      toast('Imagem do cabeçalho do caixa salva!', 'success');
+      document.getElementById('caixaHeaderStatus').textContent = 'Imagem salva no Firebase!';
+      novaCaixaHeaderDataUrl = null;
+    } catch(e) { toast('Erro ao salvar: ' + e.message, 'error'); }
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-up"></i> Salvar';
+  }
+
+  async function removerCaixaHeader() {
+    if (!confirm('Remover a imagem do cabeçalho do caixa?')) return;
+    try {
+      await window._fbRemove('admin/caixaHeader');
+      sessionStorage.removeItem('caixaHeaderImg');
+      document.getElementById('caixaHeaderPreview').src = '';
+      document.getElementById('caixaHeaderPreview').style.display = 'none';
+      document.getElementById('caixaHeaderPlaceholder').style.display = 'block';
+      document.getElementById('btnSalvarCaixaHeader').disabled = true;
+      document.getElementById('caixaHeaderStatus').textContent = '';
+      novaCaixaHeaderDataUrl = null;
+      toast('Imagem removida!', 'success');
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+
   async function salvarLogo() {
     if (!novoLogoDataUrl) { toast('Selecione uma imagem primeiro', 'error'); return; }
     const btn = document.getElementById('btnSalvarLogo');
@@ -733,6 +806,16 @@
 
       carregarLogoGlobal(['#headerLogo']);
       document.getElementById('sUserInfo').textContent = user.email || '—';
+
+      // Carregar imagem do cabeçalho do caixa (se existir)
+      get(ref(db, 'admin/caixaHeader')).then(snap => {
+        if (snap.exists() && snap.val().dataUrl) {
+          const url = snap.val().dataUrl;
+          document.getElementById('caixaHeaderPreview').src = url;
+          document.getElementById('caixaHeaderPreview').style.display = 'block';
+          document.getElementById('caixaHeaderPlaceholder').style.display = 'none';
+        }
+      }).catch(() => {});
 
       // Carregar dados de todas as abas
       carregarUsuarios();

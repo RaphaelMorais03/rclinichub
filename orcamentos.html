@@ -526,14 +526,28 @@
     document.getElementById('btnWpp').addEventListener('click', () => {
       if (!cart.length) return;
       const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
-      let msg = `*ORÇAMENTO — AMOR SAÚDE PIRITUBA* 🏥\n\n`;
-      cart.forEach((it, i) => {
-        msg += `*${i + 1}. ${it.exam.nome}*\n`;
-        msg += `   ${it.tipo === 'ct' ? 'Cartão de Todos' : 'Particular'}: ${fmtBRL(it.preco)}\n`;
-        if (it.exam.preparo) msg += `   _Preparo: ${it.exam.preparo}_\n`;
+      const ct = cart.filter(it => it.tipo === 'ct');
+      const pt = cart.filter(it => it.tipo === 'pt');
+      let msg = `🏥 *Amor Saúde Pirituba*\n\n`;
+      msg += `Olá! Preparamos com carinho o orçamento dos exames indicados para você 💙\n\n`;
+      if (ct.length) {
+        msg += `💳 *Cartão de Todos*\n`;
+        ct.forEach(it => {
+          msg += `• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`;
+          if (it.exam.beneficio) msg += `  ✨ _${it.exam.beneficio}_\n`;
+        });
         msg += `\n`;
-      });
-      msg += `*TOTAL: ${fmtBRL(total)}*\n\n`;
+      }
+      if (pt.length) {
+        msg += `👛 *Particular*\n`;
+        pt.forEach(it => {
+          msg += `• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`;
+          if (it.exam.beneficio) msg += `  ✨ _${it.exam.beneficio}_\n`;
+        });
+        msg += `\n`;
+      }
+      msg += `💰 *Total estimado: ${fmtBRL(total)}*\n\n`;
+      msg += `Estamos aqui para cuidar de você com atenção e qualidade! 😊\n`;
       msg += `_Orçamento gerado em ${new Date().toLocaleDateString('pt-BR')} — Amor Saúde Pirituba_`;
       window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
     });
@@ -553,11 +567,16 @@
       cart.forEach((it, i) => {
         if (y > 270) { pdf.addPage(); y = 20; }
         pdf.setFontSize(11); pdf.setFont('helvetica', 'bold');
-        pdf.text(`${i + 1}. ${it.exam.nome}`, 20, y); y += 5;
+        pdf.text(`${i + 1}. ${it.exam.nome}`, 20, y);
+        pdf.text(fmtBRL(it.preco), 190, y, { align: 'right' }); y += 5;
         pdf.setFontSize(9); pdf.setFont('helvetica', 'normal');
-        pdf.text(`${it.exam.categoria}  ·  ${it.tipo === 'ct' ? 'Cartão de Todos' : 'Particular'}`, 20, y);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(fmtBRL(it.preco), 190, y - 5, { align: 'right' }); y += 5;
+        const tipoLabel = it.tipo === 'ct' ? '💳 Cartão de Todos' : '👛 Particular';
+        pdf.text(`${it.exam.categoria}  ·  ${tipoLabel}`, 20, y); y += 4;
+        if (it.exam.beneficio) {
+          pdf.setFont('helvetica', 'italic'); pdf.setFontSize(8);
+          const blines = pdf.splitTextToSize(`✨ ${it.exam.beneficio}`, 170);
+          pdf.text(blines, 20, y); y += blines.length * 4;
+        }
         if (it.exam.preparo) {
           pdf.setFont('helvetica', 'italic'); pdf.setFontSize(8);
           const lines = pdf.splitTextToSize(`Preparo: ${it.exam.preparo}`, 170);
