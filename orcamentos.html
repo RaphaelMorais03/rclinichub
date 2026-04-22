@@ -125,8 +125,8 @@
     .cart-btn{width:100%;padding:11px;border-radius:10px;border:none;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:7px;transition:all .2s;}
     .cart-btn:last-child{margin-bottom:0;}
     .cart-btn:disabled{opacity:.4;cursor:not-allowed;}
-    .btn-wpp{background:#25d366;color:white;}
-    .btn-wpp:hover:not(:disabled){background:#1ea952;}
+    .btn-copy{background:var(--navy);color:white;}
+    .btn-copy:hover:not(:disabled){background:var(--navy-mid);}
     .btn-pdf{background:var(--gray-100);color:var(--gray-600);border:1.5px solid var(--gray-200);}
     .btn-pdf:hover:not(:disabled){background:var(--gray-200);}
 
@@ -239,8 +239,8 @@
           <span class="cart-total-lbl">Total</span>
           <span class="cart-total-val" id="cartTotal">R$ 0,00</span>
         </div>
-        <button class="cart-btn btn-wpp" id="btnWpp" disabled>
-          <i class="fab fa-whatsapp" style="font-size:16px;"></i> WhatsApp
+        <button class="cart-btn btn-copy" id="btnWpp" disabled>
+          <i class="fas fa-copy"></i> Copiar Mensagem
         </button>
         <button class="cart-btn btn-pdf" id="btnPdf" disabled>
           <i class="fas fa-file-pdf"></i> Exportar PDF
@@ -549,7 +549,21 @@
       msg += `💰 *Total estimado: ${fmtBRL(total)}*\n\n`;
       msg += `Estamos aqui para cuidar de você com atenção e qualidade! 😊\n`;
       msg += `_Orçamento gerado em ${new Date().toLocaleDateString('pt-BR')} — Amor Saúde Pirituba_`;
-      window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+      navigator.clipboard.writeText(msg).then(() => {
+        const btn = document.getElementById('btnWpp');
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+        btn.style.background = '#15803d';
+        setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 2000);
+      }).catch(() => {
+        // Fallback para navegadores sem permissão de clipboard
+        const ta = document.createElement('textarea');
+        ta.value = msg; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        toast('Mensagem copiada!', 'success');
+      });
     });
 
     // ── PDF ──
