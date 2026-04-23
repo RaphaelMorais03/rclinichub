@@ -292,6 +292,13 @@
       document.getElementById('userAvatar').textContent = initialsFor(user);
       const nome = user.displayName || user.email.split('@')[0];
       document.getElementById('userName').textContent = nome;
+      // Botão "Base inicial" visível apenas para admins
+      try {
+        const perms = JSON.parse(sessionStorage.getItem('perms') || '{}');
+        if (!perms.admin) document.getElementById('loadSeedBtn').style.display = 'none';
+      } catch(e) {
+        document.getElementById('loadSeedBtn').style.display = 'none';
+      }
       loadExamsFromFirestore();
     });
     document.getElementById('logoutBtn').addEventListener('click', () =>
