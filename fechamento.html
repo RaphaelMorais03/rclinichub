@@ -299,14 +299,20 @@
 
     window.fechamentoExtras  = [];
     window.fechamentoDeleted = [];
+    // Lista base do Firebase (admin/profissionais); null = não carregado ainda, [] = carregado mas vazio
+    window._baseProfFirebase = null;
 
     window.atualizarListaGeralFechamento = function() {
       const extras   = window.fechamentoExtras  || [];
       const apagados = window.fechamentoDeleted || [];
       const overridden = extras.filter(e=>e.overrideCpf).map(e=>e.overrideCpf);
-      const base = baseProfissionais
+      // Usa Firebase como fonte primária; cai no hardcoded se Firebase ainda não carregou ou estiver vazio
+      const srcBase = (window._baseProfFirebase && window._baseProfFirebase.length)
+        ? window._baseProfFirebase
+        : baseProfissionais;
+      const base = srcBase
         .filter(b=>!apagados.includes(b.documento.replace(/\D/g,''))&&!overridden.includes(b.documento.replace(/\D/g,'')))
-        .map(b=>({...b,id:b.documento.replace(/\D/g,'')}));
+        .map(b=>({...b, id: b.id || b.documento.replace(/\D/g,''), categoria: b.categoria||'repasse'}));
       profissionais = [...base,...extras].sort((a,b)=>a.nome.localeCompare(b.nome));
       atualizarListas();
     };
@@ -409,7 +415,8 @@
 
     async function excluir(id){
       if(await confirmar('Excluir este cadastro?')){
-        const isBase=baseProfissionais.find(b=>b.documento.replace(/\D/g,'')=== id);
+        const srcBase=(window._baseProfFirebase&&window._baseProfFirebase.length)?window._baseProfFirebase:baseProfissionais;
+        const isBase=srcBase.find(b=>b.documento.replace(/\D/g,'')=== id);
         if(isBase){window.saveFechamentoDeleted([...(window.fechamentoDeleted||[]),id]);}
         else{window.saveFechamentoExtras((window.fechamentoExtras||[]).filter(p=>p.id!==id));}
         showToast('Excluído','success');
@@ -523,6 +530,25 @@
           }
         }).catch(()=>{});
       });
+    });
+
+    // Carrega profissionais do painel admin como base primária (admin/profissionais)
+    onValue(ref(_db, 'admin/profissionais'), snap => {
+      const d = snap.val();
+      if (d && typeof d === 'object') {
+        window._baseProfFirebase = Object.values(d)
+          .filter(p => p && p.nome && p.documento)
+          .map(p => ({
+            nome: p.nome,
+            documento: p.documento,
+            regime: p.regime || 'pj-presumido',
+            categoria: 'repasse',
+            id: p.documento.replace(/\D/g,'')
+          }));
+      } else {
+        window._baseProfFirebase = []; // Firebase vazio → usa hardcoded como fallback
+      }
+      window.atualizarListaGeralFechamento();
     });
 
     onValue(ref(_db, 'fechamento/profissionais_extras'), snap => {

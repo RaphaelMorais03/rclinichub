@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="js/firebase-config.js"></script>
+  <script src="js/shared-utils.js"></script>
   <style>
     :root{
       --navy:#0A1F44; --navy-mid:#122b5e;
@@ -561,7 +562,8 @@
       const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
       const ct = cart.filter(it => it.tipo === 'ct');
       const pt = cart.filter(it => it.tipo === 'pt');
-      let msg = `🏥 *Amor Saúde Pirituba*\n\n`;
+      const _clinNome = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
+      let msg = `🏥 *${_clinNome}*\n\n`;
       msg += `Olá! Preparamos com carinho o orçamento dos exames indicados para você 💙\n\n`;
       if (ct.length) {
         msg += `💳 *Cartão de Todos*\n`;
@@ -581,7 +583,7 @@
       }
       msg += `💰 *Total estimado: ${fmtBRL(total)}*\n\n`;
       msg += `Estamos aqui para cuidar de você com atenção e qualidade! 😊\n`;
-      msg += `_Orçamento gerado em ${new Date().toLocaleDateString('pt-BR')} — Amor Saúde Pirituba_`;
+      msg += `_Orçamento gerado em ${new Date().toLocaleDateString('pt-BR')} — ${_clinNome}_`;
       navigator.clipboard.writeText(msg).then(() => {
         const btn = document.getElementById('btnWpp');
         const orig = btn.innerHTML;

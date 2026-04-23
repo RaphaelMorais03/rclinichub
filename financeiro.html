@@ -315,6 +315,8 @@
   function fecharModalRecibo() { document.getElementById('modalRecibo').classList.remove('open'); }
 
   function montarHtmlRecibo(c, dados, usuario) {
+    const _clinica = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
+    const _endereco = sessionStorage.getItem('clinicaEndereco') || 'Av. Dr. Felipe Pinel — Pirituba/SP';
     const now = new Date();
     const data = now.toLocaleDateString('pt-BR');
     const hora = now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
@@ -345,7 +347,7 @@
       .rodape{margin-top:8mm;padding-top:4mm;border-top:2px solid #61C1D0;text-align:center;font-size:10px;color:#555}
       .status-pago{display:inline-block;padding:3px 12px;background:#dcfce7;color:#15803d;border:2px solid #15803d;border-radius:6px;font-weight:700;font-size:12px}
     </style></head><body><div class="recibo">
-    <div class="cab"><div>${logoTag}</div><div style="text-align:center"><div class="titulo">RECIBO DE PAGAMENTO</div><div class="subtit">Amor Saúde SP Pirituba</div></div><div style="font-size:12px;text-align:right;color:#555">${data}<br>${hora}</div></div>
+    <div class="cab"><div>${logoTag}</div><div style="text-align:center"><div class="titulo">RECIBO DE PAGAMENTO</div><div class="subtit">${sessionStorage.getItem('clinicaNome')||'Amor Saúde Pirituba'}</div></div><div style="font-size:12px;text-align:right;color:#555">${data}<br>${hora}</div></div>
     <div class="secao"><div class="secao-titulo">Dados do Colaborador</div>
     <div class="campo"><span class="campo-lbl">Nome:</span><span class="campo-val">${esc(c.nome||'—')}</span></div>
     <div class="campo"><span class="campo-lbl">Cargo:</span><span class="campo-val">${esc(c.cargo||'—')}</span></div>
@@ -358,12 +360,12 @@
     ${dados.obs?`<div class="campo"><span class="campo-lbl">Obs.:</span><span class="campo-val">${esc(dados.obs)}</span></div>`:''}
     </div>
     <div class="valor-box"><div class="valor-num">R$ ${fmtMoeda(dados.valor)}</div><div class="valor-lbl">VALOR TOTAL</div></div>
-    <div class="declaracao">Declaro que recebi da Amor Saúde SP Pirituba o valor de <strong>R$ ${fmtMoeda(dados.valor)}</strong> referente a "${esc(dados.descricao)}", dando plena quitação.${pago?`<br><br><span class="status-pago">✓ QUITADO em ${dataPag}</span>`:''}</div>
+    <div class="declaracao">Declaro que recebi da ${_clinica} o valor de <strong>R$ ${fmtMoeda(dados.valor)}</strong> referente a "${esc(dados.descricao)}", dando plena quitação.${pago?`<br><br><span class="status-pago">✓ QUITADO em ${dataPag}</span>`:''}</div>
     <div class="assin-area">
     <div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do Colaborador</div><div style="font-size:12px;color:#333;margin-top:3px;">${esc(c.nome||'')}</div></div>
     <div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Responsável Financeiro</div><div style="font-size:12px;color:#333;margin-top:3px;">${esc(usuario||'—')}</div></div>
     </div>
-    <div class="rodape">Amor Saúde SP Pirituba · Av. Dr. Felipe Pinel — Pirituba/SP · Gerado em: ${data} ${hora}</div>
+    <div class="rodape">${_clinica} · ${_endereco} · Gerado em: ${data} ${hora}</div>
     </div><sc`+'ript>window.print();</s'+'cript></body></html>';
   }
 

@@ -797,11 +797,11 @@
       try {
         const snap = await get(ref(db, `admin/usuarios/${user.uid}`));
         const perms = snap.exists() ? (snap.val().perms || {}) : {};
-        if (!perms.admin && user.email !== 'raphael@amorsaude.com') {
+        if (!perms.admin) {
           irPara('login.html'); return;
         }
       } catch(e) {
-        if (user.email !== 'raphael@amorsaude.com') { irPara('login.html'); return; }
+        irPara('login.html'); return;
       }
 
       carregarLogoGlobal(['#headerLogo']);

@@ -180,8 +180,9 @@
     const db   = getDatabase(app);
     window.initFirebaseUtils(db, ref, get);
 
-    /* Carrega logo dinamicamente */
+    /* Carrega logo e dados da clínica */
     carregarLogoGlobal(['#logoHeader']);
+    carregarClinica();
 
     onAuthStateChanged(auth, user => {
       if (user) abrirPortal(user);
@@ -206,10 +207,7 @@
         }
       } catch(e) { console.warn('[abrirPortal] permissões:', e.message); }
 
-      if (user.email === 'raphael@amorsaude.com') {
-        perms = { financeiro:true, orcamento:true, exames:true, cronograma:true, admin:true };
-      }
-
+      // Permissões gerenciadas exclusivamente pelo Firebase (admin/usuarios/{uid}/perms)
       const primeiroNome = nomeCompleto.split(' ')[0];
       document.getElementById('pUserNome').textContent = primeiroNome;
       sessionStorage.setItem('usuario',      nomeCompleto);

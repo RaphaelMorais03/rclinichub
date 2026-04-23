@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <script src="js/firebase-config.js"></script>
+  <script src="js/shared-utils.js"></script>
   <style>
     .grid{
       display:grid;
@@ -153,6 +154,12 @@
       if (document.getElementById('userName'))    document.getElementById('userName').textContent    = name;
       if (document.getElementById('greetName'))   document.getElementById('greetName').textContent   = name;
       if (document.getElementById('userAvatar'))  document.getElementById('userAvatar').textContent  = initials;
+      // Atualiza nome da clínica no header vindo do sessionStorage (populado pelo login)
+      const clinicaEl = document.querySelector('.brand-text strong');
+      if (clinicaEl) {
+        const nomeClinica = sessionStorage.getItem('clinicaNome');
+        if (nomeClinica) clinicaEl.textContent = nomeClinica;
+      }
     });
 
     document.getElementById('logoutBtn').addEventListener('click', () => signOut(_auth).then(() => window.location.replace('login.html')));

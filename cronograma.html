@@ -1047,7 +1047,7 @@
       '<div style="padding-top:.8rem;border-top:2px solid #61C1D0;display:flex;justify-content:space-between;align-items:center;">' +
         '<div style="font-size:10px;color:#888;">' + ds + ' às ' + hr + '</div>' +
         '<div style="font-size:10px;font-weight:800;color:#374151;text-align:center;">RESPONSÁVEL: ' + esc(aten.toUpperCase()) + '</div>' +
-        '<div style="font-size:10px;color:#888;text-align:right;">Amor Saúde Pirituba</div>' +
+        '<div style="font-size:10px;color:#888;text-align:right;">' + (sessionStorage.getItem('clinicaNome')||'Amor Saúde Pirituba') + '</div>' +
       '</div>';
     document.getElementById('cxStep1Body').style.display = 'none';
     document.getElementById('cxStep2Body').style.display = 'flex';

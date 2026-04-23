@@ -124,6 +124,27 @@ window.populateAtendentesSelect = async function(selectId, selectedValue) {
   }
 };
 
+/* Carrega dados da clínica do Firebase e armazena em sessionStorage.
+ * Usa sessionStorage como cache imediato; revalida do Firebase em segundo plano.
+ * Requer que initFirebaseUtils tenha sido chamado antes na mesma página.
+ */
+window.carregarClinica = async function() {
+  try {
+    var fu = window.__fb;
+    if (!fu || !fu.db || !fu.ref || !fu.get) return;
+    var snap = await fu.get(fu.ref(fu.db, 'admin/clinica'));
+    var d = snap.exists() ? snap.val() : null;
+    if (d) {
+      if (d.nome)      sessionStorage.setItem('clinicaNome',      d.nome);
+      if (d.telefone)  sessionStorage.setItem('clinicaTelefone',  d.telefone);
+      if (d.endereco)  sessionStorage.setItem('clinicaEndereco',  d.endereco);
+      if (d.cnpj)      sessionStorage.setItem('clinicaCnpj',      d.cnpj);
+    }
+  } catch(e) {
+    console.warn('[carregarClinica]:', e.message);
+  }
+};
+
 /* Carrega logo do Firebase via SDK com cache em sessionStorage.
  * Exibe a versão em cache imediatamente e verifica se há atualização.
  * Requer que initFirebaseUtils tenha sido chamado antes na mesma página.
