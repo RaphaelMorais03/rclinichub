@@ -541,20 +541,6 @@
     if (pane) pane.classList.add('active');
   };
 
-  // ── TOAST LOCAL ──
-  function toastCrono(msg, tipo) {
-    tipo = tipo || 'info';
-    const box = document.getElementById('toastBox');
-    if (!box) return;
-    const t = document.createElement('div');
-    t.className = 'toast ' + tipo;
-    t.innerHTML = msg;
-    box.appendChild(t);
-    setTimeout(() => t.remove(), 3200);
-  }
-  // sobrescreve o toast global para usar o local
-  window.toast = toastCrono;
-
   // ── AGENDA DO DIA ──
   window.navegarDia = function(d) { diaOff += d; renderAgenda(); };
 
@@ -617,9 +603,9 @@
       else await fetch('https://clinica-pirituba-default-rtdb.firebaseio.com/crono/agenda.json', { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
       const tag = document.getElementById('agendaSalvaTag');
       if (tag) { tag.style.display = 'inline-flex'; setTimeout(() => tag.style.display = 'none', 3000); }
-      toastCrono('Cronograma salvo!', 'success');
+      toast('Cronograma salvo!', 'success');
       renderSemana(); renderAgenda();
-    } catch(e) { toastCrono('Erro ao salvar: ' + e.message, 'error'); }
+    } catch(e) { toast('Erro ao salvar: ' + e.message, 'error'); }
     if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-cloud-arrow-up"></i> Salvar Cronograma'; }
   };
 
@@ -674,14 +660,14 @@
     const doc    = document.getElementById('addDoc').value.trim();
     const role   = document.getElementById('addRole').value.trim();
     const periodo = document.getElementById('addPeriodo').value;
-    if (!sala || !doc || !role) { toastCrono('Preencha Sala, Médico e Especialidade', 'error'); return; }
+    if (!sala || !doc || !role) { toast('Preencha Sala, Médico e Especialidade', 'error'); return; }
     if (!window.AGENDA[editorDia]) window.AGENDA[editorDia] = [];
     window.AGENDA[editorDia].push({sala, doc, role, periodo});
     ['addSala','addDoc','addRole'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('addPeriodo').value = '';
     document.getElementById('addSala').focus();
     renderEditorDia();
-    toastCrono('Sala ' + sala + ' adicionada em ' + editorDia, 'success');
+    toast('Sala ' + sala + ' adicionada em ' + editorDia, 'success');
   };
   window.removerSala = function(idx) { if (!confirm('Remover esta sala?')) return; window.AGENDA[editorDia].splice(idx, 1); renderEditorDia(); };
   window.moverSala = function(idx, dir) { const arr = window.AGENDA[editorDia]; const n = idx + dir; if (n < 0 || n >= arr.length) return; [arr[idx], arr[n]] = [arr[n], arr[idx]]; renderEditorDia(); };
@@ -693,7 +679,7 @@
   window.abrirColarTexto  = function() { document.getElementById('pdfAgendaModal').classList.add('open'); limparColarAgenda(); document.getElementById('optPDF').style.display = 'none'; document.getElementById('optColar').style.display = 'block'; };
   window.fecharPdfModal   = function() { document.getElementById('pdfAgendaModal').classList.remove('open'); colarAgendaImportada = null; };
 
-  window.handlePdfDrop = function(e) { e.preventDefault(); document.getElementById('pdfDropZone').style.borderColor = 'var(--gray-300)'; document.getElementById('pdfDropZone').style.background = 'white'; const file = e.dataTransfer.files[0]; if (file && file.type === 'application/pdf') processarPdfAgenda(file); else toastCrono('Selecione um arquivo PDF', 'error'); };
+  window.handlePdfDrop = function(e) { e.preventDefault(); document.getElementById('pdfDropZone').style.borderColor = 'var(--gray-300)'; document.getElementById('pdfDropZone').style.background = 'white'; const file = e.dataTransfer.files[0]; if (file && file.type === 'application/pdf') processarPdfAgenda(file); else toast('Selecione um arquivo PDF', 'error'); };
   window.handlePdfSelect = function(e) { const file = e.target.files[0]; if (file) processarPdfAgenda(file); };
 
   async function processarPdfAgenda(file) {
@@ -723,7 +709,7 @@
       const ta = document.getElementById('colarAgendaTexto');
       ta.value = texto.trim();
       previewColarAgenda();
-      toastCrono('PDF lido! Verifique o preview e aplique.', 'success');
+      toast('PDF lido! Verifique o preview e aplique.', 'success');
     } catch (err) {
       document.getElementById('pdfLoading').style.display  = 'none';
       document.getElementById('pdfDropZone').style.display = '';
@@ -842,7 +828,7 @@
     fecharPdfModal();
     renderSemana(); renderAgenda(); updStats();
     if (!editandoSemana) toggleEditarSemana();
-    toastCrono('Agenda importada! Atribua as salas no editor.', 'success');
+    toast('Agenda importada! Atribua as salas no editor.', 'success');
   };
 
   // ── CHECKLIST ──
@@ -873,11 +859,11 @@
     const icone = document.getElementById('cliNovoIcone').value.trim() || '✅';
     const label = document.getElementById('cliNovoLabel').value.trim();
     const sub   = document.getElementById('cliNovoSub').value.trim();
-    if (!label) { toastCrono('Informe o título do item', 'error'); return; }
+    if (!label) { toast('Informe o título do item', 'error'); return; }
     window.CLI.push({id:'custom_' + Date.now(), icon:icone, lbl:label, sub:sub || label});
     salvarCLICustom();
     ['cliNovoIcone','cliNovoLabel','cliNovoSub'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-    renderCli(); toastCrono('Item adicionado!', 'success');
+    renderCli(); toast('Item adicionado!', 'success');
   };
   window.removerItemCli = function(id) { const idx = window.CLI.findIndex(c => c.id === id); if (idx >= 0) window.CLI.splice(idx, 1); delete window.cliStatus[id]; if (window.fbSet) window.fbSet('operacao/checklist_status/' + window.TK_FB, window.cliStatus); salvarCLICustom(); renderCli(); };
   function salvarCLICustom() { const custom = window.CLI.filter(c => c.id.startsWith('custom_')); if (window.fbSet) window.fbSet('operacao/checklist_items', custom); }
@@ -937,11 +923,11 @@
   };
 
   window.addVale = function() {
-    const p = document.getElementById('vPac').value.trim(); if (!p) { toastCrono('Informe o paciente', 'error'); return; }
+    const p = document.getElementById('vPac').value.trim(); if (!p) { toast('Informe o paciente', 'error'); return; }
     window.vales.push({id:Date.now()+'', pac:p, cpf:document.getElementById('vCpf').value, esp:document.getElementById('vEsp').value, val:document.getElementById('vVal').value, hora:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
     if (window.fbSet) window.fbSet('operacao/vales/' + window.TK_FB, window.vales);
     ['vPac','vCpf','vEsp','vVal'].forEach(x => document.getElementById(x).value = '');
-    renderVales(); toastCrono('Vale registrado!', 'success');
+    renderVales(); toast('Vale registrado!', 'success');
   };
   window.delVale = function(id) { window.vales = window.vales.filter(v => v.id !== id); if (window.fbSet) window.fbSet('operacao/vales/' + window.TK_FB, window.vales); renderVales(); };
   window.renderVales = function() {
@@ -994,10 +980,10 @@
   window.gerarCaixaPreview = function() {
     const aten = document.getElementById('cxAtendente').value;
     const txt  = document.getElementById('cxPaste').value.trim();
-    if (!aten) { toastCrono('Selecione o atendente', 'error'); return; }
-    if (!txt)  { toastCrono('Cole os dados do caixa', 'error'); return; }
+    if (!aten) { toast('Selecione o atendente', 'error'); return; }
+    if (!txt)  { toast('Cole os dados do caixa', 'error'); return; }
     const d = parseCaixa(txt);
-    if (!d.lancamentos.length && !Object.keys(d.totForma).length) { toastCrono('Nenhum lançamento encontrado.', 'error'); return; }
+    if (!d.lancamentos.length && !Object.keys(d.totForma).length) { toast('Nenhum lançamento encontrado.', 'error'); return; }
     const now = new Date();
     const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
     const ds = DIAS[now.getDay()] + ', ' + now.getDate() + ' de ' + MESES[now.getMonth()] + ' de ' + now.getFullYear();
@@ -1056,7 +1042,7 @@
 
   window.imprimirCaixa = function() {
     const win = window.open('','_blank');
-    if (!win) { toastCrono('Permita pop-ups para imprimir', 'error'); return; }
+    if (!win) { toast('Permita pop-ups para imprimir', 'error'); return; }
     const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}@page{size:A4;margin:1.5cm;}body{font-family:system-ui,-apple-system,sans-serif;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #d1d5db;padding:5px 7px;}</style></head><body><div style="padding:0;">' + document.getElementById('caixaPrintDoc').innerHTML + '</div><sc' + 'ript>window.onload=function(){setTimeout(function(){window.print();},300);}<' + '/script></body></html>';
     win.document.write(html); win.document.close();
   };
@@ -1144,9 +1130,9 @@
   let currentPatients = [];
   window.gerarPreview = function() {
     const txt = document.getElementById('genPaste').value.trim();
-    if (!txt) { toastCrono('Cole os dados primeiro', 'error'); return; }
+    if (!txt) { toast('Cole os dados primeiro', 'error'); return; }
     currentPatients = parseAgenda(txt);
-    if (!currentPatients.length) { toastCrono('Nenhum horário encontrado.', 'error'); return; }
+    if (!currentPatients.length) { toast('Nenhum horário encontrado.', 'error'); return; }
     document.getElementById('genPasteEdit').value = txt;
     renderPrint(); showGenStep(3);
   };
@@ -1186,7 +1172,7 @@
   window.toggleEditar=function(){editando=!editando;document.getElementById('editorWrap').style.display=editando?'block':'none';document.getElementById('editarTxt').textContent=editando?'Cancelar':'Editar';};
   window.imprimirAgenda=function(){
     const win=window.open('','_blank');
-    if(!win){toastCrono('Permita pop-ups para imprimir','error');return;}
+    if(!win){toast('Permita pop-ups para imprimir','error');return;}
     const html='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}@page{size:A4;margin:2cm 1.5cm;}body{font-family:system-ui,-apple-system,sans-serif;background:white;color:black;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.print-title{font-size:2.8rem;font-weight:900;color:#980000;text-align:center;margin-bottom:1.5rem;}.print-total{display:inline-block;padding:.7rem 2rem;border-radius:14px;background:#980000;color:white;font-size:1.3rem;font-weight:900;margin:.8rem 0;}.print-date-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.5rem;background:#61C1D0;border-radius:12px;border:3px solid #980000;color:white;font-size:.95rem;font-weight:800;margin-bottom:1.2rem;}table{width:100%;border-collapse:collapse;}th{background:#4a4a4a!important;color:white!important;padding:.7rem;text-align:center;font-size:.9rem;font-weight:700;border:2px solid #333;}td{padding:.7rem;border:2px solid #333;text-align:center;font-size:.9rem;}tr:nth-child(even) td{background:#f5f5f5!important;}.td-time{font-weight:700;color:#980000;}.td-name{font-weight:600;text-align:left;padding-left:1rem!important;}.status-ag{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;padding:.3rem .8rem;border-radius:6px;background:#e0e0e0!important;color:#000;border:3px solid #000;font-size:.8rem;font-weight:900;text-transform:uppercase;min-width:120px;}.status-en{display:inline-flex;align-items:center;justify-content:center;gap:.3rem;padding:.3rem .8rem;border-radius:6px;background:#d4d4d4!important;color:#000;border:3px solid #666;font-size:.8rem;font-weight:900;text-transform:uppercase;min-width:120px;}.status-lv{display:inline-flex;align-items:center;justify-content:center;padding:.3rem .8rem;border-radius:6px;background:white;color:#777;border:3px dashed #aaa;font-size:.8rem;font-weight:900;text-transform:uppercase;min-width:120px;}.print-footer{padding-top:.8rem;margin-top:1.5rem;border-top:2px solid #61C1D0;text-align:center;font-size:.7rem;font-weight:700;color:#374151;}</style></head><body><div style="padding:0;">'+document.getElementById('printDoc').innerHTML+'</div><sc'+'ript>window.onload=function(){setTimeout(function(){window.print();},250);}<'+'/script></body></html>';
     win.document.write(html);win.document.close();
   };

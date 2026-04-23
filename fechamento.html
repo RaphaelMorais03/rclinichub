@@ -74,12 +74,12 @@
     .back-portal:hover{background:#ad1f1f;transform:translateY(-1px);}
     @media(max-width:900px){.steps,.form-row,.professional-info{grid-template-columns:1fr;}}
     @media(max-width:768px){.item-row{grid-template-columns:1fr;gap:8px;}.step-actions{flex-direction:column;}.step-actions button{width:100%;}}
-    @media print{.no-print,header,.steps,footer,.step-actions,#toastContainer,#confirmModal,.back-portal{display:none!important;}body,#mainSystem{background:white!important;color:black!important;padding:0!important;margin:0!important;}}
+    @media print{.no-print,header,.steps,footer,.step-actions,#toastBox,#confirmModal,.back-portal{display:none!important;}body,#mainSystem{background:white!important;color:black!important;padding:0!important;margin:0!important;}}
   </style>
 </head>
 <body>
   <div class="red-bar"></div>
-  <div id="toastContainer" class="toast-container"></div>
+  <div id="toastBox" class="toast-container"></div>
 
   <div id="confirmModal" class="modal">
     <div class="modal-content">
@@ -219,14 +219,6 @@
     function parseValorMonetario(v){if(!v)return 0;return parseFloat(v.replace(/\./g,'').replace(',','.'))||0;}
     function mascaraMoeda(e){const i=e.target;let v=i.value.replace(/\D/g,'');v=(parseInt(v||'0',10)/100).toFixed(2)+'';v=v.replace('.',',');v=v.replace(/\B(?=(\d{3})+(?!\d))/g,'.');i.value=v;}
 
-    function showToast(msg,tipo,dur){
-      tipo=tipo||'info';dur=dur||3000;
-      const c=document.getElementById('toastContainer');
-      const t=document.createElement('div');t.className='toast '+tipo;
-      t.innerHTML='<i class="fas fa-'+(tipo==='success'?'check-circle':tipo==='error'?'exclamation-circle':'info-circle')+'"></i><span>'+esc(msg)+'</span>';
-      c.appendChild(t);setTimeout(()=>t.remove(),dur);
-    }
-
     function confirmar(msg){return new Promise(res=>{const m=document.getElementById('confirmModal');document.getElementById('confirmMessage').textContent=msg;m.style.display='flex';document.getElementById('confirmYes').onclick=()=>{m.style.display='none';res(true);};document.getElementById('confirmNo').onclick=()=>{m.style.display='none';res(false);};});}
     function debounce2(f,d){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>f.apply(this,a),d);};}
 
@@ -335,7 +327,7 @@
 
     function irParaCalculo(){
       const id=document.getElementById('profId').value,nome=document.getElementById('profNome').value,cpf=document.getElementById('profCpf').value,regime=document.getElementById('profRegime').value,cat=document.getElementById('profCategoria').value;
-      if(!nome||!cpf||!regime||!cat){showToast('Selecione e complete os dados antes de continuar','error');return;}
+      if(!nome||!cpf||!regime||!cat){toast('Selecione e complete os dados antes de continuar','error');return;}
       if(id)document.getElementById('selectProfissional').value=id;
       document.getElementById('calcProfissionalNome').textContent=nome;
       document.getElementById('calcProfissionalCpf').textContent=cpf;
@@ -370,26 +362,26 @@
 
     function cadastrar(){
       const nome=document.getElementById('profNome').value,doc=document.getElementById('profCpf').value,regime=document.getElementById('profRegime').value,cat=document.getElementById('profCategoria').value;
-      if(!nome||!doc||!regime||!cat){showToast('Preencha todos os campos obrigatórios','error');return;}
+      if(!nome||!doc||!regime||!cat){toast('Preencha todos os campos obrigatórios','error');return;}
       const docLimpo=doc.replace(/\D/g,'');
-      if(profissionais.some(p=>p.documento.replace(/\D/g,'')=== docLimpo)){showToast('Documento já cadastrado','error');return;}
+      if(profissionais.some(p=>p.documento.replace(/\D/g,'')=== docLimpo)){toast('Documento já cadastrado','error');return;}
       const newExtras=[...(window.fechamentoExtras||[]),{id:docLimpo,nome,documento:doc,regime,categoria:cat,chavePix:document.getElementById('profChavePix').value}];
       window.saveFechamentoExtras(newExtras);
       document.getElementById('profId').value=docLimpo;
-      showToast('Cadastro realizado!','success');
+      toast('Cadastro realizado!','success');
     }
 
     function editarProfissional(id){
       const nome=document.getElementById('profNome').value,doc=document.getElementById('profCpf').value,regime=document.getElementById('profRegime').value,cat=document.getElementById('profCategoria').value,pix=document.getElementById('profChavePix').value;
-      if(!nome||!doc||!regime||!cat){showToast('Preencha todos os campos','error');return;}
+      if(!nome||!doc||!regime||!cat){toast('Preencha todos os campos','error');return;}
       const docLimpo=doc.replace(/\D/g,'');
-      if(profissionais.some(x=>x.documento.replace(/\D/g,'')=== docLimpo&&x.id!==id)){showToast('Documento já em uso','error');return;}
+      if(profissionais.some(x=>x.documento.replace(/\D/g,'')=== docLimpo&&x.id!==id)){toast('Documento já em uso','error');return;}
       const extrasCpy=[...(window.fechamentoExtras||[])];
       const idx=extrasCpy.findIndex(x=>x.id===id);
       if(idx!==-1)extrasCpy[idx]={id:docLimpo,nome,documento:doc,regime,categoria:cat,chavePix:pix};
       else extrasCpy.push({id:docLimpo,nome,documento:doc,regime,categoria:cat,chavePix:pix,overrideCpf:id});
       window.saveFechamentoExtras(extrasCpy);
-      showToast('Atualizado!','success');
+      toast('Atualizado!','success');
     }
 
     function preencherEdicao(id){
@@ -419,7 +411,7 @@
         const isBase=srcBase.find(b=>b.documento.replace(/\D/g,'')=== id);
         if(isBase){window.saveFechamentoDeleted([...(window.fechamentoDeleted||[]),id]);}
         else{window.saveFechamentoExtras((window.fechamentoExtras||[]).filter(p=>p.id!==id));}
-        showToast('Excluído','success');
+        toast('Excluído','success');
       }
     }
 
@@ -439,11 +431,11 @@
     function calcular(){
       const idSel=document.getElementById('selectProfissional').value;
       const p=profissionais.find(x=>x.id===idSel);
-      if(!p){showToast('Selecione um profissional','error');return false;}
-      if(!itens.length){showToast('Adicione pelo menos um item','error');return false;}
-      for(const i of itens){if(!i.descricao||!i.descricao.trim()){showToast('Todos os itens precisam de descrição','error');return false;}if(i.qtd<=0||i.valorUnitario<=0){showToast('Quantidade e valor devem ser maiores que zero','error');return false;}}
+      if(!p){toast('Selecione um profissional','error');return false;}
+      if(!itens.length){toast('Adicione pelo menos um item','error');return false;}
+      for(const i of itens){if(!i.descricao||!i.descricao.trim()){toast('Todos os itens precisam de descrição','error');return false;}if(i.qtd<=0||i.valorUnitario<=0){toast('Quantidade e valor devem ser maiores que zero','error');return false;}}
       const sub=itens.reduce((s,i)=>s+i.valorTotal,0);
-      if(sub<=0){showToast('Adicione itens com valor positivo','error');return false;}
+      if(sub<=0){toast('Adicione itens com valor positivo','error');return false;}
       let pis=0,csll=0,irrf=0,cofins=0;
       if(p.regime==='pj-presumido'){
         if(sub>215.05){pis=Math.round(sub*TAXAS.PIS*100)/100;csll=Math.round(sub*TAXAS.CSLL*100)/100;cofins=Math.round(sub*TAXAS.COFINS*100)/100;document.getElementById('impostosContainer').style.display='block';if(sub>TAXAS.LIMITE_IRRF){irrf=Math.round(sub*TAXAS.IRRF*100)/100;document.getElementById('irrfItem').style.display='flex';}else{document.getElementById('irrfItem').style.display='none';}}
@@ -483,9 +475,9 @@
     }
 
     function gerarRecibo(){
-      if(!dadosCalculo){showToast('Calcule primeiro','error');return;}
+      if(!dadosCalculo){toast('Calcule primeiro','error');return;}
       const w=window.open('','_blank');
-      if(!w){showToast('Pop-up bloqueado — permita pop-ups para imprimir','error');return;}
+      if(!w){toast('Pop-up bloqueado — permita pop-ups para imprimir','error');return;}
       w.document.write(montarHtmlRecibo(dadosCalculo));w.document.close();
     }
 

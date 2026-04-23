@@ -591,6 +591,7 @@
   function processarLogo(event) {
     const file = event.target.files[0];
     if (!file) return;
+    if (file.size > 500_000) { toast('Imagem muito grande. Use no máximo 500 KB.', 'error'); event.target.value = ''; return; }
     const reader = new FileReader();
     reader.onload = e => {
       novoLogoDataUrl = e.target.result;
@@ -607,6 +608,7 @@
   function previewCaixaHeader(event) {
     const file = event.target.files[0];
     if (!file) return;
+    if (file.size > 500_000) { toast('Imagem muito grande. Use no máximo 500 KB.', 'error'); event.target.value = ''; return; }
     const reader = new FileReader();
     reader.onload = e => {
       novaCaixaHeaderDataUrl = e.target.result;
