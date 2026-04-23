@@ -41,7 +41,7 @@
 
     /* ── Search section ── */
     .search-section{background:white;border-bottom:1px solid var(--gray-200);padding:16px 24px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.04);}
-    .search-row{display:flex;align-items:center;gap:12px;max-width:900px;margin:0 auto 12px;}
+    .search-row{display:flex;align-items:center;gap:12px;max-width:900px;margin:0 auto;}
     .search-wrap{position:relative;flex:1;}
     .search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--gray-400);font-size:15px;pointer-events:none;}
     #searchInput{width:100%;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:30px;padding:11px 16px 11px 42px;font-size:14px;font-family:inherit;outline:none;transition:all .2s;color:var(--gray-800);}
@@ -57,10 +57,16 @@
     .btn-chip-sm:hover{border-color:var(--navy);color:var(--navy);background:white;}
 
     /* filter chips */
-    .chips-row{display:flex;gap:7px;flex-wrap:wrap;max-width:900px;margin:0 auto;}
+    .chips-row{display:none;gap:7px;flex-wrap:wrap;max-width:900px;margin:8px auto 0;padding-top:10px;border-top:1px solid var(--gray-100);}
+    .chips-row.open{display:flex;}
     .chip{padding:6px 14px;border-radius:20px;background:var(--gray-50);border:1.5px solid var(--gray-200);font-family:inherit;font-size:12px;font-weight:600;color:var(--gray-500);cursor:pointer;transition:all .15s;white-space:nowrap;}
     .chip:hover{border-color:var(--teal);color:var(--teal);}
     .chip.active{background:var(--navy);color:white;border-color:var(--navy);}
+    .btn-filtros{padding:8px 14px;border-radius:20px;background:var(--gray-50);border:1.5px solid var(--gray-200);font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+    .btn-filtros:hover{border-color:var(--navy);color:var(--navy);background:white;}
+    .btn-filtros.active{border-color:var(--navy);color:var(--navy);background:#eff6ff;}
+    .filtros-badge{background:var(--navy);color:white;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:800;display:none;}
+    .filtros-badge.show{display:inline-block;}
 
     /* ── Main layout ── */
     .layout{display:grid;grid-template-columns:1fr 320px;flex:1;overflow:hidden;gap:0;}
@@ -209,6 +215,10 @@
         <input type="text" id="searchInput" placeholder="Buscar exame, categoria ou fornecedor…" autocomplete="off">
         <button class="clear-btn" id="clearBtn">×</button>
       </div>
+      <button class="btn-filtros" id="btnFiltros" onclick="toggleFiltros()">
+        <i class="fas fa-sliders"></i> Filtros
+        <span class="filtros-badge" id="filtrosBadge">0</span>
+      </button>
       <div class="admin-row">
         <input type="file" class="file-input" id="fileInput" accept=".xlsx,.xls">
         <button class="btn-chip-sm" id="importBtn"><i class="fas fa-file-arrow-up"></i> Importar</button>
@@ -347,7 +357,30 @@
         activeCategory = btn.dataset.cat || null;
         renderCategories();
         applyFilters();
+        atualizarBadgeFiltros();
       }));
+    }
+
+    // ── FILTROS TOGGLE ──
+    window.toggleFiltros = function() {
+      const chips = document.getElementById('categoryChips');
+      const btn   = document.getElementById('btnFiltros');
+      chips.classList.toggle('open');
+      btn.classList.toggle('active');
+    };
+    function atualizarBadgeFiltros() {
+      const badge = document.getElementById('filtrosBadge');
+      const btn   = document.getElementById('btnFiltros');
+      if (activeCategory) {
+        badge.textContent = '1';
+        badge.classList.add('show');
+        btn.classList.add('active');
+      } else {
+        badge.classList.remove('show');
+        btn.classList.remove('active');
+        // Fecha os chips se voltou para "Todos"
+        document.getElementById('categoryChips').classList.remove('open');
+      }
     }
 
     // ── SEARCH & FILTER ──
