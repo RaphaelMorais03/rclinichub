@@ -1002,7 +1002,8 @@
     const MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
     const ds = DIAS[now.getDay()] + ', ' + now.getDate() + ' de ' + MESES[now.getMonth()] + ' de ' + now.getFullYear();
     const hr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-    const logoEsq = LOGO_DATA_URL ? '<img src="' + LOGO_DATA_URL + '" alt="Logo" style="height:50px;width:auto;object-fit:contain;">' : '<div style="font-size:18px;font-weight:900;color:#0A1F44;">Amor Saúde</div>';
+    const _logoUrl = sessionStorage.getItem('logoDataUrl') || '';
+    const logoEsq = _logoUrl ? '<img src="' + _logoUrl + '" alt="Logo" style="height:50px;width:auto;object-fit:contain;">' : '<div style="font-size:18px;font-weight:900;color:#0A1F44;">Amor Saúde</div>';
     const imgCentro = sessionStorage.getItem('caixaHeaderImg') ? '<img src="' + sessionStorage.getItem('caixaHeaderImg') + '" alt="Cabeçalho" style="max-height:64px;max-width:260px;width:auto;object-fit:contain;">' : '';
     const CORES = {'Cartão de Crédito':{bg:'#fff1f2',bord:'#fecaca',cor:'#991b1b',icon:'💳'},'Cartão de Débito':{bg:'#eff6ff',bord:'#bfdbfe',cor:'#1d4ed8',icon:'💳'},'PIX':{bg:'#f0fdf4',bord:'#bbf7d0',cor:'#15803d',icon:'⚡'},'Dinheiro':{bg:'#fffbeb',bord:'#fde68a',cor:'#b45309',icon:'💵'}};
     let totalGeral = 0;
@@ -1160,7 +1161,8 @@
     const dtHr=String(now.getDate()).padStart(2,'0')+'/'+String(now.getMonth()+1).padStart(2,'0')+'/'+now.getFullYear()+' às '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
     const agendados=currentPatients.filter(p=>!p.isLivre).length;
     const nomeUser=sessionStorage.getItem('usuario')||'RECEPÇÃO';
-    const logoH=LOGO_DATA_URL?'<img src="'+LOGO_DATA_URL+'" alt="Logo" style="height:70px;width:auto;object-fit:contain;">':'<div class="print-logo-txt">Amor Saúde</div><div class="print-logo-sub">Pirituba · São Paulo</div>';
+    const _logoUrlP=sessionStorage.getItem('logoDataUrl')||'';
+    const logoH=_logoUrlP?'<img src="'+_logoUrlP+'" alt="Logo" style="height:70px;width:auto;object-fit:contain;">':'<div class="print-logo-txt">Amor Saúde</div><div class="print-logo-sub">Pirituba · São Paulo</div>';
     const rows=currentPatients.map((p,i)=>{
       const bg=i%2===0?'#f5f5f5':'#ffffff';
       if(p.isLivre)return '<tr style="background:'+bg+'"><td class="td-time" style="background:'+bg+';border:2px solid #333;">'+p.time+'</td><td colspan="2" style="border:2px solid #333;background:repeating-linear-gradient(45deg,#f8f8f8,#f8f8f8 10px,#eee 10px,#eee 20px);text-align:center;font-weight:900;color:#555;"><span style="display:inline-block;padding:.5rem 2rem;background:white;border:2px dashed #999;border-radius:8px;">HORÁRIO LIVRE</span></td><td style="border:2px solid #333;background:repeating-linear-gradient(45deg,#f8f8f8,#f8f8f8 10px,#eee 10px,#eee 20px);text-align:center;"><span class="status-lv">LIVRE</span></td></tr>';

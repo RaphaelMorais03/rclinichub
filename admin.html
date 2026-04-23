@@ -442,7 +442,7 @@
       } else {
         // Criar usuário via Firebase Auth (requer função cloud ou admin SDK — aqui apenas salva no DB como pendente)
         const key = 'pending_' + Date.now();
-        await window._fbSet('admin/usuarios_pendentes/' + key, { nomeCompleto: nome, email, senha, perms, criadoEm: new Date().toISOString() });
+        await window._fbSet('admin/usuarios_pendentes/' + key, { nomeCompleto: nome, email, perms, criadoEm: new Date().toISOString() });
         toast('Usuário salvo como pendente. Crie a conta no Console Firebase.', 'info');
       }
       fecharModalUser();
