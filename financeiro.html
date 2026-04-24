@@ -125,6 +125,55 @@
     </div>
   </div>
 
+  <!-- MODAL IMPRESSÃO EM LOTE -->
+  <div class="modal-bg" id="modalLote">
+    <div class="modal-box" style="max-width:700px;">
+      <div class="modal-head">
+        <div class="modal-title"><i class="fas fa-layer-group"></i> Impressão em Lote</div>
+        <button class="modal-close" onclick="fecharModalLote()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom:14px;">
+          <label class="f-label">Descrição (aplicada a todos)</label>
+          <input class="f-input" id="loteDesc" placeholder="Ex: Salário referente a Abril/2026">
+        </div>
+        <div class="form-grid" style="margin-bottom:16px;">
+          <div>
+            <label class="f-label">Categoria</label>
+            <select class="f-select" id="loteCat">
+              <option value="Salário">Salário</option>
+              <option value="Vale-Transporte">Vale-Transporte</option>
+              <option value="Bonificação">Bonificação</option>
+              <option value="Adiantamento">Adiantamento</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-end;">
+            <div style="flex:1;">
+              <label class="f-label">Período início</label>
+              <input class="f-input" id="loteInicio" type="date">
+            </div>
+            <div style="flex:1;">
+              <label class="f-label">Período fim</label>
+              <input class="f-input" id="loteFim" type="date">
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;">Colaboradores</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-s" style="font-size:11px;padding:5px 10px;" onclick="selecionarTodosLote(true)">Todos</button>
+            <button class="btn-s" style="font-size:11px;padding:5px 10px;" onclick="selecionarTodosLote(false)">Nenhum</button>
+          </div>
+        </div>
+        <div id="loteLista" style="max-height:320px;overflow-y:auto;border:1px solid var(--gray-200);border-radius:10px;padding:8px;background:var(--gray-50);"></div>
+        <div style="display:flex;gap:10px;margin-top:16px;">
+          <button class="btn-s" onclick="fecharModalLote()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
+          <button class="btn-p" onclick="imprimirLote()" style="flex:2;justify-content:center;"><i class="fas fa-print"></i> Gerar e Imprimir Lote</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL GERAR RECIBO -->
   <div class="modal-bg" id="modalRecibo">
     <div class="modal-box" style="max-width:600px;">
@@ -133,15 +182,36 @@
         <button class="modal-close" onclick="fecharModalRecibo()"><i class="fas fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <div style="margin-bottom:16px;">
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div>
+            <label class="f-label">Categoria</label>
+            <select class="f-select" id="rCat">
+              <option value="Salário">Salário</option>
+              <option value="Vale-Transporte">Vale-Transporte</option>
+              <option value="Bonificação">Bonificação</option>
+              <option value="Adiantamento">Adiantamento</option>
+            </select>
+          </div>
+          <div>
+            <label class="f-label">Valor bruto (R$)</label>
+            <input class="f-input" id="rValor" placeholder="0,00" oninput="mascaraMoeda(this)">
+          </div>
+        </div>
+        <div style="margin-bottom:14px;">
           <label class="f-label">Descrição do serviço</label>
           <input class="f-input" id="rDesc" placeholder="Ex: Salário referente ao mês de abril/2026">
         </div>
         <div class="form-grid" style="margin-bottom:14px;">
           <div>
-            <label class="f-label">Valor bruto (R$)</label>
-            <input class="f-input" id="rValor" placeholder="0,00" oninput="mascaraMoeda(this)">
+            <label class="f-label">Período início (opcional)</label>
+            <input class="f-input" id="rInicio" type="date">
           </div>
+          <div>
+            <label class="f-label">Período fim (opcional)</label>
+            <input class="f-input" id="rFim" type="date">
+          </div>
+        </div>
+        <div class="form-grid" style="margin-bottom:14px;">
           <div>
             <label class="f-label">Forma de pagamento</label>
             <select class="f-select" id="rForma">
@@ -150,10 +220,10 @@
               <option value="transferencia">Transferência</option>
             </select>
           </div>
-        </div>
-        <div style="margin-bottom:16px;">
-          <label class="f-label">Observação (opcional)</label>
-          <input class="f-input" id="rObs" placeholder="Ex: Inclui benefícios">
+          <div>
+            <label class="f-label">Observação (opcional)</label>
+            <input class="f-input" id="rObs" placeholder="Ex: Inclui benefícios">
+          </div>
         </div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;">
           <input type="checkbox" id="rPago" style="width:18px;height:18px;cursor:pointer;">
@@ -196,7 +266,10 @@
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title"><i class="fas fa-users"></i> Equipe cadastrada</div>
-          <button class="btn-p" onclick="abrirModalColab()"><i class="fas fa-plus"></i> Novo colaborador</button>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-s" onclick="abrirModalLote()"><i class="fas fa-layer-group"></i> Imprimir Lote</button>
+            <button class="btn-p" onclick="abrirModalColab()"><i class="fas fa-plus"></i> Novo colaborador</button>
+          </div>
         </div>
         <div id="listaColabs"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></div>
       </div>
@@ -314,84 +387,200 @@
   }
   function fecharModalRecibo() { document.getElementById('modalRecibo').classList.remove('open'); }
 
+  // ── Valor por extenso ──
+  function valorExtenso(valor) {
+    if (!valor || valor === 0) return 'zero reais';
+    const uni = ['','um','dois','três','quatro','cinco','seis','sete','oito','nove'];
+    const dez = ['','dez','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+    const esp = ['dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+    const cen = ['','cento','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+    let inteiro = Math.floor(valor);
+    let centavos = Math.round((valor - inteiro) * 100);
+    function conv(n) {
+      if (n === 0) return '';
+      if (n === 100) return 'cem';
+      if (n >= 1000) { let m = Math.floor(n/1000), r = n%1000; return (m===1?'mil':conv(m)+' mil')+(r>0?' e '+conv(r):''); }
+      let c=Math.floor(n/100),d=Math.floor((n%100)/10),u=n%10,s='';
+      if(c)s+=cen[c]; if(c&&(d||u))s+=' e '; if(d===1)s+=esp[u]; else{if(d)s+=dez[d];if(d&&u)s+=' e ';if(u)s+=uni[u];}
+      return s;
+    }
+    let ext = conv(inteiro)+(inteiro===1?' real':' reais');
+    if(centavos>0) ext+=' e '+conv(centavos)+(centavos===1?' centavo':' centavos');
+    return ext;
+  }
+
+  // ── Bloco de recibo compacto (cabe 4 por A4) ──
+  function buildReciboBlock(c, dados, logoSrc, clinicaNome, clinicaCnpj) {
+    const now   = new Date();
+    const data  = `São Paulo, ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+    const valorF = fmtMoeda(dados.valor);
+    const extenso = valorExtenso(dados.valor);
+    const logoHtml = logoSrc
+      ? `<img src="${logoSrc}" style="height:28px;width:auto;object-fit:contain;" alt="Logo">`
+      : `<strong style="font-size:11px;color:#C62828;">${esc(clinicaNome)}</strong>`;
+    const isTrans = dados.categoria === 'Vale-Transporte';
+    const titulo = isTrans ? 'Recibo de entrega de vale-transporte' : `Recibo de ${esc(dados.categoria||'Pagamento')}`;
+    let periodoTxt = '';
+    if (dados.inicio && dados.fim) {
+      const di = dados.inicio.split('-').reverse().join('/');
+      const df = dados.fim.split('-').reverse().join('/');
+      periodoTxt = ` para utilização no período de <strong>${di} a ${df}</strong>`;
+    }
+    return `<div class="recibo-block">
+      <div class="rh">
+        <div>${logoHtml}</div>
+        <div class="rh-empresa">${esc(clinicaNome)}<br><span style="font-weight:400;font-size:7px;">${esc(clinicaCnpj||'')}</span></div>
+        <div class="rh-data">${data}</div>
+      </div>
+      <div class="rb-titulo">${titulo}</div>
+      <div style="font-size:9.5px;"><strong>Nome:</strong> ${esc(c.nome||'—')} &nbsp;|&nbsp; <strong>CPF:</strong> ${esc(c.cpf||'—')}</div>
+      ${c.cargo?`<div style="font-size:9px;color:#555;"><strong>Cargo:</strong> ${esc(c.cargo)}</div>`:''}
+      <div class="rb-val-box">
+        <div class="rb-valor-num">R$ ${valorF}</div>
+        <div class="rb-extenso">${extenso}</div>
+      </div>
+      <div class="rb-declaracao">Recebi da empresa <strong>${esc(clinicaNome)}</strong> o equivalente a <strong>R$ ${valorF} (${extenso})</strong> de ${esc(dados.categoria||'pagamento').toLowerCase()}${periodoTxt}.<br><em>${esc(dados.descricao||'')}</em></div>
+      <div class="rb-assin">
+        <div class="rb-assin-item"><div class="rb-assin-linha">${esc(c.nome||'')}</div></div>
+        <div class="rb-assin-item"><div class="rb-assin-linha">${esc(dados.usuario||'Responsável')}</div></div>
+      </div>
+    </div>`;
+  }
+
+  // ── CSS compartilhado dos recibos ──
+  const RECIBO_CSS = `
+    @page{size:A4 portrait;margin:8mm}
+    body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#000}
+    .recibo-block{border:1px solid #aaa;border-radius:3px;padding:4mm 6mm;height:67mm;box-sizing:border-box;display:flex;flex-direction:column;gap:1.5mm;page-break-inside:avoid;margin-bottom:2mm;overflow:hidden;}
+    .rh{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #C62828;padding-bottom:1.5mm;margin-bottom:1mm}
+    .rh-empresa{font-size:8px;font-weight:700;text-align:center;line-height:1.4}
+    .rh-data{font-size:7.5px;text-align:right;color:#555}
+    .rb-titulo{font-size:10.5px;font-weight:700;color:#C62828}
+    .rb-val-box{background:#0A1F44;color:white;padding:1.5mm 4mm;border-radius:3px;text-align:center}
+    .rb-valor-num{font-size:13px;font-weight:900}
+    .rb-extenso{font-size:7.5px;opacity:.85}
+    .rb-declaracao{font-size:8px;color:#333;line-height:1.5;border:.5px solid #ccc;padding:1.5mm 2mm;border-radius:2px;flex:1}
+    .rb-assin{display:flex;gap:10mm;margin-top:auto}
+    .rb-assin-item{flex:1;text-align:center}
+    .rb-assin-linha{border-top:1px solid #333;padding-top:1mm;font-size:7.5px;color:#444}
+  `;
+
   function montarHtmlRecibo(c, dados, usuario) {
-    const _clinica = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
-    const _endereco = sessionStorage.getItem('clinicaEndereco') || 'Av. Dr. Felipe Pinel — Pirituba/SP';
-    const now = new Date();
-    const data = now.toLocaleDateString('pt-BR');
-    const hora = now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-    const fmtPag = {pix:'PIX', dinheiro:'Dinheiro', transferencia:'Transferência'}[dados.forma] || dados.forma;
-    const pago = dados.pago;
-    const dia = String(now.getDate()).padStart(2,'0'), mes = String(now.getMonth()+1).padStart(2,'0'), ano = now.getFullYear();
-    const dataPag = pago ? `${dia}/${mes}/${ano}` : '_______/_______/_____';
-    const logoTag = LOGO_FIN ? `<img src="${LOGO_FIN}" style="height:55px;width:auto;object-fit:contain;" alt="Logo">` : '<strong style="font-size:18px;color:#980000;">Amor Saúde</strong>';
-    return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo — ${esc(c.nome)}</title><style>
-      @page{size:A4;margin:0}body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#000}
-      .recibo{width:210mm;min-height:297mm;box-sizing:border-box;padding:12mm;margin:0 auto}
-      .cab{display:flex;align-items:center;justify-content:space-between;margin-bottom:8mm;border-bottom:3px solid #980000;padding-bottom:6mm}
-      .titulo{font-size:28px;font-weight:700;color:#980000;text-align:center}
-      .subtit{font-size:12px;color:#555;text-align:center;margin-top:2px}
-      .secao{background:#f5f5f5;padding:6mm 8mm;border-radius:6px;margin-bottom:6mm}
-      .secao-titulo{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#555;margin-bottom:4mm}
-      .campo{display:flex;gap:4mm;margin-bottom:3mm;font-size:13px}
-      .campo-lbl{font-weight:700;min-width:120px;color:#333}
-      .campo-val{color:#000}
-      .valor-box{background:#980000;color:white;padding:6mm 10mm;border-radius:8px;text-align:center;margin:8mm 0}
-      .valor-num{font-size:32px;font-weight:900}
-      .valor-lbl{font-size:12px;opacity:.8;margin-top:2px}
-      .declaracao{font-size:12px;color:#333;text-align:center;line-height:1.7;margin:6mm 0;padding:4mm;border:1px solid #ccc;border-radius:6px}
-      .assin-area{display:flex;justify-content:space-between;margin-top:12mm;gap:20mm}
-      .assin{text-align:center;flex:1}
-      .assin-linha{border-top:1px solid #000;margin-bottom:3px}
-      .assin-lbl{font-size:11px;color:#555}
-      .rodape{margin-top:8mm;padding-top:4mm;border-top:2px solid #61C1D0;text-align:center;font-size:10px;color:#555}
-      .status-pago{display:inline-block;padding:3px 12px;background:#dcfce7;color:#15803d;border:2px solid #15803d;border-radius:6px;font-weight:700;font-size:12px}
-    </style></head><body><div class="recibo">
-    <div class="cab"><div>${logoTag}</div><div style="text-align:center"><div class="titulo">RECIBO DE PAGAMENTO</div><div class="subtit">${sessionStorage.getItem('clinicaNome')||'Amor Saúde Pirituba'}</div></div><div style="font-size:12px;text-align:right;color:#555">${data}<br>${hora}</div></div>
-    <div class="secao"><div class="secao-titulo">Dados do Colaborador</div>
-    <div class="campo"><span class="campo-lbl">Nome:</span><span class="campo-val">${esc(c.nome||'—')}</span></div>
-    <div class="campo"><span class="campo-lbl">Cargo:</span><span class="campo-val">${esc(c.cargo||'—')}</span></div>
-    <div class="campo"><span class="campo-lbl">CPF:</span><span class="campo-val">${esc(c.cpf||'—')}</span></div>
-    ${c.banco?`<div class="campo"><span class="campo-lbl">Banco/PIX:</span><span class="campo-val">${esc(c.banco)}${c.pix?' — '+esc(c.pix):''}</span></div>`:''}
-    </div>
-    <div class="secao"><div class="secao-titulo">Descrição do Pagamento</div>
-    <div class="campo"><span class="campo-lbl">Serviço:</span><span class="campo-val">${esc(dados.descricao)}</span></div>
-    <div class="campo"><span class="campo-lbl">Forma:</span><span class="campo-val">${fmtPag}</span></div>
-    ${dados.obs?`<div class="campo"><span class="campo-lbl">Obs.:</span><span class="campo-val">${esc(dados.obs)}</span></div>`:''}
-    </div>
-    <div class="valor-box"><div class="valor-num">R$ ${fmtMoeda(dados.valor)}</div><div class="valor-lbl">VALOR TOTAL</div></div>
-    <div class="declaracao">Declaro que recebi da ${_clinica} o valor de <strong>R$ ${fmtMoeda(dados.valor)}</strong> referente a "${esc(dados.descricao)}", dando plena quitação.${pago?`<br><br><span class="status-pago">✓ QUITADO em ${dataPag}</span>`:''}</div>
-    <div class="assin-area">
-    <div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do Colaborador</div><div style="font-size:12px;color:#333;margin-top:3px;">${esc(c.nome||'')}</div></div>
-    <div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Responsável Financeiro</div><div style="font-size:12px;color:#333;margin-top:3px;">${esc(usuario||'—')}</div></div>
-    </div>
-    <div class="rodape">${_clinica} · ${_endereco} · Gerado em: ${data} ${hora}</div>
-    </div><sc`+'ript>window.print();</s'+'cript></body></html>';
+    const clinicaNome = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
+    const clinicaCnpj = sessionStorage.getItem('clinicaCnpj') || '';
+    const logo = LOGO_FIN || sessionStorage.getItem('logoDataUrl') || '';
+    const bloco = buildReciboBlock(c, {...dados, usuario}, logo, clinicaNome, clinicaCnpj);
+    return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo — ${esc(c.nome||'')}</title>
+      <style>${RECIBO_CSS}
+      /* Versão página única — expande o bloco */
+      .recibo-block{height:auto;min-height:80mm;font-size:110%;}
+      .rb-titulo{font-size:13px}
+      .rb-valor-num{font-size:16px}
+      </style></head><body>
+      ${bloco}
+      <sc`+'ript>window.print();</s'+'cript></body></html>';
+  }
+
+  // ── Lote ──
+  function abrirModalLote() {
+    renderLoteLista();
+    document.getElementById('modalLote').classList.add('open');
+  }
+  function fecharModalLote() { document.getElementById('modalLote').classList.remove('open'); }
+
+  function renderLoteLista() {
+    const el = document.getElementById('loteLista');
+    const keys = Object.keys(colaboradores);
+    if (!keys.length) { el.innerHTML = '<p style="padding:12px;text-align:center;color:#888;">Nenhum colaborador cadastrado.</p>'; return; }
+    el.innerHTML = keys.map(k => {
+      const c = colaboradores[k];
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid var(--gray-200);background:white;border-radius:6px;margin-bottom:4px;">
+        <input type="checkbox" class="lote-check" data-key="${k}" style="width:16px;height:16px;cursor:pointer;" checked>
+        <div style="flex:1;">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);">${esc(c.nome||'—')}</div>
+          <div style="font-size:10px;color:var(--gray-400);">${esc(c.cargo||'')}${c.cpf?' · '+esc(c.cpf):''}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="font-size:12px;font-weight:700;color:var(--gray-600);">R$</span>
+          <input type="text" class="lote-valor f-input" data-key="${k}" placeholder="0,00" oninput="mascaraMoeda(this)" style="width:110px;padding:6px 10px;font-size:13px;">
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function selecionarTodosLote(sel) {
+    document.querySelectorAll('.lote-check').forEach(cb => cb.checked = sel);
+  }
+
+  function imprimirLote() {
+    const desc    = document.getElementById('loteDesc').value.trim();
+    const cat     = document.getElementById('loteCat').value;
+    const inicio  = document.getElementById('loteInicio').value;
+    const fim     = document.getElementById('loteFim').value;
+    const usuario = sessionStorage.getItem('usuario') || 'Financeiro';
+    if (!desc) { toast('Informe a descrição', 'error'); return; }
+
+    const itens = [];
+    document.querySelectorAll('.lote-check:checked').forEach(cb => {
+      const k = cb.dataset.key;
+      const valInput = document.querySelector(`.lote-valor[data-key="${k}"]`);
+      const valorStr = (valInput?.value || '').replace(/\./g,'').replace(',','.');
+      const valor = parseFloat(valorStr) || 0;
+      if (valor > 0) itens.push({ colab: colaboradores[k], valor });
+    });
+
+    if (!itens.length) { toast('Selecione ao menos um colaborador com valor', 'error'); return; }
+
+    const clinicaNome = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
+    const clinicaCnpj = sessionStorage.getItem('clinicaCnpj') || '';
+    const logo = LOGO_FIN || sessionStorage.getItem('logoDataUrl') || '';
+
+    const blocos = itens.map(it =>
+      buildReciboBlock(it.colab, { descricao: desc, valor: it.valor, categoria: cat, inicio, fim, usuario }, logo, clinicaNome, clinicaCnpj)
+    ).join('');
+
+    const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Lote de Recibos</title>
+      <style>${RECIBO_CSS}</style></head><body>
+      ${blocos}
+      <sc`+'ript>window.print();</s'+'cript></body></html>';
+
+    const w = window.open('', '_blank');
+    if (!w) { toast('Pop-up bloqueado — permita pop-ups', 'error'); return; }
+    w.document.write(html);
+    w.document.close();
+    fecharModalLote();
+  }
+
+  function coletarDadosRecibo() {
+    const descricao = document.getElementById('rDesc').value.trim();
+    const valorStr  = document.getElementById('rValor').value.replace(/\./g,'').replace(',','.');
+    const valor     = parseFloat(valorStr) || 0;
+    const categoria = document.getElementById('rCat').value;
+    const inicio    = document.getElementById('rInicio').value;
+    const fim       = document.getElementById('rFim').value;
+    const forma     = document.getElementById('rForma').value;
+    const obs       = document.getElementById('rObs').value.trim();
+    const pago      = document.getElementById('rPago').checked;
+    return { descricao, valor, categoria, inicio, fim, forma, obs, pago };
   }
 
   function gerarEImprimirRecibo() {
     const c = colaboradores[colabAtualKey] || {};
-    const descricao = document.getElementById('rDesc').value.trim();
-    const valorStr  = document.getElementById('rValor').value.replace(/\./g,'').replace(',','.');
-    const valor     = parseFloat(valorStr) || 0;
-    if (!descricao) { toast('Informe a descrição', 'error'); return; }
-    if (!valor)     { toast('Informe o valor', 'error'); return; }
-    const dados = { descricao, valor, forma: document.getElementById('rForma').value, obs: document.getElementById('rObs').value.trim(), pago: document.getElementById('rPago').checked };
+    const dados = coletarDadosRecibo();
+    if (!dados.descricao) { toast('Informe a descrição', 'error'); return; }
+    if (!dados.valor)     { toast('Informe o valor', 'error'); return; }
     const usuario = sessionStorage.getItem('usuario') || 'Financeiro';
     const w = window.open('', '_blank');
     if (!w) { toast('Pop-up bloqueado — permita pop-ups', 'error'); return; }
-    w.document.write(montarHtmlRecibo(c, dados, usuario));
+    w.document.write(montarHtmlRecibo(c, {...dados, usuario}, usuario));
     w.document.close();
   }
 
   async function salvarRecibo() {
     const c = colaboradores[colabAtualKey] || {};
-    const descricao = document.getElementById('rDesc').value.trim();
-    const valorStr  = document.getElementById('rValor').value.replace(/\./g,'').replace(',','.');
-    const valor     = parseFloat(valorStr) || 0;
-    if (!descricao) { toast('Informe a descrição', 'error'); return; }
-    if (!valor)     { toast('Informe o valor', 'error'); return; }
-    const dados = { descricao, valor, forma: document.getElementById('rForma').value, obs: document.getElementById('rObs').value.trim(), pago: document.getElementById('rPago').checked };
+    const dados = coletarDadosRecibo();
+    if (!dados.descricao) { toast('Informe a descrição', 'error'); return; }
+    if (!dados.valor)     { toast('Informe o valor', 'error'); return; }
     const usuario = sessionStorage.getItem('usuario') || 'Financeiro';
     try {
       await window._fbSet('financeiro/recibos/' + Date.now(), {
@@ -403,7 +592,7 @@
     } catch(e) { toast('Erro ao salvar: ' + e.message, 'error'); }
     const w = window.open('', '_blank');
     if (!w) { toast('Pop-up bloqueado — permita pop-ups', 'error'); return; }
-    w.document.write(montarHtmlRecibo(c, dados, usuario));
+    w.document.write(montarHtmlRecibo(c, {...dados, usuario}, usuario));
     w.document.close();
   }
 

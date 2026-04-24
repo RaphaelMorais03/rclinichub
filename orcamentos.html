@@ -613,12 +613,29 @@
       if (!cart.length) return;
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF();
-      let y = 20;
-      pdf.setFontSize(18); pdf.setFont('helvetica', 'bold');
-      pdf.text('ORÇAMENTO — AMOR SAÚDE PIRITUBA', 105, y, { align: 'center' }); y += 8;
-      pdf.setFontSize(10); pdf.setFont('helvetica', 'normal');
-      pdf.text(new Date().toLocaleDateString('pt-BR'), 105, y, { align: 'center' }); y += 10;
-      pdf.line(20, y, 190, y); y += 8;
+      const clinicaNome = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
+      let y = 14;
+      // Logo
+      const logoUrl = sessionStorage.getItem('logoDataUrl');
+      if (logoUrl) {
+        try {
+          pdf.addImage(logoUrl, 'PNG', 14, y, 28, 14);
+          pdf.setFontSize(14); pdf.setFont('helvetica', 'bold');
+          pdf.text(clinicaNome, 46, y + 6);
+          pdf.setFontSize(9); pdf.setFont('helvetica', 'normal');
+          pdf.text('ORÇAMENTO DE EXAMES', 46, y + 12);
+        } catch(e) {
+          pdf.setFontSize(16); pdf.setFont('helvetica', 'bold');
+          pdf.text('ORÇAMENTO — ' + clinicaNome.toUpperCase(), 105, y + 8, { align: 'center' });
+        }
+      } else {
+        pdf.setFontSize(16); pdf.setFont('helvetica', 'bold');
+        pdf.text('ORÇAMENTO — ' + clinicaNome.toUpperCase(), 105, y + 8, { align: 'center' });
+      }
+      y += 20;
+      pdf.setFontSize(9); pdf.setFont('helvetica', 'normal');
+      pdf.text('Emitido em: ' + new Date().toLocaleDateString('pt-BR'), 190, y, { align: 'right' }); y += 4;
+      pdf.line(14, y, 196, y); y += 7;
       const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
       cart.forEach((it, i) => {
         if (y > 270) { pdf.addPage(); y = 20; }

@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <script src="js/firebase-config.js"></script>
   <script src="js/shared-utils.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
     :root{--navy:#0A1F44;--navy-mid:#122b5e;--red:#C62828;--red-h:#ad1f1f;--amber:#92400e;--amber-bg:#fef3c7;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;--gray-300:#cbd5e1;--gray-400:#94a3b8;--gray-500:#64748b;--gray-600:#475569;--gray-800:#1e293b;--green:#15803d;--green-bg:#dcfce7;--shadow:0 4px 20px rgba(10,31,68,.1);}
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
@@ -228,6 +229,7 @@
       <button class="tab-btn" onclick="tab('atendentes')"><i class="fas fa-id-badge"></i> Atendentes</button>
       <button class="tab-btn" onclick="tab('clinica')"><i class="fas fa-hospital"></i> Clínica</button>
       <button class="tab-btn" onclick="tab('profissionais')"><i class="fas fa-user-doctor"></i> Profissionais</button>
+      <button class="tab-btn" onclick="tab('colaboradores')"><i class="fas fa-address-card"></i> Colaboradores</button>
       <button class="tab-btn" onclick="tab('logs')"><i class="fas fa-list-ul"></i> Logs</button>
       <button class="tab-btn" onclick="tab('config')"><i class="fas fa-gear"></i> Configurações</button>
     </div>
@@ -339,6 +341,56 @@
       </div>
     </div>
 
+    <!-- ABA COLABORADORES -->
+    <div class="tab-pane" id="paneColaboradores">
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-address-card"></i> Importar colaboradores do Financeiro</div>
+        </div>
+        <p style="font-size:13px;color:var(--gray-500);margin-bottom:18px;">
+          Importe uma planilha <strong>.xlsx</strong> com as colunas: <strong>Nome, Cargo, CPF, Banco, PIX</strong>.<br>
+          Os colaboradores importados ficarão disponíveis no módulo <strong>Financeiro</strong> para emissão de recibos.
+        </p>
+        <!-- Template download hint -->
+        <div style="background:var(--gray-50);border:1px dashed var(--gray-300);border-radius:10px;padding:14px 18px;margin-bottom:18px;font-size:12px;color:var(--gray-500);">
+          <i class="fas fa-circle-info" style="color:var(--navy);margin-right:6px;"></i>
+          A planilha deve ter cabeçalho na <strong>1ª linha</strong>. Colunas aceitas (em qualquer ordem):
+          <strong>Nome</strong>, <strong>Cargo</strong>, <strong>CPF</strong>, <strong>Banco</strong>, <strong>PIX</strong>.
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;">
+          <input type="file" id="colabXlsxInput" accept=".xlsx,.xls,.csv" style="display:none;" onchange="parseColabXlsx(event)">
+          <button class="btn-p" onclick="document.getElementById('colabXlsxInput').click()">
+            <i class="fas fa-file-arrow-up"></i> Selecionar planilha
+          </button>
+          <span id="colabXlsxStatus" style="font-size:12px;color:var(--gray-500);"></span>
+        </div>
+        <!-- Preview table -->
+        <div id="colabXlsxPreview" style="display:none;">
+          <div style="font-size:13px;font-weight:800;color:var(--navy);margin-bottom:10px;" id="colabXlsxCount"></div>
+          <div style="overflow-x:auto;max-height:320px;overflow-y:auto;border:1px solid var(--gray-200);border-radius:10px;margin-bottom:16px;">
+            <table style="width:100%;border-collapse:collapse;font-size:12px;" id="colabXlsxTable"></table>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn-s" onclick="cancelarImportColab()"><i class="fas fa-xmark"></i> Cancelar</button>
+            <button class="btn-s" id="btnImportAddColab" onclick="importarColabs(false)" style="color:var(--green);border-color:var(--green);">
+              <i class="fas fa-plus"></i> Adicionar aos existentes
+            </button>
+            <button class="btn-p" id="btnImportReplaceColab" onclick="importarColabs(true)">
+              <i class="fas fa-rotate"></i> Substituir tudo
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Lista atual de colaboradores -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-users"></i> Colaboradores cadastrados</div>
+          <span id="colabAdminCount" style="font-size:12px;color:var(--gray-400);"></span>
+        </div>
+        <div id="colabAdminLista"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></div>
+      </div>
+    </div>
+
     <!-- ABA LOGS -->
     <div class="tab-pane" id="paneLogs">
       <div class="panel">
@@ -382,11 +434,12 @@
   function tab(t) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    const idx = ['usuarios','atendentes','clinica','profissionais','logs','config'].indexOf(t);
+    const idx = ['usuarios','atendentes','clinica','profissionais','colaboradores','logs','config'].indexOf(t);
     if (idx >= 0) document.querySelectorAll('.tab-btn')[idx].classList.add('active');
     const pane = document.getElementById('pane' + t.charAt(0).toUpperCase() + t.slice(1));
     if (pane) pane.classList.add('active');
     if (t === 'logs') carregarLogs();
+    if (t === 'colaboradores') carregarColabAdmin();
   }
 
   // ── Dados em memória ──
@@ -742,6 +795,129 @@
       profCache.sort((a,b) => (a.p.nome||'').localeCompare(b.p.nome||''));
       filtrarProfissionais();
     } catch(e) {}
+  }
+
+  // ── Colaboradores (importação XLSX) ──
+  let _colabXlsxData = [];
+
+  function parseColabXlsx(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    document.getElementById('colabXlsxStatus').textContent = 'Lendo planilha...';
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb  = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+        const ws  = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+        if (rows.length < 2) { toast('Planilha vazia ou sem dados', 'error'); return; }
+        // Detectar colunas pelo cabeçalho
+        const header = rows[0].map(h => String(h||'').toLowerCase().trim());
+        const idx = {
+          nome:  header.findIndex(h => h.includes('nome')),
+          cargo: header.findIndex(h => h.includes('cargo') || h.includes('função') || h.includes('funcao')),
+          cpf:   header.findIndex(h => h.includes('cpf')),
+          banco: header.findIndex(h => h.includes('banco') || h.includes('ag') || h.includes('conta')),
+          pix:   header.findIndex(h => h.includes('pix') || h.includes('chave'))
+        };
+        if (idx.nome < 0) { toast('Coluna "Nome" não encontrada', 'error'); return; }
+        _colabXlsxData = rows.slice(1)
+          .filter(r => r[idx.nome] && String(r[idx.nome]).trim())
+          .map(r => ({
+            nome:  String(r[idx.nome]||'').trim(),
+            cargo: idx.cargo >= 0 ? String(r[idx.cargo]||'').trim() : '',
+            cpf:   idx.cpf   >= 0 ? String(r[idx.cpf]  ||'').trim() : '',
+            banco: idx.banco >= 0 ? String(r[idx.banco] ||'').trim() : '',
+            pix:   idx.pix   >= 0 ? String(r[idx.pix]  ||'').trim() : ''
+          }));
+        if (!_colabXlsxData.length) { toast('Nenhum colaborador encontrado', 'error'); return; }
+        // Renderiza preview
+        document.getElementById('colabXlsxCount').textContent = `${_colabXlsxData.length} colaborador(es) encontrado(s)`;
+        const tHead = `<thead><tr style="background:var(--navy);color:white;">
+          ${['Nome','Cargo','CPF','Banco','PIX'].map(c=>`<th style="padding:7px 10px;text-align:left;font-size:11px;">${c}</th>`).join('')}
+        </tr></thead>`;
+        const tBody = '<tbody>' + _colabXlsxData.map((c,i) =>
+          `<tr style="background:${i%2?'white':'var(--gray-50)'};">
+            <td style="padding:6px 10px;">${esc(c.nome)}</td>
+            <td style="padding:6px 10px;">${esc(c.cargo)}</td>
+            <td style="padding:6px 10px;">${esc(c.cpf)}</td>
+            <td style="padding:6px 10px;">${esc(c.banco)}</td>
+            <td style="padding:6px 10px;">${esc(c.pix)}</td>
+          </tr>`).join('') + '</tbody>';
+        document.getElementById('colabXlsxTable').innerHTML = tHead + tBody;
+        document.getElementById('colabXlsxPreview').style.display = 'block';
+        document.getElementById('colabXlsxStatus').textContent = '';
+      } catch(err) {
+        toast('Erro ao ler planilha: ' + err.message, 'error');
+        document.getElementById('colabXlsxStatus').textContent = '';
+      }
+    };
+    reader.readAsArrayBuffer(file);
+    event.target.value = '';
+  }
+
+  function cancelarImportColab() {
+    _colabXlsxData = [];
+    document.getElementById('colabXlsxPreview').style.display = 'none';
+    document.getElementById('colabXlsxStatus').textContent = '';
+  }
+
+  async function importarColabs(substituir) {
+    if (!_colabXlsxData.length) return;
+    const fu = window.__fb;
+    try {
+      let base = {};
+      if (!substituir) {
+        // Carrega existentes para mesclar
+        const snap = await fu.get(fu.ref(fu.db, 'financeiro/colaboradores'));
+        base = snap.exists() ? snap.val() : {};
+      }
+      _colabXlsxData.forEach(c => {
+        const key = 'colab_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+        base[key] = { nome: c.nome, cargo: c.cargo, cpf: c.cpf, banco: c.banco, pix: c.pix, atualizadoEm: new Date().toISOString() };
+      });
+      await fu.get(fu.ref(fu.db, 'financeiro/colaboradores')); // ensure path exists
+      const { set, ref: r } = window.__fbModules || {};
+      await window._fbSet('financeiro/colaboradores', base);
+      toast(`${_colabXlsxData.length} colaboradores importados!`, 'success');
+      cancelarImportColab();
+      carregarColabAdmin();
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+  }
+
+  async function carregarColabAdmin() {
+    const el = document.getElementById('colabAdminLista');
+    const cnt = document.getElementById('colabAdminCount');
+    el.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div>';
+    try {
+      const snap = await window.__fb.get(window.__fb.ref(window.__fb.db, 'financeiro/colaboradores'));
+      const data = snap.exists() ? snap.val() : {};
+      const lista = Object.entries(data);
+      cnt.textContent = lista.length + ' cadastrado(s)';
+      if (!lista.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum colaborador cadastrado.</p></div>'; return; }
+      el.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:var(--navy);color:white;">
+          ${['Nome','Cargo','CPF','Banco','PIX','Ações'].map(c=>`<th style="padding:7px 10px;text-align:left;">${c}</th>`).join('')}
+        </tr></thead>
+        <tbody>${lista.map(([k,c],i)=>`<tr style="background:${i%2?'white':'var(--gray-50)'};">
+          <td style="padding:6px 10px;font-weight:600;">${esc(c.nome||'—')}</td>
+          <td style="padding:6px 10px;">${esc(c.cargo||'—')}</td>
+          <td style="padding:6px 10px;">${esc(c.cpf||'—')}</td>
+          <td style="padding:6px 10px;">${esc(c.banco||'—')}</td>
+          <td style="padding:6px 10px;">${esc(c.pix||'—')}</td>
+          <td style="padding:6px 10px;"><button onclick="removerColabAdmin('${k}')" style="background:var(--red);color:white;border:none;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:11px;"><i class="fas fa-trash"></i></button></td>
+        </tr>`).join('')}</tbody>
+      </table></div>`;
+    } catch(e) { el.innerHTML = '<div class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>Erro ao carregar</p></div>'; }
+  }
+
+  async function removerColabAdmin(key) {
+    if (!confirm('Remover este colaborador?')) return;
+    try {
+      await window._fbRemove('financeiro/colaboradores/' + key);
+      toast('Removido!', 'success');
+      carregarColabAdmin();
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
   }
 
   // ── Logs ──
