@@ -173,6 +173,22 @@
     .btn-add-pt{background:var(--red);color:white;}
     .btn-add-pt:hover:not(:disabled){background:var(--red-h);}
 
+    /* preparo read-only */
+    .preparo-box{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:9px;padding:11px 14px;font-size:13px;color:#166534;line-height:1.7;white-space:pre-wrap;}
+
+    /* qty mini-modal */
+    .qty-overlay{position:fixed;inset:0;background:rgba(10,31,68,.62);backdrop-filter:blur(4px);z-index:600;display:none;align-items:center;justify-content:center;padding:20px;}
+    .qty-overlay.show{display:flex;}
+    .qty-box{background:white;border-radius:18px;padding:28px 24px;max-width:380px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.35);}
+    .qty-title{font-size:17px;font-weight:900;color:var(--navy);margin-bottom:4px;}
+    .qty-sub{font-size:12px;color:var(--gray-500);margin-bottom:20px;line-height:1.5;font-style:italic;}
+    .qty-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+    .qty-opt{padding:13px 16px;border-radius:11px;border:2px solid var(--gray-200);background:var(--gray-50);font-family:inherit;font-size:13px;font-weight:700;color:var(--gray-700);cursor:pointer;text-align:left;transition:all .15s;display:flex;justify-content:space-between;align-items:center;}
+    .qty-opt:hover{border-color:var(--navy);background:#eff6ff;color:var(--navy);}
+    .qty-opt .qty-price{font-size:14px;font-weight:900;color:var(--navy);}
+    .qty-cancel{width:100%;padding:9px;border-radius:9px;border:1.5px solid var(--gray-200);background:white;font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-500);cursor:pointer;transition:all .15s;}
+    .qty-cancel:hover{background:var(--gray-100);}
+
     /* toast */
     .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:opacity .2s;z-index:2000;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25);}
     .toast.show{opacity:1;}
@@ -181,6 +197,45 @@
 
     /* file input */
     .file-input{display:none;}
+
+    /* ── TABS ── */
+    .tabs-bar{display:flex;gap:0;border-bottom:2px solid var(--gray-200);padding:0 24px;background:white;flex-shrink:0;}
+    .tab-btn{padding:10px 18px;font-family:inherit;font-size:13px;font-weight:700;color:var(--gray-500);background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;white-space:nowrap;}
+    .tab-btn:hover{color:var(--navy);}
+    .tab-btn.active{color:var(--navy);border-bottom-color:var(--navy);}
+    .tab-btn .tab-icon{font-size:13px;}
+
+    /* ── PARCEIROS PANEL ── */
+    .parceiros-panel{flex:1;overflow-y:auto;padding:24px;display:none;}
+    .parceiros-panel.active{display:block;}
+    .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:860px;margin:0 auto;}
+    @media(max-width:700px){.p-grid{grid-template-columns:1fr;}}
+    .p-card{background:white;border:1.5px solid var(--gray-200);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;}
+    .p-card-title{font-size:13px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:7px;}
+    .p-card-title i{color:var(--teal);}
+    .f-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-500);margin-bottom:4px;display:block;}
+    .p-select,.p-input{width:100%;border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;font-family:inherit;font-size:13px;color:var(--gray-800);background:var(--gray-50);outline:none;transition:border-color .2s;}
+    .p-select:focus,.p-input:focus{border-color:var(--navy);background:white;box-shadow:0 0 0 3px rgba(10,31,68,.06);}
+    .vals-row{display:flex;gap:8px;}
+    .val-chip{flex:1;text-align:center;padding:9px 6px;border-radius:9px;background:var(--gray-50);border:1.5px solid var(--gray-100);}
+    .val-chip .vc-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400);}
+    .val-chip .vc-val{font-size:16px;font-weight:900;color:var(--navy);}
+    .val-chip.guia .vc-val{color:#b45309;}
+    .val-chip.resta .vc-val{color:#15803d;}
+    .p-partner-info{background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:10px 13px;font-size:12px;color:#1e40af;line-height:1.55;display:none;}
+    .p-partner-info.show{display:block;}
+    .p-partner-info strong{display:block;font-size:13px;margin-bottom:3px;}
+    .p-obs{background:#fff7ed;border:1px solid #fed7aa;border-radius:7px;padding:7px 10px;font-size:11px;color:#92400e;margin-top:4px;line-height:1.5;}
+    .msg-area{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;white-space:pre-wrap;font-family:inherit;color:var(--gray-800);min-height:80px;display:none;max-height:340px;overflow-y:auto;}
+    .msg-area.show{display:block;}
+    .p-btn-row{display:flex;gap:8px;flex-wrap:wrap;}
+    .p-btn{padding:9px 16px;border-radius:9px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;}
+    .p-btn.gerar{background:var(--navy);color:white;}
+    .p-btn.gerar:hover{background:var(--navy-mid);}
+    .p-btn.copiar{background:var(--green);color:white;display:none;}
+    .p-btn.copiar:hover{background:#166534;}
+    .p-btn.limpar{background:var(--gray-100);color:var(--gray-600);border:1.5px solid var(--gray-200);}
+    .p-btn.limpar:hover{background:var(--gray-200);}
 
     @media(max-width:900px){
       .layout{grid-template-columns:1fr;}
@@ -229,8 +284,18 @@
     <div class="chips-row" id="categoryChips"></div>
   </div>
 
-  <!-- MAIN LAYOUT -->
-  <div class="layout">
+  <!-- TABS -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" id="tabOrc" onclick="switchTab('orc')">
+      <i class="tab-icon fas fa-file-invoice-dollar"></i> Orçamentos
+    </button>
+    <button class="tab-btn" id="tabParc" onclick="switchTab('parc')">
+      <i class="tab-icon fas fa-handshake"></i> Exames Parceiros
+    </button>
+  </div>
+
+  <!-- MAIN LAYOUT (tab orc) -->
+  <div class="layout" id="panelOrc">
     <main class="main-content">
       <div class="results-meta" id="resultsMeta"></div>
       <div id="results"></div>
@@ -260,9 +325,98 @@
     </aside>
   </div>
 
+  <!-- PAINEL PARCEIROS (tab parc) -->
+  <div class="parceiros-panel" id="panelParc">
+    <div class="p-grid">
+
+      <!-- Coluna esquerda: seleção -->
+      <div class="p-card">
+        <div class="p-card-title"><i class="fas fa-hospital"></i> Dados do Encaminhamento</div>
+
+        <div>
+          <label class="f-label">Parceiro</label>
+          <select id="pSelParceiro" class="p-select" onchange="pOnParceiro()">
+            <option value="">— Selecione o parceiro —</option>
+            <option value="auri">Auri Medicina</option>
+            <option value="cergoli">Cergoli — Lapa</option>
+            <option value="imadi">IMADI Imagem</option>
+            <option value="medicom">Medicom 2.0</option>
+            <option value="prezecor">Prezecor 2.0</option>
+            <option value="scoppeta">Scoppeta</option>
+            <option value="tc_prezecor">TC Prezecor (Freguesia / Guarulhos)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="f-label">Exame</label>
+          <select id="pSelExame" class="p-select" onchange="pOnExame()">
+            <option value="">— Selecione o parceiro primeiro —</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="f-label">Nome do Paciente</label>
+          <input type="text" id="pPaciente" class="p-input" placeholder="Ex: Maria da Silva">
+        </div>
+
+        <div>
+          <label class="f-label">Observação extra (opcional)</label>
+          <input type="text" id="pObs" class="p-input" placeholder="Ex: Levar pedido médico, exame em jejum…">
+        </div>
+
+        <!-- Info do parceiro -->
+        <div id="pInfoBox" class="p-partner-info">
+          <strong id="pInfoNome"></strong>
+          <span id="pInfoTel"></span>
+          <div id="pInfoObs" class="p-obs" style="display:none"></div>
+        </div>
+      </div>
+
+      <!-- Coluna direita: valores + mensagem -->
+      <div class="p-card">
+        <div class="p-card-title"><i class="fas fa-comment-dots"></i> Mensagem</div>
+
+        <!-- Chips de valor -->
+        <div id="pValsRow" class="vals-row" style="display:none">
+          <div class="val-chip">
+            <div class="vc-lbl">Valor Total</div>
+            <div class="vc-val" id="pChipTotal">—</div>
+          </div>
+          <div class="val-chip guia">
+            <div class="vc-lbl">Guia (aqui)</div>
+            <div class="vc-val" id="pChipGuia">—</div>
+          </div>
+          <div class="val-chip resta">
+            <div class="vc-lbl">Restante (parceiro)</div>
+            <div class="vc-val" id="pChipResta">—</div>
+          </div>
+        </div>
+
+        <div class="p-btn-row">
+          <button class="p-btn gerar" onclick="pGerar()"><i class="fas fa-magic"></i> Gerar Mensagem</button>
+          <button class="p-btn copiar" id="pBtnCopiar" onclick="pCopiar()"><i class="fas fa-copy"></i> Copiar</button>
+          <button class="p-btn limpar" onclick="pLimpar()"><i class="fas fa-redo"></i> Limpar</button>
+        </div>
+
+        <div id="pMsgArea" class="msg-area"></div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- MODAL -->
   <div class="modal-overlay" id="modal">
     <div class="modal" id="modalContent"></div>
+  </div>
+
+  <!-- MINI-MODAL: quantidade / bilateral -->
+  <div class="qty-overlay" id="qtyOverlay">
+    <div class="qty-box">
+      <div class="qty-title" id="qtyTitle"></div>
+      <div class="qty-sub" id="qtySub"></div>
+      <div class="qty-opts" id="qtyOpts"></div>
+      <button class="qty-cancel" onclick="qtyClose()"><i class="fas fa-times"></i> Cancelar</button>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
@@ -334,6 +488,17 @@
         const snap = await getDocs(collection(db, 'orcamentos_exames'));
         exams = [];
         snap.forEach(d => exams.push({ id: d.id, ...d.data() }));
+        // Separar exames combinados Holter + MAPA em dois cards independentes
+        exams = exams.flatMap(e => {
+          const n = normalize(e.nome);
+          if (n.includes('holter') && n.includes('mapa')) {
+            return [
+              { ...e, id: e.id + '_holter', nome: 'Holter 24h' },
+              { ...e, id: e.id + '_mapa',   nome: 'MAPA 24h'   }
+            ];
+          }
+          return [e];
+        });
         if (exams.length === 0) {
           document.getElementById('results').innerHTML = `
             <div class="empty">
@@ -452,6 +617,10 @@
     function openModal(id) {
       const e = exams.find(x => x.id === id);
       if (!e) return;
+      const prepTxt = getPreparo(e);
+      const needsPrompt = examNeedsPrompt(e);
+      const ctLabel  = needsPrompt ? `<i class="fas fa-plus"></i> Cartão${e.preco_ct != null ? ' — ' + fmtBRL(e.preco_ct) : ''}` : `<i class="fas fa-plus"></i> Cartão ${e.preco_ct != null ? fmtBRL(e.preco_ct) : ''}`;
+      const ptLabel  = needsPrompt ? `<i class="fas fa-plus"></i> Particular${e.preco_pt != null ? ' — ' + fmtBRL(e.preco_pt) : ''}` : `<i class="fas fa-plus"></i> Particular ${e.preco_pt != null ? fmtBRL(e.preco_pt) : ''}`;
       document.getElementById('modalContent').innerHTML = `
         <div class="modal-head">
           <div class="modal-titles">
@@ -475,57 +644,168 @@
             </div>
           </div>
           <div class="modal-section">
-            <div class="modal-section-lbl">O que é o exame</div>
-            <textarea id="editCarac" placeholder="Ex: Exame que utiliza ondas sonoras para…">${escapeHtml(e.caracteristica || '')}</textarea>
-          </div>
-          <div class="modal-section">
-            <div class="modal-section-lbl">Benefício ao paciente</div>
-            <textarea id="editBenef" placeholder="Ex: Permite identificar precocemente…">${escapeHtml(e.beneficio || '')}</textarea>
-          </div>
-          <div class="modal-section">
-            <div class="modal-section-lbl">Preparo</div>
-            <textarea id="editPrep" placeholder="Ex: Jejum de 8h, bexiga cheia…">${escapeHtml(e.preparo || '')}</textarea>
+            <div class="modal-section-lbl" style="display:flex;align-items:center;gap:5px;">
+              <i class="fas fa-notes-medical" style="color:var(--teal);font-size:11px;"></i> Preparo
+            </div>
+            <div class="preparo-box">${escapeHtml(prepTxt)}</div>
           </div>
           ${e.observacao ? `<div class="modal-section"><div class="modal-section-lbl">Observação interna</div><div style="font-size:13px;color:var(--gray-600);padding:8px 10px;background:var(--gray-50);border-radius:8px;line-height:1.5;">${escapeHtml(e.observacao)}</div></div>` : ''}
           <div class="modal-actions">
-            <button class="btn-save" id="saveEditsBtn"><i class="fas fa-floppy-disk"></i> Salvar</button>
-            <button class="btn-add-ct" id="addCtBtn" ${e.preco_ct == null ? 'disabled' : ''}><i class="fas fa-plus"></i> Cartão ${e.preco_ct != null ? fmtBRL(e.preco_ct) : ''}</button>
-            <button class="btn-add-pt" id="addPtBtn" ${e.preco_pt == null ? 'disabled' : ''}><i class="fas fa-plus"></i> Particular ${e.preco_pt != null ? fmtBRL(e.preco_pt) : ''}</button>
+            <button class="btn-add-ct" id="addCtBtn" ${e.preco_ct == null ? 'disabled' : ''}>${ctLabel}</button>
+            <button class="btn-add-pt" id="addPtBtn" ${e.preco_pt == null ? 'disabled' : ''}>${ptLabel}</button>
           </div>
         </div>`;
       document.getElementById('modal').classList.add('show');
       document.getElementById('closeBtn').addEventListener('click', closeModal);
-      document.getElementById('saveEditsBtn').addEventListener('click', () => saveEdits(id));
-      document.getElementById('addCtBtn').addEventListener('click', () => { addToCart(id, 'ct'); closeModal(); });
-      document.getElementById('addPtBtn').addEventListener('click', () => { addToCart(id, 'pt'); closeModal(); });
+      document.getElementById('addCtBtn').addEventListener('click', () => promptAddToCart(id, 'ct'));
+      document.getElementById('addPtBtn').addEventListener('click', () => promptAddToCart(id, 'pt'));
     }
     function closeModal() { document.getElementById('modal').classList.remove('show'); }
     document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
 
-    async function saveEdits(id) {
-      const carac = document.getElementById('editCarac').value.trim();
-      const benef = document.getElementById('editBenef').value.trim();
-      const prep  = document.getElementById('editPrep').value.trim();
-      try {
-        await updateDoc(doc(db, 'orcamentos_exames', id), {
-          caracteristica: carac, beneficio: benef, preparo: prep,
-          updatedAt: new Date().toISOString(), updatedBy: currentUser.email
-        });
-        const e = exams.find(x => x.id === id);
-        if (e) { e.caracteristica = carac; e.beneficio = benef; e.preparo = prep; }
-        toast('Edições salvas!', 'success');
-      } catch (err) { toast('Erro ao salvar: ' + err.message, 'error', 4000); }
+    // ── PREPARO: retorna texto de preparo para cada exame ──
+    function getPreparo(e) {
+      if (e.preparo && e.preparo.trim()) return e.preparo.trim();
+      const n  = normalize(e.nome);
+      const cat = normalize(e.categoria || '');
+
+      if (n.includes('holter'))
+        return 'Tomar banho antes e não usar desodorante, creme ou talco na região do tórax.\nVestir roupa confortável e de fácil acesso ao tórax.\nTrazer lista de medicamentos em uso.';
+      if (n.includes('mapa'))
+        return 'Não praticar atividades físicas intensas durante o exame.\nManter o braço estendido e imóvel durante as medições automáticas.\nTrazer lista de medicamentos em uso.';
+      if (n.includes('eletrocardiograma') || n === 'ecg' || n.startsWith('ecg '))
+        return 'Sem preparo especial.\nEvitar cremes e loções na região do tórax no dia do exame.';
+      if (n.includes('ecocardiograma'))
+        return 'Sem preparo especial.\nTrajar roupas confortáveis.\nTrazer lista de medicamentos em uso.';
+      if (n.includes('ergometria') || n.includes('teste ergometrico') || n.includes('teste de esforco'))
+        return 'Usar tênis e roupas esportivas confortáveis.\nNão realizar refeições pesadas nas 2 horas anteriores.\nSuspender betabloqueadores apenas se orientado pelo médico solicitante.';
+      if (n.includes('eletroencefalograma') || n.includes('eeg'))
+        return 'Lavar o cabelo no dia do exame (sem condicionador ou gel).\nNão ingerir café, chá, refrigerante ou estimulantes nas 4 horas anteriores.\nDormir menos na noite anterior, se indicado pelo médico.';
+      if (n.includes('eletroneuromiografia') || n.includes('eletromiografia') || n.includes('enmg') || n.includes('miografia') || (n.includes('facial') && (n.includes('nervo') || n.includes('eletr'))) || (n.includes('neurolog') && n.includes('membro')))
+        return 'Sem preparo especial.\nNão aplicar cremes ou loções na pele do local a ser examinado.\nInformar ao médico sobre uso de anticoagulantes.';
+      if (n.includes('potencial') && (n.includes('auditi') || n.includes('bera') || n.includes('peate')))
+        return 'Lavar o cabelo no dia do exame (sem condicionador).\nCrianças pequenas podem necessitar de sedação — verificar com o médico com antecedência.\nComparecer com o cabelo limpo e seco.';
+      if (n.includes('potencial') && (n.includes('visual') || n.includes('pev')))
+        return 'Trazer óculos ou lentes de contato se usar correção visual.\nSem preparo específico necessário.';
+
+      // RM
+      if ((n.includes('ressonancia') || /\brm\b/.test(n) || n.includes('angio-rm') || n.includes('colangio-rm') || n.includes('hidro-rm') || n.includes('uroressonancia')) && (n.includes('primovist') || n.includes('contraste')))
+        return 'Jejum de 2 horas antes.\nTrazer pedido médico e exames anteriores.\nInformar próteses metálicas, marca-passo ou implantes.\nTrazer creatinina recente (obrigatório para contraste).';
+      if (n.includes('ressonancia') || /\brm\b/.test(n) || n.includes('angio-rm') || n.includes('colangio-rm') || n.includes('hidro-rm') || n.includes('uroressonancia'))
+        return 'Sem preparo especial.\nRetirar objetos metálicos (brincos, piercing, relógio, cinto).\nInformar ao técnico sobre próteses, marca-passo, implantes cocleares, clipes cirúrgicos ou DIU.';
+
+      // TC
+      if ((n.includes('tomografia') || /\btc\b/.test(n) || n.includes('angio-tc') || n.includes('urotomografia')) && (n.includes('angio') || n.includes('abdome') || n.includes('abdominal') || n.includes('torax') || n.includes('tórax') || n.includes('pelve') || n.includes('total')))
+        return 'Jejum de 4 horas (para exames com contraste).\nTrazer resultado de creatinina recente.\nTrazer pedido médico e exames anteriores.\nInformar alergias, especialmente a contraste iodado.';
+      if (n.includes('tomografia') || /\btc\b/.test(n) || n.includes('angio-tc') || n.includes('urotomografia'))
+        return 'Sem preparo especial.\nTrazer pedido médico e exames anteriores.\nRetirar objetos metálicos da região a ser examinada.';
+
+      // Ultrassom
+      if ((n.includes('ultrassom') || n.includes('usg') || n.includes('ecografia')) && (n.includes('abdome') || n.includes('hepat') || n.includes('figado') || n.includes('bilio') || n.includes('pancre') || n.includes('baco') || n.includes('renal') || n.includes('rim') || n.includes('vias urin')))
+        return 'Jejum de 4 horas antes.\nPara visualização de rim e bexiga: também manter bexiga cheia (beber 1 litro de água 1h antes e não urinar).';
+      if ((n.includes('ultrassom') || n.includes('usg') || n.includes('ecografia')) && (n.includes('pelv') || n.includes('utero') || n.includes('útero') || n.includes('ovario') || n.includes('vesical') || n.includes('bexiga')))
+        return 'Bexiga cheia: beber 1 litro de água 1 hora antes e não urinar.';
+      if (n.includes('transvaginal'))
+        return 'Bexiga vazia: urinar antes de entrar no consultório.';
+      if ((n.includes('ultrassom') || n.includes('usg') || n.includes('ecografia')) && (n.includes('obstet') || n.includes('morfolog') || n.includes('fetal') || n.includes('gestac') || n.includes('doppler') || n.includes('translucenc')))
+        return 'Bexiga semi-cheia: beber meio litro de água 30 minutos antes.\nTrajar roupas confortáveis.\nTrazer carteirinha de pré-natal.';
+      if ((n.includes('ultrassom') || n.includes('usg') || n.includes('ecografia')) && (n.includes('mama') || n.includes('tireoide') || n.includes('tireóide') || n.includes('prostata') || n.includes('próstata') || n.includes('escrotal') || n.includes('bolsa') || n.includes('partes moles')))
+        return 'Sem preparo especial.\nTrajar roupas confortáveis.';
+      if (n.includes('ultrassom') || n.includes('usg') || n.includes('ecografia'))
+        return 'Sem preparo especial.\nEm caso de dúvida sobre o tipo de ultrassom, verificar com a recepção.';
+
+      if (n.includes('mamografia'))
+        return 'Não usar desodorante, talco ou cremes na axila e região mamária no dia do exame.\nPreferir usar blusa e calça separadas.\nTrazer mamografias anteriores se disponíveis.';
+
+      // Raio-X
+      if ((n.includes('raio') || n.includes('radiografia')) && (n.includes('abdome') || n.includes('bario') || n.includes('contraste')))
+        return 'Jejum de 4 horas.\nTrajar peças sem botões ou zíperes metálicos na região examinada.';
+      if (n.includes('raio') || n.includes('radiografia'))
+        return 'Sem preparo especial.\nRetirar adornos metálicos (brincos, colar, piercing) na região a ser examinada.';
+
+      if (n.includes('densitometria'))
+        return 'Não realizar exames com contraste nos 7 dias anteriores.\nNão ingerir suplementos de cálcio ou vitamina D no dia do exame.\nInformar peso, altura e data da última menstruação.';
+      if (n.includes('espirometria'))
+        return 'Não usar broncodilatador nas 4 horas anteriores (salvo orientação médica).\nNão fumar nas 4 horas anteriores.\nEvitar refeições pesadas.\nUsar roupa confortável.';
+      if (n.includes('audiometria') || n.includes('impedanciometria') || n.includes('otoneurologico') || n.includes('otoneurológico'))
+        return 'Evitar exposição a ruídos intensos nas 12 horas anteriores.\nComparecer com o ouvido limpo (higiene habitual).';
+      if (n.includes('endoscopia') || n.includes('esofagoscopia'))
+        return 'Jejum rigoroso de 8 horas de sólidos e 4 horas de líquidos claros.\nInformar ao médico sobre uso de anticoagulantes com antecedência.';
+      if (n.includes('colonoscopia') || n.includes('retossigmoidoscopia') || n.includes('anuscopia') || n.includes('polipectomia'))
+        return 'Preparo intestinal completo: seguir rigorosamente o protocolo indicado pelo médico (dieta líquida + laxante).\nSuspender ferro e aspirina conforme orientação.\nJejum de 6 horas antes.';
+      if (n.includes('colposcopia') || n.includes('vulvoscopia'))
+        return 'Não realizar o exame durante o período menstrual.\nAbstinência sexual 48 horas antes.\nNão usar cremes, óvulos ou medicamentos vaginais nos 2 dias anteriores.';
+      if (n.includes('biopsia') || n.includes('biópsia') || n.includes('paaf') || n.includes('core'))
+        return 'Conforme orientação médica específica.\nInformar ao médico sobre uso de anticoagulantes (aspirina, warfarina, rivaroxabana, apixabana) com pelo menos 7 dias de antecedência.';
+      if (cat.includes('laborat') || n.includes('hemograma') || n.includes('glicemia') || n.includes('colesterol') || n.includes('trigliceri') || n.includes('tsh') || n.includes('hormonio') || n.includes('coleta'))
+        return 'Jejum de 8 a 12 horas (apenas água é permitida).\nInformar todos os medicamentos em uso ao médico.';
+      if (n.includes('fundo de olho') || n.includes('mapeamento de retina') || n.includes('angiografia') && cat.includes('oftalmo'))
+        return 'Os olhos serão dilatados com colírio — não dirigir após o exame.\nTrazer acompanhante se necessário.\nTrazer óculos e receitas anteriores.';
+      if (cat.includes('oftalmo') || n.includes('campo visual') || n.includes('topografia') || n.includes('biometria') || n.includes('tonometria'))
+        return 'Sem preparo especial.\nTrazer óculos e receitas anteriores se houver.';
+
+      return 'Sem preparo especial necessário.\nEm caso de dúvida, confirme com a recepção antes de vir ao exame.';
     }
 
+    // ── DETECTA EXAMES COM PROMPT DE QUANTIDADE / BILATERAL ──
+    function examNeedsPrompt(e) {
+      const n = normalize(e.nome);
+      return n.includes('eletroneuromiografia') || n.includes('eletromiografia') ||
+             n.includes('enmg') || n.includes('miografia') ||
+             (n.includes('potencial') && (n.includes('auditi') || n.includes('bera') || n.includes('peate') || n.includes('visual') || n.includes('pev')));
+    }
+
+    // ── PROMPT DE QUANTIDADE / BILATERAL ──
+    let _qtyPending = null, _qtyOpts = [];
+    function promptAddToCart(id, tipo) {
+      const e = exams.find(x => x.id === id);
+      if (!e) return;
+      if (!examNeedsPrompt(e)) { addToCart(id, tipo); closeModal(); return; }
+
+      const n = normalize(e.nome);
+      const preco = tipo === 'ct' ? e.preco_ct : e.preco_pt;
+      const f1 = fmtBRL(preco), f2 = fmtBRL(preco * 2);
+      const isEMG = n.includes('eletroneuromiografia') || n.includes('eletromiografia') || n.includes('enmg') || n.includes('miografia');
+
+      _qtyPending = { id, tipo };
+      _qtyOpts = isEMG
+        ? [{ label: '1 membro',  price: f1, mult: 1, suffix: '— 1 Membro'  },
+           { label: '2 membros', price: f2, mult: 2, suffix: '— 2 Membros' }]
+        : [{ label: 'Unilateral', price: f1, mult: 1, suffix: 'Unilateral' },
+           { label: 'Bilateral',  price: f2, mult: 2, suffix: 'Bilateral'  }];
+
+      document.getElementById('qtyTitle').textContent = isEMG ? 'Quantos membros serão examinados?' : 'Unilateral ou Bilateral?';
+      document.getElementById('qtySub').textContent   = e.nome;
+      document.getElementById('qtyOpts').innerHTML    = _qtyOpts.map((o, i) =>
+        `<button class="qty-opt" onclick="qtyConfirm(${i})"><span>${o.label}</span><span class="qty-price">${o.price}</span></button>`
+      ).join('');
+      document.getElementById('qtyOverlay').classList.add('show');
+    }
+    window.qtyConfirm = function(idx) {
+      if (!_qtyPending) return;
+      const { id, tipo } = _qtyPending;
+      const opt = _qtyOpts[idx];
+      const e   = exams.find(x => x.id === id);
+      const label = opt.mult > 1 ? e.nome + ' — ' + opt.suffix : null;
+      addToCart(id, tipo, label, opt.mult);
+      window.qtyClose(); closeModal();
+    };
+    window.qtyClose = function() {
+      document.getElementById('qtyOverlay').classList.remove('show');
+      _qtyPending = null;
+    };
+
     // ── CART ──
-    function addToCart(id, tipo) {
+    function addToCart(id, tipo, customLabel = null, mult = 1) {
       const e = exams.find(x => x.id === id);
       if (!e) return;
       const preco = tipo === 'ct' ? e.preco_ct : e.preco_pt;
       if (preco == null) return;
-      cart.push({ id, exam: e, tipo, preco });
+      const finalPreco = preco * mult;
+      const finalNome  = customLabel || e.nome;
+      cart.push({ id, exam: { ...e, nome: finalNome }, tipo, preco: finalPreco });
       renderCart();
-      toast(`Adicionado: ${e.nome}`, 'success');
+      toast(`Adicionado: ${finalNome}`, 'success');
     }
     function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); }
 
@@ -574,18 +854,12 @@
       msg += `Olá! Preparamos com carinho o orçamento dos exames indicados para você 💙\n\n`;
       if (ct.length) {
         msg += `💳 *Cartão de Todos*\n`;
-        ct.forEach(it => {
-          msg += `• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`;
-          if (it.exam.beneficio) msg += `  ✨ _${it.exam.beneficio}_\n`;
-        });
+        ct.forEach(it => { msg += `• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`; });
         msg += `\n`;
       }
       if (pt.length) {
         msg += `👛 *Particular*\n`;
-        pt.forEach(it => {
-          msg += `• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`;
-          if (it.exam.beneficio) msg += `  ✨ _${it.exam.beneficio}_\n`;
-        });
+        pt.forEach(it => { msg += `• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`; });
         msg += `\n`;
       }
       msg += `💰 *Total estimado: ${fmtBRL(total)}*\n\n`;
@@ -643,16 +917,12 @@
         pdf.text(`${i + 1}. ${it.exam.nome}`, 20, y);
         pdf.text(fmtBRL(it.preco), 190, y, { align: 'right' }); y += 5;
         pdf.setFontSize(9); pdf.setFont('helvetica', 'normal');
-        const tipoLabel = it.tipo === 'ct' ? '💳 Cartão de Todos' : '👛 Particular';
-        pdf.text(`${it.exam.categoria}  ·  ${tipoLabel}`, 20, y); y += 4;
-        if (it.exam.beneficio) {
+        const tipoLabel = it.tipo === 'ct' ? 'Cartao de Todos' : 'Particular';
+        pdf.text(`${it.exam.categoria}  |  ${tipoLabel}`, 20, y); y += 4;
+        const prepText = getPreparo(it.exam);
+        if (prepText && !prepText.startsWith('Sem preparo especial')) {
           pdf.setFont('helvetica', 'italic'); pdf.setFontSize(8);
-          const blines = pdf.splitTextToSize(`✨ ${it.exam.beneficio}`, 170);
-          pdf.text(blines, 20, y); y += blines.length * 4;
-        }
-        if (it.exam.preparo) {
-          pdf.setFont('helvetica', 'italic'); pdf.setFontSize(8);
-          const lines = pdf.splitTextToSize(`Preparo: ${it.exam.preparo}`, 170);
+          const lines = pdf.splitTextToSize(`Preparo: ${prepText.replace(/\n/g, ' | ')}`, 170);
           pdf.text(lines, 20, y); y += lines.length * 4;
         }
         y += 3;
@@ -798,6 +1068,441 @@
       if (cnt > 0) insBatches.push(cur);
       for (const b of insBatches) await b.commit();
     }
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════
+       PARCEIROS — dados + lógica (script separado, não-module)
+  ═══════════════════════════════════════════════════ -->
+  <script>
+  /* ── Troca de abas ── */
+  window.switchTab = function(tab) {
+    const isOrc = tab === 'orc';
+    document.getElementById('panelOrc').style.display  = isOrc ? '' : 'none';
+    document.getElementById('panelParc').style.display = isOrc ? 'none' : 'block';
+    document.getElementById('tabOrc').classList.toggle('active', isOrc);
+    document.getElementById('tabParc').classList.toggle('active', !isOrc);
+    // Oculta search-section quando parceiros está ativo
+    document.querySelector('.search-section').style.display = isOrc ? '' : 'none';
+  };
+
+  /* ── Dados dos parceiros ── */
+  const _PARC = {
+    auri: {
+      nome: 'Auri Medicina',
+      tel:  '(11) 4517-4907',
+      obs:  '⚠️ Somente funcionários podem ligar para agendar — não informar o número ao paciente. Sedação: R$ 400,00 (PIX, à vista).',
+      exames: [
+        ...[
+          'RM Crânio','RM Sela Túrcica','RM Base do Crânio','RM Órbitas Bilateral',
+          'RM Ossos Temporais Bilateral','RM Face (inclui Seios da Face)','RM ATM Bilateral',
+          'RM Pescoço','RM Tórax','RM Abdome Superior','RM Pelve','RM Fetal','RM Pênis',
+          'RM Bolsa Escrotal','RM Coluna Lombo-Sacra','RM Coluna Cervical','RM Plexo Braquial',
+          'RM Membro Superior Unilateral','RM Mão (Unilateral)','RM Bacia','RM Coxa',
+          'RM Perna (Unilateral)','RM Pé (Unilateral)','RM Articulação (Unilateral)',
+          'RM Avaliação de Ferro (Fígado)',
+          'Angio-RM Arterial Pulmonar','Angio-RM Venosa Pulmonar',
+          'Angio-RM Arterial Abdome Superior','Angio-RM Venosa Abdome Superior',
+          'Angio-RM Arterial Crânio','Angio-RM Venosa Crânio',
+          'Angio-RM Arterial Membro Inferior','Angio-RM Venosa Membro Inferior',
+          'Angio-RM Arterial Membro Superior','Angio-RM Venosa Membro Superior',
+          'Angio-RM Arterial Pelve','Angio-RM Venosa Pelve',
+          'Angio-RM Arterial Pescoço','Angio-RM Venosa Pescoço'
+        ].map(n => ({ nome: n, total: 440, guia: 110, resta: 330 })),
+        ...[
+          'TC Crânio / Sela Túrcica','TC Mastóides','TC Seios da Face','TC ATM','TC Dental Scan',
+          'TC Pescoço','TC Tórax','TC Abdome Superior','TC Pelve / Bacia',
+          'TC Coluna Cervical','TC Coluna Dorsal','TC Coluna Lombar','TC Coluna Segmento Adicional',
+          'TC Articulação (Unilateral)','TC Segmento Apendicular (Unilateral)',
+          'TC Mandíbula','TC Maxilar',
+          'Angio-TC Aorta Torácica','Angio-TC Aorta Abdominal',
+          'Angio-TC Arterial Crânio','Angio-TC Venosa Crânio',
+          'Angio-TC Arterial Pescoço','Angio-TC Venosa Pescoço',
+          'Angio-TC Arterial Tórax','Angio-TC Venosa Tórax',
+          'Angio-TC Arterial Abdome Superior','Angio-TC Venosa Abdome Superior',
+          'Angio-TC Arterial Pelve','Angio-TC Venosa Pelve',
+          'Angio-TC Arterial Membro Inferior','Angio-TC Venosa Membro Inferior',
+          'Angio-TC Arterial Membro Superior','Angio-TC Venosa Membro Superior',
+          'Angio-TC Arterial Pulmonar','Angio-TC Venosa Pulmonar'
+        ].map(n => ({ nome: n, total: 210, guia: 80, resta: 130 }))
+      ]
+    },
+
+    cergoli: {
+      nome: 'Clínica Cergoli — Lapa',
+      tel:  '(11) 3021-5058 / (11) 99775-8497',
+      obs:  'Endereço: Rua Cerro Corá, 1145 — Alto da Lapa.',
+      exames: [
+        { nome: 'Audiometria T + V + Impedanciometria — Convênio',   total: 250, guia:  50, resta: 200 },
+        { nome: 'Audiometria T + V + Impedanciometria — Particular', total: 300, guia: 100, resta: 200 },
+        { nome: 'Otoneurológico — Convênio',                         total: 350, guia:  50, resta: 300 },
+        { nome: 'Otoneurológico — Particular',                       total: 350, guia: 100, resta: 300 }
+      ]
+    },
+
+    imadi: {
+      nome: 'IMADI Imagem',
+      tel:  '',
+      obs:  'Atendimento: todos os dias das 8h às 13h (Ultrassom: seg, qui, sex e sáb).',
+      exames: [
+        { nome: 'Mamografia',                      total: 120, guia: 45, resta:  75 },
+        { nome: 'Ultrassom Morfológico',           total: 180, guia: 55, resta: 125 },
+        { nome: 'Ultrassom Obstétrico c/ Doppler', total: 180, guia: 55, resta: 125 },
+        ...[
+          'Raio-X — Adenoide / Cavum','Raio-X — Abdome Simples','Raio-X — Abdome Agudo',
+          'Raio-X — Articulação Acromioclavicular','Raio-X — Articulação Escapuloumeral (Ombro)',
+          'Raio-X — Articulações Sacroilíacas','Raio-X — Articulação Coxofemoral (Quadril)',
+          'Raio-X — Articulação Tibiotársica (Tornozelo)','Raio-X — Braço','Raio-X — Bacia',
+          'Raio-X — Crânio','Raio-X — Coluna Cervical','Raio-X — Coluna Dorsal',
+          'Raio-X — Coluna Torácica','Raio-X — Coluna Lombo-Sacra',
+          'Raio-X — Coluna Dorso-Lombar (Escoliose)','Raio-X — Costelas / Hemitórax',
+          'Raio-X — Clavícula','Raio-X — Cotovelo','Raio-X — Coxa','Raio-X — Calcâneo',
+          'Raio-X — Coração e Vasos da Base','Raio-X — Esterno','Raio-X — Joelho / Patela',
+          'Raio-X — Mão / Quirodáctilo','Raio-X — Mãos e Punhos (Idade Óssea)',
+          'Raio-X — Órbitas Bilaterais','Raio-X — Omoplata / Escápula',
+          'Raio-X — Pé / Pododáctilo','Raio-X — Perna','Raio-X — Punho',
+          'Raio-X — Tórax PA e Perfil','Raio-X — Seios da Face','Raio-X — Sela Túrcica',
+          'Raio-X — Sacro-Cóccix'
+        ].map(n => ({ nome: n, total: 60, guia: 25, resta: 35 }))
+      ]
+    },
+
+    medicom: {
+      nome: 'Medicom 2.0',
+      tel:  '(11) 97104-9868 (WhatsApp ADECLIN)',
+      obs:  'Contraste RM: R$ 150,00 (pago na clínica). Sedação: R$ 280,00. Particular: dobrar o valor da guia.',
+      exames: [
+        { nome: 'RM Abdome Total (cobrado 2 exames)',        total: 700, guia: 200, resta: 500 },
+        { nome: 'RM com Fluxo Liquórico (cobrado 2 exames)', total: 700, guia: 200, resta: 500 },
+        ...[
+          'RM Abdome Superior','RM ATM Bilateral','RM Ombro Articular',
+          'RM Cotovelo / Punho Articular','RM Joelho Unilateral Articular',
+          'RM Bacia (Sacroilíacas)','RM Base do Crânio','RM Bolsa Escrotal',
+          'RM Coluna Cervical / Torácica / Lombo-Sacra','RM Coxa (Unilateral)',
+          'RM Crânio','RM Mão','RM Face (inclui Seios da Face)',
+          'RM Membro Superior Unilateral','RM Órbita Unilateral',
+          'RM Ossos Temporais Bilateral','RM Pé','RM Pelve','RM Pênis',
+          'RM Perna (Unilateral)','RM Pescoço','RM Plexo Braquial',
+          'RM Sela Túrcica (Hipófise)','RM Tórax','RM Hidro-RM / Colangio-RM',
+          'RM Fluxo Liquórico'
+        ].map(n => ({ nome: n, total: 350, guia: 100, resta: 250 })),
+        ...[
+          'Angio-RM Aorta Torácica','Angio-RM Aorta Abdominal',
+          'Angio-RM Arterial Pulmonar','Angio-RM Venosa Pulmonar',
+          'Angio-RM Arterial Abdome Superior','Angio-RM Venosa Abdome Superior',
+          'Angio-RM Arterial Crânio','Angio-RM Venosa Crânio',
+          'Angio-RM Arterial Membro Inferior','Angio-RM Venosa Membro Inferior',
+          'Angio-RM Arterial Membro Superior','Angio-RM Venosa Membro Superior',
+          'Angio-RM Arterial Pescoço','Angio-RM Venosa Pescoço',
+          'Angio-RM Arterial Pelve','Angio-RM Venosa Pelve'
+        ].map(n => ({ nome: n, total: 450, guia: 100, resta: 350 })),
+        { nome: 'TC Abdome Total', total: 332, guia: 112, resta: 220 },
+        ...[
+          'TC Abdome Superior','TC Antebraço Direito','TC Antebraço Esquerdo',
+          'TC Arcos Costais','TC Quadril Direito','TC Quadril Esquerdo',
+          'TC ATM','TC Bacia','TC Braço Direito','TC Braço Esquerdo',
+          'TC Cintura Escapular','TC Coluna Cervical','TC Coluna Lombar',
+          'TC Coluna Lombo-Sacra','TC Coluna Torácica',
+          'TC Cotovelo Direito','TC Cotovelo Esquerdo','TC Cóccix',
+          'TC Coxa Direita','TC Coxa Esquerda','TC Crânio',
+          'TC Sela Túrcica (Hipófise)','TC Órbitas','TC Escápula Direita','TC Escápula Esquerda',
+          'TC Esterno-Clavicular','TC Face','TC Joelho Direito','TC Joelho Direito c/ Flexão',
+          'TC Joelho Esquerdo','TC Joelho Esquerdo c/ Flexão','TC Mandíbula Arco Total',
+          'TC Mastóides','TC Maxila Arco Total','TC Ombro Direito','TC Ombro Esquerdo',
+          'TC Parede Abdominal','TC Pé Direito','TC Pé Esquerdo','TC Pelve',
+          'TC Perna Direita','TC Perna Esquerda','TC Pescoço',
+          'TC Mão/Punho Direito','TC Mão/Punho Esquerdo',
+          'TC Sacro-Ilíacas','TC Seios da Face','TC Seios Paranasais',
+          'TC Tórax','TC Tornozelo Direito','TC Tornozelo Esquerdo'
+        ].map(n => ({ nome: n, total: 166, guia: 56, resta: 110 }))
+      ]
+    },
+
+    prezecor: {
+      nome: 'Prezecor 2.0',
+      tel:  'Confirmar a unidade com o paciente',
+      obs:  'Unidades: Santana, Guarulhos Centro, Tatuapé e Freguesia. Raio-X a partir de 6 anos. Exames gastrointestinais: faixa etária e peso máximo variam por unidade.',
+      exames: [
+        ...[
+          'Raio-X — Crânio','Raio-X — Mastóides / Rochedos','Raio-X — Órbitas',
+          'Raio-X — Seios da Face','Raio-X — Sela Turca','Raio-X — Maxilar Inferior',
+          'Raio-X — Ossos da Face','Raio-X — Arcada Zigomática / Malar','Raio-X — ATM Bilateral',
+          'Raio-X — Adenóides Lateral','Raio-X — Cavum Lateral',
+          'Raio-X — Coluna Cervical','Raio-X — Coluna Dorsal','Raio-X — Sacro-Cóccix',
+          'Raio-X — Esterno','Raio-X — Articulação Esterno-Clavicular',
+          'Raio-X — Costelas por Hemitórax','Raio-X — Clavícula','Raio-X — Omoplata',
+          'Raio-X — Articulação Acrômio-Clavicular','Raio-X — Articulação Escápulo-Umeral',
+          'Raio-X — Braço','Raio-X — Cotovelo','Raio-X — Antebraço',
+          'Raio-X — Punho','Raio-X — Mão / Quirodáctilos','Raio-X — Mãos e Punhos (Idade Óssea)',
+          'Raio-X — Bacia','Raio-X — Articulações Sacro-Ilíacas',
+          'Raio-X — Articulações Coxo-Femural','Raio-X — Coxa',
+          'Raio-X — Joelho','Raio-X — Perna','Raio-X — Articulação Tíbio-Társica',
+          'Raio-X — Pé / Pododáctilos','Raio-X — Calcâneo','Raio-X — Escanometria',
+          'Raio-X — Tórax PA','Raio-X — Tórax PA + Lateral',
+          'Raio-X — Abdome Simples','Raio-X — Abdome AP + Lat.','Raio-X — Abdome Agudo'
+        ].map(n => ({ nome: n, total: 50, guia: 20, resta: 30 })),
+        { nome: 'Densitometria Óssea',  total: 110, guia: 20, resta:  90 },
+        { nome: 'Mamografia Digital',   total: 120, guia: 20, resta: 100 },
+        { nome: 'Espirometria',         total:  55, guia: 20, resta:  35 },
+        { nome: 'Endoscopia Digestiva Alta',             total: 310, guia: 60, resta: 250 },
+        { nome: 'Anuscopia (interna e externa)',          total: 280, guia: 60, resta: 220 },
+        { nome: 'Colonoscopia c/ Biópsia / Citologia',   total: 510, guia: 60, resta: 450 },
+        { nome: 'Retossigmoidoscopia Flexível',          total: 350, guia: 60, resta: 290 },
+        { nome: 'Polipectomia Esôfago / Estômago / Duodeno', total: 310, guia: 60, resta: 250 },
+        { nome: 'Polipectomia de Cólon',                 total: 310, guia: 60, resta: 250 },
+        { nome: 'Colposcopia',  total: 100, guia: 20, resta: 80 },
+        { nome: 'Vulvoscopia',  total: 100, guia: 20, resta: 80 },
+        { nome: 'PAAF de Mama (USG)',                        total: 550, guia: 100, resta: 450 },
+        { nome: 'PAAF de Tireóide (USG)',                    total: 550, guia: 100, resta: 450 },
+        { nome: 'PAAF de Linfonodos (USG)',                  total: 550, guia: 100, resta: 450 },
+        { nome: 'Biópsia de Mama guiada por USG (Core)',     total: 700, guia: 100, resta: 600 },
+        { nome: 'Biópsia de Próstata guiada por USG (Core)', total: 1000, guia: 100, resta: 900 },
+        { nome: 'Biópsia Percutânea de Linfonodos (Core)',   total: 700, guia: 100, resta: 600 }
+      ]
+    },
+
+    scoppeta: {
+      nome: 'Scoppeta',
+      tel:  '',
+      obs:  '⚠️ Não agendar em aparelho aberto: exame com contraste, HD Parkinson, Mastóides, Face, Crânio. Peso máx. TC: 140 kg. Laudo: 7–10 dias úteis. Imagens retiradas no mesmo dia.',
+      exames: [
+        ...[
+          'RM Abdome Superior','RM Antebraço (cada)','RM Articulação (cada)',
+          'RM ATM (Temporomandibular)','RM Bacia','RM Base do Crânio',
+          'RM Crânio (Encéfalo)','RM Difusão Crânio','RM Sela Túrcica (Hipófise)',
+          'RM Cóccix','RM Pelve (Abdome Inferior)','RM Pelve (Músculo)',
+          'RM Órbitas Bilateral','RM Ossos Temporais','RM Seios da Face',
+          'RM Coluna Cervical','RM Coluna Dorsal','RM Coluna Lombar / Lombo-Sacra',
+          'RM Cotovelo (cada)','RM Braço (cada)','RM Ombro (cada)',
+          'RM Mão (cada)','RM Pescoço','RM Punho (cada)','RM Quadril (cada)',
+          'RM Coxa (cada)','RM Joelho (cada)','RM Perna (cada)','RM Pé (cada)',
+          'RM Tornozelo (cada)','RM Escápula','RM Sacro-Ilíacas',
+          'RM Segmento Apendicular','RM Tórax'
+        ].map(n => ({ nome: n, total: 526, guia: 110, resta: 416 })),
+        { nome: 'RM Crânio (Fluxo Liquórico)',              total: 630, guia: 110, resta: 520 },
+        { nome: 'RM Mamas (Bilateral)',                     total: 734, guia: 110, resta: 624 },
+        { nome: 'RM Multiparamétrica da Próstata',          total: 734, guia: 110, resta: 624 },
+        { nome: 'RM Colangioressonância',                   total: 530, guia: 110, resta: 420 },
+        { nome: 'UroressonânciaMagnética (Vias Urinárias)',  total: 630, guia: 110, resta: 520 },
+        { nome: 'RM Coração Morfológico e Funcional',       total: 942, guia: 110, resta: 832 },
+        { nome: 'RM Abdome Total (contraste primovist)',    total: 1097, guia: 110, resta: 987 },
+        { nome: 'RM Abdome Superior (contraste primovist)', total:  992, guia: 110, resta: 882 },
+        ...[
+          'TC Crânio','TC Sela Túrcica (Hipófise)','TC Órbitas (Bilateral)',
+          'TC Mastóides','TC Face / Seios da Face','TC ATM',
+          'TC Dentalscan (Maxilar ou Mandibular)','TC Bacia','TC Pescoço',
+          'TC Coluna Dorsal','TC Coluna Lombar','TC Articulações (cada)',
+          'TC Ombro (cada)','TC Cotovelo (cada)','TC Punho (cada)',
+          'TC Quadril / Coxofemural (cada)','TC Joelho (cada)','TC Pé (cada)',
+          'TC Sacro-Ilíacas (cada)','TC Braço (cada)','TC Antebraço (cada)',
+          'TC Mão (cada)','TC Coxa (cada)','TC Perna (cada)',
+          'TC Tórax','TC Pelve','TC Abdome Superior'
+        ].map(n => ({ nome: n, total: 311, guia: 80, resta: 231 })),
+        { nome: 'TC Abdome Total',   total: 500, guia:  80, resta: 420 },
+        { nome: 'Urotomografia',     total: 600, guia:  80, resta: 520 },
+        ...[
+          'Angio-RM Aorta Abdominal','Angio-RM Aorta Torácica',
+          'Angio-RM Arterial Crânio','Angio-RM Venosa Crânio',
+          'Angio-RM Arterial Membro Inferior','Angio-RM Venosa Membro Inferior',
+          'Angio-RM Arterial Membro Superior','Angio-RM Venosa Membro Superior',
+          'Angio-RM Arterial Pelve','Angio-RM Venosa Pelve',
+          'Angio-RM Arterial Pescoço','Angio-RM Venosa Pescoço',
+          'Angio-RM Arterial Pulmonar','Angio-RM Venosa Pulmonar',
+          'Angio-RM Arterial Ilíacas','Angio-RM Arterial Renais',
+          'Angio-RM Carótidas','Angio-RM Tórax'
+        ].map(n => ({ nome: n, total: 583, guia: 110, resta: 473 })),
+        ...[
+          'Angio-TC Aorta Torácica','Angio-TC Aorta Abdominal',
+          'Angio-TC Arterial Crânio','Angio-TC Venosa Crânio',
+          'Angio-TC Arterial Pescoço','Angio-TC Venosa Pescoço',
+          'Angio-TC Arterial Tórax','Angio-TC Venosa Tórax',
+          'Angio-TC Arterial Abdome Superior','Angio-TC Venosa Abdome Superior',
+          'Angio-TC Arterial Pelve','Angio-TC Venosa Pelve',
+          'Angio-TC Arterial Pulmonar','Angio-TC Venosa Pulmonar'
+        ].map(n => ({ nome: n, total: 793, guia: 110, resta: 683 }))
+      ]
+    },
+
+    tc_prezecor: {
+      nome: 'TC Prezecor (Freguesia / Guarulhos)',
+      tel:  'Confirmar a unidade com o paciente',
+      obs:  'Contraste: R$ 150,00 pago diretamente na Prezecor.',
+      exames: [
+        ...[
+          'TC Abdome Superior','TC Antebraço Direito','TC Antebraço Esquerdo',
+          'TC Arcos Costais','TC Quadril Direito','TC Quadril Esquerdo',
+          'TC ATM','TC Bacia','TC Braço Direito','TC Braço Esquerdo',
+          'TC Cintura Escapular','TC Coluna Cervical','TC Coluna Lombar','TC Coluna Torácica',
+          'TC Cotovelo Direito','TC Cotovelo Esquerdo','TC Cóccix',
+          'TC Coxa Esquerda','TC Crânio','TC Sela Túrcica (Hipófise)',
+          'TC Órbitas','TC Escápula Direita','TC Escápula Esquerda',
+          'TC Esterno-Clavicular','TC Face','TC Joelho Direito',
+          'TC Joelho Direito c/ Flexão','TC Joelho Esquerdo','TC Joelho Esquerdo c/ Flexão',
+          'TC Mandíbula Arco Total','TC Mastóides','TC Maxila Arco Total',
+          'TC Ombro Direito','TC Ombro Esquerdo','TC Parede Abdominal',
+          'TC Pé Direito','TC Pé Esquerdo','TC Pelve',
+          'TC Perna Direita','TC Perna Esquerda','TC Pescoço',
+          'TC Mão/Punho Direito','TC Mão/Punho Esquerdo',
+          'TC Sacro-Ilíacas','TC Seios da Face','TC Seios Paranasais',
+          'TC Tórax','TC Tornozelo Direito','TC Tornozelo Esquerdo'
+        ].map(n => ({ nome: n, total: 170, guia: 50, resta: 120 }))
+      ]
+    }
+  };
+
+  /* ── Estado ── */
+  let _pParc = null, _pExame = null, _pMsg = '';
+  const _fBRL = v => 'R$ ' + parseFloat(v).toFixed(2).replace('.', ',');
+
+  /* ── Seleção de parceiro ── */
+  window.pOnParceiro = function() {
+    const id = document.getElementById('pSelParceiro').value;
+    _pParc = id ? _PARC[id] : null;
+    _pExame = null;
+    pOcultarMsg();
+
+    const selEx = document.getElementById('pSelExame');
+    selEx.innerHTML = '';
+    if (!_pParc) {
+      selEx.innerHTML = '<option value="">— Selecione o parceiro primeiro —</option>';
+      document.getElementById('pInfoBox').classList.remove('show');
+      document.getElementById('pValsRow').style.display = 'none';
+      return;
+    }
+
+    selEx.innerHTML = '<option value="">— Selecione o exame —</option>';
+    _pParc.exames.forEach((ex, i) => {
+      const o = document.createElement('option');
+      o.value = i; o.textContent = ex.nome;
+      selEx.appendChild(o);
+    });
+
+    // Info box
+    const ib = document.getElementById('pInfoBox');
+    ib.classList.add('show');
+    document.getElementById('pInfoNome').textContent = '🏥 ' + _pParc.nome;
+    const telEl = document.getElementById('pInfoTel');
+    telEl.textContent = _pParc.tel ? '📞 ' + _pParc.tel : '';
+    const obsEl = document.getElementById('pInfoObs');
+    if (_pParc.obs) { obsEl.textContent = _pParc.obs; obsEl.style.display = 'block'; }
+    else obsEl.style.display = 'none';
+
+    document.getElementById('pValsRow').style.display = 'none';
+  };
+
+  /* ── Seleção de exame ── */
+  window.pOnExame = function() {
+    const idx = document.getElementById('pSelExame').value;
+    if (idx === '' || !_pParc) {
+      _pExame = null;
+      document.getElementById('pValsRow').style.display = 'none';
+      pOcultarMsg(); return;
+    }
+    _pExame = _pParc.exames[parseInt(idx)];
+    document.getElementById('pChipTotal').textContent = _fBRL(_pExame.total);
+    document.getElementById('pChipGuia').textContent  = _fBRL(_pExame.guia);
+    document.getElementById('pChipResta').textContent = _fBRL(_pExame.resta);
+    document.getElementById('pValsRow').style.display = 'flex';
+    pOcultarMsg();
+  };
+
+  /* ── Gerar mensagem ── */
+  window.pGerar = function() {
+    if (!_pParc || !_pExame) {
+      // reutiliza o toast do sistema de orçamentos
+      const toastEl = document.getElementById('toast');
+      toastEl.textContent = 'Selecione o parceiro e o exame.';
+      toastEl.className = 'toast show error';
+      setTimeout(() => toastEl.classList.remove('show'), 2400);
+      return;
+    }
+    const paciente = document.getElementById('pPaciente').value.trim();
+    const obs      = document.getElementById('pObs').value.trim();
+    const clinica  = sessionStorage.getItem('clinicaNome') || 'Amor Saúde';
+    const nomeParceiro = _pParc.nome;
+    const tel      = _pParc.tel;
+    const nomeExame = _pExame.nome;
+    const fTotal   = _fBRL(_pExame.total);
+    const fGuia    = _fBRL(_pExame.guia);
+    const fResta   = _fBRL(_pExame.resta);
+    const saudacao = paciente ? `Olá, *${paciente}*! ` : 'Olá! ';
+
+    let m = `Cuidar da sua saúde é nossa prioridade. 🌸\n\n`;
+    m += `${saudacao}Informamos que seu exame de *${nomeExame}* será realizado na clínica parceira *${nomeParceiro}*.\n\n`;
+    m += `💰 *Valor Total:* ${fTotal}\n`;
+    if (_pExame.guia > 0) {
+      m += `📋 *Guia (pagar aqui na ${clinica}):* ${fGuia}\n`;
+      m += `🏥 *Valor Restante (${nomeParceiro}):* ${fResta}\n`;
+    } else {
+      m += `🏥 *Valor (pagar na ${nomeParceiro}):* ${fResta}\n`;
+    }
+    m += `\n📋 *Passo a passo:*\n\n`;
+    if (_pExame.guia > 0) {
+      m += `1️⃣ *Guia:* Após o pagamento de *${fGuia}* aqui na ${clinica}, enviaremos a sua guia de encaminhamento (válida por 30 dias e necessária para agendar).\n\n`;
+      if (tel && !tel.toLowerCase().includes('confirmar')) {
+        m += `2️⃣ *Agendamento:* Com a guia em mãos, ligue para *${tel}* para agendar o melhor horário.\n\n`;
+      } else {
+        m += `2️⃣ *Agendamento:* Com a guia em mãos, entre em contato com a *${nomeParceiro}* para agendar o melhor horário.\n\n`;
+      }
+      m += `3️⃣ *No dia do exame:* O valor restante de *${fResta}* deverá ser pago diretamente na recepção da *${nomeParceiro}*.\n`;
+    } else {
+      if (tel && !tel.toLowerCase().includes('confirmar')) {
+        m += `1️⃣ *Agendamento:* Ligue para *${tel}* (${nomeParceiro}) para agendar o melhor horário.\n\n`;
+      } else {
+        m += `1️⃣ *Agendamento:* Entre em contato com a *${nomeParceiro}* para agendar o melhor horário.\n\n`;
+      }
+      m += `2️⃣ *No dia do exame:* O valor de *${fResta}* deverá ser pago diretamente na recepção da *${nomeParceiro}*.\n`;
+    }
+    if (obs) m += `\n📌 *Observação:* ${obs}\n`;
+    m += `\nEstamos aqui para cuidar de você com atenção e carinho! 💙`;
+
+    _pMsg = m;
+    const area = document.getElementById('pMsgArea');
+    area.textContent = m;
+    area.classList.add('show');
+    document.getElementById('pBtnCopiar').style.display = 'flex';
+  };
+
+  /* ── Copiar ── */
+  window.pCopiar = function() {
+    if (!_pMsg) return;
+    const copy = () => {
+      const toastEl = document.getElementById('toast');
+      toastEl.textContent = 'Mensagem copiada! ✅';
+      toastEl.className = 'toast show success';
+      setTimeout(() => toastEl.classList.remove('show'), 2200);
+      const btn = document.getElementById('pBtnCopiar');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+      setTimeout(() => { btn.innerHTML = orig; }, 2000);
+    };
+    navigator.clipboard.writeText(_pMsg).then(copy).catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = _pMsg; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      copy();
+    });
+  };
+
+  /* ── Limpar ── */
+  window.pLimpar = function() {
+    document.getElementById('pSelParceiro').value = '';
+    document.getElementById('pSelExame').innerHTML = '<option value="">— Selecione o parceiro primeiro —</option>';
+    document.getElementById('pPaciente').value = '';
+    document.getElementById('pObs').value = '';
+    document.getElementById('pInfoBox').classList.remove('show');
+    document.getElementById('pValsRow').style.display = 'none';
+    _pParc = null; _pExame = null;
+    pOcultarMsg();
+  };
+
+  function pOcultarMsg() {
+    const area = document.getElementById('pMsgArea');
+    area.textContent = ''; area.classList.remove('show');
+    document.getElementById('pBtnCopiar').style.display = 'none';
+    _pMsg = '';
+  }
   </script>
 </body>
 </html>
