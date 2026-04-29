@@ -75,6 +75,30 @@
     @media(max-width:900px){.steps,.form-row,.professional-info{grid-template-columns:1fr;}}
     @media(max-width:768px){.item-row{grid-template-columns:1fr;gap:8px;}.step-actions{flex-direction:column;}.step-actions button{width:100%;}}
     @media print{.no-print,header,.steps,footer,.step-actions,#toastBox,#confirmModal,.back-portal{display:none!important;}body,#mainSystem{background:white!important;color:black!important;padding:0!important;margin:0!important;}}
+
+    /* ── Tabs ── */
+    .tabs-bar{display:flex;gap:0;border-bottom:2px solid rgba(0,0,0,0.1);margin:-4px -4px 22px;}
+    .tab-btn{background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:11px 22px;font-family:inherit;font-size:13px;font-weight:600;color:var(--gray-500,#64748b);cursor:pointer;transition:all .15s;border-radius:6px 6px 0 0;display:inline-flex;align-items:center;gap:8px;}
+    .tab-btn:hover{color:#0A1F44;background:rgba(10,31,68,.05);}
+    .tab-btn.active{color:#0A1F44;border-bottom-color:#0A1F44;}
+    .tab-pane{animation:tabIn .18s ease;}
+    @keyframes tabIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+    /* ── Modal Cadastro ── */
+    #modalCadastro .modal-content{max-width:560px;width:100%;text-align:left;padding:30px 32px;}
+    #modalCadastro label{color:var(--gray);}
+    #modalCadastro input,#modalCadastro select{background:#fff;}
+    .modal-header-cad{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;}
+    .modal-header-cad h3{color:#0A1F44;font-size:1.1rem;display:flex;align-items:center;gap:10px;margin:0;}
+    .btn-modal-close{background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;padding:2px 6px;border-radius:6px;transition:color .15s;}
+    .btn-modal-close:hover{color:#C62828;}
+    .prof-card-selected{background:rgba(10,31,68,.06);border:1.5px solid rgba(10,31,68,.18);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:14px;}
+    .prof-card-avatar{width:42px;height:42px;border-radius:50%;background:#0A1F44;color:white;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .prof-card-info{flex:1;}
+    .prof-card-nome{font-weight:700;color:#0A1F44;font-size:14px;}
+    .prof-card-doc{font-size:12px;color:#64748b;margin-top:2px;}
+    .prof-none{text-align:center;padding:22px;color:#94a3b8;font-size:13px;border:1.5px dashed #e2e8f0;border-radius:12px;}
+    .prof-none i{display:block;font-size:28px;margin-bottom:8px;opacity:.4;}
   </style>
 </head>
 <body>
@@ -88,6 +112,36 @@
       <div class="modal-buttons">
         <button id="confirmYes" class="btn-success">Sim</button>
         <button id="confirmNo" class="btn-danger">Não</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Cadastro / Edição de Profissional ── -->
+  <div id="modalCadastro" class="modal">
+    <div class="modal-content">
+      <div class="modal-header-cad">
+        <h3 id="modalCadTitulo"><i class="fas fa-user-plus"></i> Novo Profissional</h3>
+        <button class="btn-modal-close" onclick="fecharModalCadastro()" title="Fechar"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Nome Completo *</label><input type="text" id="modalProfNome" placeholder="Nome completo do profissional"></div>
+        <div class="form-group"><label>CPF *</label><input type="text" id="modalProfCpf" placeholder="000.000.000-00" maxlength="14"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo de Pagamento *</label>
+          <select id="modalProfRegime">
+            <option value="">Selecione...</option>
+            <option value="funcionario">Sem Descontos</option>
+            <option value="pj-presumido">Lucro Presumido (PJ)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Chave PIX</label><input type="text" id="modalProfPix" placeholder="Opcional"></div>
+      </div>
+      <input type="hidden" id="modalProfId">
+      <div class="modal-buttons" style="justify-content:flex-start;gap:12px;margin-top:20px;">
+        <button class="btn-success" onclick="salvarModalCadastro()"><i class="fas fa-save"></i> Salvar</button>
+        <button class="btn-secondary" onclick="fecharModalCadastro()">Cancelar</button>
       </div>
     </div>
   </div>
@@ -116,40 +170,39 @@
     </div>
 
     <div id="screenProfissional" class="panel screen active">
-      <h2><i class="fas fa-user-plus"></i> Selecionar Profissional</h2>
-      <div class="form-group">
-        <label>Buscar</label>
-        <input type="text" id="buscaProfissional" placeholder="Digite para buscar...">
-        <div id="resultadosBusca" class="search-results hidden"></div>
+
+      <!-- Tabs -->
+      <div class="tabs-bar no-print">
+        <button class="tab-btn active" onclick="switchTab('tabSelecionar',this)"><i class="fas fa-magnifying-glass"></i> Selecionar</button>
+        <button class="tab-btn" onclick="switchTab('tabCadastros',this)"><i class="fas fa-users"></i> Cadastros</button>
       </div>
-      <div class="selected-professional">
-        <div><strong>Nome:</strong> <span id="profissionalSelecionadoNome">Nenhum profissional selecionado</span></div>
-        <div><strong>CPF:</strong> <span id="profissionalSelecionadoCpf">-</span></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Nome Completo *</label><input type="text" id="profNome" placeholder="Nome completo" readonly></div>
-        <div class="form-group"><label>CPF *</label><input type="text" id="profCpf" placeholder="000.000.000-00" readonly></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Tipo *</label><select id="profRegime"><option value="">Selecione...</option><option value="funcionario">Sem Descontos</option><option value="pj-presumido">Lucro Presumido</option></select></div>
-        <div class="form-group"><label>Categoria *</label><select id="profCategoria"><option value="">Selecione...</option><option value="repasse">Repasses</option></select></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Chave PIX</label><input type="text" id="profChavePix" placeholder="Opcional"></div>
-        <div class="form-group" style="display:flex;align-items:flex-end;">
-          <input type="hidden" id="profId" value="">
-          <button class="btn-success" onclick="salvarCadastro()"><i class="fas fa-save"></i> Salvar Cadastro</button>
+
+      <!-- ── Tab 1: Selecionar ── -->
+      <div id="tabSelecionar" class="tab-pane">
+        <div class="form-group">
+          <label>Buscar profissional</label>
+          <input type="text" id="buscaProfissional" placeholder="Digite o nome para buscar...">
+          <div id="resultadosBusca" class="search-results hidden"></div>
+        </div>
+
+        <!-- Card do profissional selecionado -->
+        <div id="profSelectedArea" style="margin-bottom:18px;"></div>
+
+        <div class="step-actions no-print" style="margin-top:4px;">
+          <div></div>
+          <button class="btn-primary" onclick="irParaCalculo()"><i class="fas fa-arrow-right"></i> Continuar para cálculo</button>
         </div>
       </div>
-      <div class="panel" style="padding:18px;margin-top:20px;margin-bottom:0;">
-        <h2 style="margin-bottom:16px;"><i class="fas fa-list"></i> Cadastros</h2>
+
+      <!-- ── Tab 2: Cadastros ── -->
+      <div id="tabCadastros" class="tab-pane" style="display:none;">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:18px;">
+          <button class="btn-primary" onclick="abrirModalCadastro()"><i class="fas fa-user-plus"></i> Novo Profissional</button>
+        </div>
         <div id="semProfissionais" class="empty-state hidden"><i class="fas fa-users"></i><p>Nenhum cadastro encontrado</p></div>
         <div id="listaProfissionais"></div>
       </div>
-      <div class="step-actions no-print">
-        <div></div>
-        <button class="btn-primary" onclick="irParaCalculo()"><i class="fas fa-arrow-right"></i> Continuar para cálculo</button>
-      </div>
+
     </div>
 
     <div id="screenCalculo" class="panel screen">
@@ -293,6 +346,7 @@
     ];
 
     let profissionais = [], itens = [], dadosCalculo = null, usuario = null, currentStep = 1;
+    let _profSelecionado = null; // profissional escolhido no Step 1
 
     window.fechamentoExtras  = [];
     window.fechamentoDeleted = [];
@@ -331,14 +385,12 @@
     }
 
     function irParaCalculo(){
-      const id=document.getElementById('profId').value,nome=document.getElementById('profNome').value,cpf=document.getElementById('profCpf').value,regime=document.getElementById('profRegime').value,cat=document.getElementById('profCategoria').value;
-      if(!nome||!cpf||!regime||!cat){toast('Selecione e complete os dados antes de continuar','error');return;}
-      if(id){
-        document.getElementById('selectProfissional').value=id;
-        document.getElementById('calcBusca').value=nome;
-      }
-      document.getElementById('calcProfissionalNome').textContent=nome;
-      document.getElementById('calcProfissionalCpf').textContent=cpf;
+      if(!_profSelecionado){toast('Selecione um profissional antes de continuar','error');return;}
+      const p=_profSelecionado;
+      document.getElementById('selectProfissional').value=p.id||p.documento.replace(/\D/g,'');
+      document.getElementById('calcBusca').value=p.nome;
+      document.getElementById('calcProfissionalNome').textContent=p.nome;
+      document.getElementById('calcProfissionalCpf').textContent=p.documento;
       currentStep=2;atualizarEtapas();
     }
     function voltarParaProfissional(){currentStep=1;atualizarEtapas();}
@@ -355,23 +407,30 @@
       r.classList.remove('hidden');r.dataset.currentResults=JSON.stringify(f);
     },300);
 
-    function atualizarResumoProfissional(nome,doc){
-      document.getElementById('profissionalSelecionadoNome').textContent=nome||'Nenhum profissional selecionado';
-      document.getElementById('profissionalSelecionadoCpf').textContent=doc||'-';
+    function atualizarResumoProfissional(p){
+      const area=document.getElementById('profSelectedArea');
+      if(!p){
+        area.innerHTML='<div class="prof-none"><i class="fas fa-user-slash"></i>Nenhum profissional selecionado.<br>Use a busca acima para encontrar e selecionar.</div>';
+        return;
+      }
+      const initials=p.nome.split(' ').filter(Boolean).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      const tipo=p.regime==='funcionario'?'Sem Descontos':'PJ Lucro Presumido';
+      area.innerHTML=`<div class="prof-card-selected">
+        <div class="prof-card-avatar">${esc(initials)}</div>
+        <div class="prof-card-info">
+          <div class="prof-card-nome">${esc(p.nome)}</div>
+          <div class="prof-card-doc">CPF: ${esc(p.documento)} · ${tipo}${p.chavePix?` · PIX: ${esc(p.chavePix)}`:''}  </div>
+        </div>
+        <button class="btn-secondary btn-small" onclick="_profSelecionado=null;atualizarResumoProfissional(null);document.getElementById('buscaProfissional').value='';" title="Remover seleção" style="flex-shrink:0;padding:6px 10px;"><i class="fas fa-xmark"></i></button>
+      </div>`;
     }
 
     function selecionarProfissionalBase(p){
-      const id=p.id||p.documento.replace(/\D/g,'');
-      document.getElementById('profId').value=id;
-      document.getElementById('profNome').value=p.nome;
-      document.getElementById('profCpf').value=p.documento;
-      document.getElementById('profRegime').value=p.regime||'pj-presumido';
-      document.getElementById('profCategoria').value=p.categoria||'repasse';
-      document.getElementById('profChavePix').value=p.chavePix||'';
+      _profSelecionado=p;
       document.getElementById('buscaProfissional').value='';
       document.getElementById('resultadosBusca').classList.add('hidden');
       document.getElementById('resultadosBusca').innerHTML='';
-      atualizarResumoProfissional(p.nome,p.documento);
+      atualizarResumoProfissional(p);
     }
 
     function selecionarProfissionalCalculo(p){
@@ -394,38 +453,70 @@
       r.classList.remove('hidden');r.dataset.currentResults=JSON.stringify(f);
     },300);
 
-    function salvarCadastro(){const id=document.getElementById('profId').value;if(id)editarProfissional(id);else cadastrar();}
+    // ── Modal de cadastro ──
+    window.switchTab = function(tabId, btn){
+      document.querySelectorAll('.tab-pane').forEach(t=>t.style.display='none');
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      document.getElementById(tabId).style.display='block';
+      btn.classList.add('active');
+    };
 
-    function cadastrar(){
-      const nome=document.getElementById('profNome').value,doc=document.getElementById('profCpf').value,regime=document.getElementById('profRegime').value,cat=document.getElementById('profCategoria').value;
-      if(!nome||!doc||!regime||!cat){toast('Preencha todos os campos obrigatórios','error');return;}
+    window.abrirModalCadastro = function(id){
+      if(id){
+        const p=profissionais.find(x=>x.id===String(id));if(!p)return;
+        document.getElementById('modalProfId').value=p.id;
+        document.getElementById('modalProfNome').value=p.nome;
+        document.getElementById('modalProfCpf').value=p.documento;
+        document.getElementById('modalProfRegime').value=p.regime||'pj-presumido';
+        document.getElementById('modalProfPix').value=p.chavePix||'';
+        document.getElementById('modalCadTitulo').innerHTML='<i class="fas fa-user-edit"></i> Editar Profissional';
+      } else {
+        document.getElementById('modalProfId').value='';
+        document.getElementById('modalProfNome').value='';
+        document.getElementById('modalProfCpf').value='';
+        document.getElementById('modalProfRegime').value='';
+        document.getElementById('modalProfPix').value='';
+        document.getElementById('modalCadTitulo').innerHTML='<i class="fas fa-user-plus"></i> Novo Profissional';
+      }
+      document.getElementById('modalCadastro').style.display='flex';
+      setTimeout(()=>document.getElementById('modalProfNome').focus(),50);
+    };
+
+    window.fecharModalCadastro = function(){
+      document.getElementById('modalCadastro').style.display='none';
+    };
+
+    window.salvarModalCadastro = function(){
+      const id=document.getElementById('modalProfId').value;
+      const nome=document.getElementById('modalProfNome').value.trim();
+      const doc=document.getElementById('modalProfCpf').value.trim();
+      const regime=document.getElementById('modalProfRegime').value;
+      const pix=document.getElementById('modalProfPix').value.trim();
+      if(!nome){toast('Informe o nome completo','error');return;}
+      if(!doc){toast('Informe o CPF','error');return;}
+      if(!regime){toast('Selecione o tipo de pagamento','error');return;}
       const docLimpo=doc.replace(/\D/g,'');
-      if(profissionais.some(p=>p.documento.replace(/\D/g,'')=== docLimpo)){toast('Documento já cadastrado','error');return;}
-      const newExtras=[...(window.fechamentoExtras||[]),{id:docLimpo,nome,documento:doc,regime,categoria:cat,chavePix:document.getElementById('profChavePix').value}];
-      window.saveFechamentoExtras(newExtras);
-      document.getElementById('profId').value=docLimpo;
-      toast('Cadastro realizado!','success');
-    }
+      if(id){
+        // edição
+        if(profissionais.some(x=>x.documento.replace(/\D/g,'')===docLimpo&&x.id!==id)){toast('CPF já cadastrado para outro profissional','error');return;}
+        const extras=[...(window.fechamentoExtras||[])];
+        const idx=extras.findIndex(x=>x.id===id);
+        const novo={id:docLimpo,nome,documento:doc,regime,categoria:'repasse',chavePix:pix};
+        if(idx!==-1)extras[idx]=novo;
+        else extras.push({...novo,overrideCpf:id});
+        window.saveFechamentoExtras(extras);
+        toast('Profissional atualizado!','success');
+      } else {
+        // novo
+        if(profissionais.some(p=>p.documento.replace(/\D/g,'')===docLimpo)){toast('CPF já cadastrado','error');return;}
+        const extras=[...(window.fechamentoExtras||[]),{id:docLimpo,nome,documento:doc,regime,categoria:'repasse',chavePix:pix}];
+        window.saveFechamentoExtras(extras);
+        toast('Profissional cadastrado!','success');
+      }
+      fecharModalCadastro();
+    };
 
-    function editarProfissional(id){
-      const nome=document.getElementById('profNome').value,doc=document.getElementById('profCpf').value,regime=document.getElementById('profRegime').value,cat=document.getElementById('profCategoria').value,pix=document.getElementById('profChavePix').value;
-      if(!nome||!doc||!regime||!cat){toast('Preencha todos os campos','error');return;}
-      const docLimpo=doc.replace(/\D/g,'');
-      if(profissionais.some(x=>x.documento.replace(/\D/g,'')=== docLimpo&&x.id!==id)){toast('Documento já em uso','error');return;}
-      const extrasCpy=[...(window.fechamentoExtras||[])];
-      const idx=extrasCpy.findIndex(x=>x.id===id);
-      if(idx!==-1)extrasCpy[idx]={id:docLimpo,nome,documento:doc,regime,categoria:cat,chavePix:pix};
-      else extrasCpy.push({id:docLimpo,nome,documento:doc,regime,categoria:cat,chavePix:pix,overrideCpf:id});
-      window.saveFechamentoExtras(extrasCpy);
-      toast('Atualizado!','success');
-    }
-
-    function preencherEdicao(id){
-      const p=profissionais.find(x=>x.id===String(id));if(!p)return;
-      document.getElementById('profId').value=p.id;document.getElementById('profNome').value=p.nome;document.getElementById('profCpf').value=p.documento;
-      document.getElementById('profRegime').value=p.regime||'pj-presumido';document.getElementById('profCategoria').value=p.categoria;document.getElementById('profChavePix').value=p.chavePix||'';
-      atualizarResumoProfissional(p.nome,p.documento);
-    }
+    function preencherEdicao(id){ window.abrirModalCadastro(id); }
 
     function atualizarListas(){
       const lista=document.getElementById('listaProfissionais');
@@ -530,7 +621,6 @@
       // ── Busca Step 2 (Cálculo) ──
       document.getElementById('calcBusca').addEventListener('keyup',calcBuscarDebounced);
       document.getElementById('calcBusca').addEventListener('input',function(){
-        // se apagou o texto, limpa a seleção
         if(!this.value.trim()){document.getElementById('selectProfissional').value='';document.getElementById('calcProfissionalNome').textContent='-';document.getElementById('calcProfissionalCpf').textContent='-';}
       });
       document.getElementById('calcResultados').addEventListener('click',function(e){
@@ -539,15 +629,29 @@
         const p=res[parseInt(item.dataset.index,10)];if(!p)return;
         selecionarProfissionalCalculo(p);
       });
-      // fechar dropdown ao clicar fora
+
+      // ── Máscara CPF no modal ──
+      document.getElementById('modalProfCpf').addEventListener('input',function(){
+        let v=this.value.replace(/\D/g,'').slice(0,11);
+        v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+        this.value=v;
+      });
+
+      // ── Fechar dropdowns ao clicar fora ──
       document.addEventListener('click',function(e){
-        if(!document.getElementById('calcBusca').contains(e.target)&&!document.getElementById('calcResultados').contains(e.target)){
+        if(!document.getElementById('calcBusca').contains(e.target)&&!document.getElementById('calcResultados').contains(e.target))
           document.getElementById('calcResultados').classList.add('hidden');
-        }
+        if(!document.getElementById('buscaProfissional').contains(e.target)&&!document.getElementById('resultadosBusca').contains(e.target))
+          document.getElementById('resultadosBusca').classList.add('hidden');
+      });
+
+      // ── Fechar modal ao clicar no overlay ──
+      document.getElementById('modalCadastro').addEventListener('click',function(e){
+        if(e.target===this)fecharModalCadastro();
       });
 
       document.getElementById('themeToggle').addEventListener('click',toggleTheme);
-      atualizarResumoProfissional('','');
+      atualizarResumoProfissional(null);
       window.atualizarListaGeralFechamento();
       if(!itens.length)adicionarItem();
       atualizarEtapas();
