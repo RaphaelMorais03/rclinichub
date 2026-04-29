@@ -189,6 +189,13 @@
     .qty-cancel{width:100%;padding:9px;border-radius:9px;border:1.5px solid var(--gray-200);background:white;font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-500);cursor:pointer;transition:all .15s;}
     .qty-cancel:hover{background:var(--gray-100);}
 
+    /* chips de tipo — aba parceiros */
+    .p-tipo-bar{display:flex;gap:6px;flex-wrap:wrap;}
+    .p-tchip{padding:4px 11px;border-radius:20px;border:1.5px solid var(--gray-200);background:var(--gray-50);font-family:inherit;font-size:11px;font-weight:700;color:var(--gray-500);cursor:pointer;transition:all .15s;white-space:nowrap;}
+    .p-tchip:hover{border-color:var(--navy);color:var(--navy);}
+    .p-tchip.active{background:var(--navy);color:white;border-color:var(--navy);}
+    .p-exame-count{font-size:11px;color:var(--gray-400);margin-top:2px;}
+
     /* toast */
     .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:opacity .2s;z-index:2000;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25);}
     .toast.show{opacity:1;}
@@ -349,9 +356,22 @@
 
         <div>
           <label class="f-label">Exame</label>
+          <!-- busca + chips — aparecem após selecionar parceiro -->
+          <input type="text" id="pBuscaExame" class="p-input"
+                 placeholder="🔍 Buscar exame..." oninput="pFiltrarExames()"
+                 style="display:none;margin-bottom:8px;">
+          <div id="pTipoChips" class="p-tipo-bar" style="display:none;margin-bottom:8px;">
+            <button class="p-tchip active" onclick="pSetTipo(this,'')">Todos</button>
+            <button class="p-tchip" onclick="pSetTipo(this,'rm')">RM</button>
+            <button class="p-tchip" onclick="pSetTipo(this,'tc')">TC</button>
+            <button class="p-tchip" onclick="pSetTipo(this,'angio')">Angio</button>
+            <button class="p-tchip" onclick="pSetTipo(this,'raio')">Raio-X</button>
+            <button class="p-tchip" onclick="pSetTipo(this,'outro')">Outros</button>
+          </div>
           <select id="pSelExame" class="p-select" onchange="pOnExame()">
             <option value="">— Selecione o parceiro primeiro —</option>
           </select>
+          <div id="pExameCount" class="p-exame-count" style="display:none;"></div>
         </div>
 
         <div>
@@ -556,13 +576,22 @@
       }
     }
 
+    // ── FORNECEDORES PARCEIROS — excluídos da aba regular ──
+    const FORN_PARCEIROS = new Set([
+      'Auri Medicina', 'Cergoli (Lapa)', 'IMADI Imagem',
+      'Medicom 2.0', 'Medicom',
+      'Prezecor 2.0', 'Prezecor', 'Prezecor (TC)',
+      'Scoppeta'
+    ]);
+
     // ── SEARCH & FILTER ──
     function applyFilters() {
       const q = normalize(searchQuery);
       filtered = exams.filter(e => {
+        if (FORN_PARCEIROS.has(e.fornecedor)) return false; // ← parceiros só na aba própria
         if (activeCategory && e.categoria !== activeCategory) return false;
         if (!q) return true;
-        const hay = normalize(`${e.nome} ${e.categoria} ${e.fornecedor} ${e.observacao||''} ${e.caracteristica||''}`);
+        const hay = normalize(`${e.nome} ${e.categoria} ${e.fornecedor} ${e.observacao||''}`);
         return q.split(/\s+/).every(t => hay.includes(t));
       });
       renderResults();
@@ -1350,31 +1379,78 @@
   };
 
   /* ── Estado ── */
-  let _pParc = null, _pExame = null, _pMsg = '';
+  let _pParc = null, _pExame = null, _pMsg = '', _pTipoAtivo = '';
   const _fBRL = v => 'R$ ' + parseFloat(v).toFixed(2).replace('.', ',');
+  const _normP = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+
+  /* ── Filtro por tipo de exame ── */
+  window.pSetTipo = function(btn, tipo) {
+    document.querySelectorAll('.p-tchip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _pTipoAtivo = tipo;
+    pFiltrarExames();
+  };
+
+  /* ── Filtro de exames (busca + tipo) ── */
+  window.pFiltrarExames = function() {
+    if (!_pParc) return;
+    const q = _normP(document.getElementById('pBuscaExame').value);
+    const t = _pTipoAtivo;
+    const filtrados = _pParc.exames.filter(ex => {
+      const n = _normP(ex.nome);
+      const okTipo = !t
+        || (t === 'rm'    && /^rm\b/.test(n) && !n.includes('angio'))
+        || (t === 'tc'    && /^tc\b/.test(n) && !n.includes('angio'))
+        || (t === 'angio' && n.includes('angio'))
+        || (t === 'raio'  && n.includes('raio'))
+        || (t === 'outro' && !/^rm\b|^tc\b|angio|raio/.test(n));
+      return okTipo && (!q || n.includes(q));
+    });
+    const sel = document.getElementById('pSelExame');
+    _pExame = null;
+    pOcultarMsg();
+    document.getElementById('pValsRow').style.display = 'none';
+    sel.innerHTML = filtrados.length
+      ? '<option value="">— Selecione o exame —</option>'
+      : '<option value="">Nenhum resultado para este filtro</option>';
+    filtrados.forEach(ex => {
+      const realIdx = _pParc.exames.indexOf(ex);
+      const o = document.createElement('option');
+      o.value = realIdx; o.textContent = ex.nome;
+      sel.appendChild(o);
+    });
+    const cnt = document.getElementById('pExameCount');
+    cnt.textContent = filtrados.length + ' de ' + _pParc.exames.length + ' exames';
+    cnt.style.display = 'block';
+  };
 
   /* ── Seleção de parceiro ── */
   window.pOnParceiro = function() {
     const id = document.getElementById('pSelParceiro').value;
     _pParc = id ? _PARC[id] : null;
-    _pExame = null;
+    _pExame = null; _pTipoAtivo = '';
     pOcultarMsg();
 
-    const selEx = document.getElementById('pSelExame');
-    selEx.innerHTML = '';
+    // Esconder filtros se nenhum parceiro
+    const busca  = document.getElementById('pBuscaExame');
+    const chips  = document.getElementById('pTipoChips');
+    const cnt    = document.getElementById('pExameCount');
     if (!_pParc) {
-      selEx.innerHTML = '<option value="">— Selecione o parceiro primeiro —</option>';
+      document.getElementById('pSelExame').innerHTML = '<option value="">— Selecione o parceiro primeiro —</option>';
       document.getElementById('pInfoBox').classList.remove('show');
       document.getElementById('pValsRow').style.display = 'none';
+      busca.style.display = 'none'; busca.value = '';
+      chips.style.display = 'none'; cnt.style.display = 'none';
       return;
     }
 
-    selEx.innerHTML = '<option value="">— Selecione o exame —</option>';
-    _pParc.exames.forEach((ex, i) => {
-      const o = document.createElement('option');
-      o.value = i; o.textContent = ex.nome;
-      selEx.appendChild(o);
-    });
+    // Mostrar busca + chips e resetar chips para "Todos"
+    busca.style.display = 'block'; busca.value = '';
+    chips.style.display = 'flex';
+    document.querySelectorAll('.p-tchip').forEach((b, i) => b.classList.toggle('active', i === 0));
+
+    // Populate select via filtro (com tipo = '' = Todos)
+    pFiltrarExames();
 
     // Info box
     const ib = document.getElementById('pInfoBox');
@@ -1493,7 +1569,12 @@
     document.getElementById('pObs').value = '';
     document.getElementById('pInfoBox').classList.remove('show');
     document.getElementById('pValsRow').style.display = 'none';
-    _pParc = null; _pExame = null;
+    const busca = document.getElementById('pBuscaExame');
+    busca.style.display = 'none'; busca.value = '';
+    document.getElementById('pTipoChips').style.display = 'none';
+    document.getElementById('pExameCount').style.display = 'none';
+    document.querySelectorAll('.p-tchip').forEach((b, i) => b.classList.toggle('active', i === 0));
+    _pParc = null; _pExame = null; _pTipoAtivo = '';
     pOcultarMsg();
   };
 

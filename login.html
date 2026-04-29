@@ -135,12 +135,12 @@
         <div class="p-greeting-title">O que deseja acessar?</div>
       </div>
       <div class="portal-grid">
-        <div class="portal-card" onclick="abrirSistema('orcamentos.html','Sistema de Orçamentos')">
+        <div class="portal-card" id="cardOrcamentos" style="display:none;" onclick="abrirSistema('orcamentos.html','Sistema de Orçamentos')">
           <div class="pc-icon" style="background:#0A1F44;"><i class="fas fa-file-invoice-dollar" style="color:white;font-size:22px;"></i></div>
           <div><div class="pc-name">Orçamentos</div><div class="pc-desc">Consulte exames, valores, parceiros e preparos. Gere mensagens para WhatsApp.</div></div>
           <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
         </div>
-        <div class="portal-card" onclick="abrirSistema('fechamento.html','Sistema de Fechamento')">
+        <div class="portal-card" id="cardFechamento" style="display:none;" onclick="abrirSistema('fechamento.html','Sistema de Fechamento')">
           <div class="pc-icon" style="background:#065f46;"><i class="fas fa-receipt" style="color:white;font-size:22px;"></i></div>
           <div><div class="pc-name">Fechamento Médico</div><div class="pc-desc">Cálculo de repasse, impostos PJ e geração de recibo consolidado para impressão.</div></div>
           <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
@@ -150,12 +150,12 @@
           <div><div class="pc-name">Financeiro</div><div class="pc-desc">Geração de recibos em lote para colaboradores. Cadastro e controle de equipe.</div></div>
           <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
         </div>
-        <div class="portal-card" onclick="abrirSistema('exames.html','Retirada de Exames')">
+        <div class="portal-card" id="cardExames" style="display:none;" onclick="abrirSistema('exames.html','Retirada de Exames')">
           <div class="pc-icon" style="background:#1e3a5f;"><i class="fas fa-vials" style="color:white;font-size:22px;"></i></div>
           <div><div class="pc-name">Retirada de Exames</div><div class="pc-desc">Gaveta digital de exames. Cadastre, dê baixa e consulte o histórico completo.</div></div>
           <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
         </div>
-        <div class="portal-card" onclick="abrirSistema('cronograma.html','Cronograma')">
+        <div class="portal-card" id="cardCronograma" style="display:none;" onclick="abrirSistema('cronograma.html','Cronograma')">
           <div class="pc-icon" style="background:#1d4ed8;"><i class="fas fa-calendar-week" style="color:white;font-size:22px;"></i></div>
           <div><div class="pc-name">Cronograma</div><div class="pc-desc">Agenda diária por sala, checklist de abertura, notas e controle de caixa.</div></div>
           <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
@@ -216,8 +216,13 @@
       sessionStorage.setItem('email',        user.email);
       sessionStorage.setItem('perms',        JSON.stringify(perms));
 
-      if (perms.financeiro) document.getElementById('cardFinanceiro').style.display = 'flex';
-      if (perms.admin)      document.getElementById('cardAdmin').style.display      = 'flex';
+      const isAdmin = !!perms.admin;
+      if (isAdmin || perms.orcamento)  document.getElementById('cardOrcamentos').style.display = 'flex';
+      if (isAdmin || perms.fechamento) document.getElementById('cardFechamento').style.display = 'flex';
+      if (isAdmin || perms.financeiro) document.getElementById('cardFinanceiro').style.display = 'flex';
+      if (isAdmin || perms.exames)     document.getElementById('cardExames').style.display     = 'flex';
+      if (isAdmin || perms.cronograma) document.getElementById('cardCronograma').style.display = 'flex';
+      if (isAdmin)                     document.getElementById('cardAdmin').style.display      = 'flex';
     }
 
     window.entrar = function() {
