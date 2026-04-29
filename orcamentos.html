@@ -38,33 +38,43 @@
     .back-btn{background:var(--red);color:white;border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;}
     .back-btn:hover{background:var(--red-h);}
 
+    /* Filter sidebar */
+    .filter-sidebar{background:white;border-right:1px solid var(--gray-200);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
+    .sbar-search{padding:14px;border-bottom:1px solid var(--gray-100);flex-shrink:0;}
+    .sbar-scroll{flex:1;overflow-y:auto;}
+    .sbar-scroll::-webkit-scrollbar{width:4px;}
+    .sbar-scroll::-webkit-scrollbar-thumb{background:var(--gray-200);border-radius:2px;}
+    .sbar-section{padding:10px 12px;border-bottom:1px solid var(--gray-100);}
+    .sbar-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-400);margin-bottom:7px;}
+    .sbar-chip{display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;color:var(--gray-600);transition:all .15s;border:1px solid transparent;user-select:none;}
+    .sbar-chip:hover{background:var(--gray-100);color:var(--gray-800);}
+    .sbar-chip.cat-active{background:rgba(10,31,68,.1);color:var(--navy);border-color:rgba(10,31,68,.2);font-weight:700;}
+    .sbar-chip.cli-active{background:rgba(10,31,68,.12);color:var(--navy);border-color:rgba(10,31,68,.25);font-weight:700;}
+    .sbar-chip-icon{font-size:12px;width:16px;text-align:center;flex-shrink:0;}
+    .sbar-chip-count{margin-left:auto;background:var(--gray-100);border-radius:10px;font-size:10px;font-weight:700;padding:1px 6px;color:var(--gray-400);flex-shrink:0;}
+    .sbar-chip.cat-active .sbar-chip-count{background:rgba(10,31,68,.15);color:var(--navy);}
+    .sbar-chip.cli-active .sbar-chip-count{background:rgba(10,31,68,.15);color:var(--navy);}
+    .sbar-admin{display:flex;flex-direction:column;gap:6px;padding:12px 12px;}
+    .filter-tag-bar{display:none;align-items:center;gap:6px;padding:7px 12px;background:#eff6ff;border-bottom:1px solid #bfdbfe;font-size:11px;color:var(--navy);font-weight:600;flex-shrink:0;}
+    .filter-tag-bar.show{display:flex;}
+    .filter-tag-rm{margin-left:auto;background:none;border:none;cursor:pointer;color:var(--navy);font-size:13px;padding:0 2px;transition:color .15s;}
+    .filter-tag-rm:hover{color:var(--red);}
+
     /* Search */
-    .search-section{background:white;border-bottom:1px solid var(--gray-200);padding:16px 24px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.04);}
-    .search-row{display:flex;align-items:center;gap:12px;max-width:900px;margin:0 auto;}
-    .search-wrap{position:relative;flex:1;}
-    .search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--gray-400);font-size:15px;pointer-events:none;}
-    #searchInput{width:100%;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:30px;padding:11px 16px 11px 42px;font-size:14px;font-family:inherit;outline:none;transition:all .2s;color:var(--gray-800);}
+    .search-wrap{position:relative;}
+    .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray-400);font-size:13px;pointer-events:none;}
+    #searchInput{width:100%;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:8px;padding:9px 32px 9px 34px;font-size:13px;font-family:inherit;outline:none;transition:all .2s;color:var(--gray-800);}
     #searchInput:focus{border-color:var(--navy);background:white;box-shadow:0 0 0 3px rgba(10,31,68,.07);}
     #searchInput::placeholder{color:var(--gray-400);}
-    .clear-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:var(--gray-200);border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;color:var(--gray-500);font-size:13px;display:none;align-items:center;justify-content:center;transition:background .15s;}
+    .clear-btn{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--gray-200);border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;color:var(--gray-500);font-size:11px;display:none;align-items:center;justify-content:center;transition:background .15s;}
     .clear-btn.show{display:flex;}
     .clear-btn:hover{background:var(--gray-300);}
-    .admin-row{display:flex;gap:6px;}
-    .btn-chip-sm{padding:6px 12px;border-radius:20px;background:var(--gray-100);border:1.5px solid var(--gray-200);font-family:inherit;font-size:11px;font-weight:700;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap;}
+    .btn-chip-sm{padding:7px 12px;border-radius:7px;background:var(--gray-50);border:1.5px solid var(--gray-200);font-family:inherit;font-size:11px;font-weight:700;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;width:100%;}
     .btn-chip-sm:hover{border-color:var(--navy);color:var(--navy);background:white;}
-    .btn-filtros{padding:8px 14px;border-radius:20px;background:var(--gray-50);border:1.5px solid var(--gray-200);font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap;flex-shrink:0;}
-    .btn-filtros:hover,.btn-filtros.active{border-color:var(--navy);color:var(--navy);background:#eff6ff;}
-    .filtros-badge{background:var(--navy);color:white;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:800;display:none;}
-    .filtros-badge.show{display:inline-block;}
-    .chips-row{display:none;gap:7px;flex-wrap:wrap;max-width:900px;margin:8px auto 0;padding-top:10px;border-top:1px solid var(--gray-100);}
-    .chips-row.open{display:flex;}
-    .chip{padding:6px 14px;border-radius:20px;background:var(--gray-50);border:1.5px solid var(--gray-200);font-family:inherit;font-size:12px;font-weight:600;color:var(--gray-500);cursor:pointer;transition:all .15s;white-space:nowrap;}
-    .chip:hover{border-color:var(--teal);color:var(--teal);}
-    .chip.active{background:var(--navy);color:white;border-color:var(--navy);}
 
     /* Layout */
-    .layout{display:grid;grid-template-columns:1fr 320px;flex:1;overflow:hidden;}
-    .main-content{overflow-y:auto;padding:20px 20px 20px 24px;}
+    .layout{display:grid;grid-template-columns:220px 1fr 320px;flex:1;overflow:hidden;}
+    .main-content{overflow-y:auto;padding:18px 20px 18px 18px;}
     .results-meta{font-size:12px;color:var(--gray-400);font-weight:600;margin-bottom:14px;padding-left:2px;}
 
     /* Cards */
@@ -204,6 +214,29 @@
     .qty-cancel{width:100%;padding:9px;border-radius:9px;border:1.5px solid var(--gray-200);background:white;font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-500);cursor:pointer;transition:all .15s;}
     .qty-cancel:hover{background:var(--gray-100);}
 
+    /* Partner option picker */
+    .ptag-sm{display:inline-block;font-size:9px;background:rgba(10,31,68,.08);color:var(--navy);border:1px solid rgba(10,31,68,.15);padding:1px 5px;border-radius:3px;font-weight:600;}
+    .partner-tags-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
+    .popt-section-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--gray-400);margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--gray-200);}
+    .popt-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+    .popt-card{background:var(--gray-50);border:2px solid var(--gray-200);border-radius:12px;padding:13px;cursor:pointer;transition:all .18s;}
+    .popt-card:hover{border-color:var(--navy);}
+    .popt-card.selected{border-color:var(--navy);background:rgba(10,31,68,.06);}
+    .popt-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:8px;}
+    .popt-name{font-size:13px;font-weight:700;color:var(--navy);}
+    .popt-meta{font-size:10px;color:var(--gray-400);margin-top:2px;}
+    .popt-sel-btn{font-size:11px;font-weight:700;background:rgba(10,31,68,.12);color:var(--navy);border:1px solid rgba(10,31,68,.25);padding:4px 10px;border-radius:6px;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+    .popt-sel-btn:hover{background:var(--navy);color:white;}
+    .popt-prices{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;}
+    .popt-pbox{background:white;border:1px solid var(--gray-200);border-radius:7px;padding:7px 8px;text-align:center;}
+    .popt-pbox-lbl{font-size:9px;color:var(--gray-400);margin-bottom:3px;text-transform:uppercase;font-weight:700;}
+    .popt-pbox-val{font-size:13px;font-weight:800;}
+    .popt-pbox.guia .popt-pbox-val{color:var(--amber);}
+    .popt-pbox.resta .popt-pbox-val{color:var(--green);}
+    .popt-pbox.total .popt-pbox-val{color:var(--navy);}
+    .popt-obs{margin-top:8px;background:#fff7ed;border-radius:6px;padding:7px 10px;font-size:11px;color:#92400e;line-height:1.5;}
+    .price-min-label{font-size:9px;color:var(--amber);font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
+
     .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:opacity .2s;z-index:2000;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25);}
     .toast.show{opacity:1;}
     .toast.success{background:var(--green);}
@@ -212,6 +245,7 @@
 
     @media(max-width:900px){
       .layout{grid-template-columns:1fr;}
+      .filter-sidebar{display:none;}
       .cart-panel{border-left:none;border-top:1px solid var(--gray-200);max-height:320px;}
       .s-header{padding:0 16px;}
       .main-content{padding:14px;}
@@ -235,30 +269,45 @@
     </div>
   </div>
 
-  <div class="search-section">
-    <div class="search-row">
-      <div class="search-wrap">
-        <i class="fas fa-magnifying-glass search-icon"></i>
-        <input type="text" id="searchInput" placeholder="Buscar exame, categoria ou parceiro…" autocomplete="off">
-        <button class="clear-btn" id="clearBtn">×</button>
-      </div>
-      <button class="btn-filtros" id="btnFiltros" onclick="toggleFiltros()">
-        <i class="fas fa-sliders"></i> Filtros
-        <span class="filtros-badge" id="filtrosBadge">0</span>
-      </button>
-      <div class="admin-row">
-        <input type="file" class="file-input" id="fileInput" accept=".xlsx,.xls">
-        <button class="btn-chip-sm" id="importBtn"><i class="fas fa-file-arrow-up"></i> Importar</button>
-        <button class="btn-chip-sm" id="loadSeedBtn"><i class="fas fa-database"></i> Base inicial</button>
-      </div>
-    </div>
-    <div class="chips-row" id="categoryChips"></div>
-  </div>
-
   <div class="layout">
-    <main class="main-content">
-      <div class="results-meta" id="resultsMeta"></div>
-      <div id="results"></div>
+    <!-- ── Sidebar de Filtros ── -->
+    <aside class="filter-sidebar">
+      <div class="sbar-search">
+        <div class="search-wrap">
+          <i class="fas fa-magnifying-glass search-icon"></i>
+          <input type="text" id="searchInput" placeholder="Buscar exame…" autocomplete="off">
+          <button class="clear-btn" id="clearBtn">×</button>
+        </div>
+      </div>
+      <div class="sbar-scroll">
+        <div class="sbar-section">
+          <div class="sbar-label">Categorias</div>
+          <div id="categoryChips"></div>
+        </div>
+        <div class="sbar-section">
+          <div class="sbar-label">Parceiros</div>
+          <div id="clinicChips"></div>
+        </div>
+        <div class="sbar-section sbar-admin" id="sbar-admin" style="display:none;">
+          <div class="sbar-label">Administração</div>
+          <input type="file" class="file-input" id="fileInput" accept=".xlsx,.xls">
+          <button class="btn-chip-sm" id="importBtn"><i class="fas fa-file-arrow-up"></i> Importar planilha</button>
+          <button class="btn-chip-sm" id="loadSeedBtn"><i class="fas fa-database"></i> Base inicial</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Filtro ativo (tag removível) ── -->
+    <main class="main-content" style="display:flex;flex-direction:column;overflow:hidden;padding:0;">
+      <div class="filter-tag-bar" id="clinicTagBar">
+        <i class="fas fa-building" style="font-size:11px;"></i>
+        <span id="clinicTagName"></span>
+        <button class="filter-tag-rm" onclick="clearClinic()" title="Remover filtro">×</button>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:18px 20px 18px 18px;">
+        <div class="results-meta" id="resultsMeta"></div>
+        <div id="results"></div>
+      </div>
     </main>
     <aside class="cart-panel">
       <div class="cart-head">
@@ -579,8 +628,8 @@
       document.getElementById('userName').textContent   = user.displayName || user.email.split('@')[0];
       try {
         const perms = JSON.parse(sessionStorage.getItem('perms') || '{}');
-        if (!perms.admin) document.getElementById('loadSeedBtn').style.display = 'none';
-      } catch(e) { document.getElementById('loadSeedBtn').style.display = 'none'; }
+        if (perms.admin) document.getElementById('sbar-admin').style.display = 'flex';
+      } catch(e) { /* sem permissões — admin oculto */ }
       loadExamsFromFirestore();
     });
     document.getElementById('logoutBtn').addEventListener('click', () =>
@@ -588,10 +637,10 @@
     );
 
     let exams = [], filtered = [], cart = [];
-    let activeCategory = null, searchQuery = '';
+    let activeCategory = null, activeClinic = null, searchQuery = '';
 
-    // Fornecedores cujos exames vêm exclusivamente pela aba de Parceiros (_PARC)
-    // e devem ser ocultados da grade principal (evita duplicatas com o Firestore)
+    // Fornecedores cujos exames vêm exclusivamente da aba de Parceiros (_PARC)
+    // e devem ser ocultados da grade do Firestore (evita duplicatas)
     const FORN_PARCEIROS = new Set([
       'Auri Medicina', 'Cergoli (Lapa)', 'IMADI Imagem',
       'Medicom 2.0', 'Medicom',
@@ -636,22 +685,43 @@
       return 'Parceiro';
     }
 
+    // Agrupa exames parceiros pelo nome normalizado — permite que o mesmo
+    // exame oferecido por vários parceiros apareça em UM único card com
+    // múltiplas opções de parceiro para seleção no modal.
     function loadPartnerExams() {
-      return Object.entries(window._PARC || {}).flatMap(([key, parc]) =>
-        parc.exames.map((ex, i) => ({
-          id: `parc_${key}_${i}`,
-          nome: ex.nome,
-          categoria: inferPartnerCat(ex.nome),
-          fornecedor: parc.nome,
-          preco_ct: null, preco_pt: null,
-          isPartner: true,
-          partnerNome: parc.nome,
-          partnerTel: parc.tel,
-          partnerObs: parc.obs,
-          total: ex.total, guia: ex.guia, resta: ex.resta,
-          preparo: '', observacao: ''
-        }))
-      );
+      const byKey = new Map(); // normalize(nome) → exam object
+      for (const [parcKey, parc] of Object.entries(window._PARC || {})) {
+        for (const ex of parc.exames) {
+          const nk = normalize(ex.nome);
+          if (!byKey.has(nk)) {
+            byKey.set(nk, {
+              id: `parc_${nk.replace(/[^a-z0-9]/g,'_')}`,
+              nome: ex.nome,
+              categoria: inferPartnerCat(ex.nome),
+              fornecedor: parc.nome,          // primeiro parceiro (compat)
+              preco_ct: null, preco_pt: null,
+              isPartner: true,
+              // compat com código legado (primeiro parceiro como default)
+              partnerNome: parc.nome,
+              partnerTel: parc.tel,
+              partnerObs: parc.obs,
+              total: ex.total, guia: ex.guia, resta: ex.resta,
+              partnerOptions: [],             // todos os parceiros disponíveis
+              preparo: '', observacao: ''
+            });
+          }
+          byKey.get(nk).partnerOptions.push({
+            parcKey,
+            nome: parc.nome,
+            tel: parc.tel,
+            obs: parc.obs,
+            total: ex.total,
+            guia: ex.guia,
+            resta: ex.resta
+          });
+        }
+      }
+      return [...byKey.values()];
     }
 
     async function loadExamsFromFirestore() {
@@ -679,40 +749,85 @@
           return;
         }
         renderCategories();
+        buildClinicFilters();
         applyFilters();
       } catch(e) {
         document.getElementById('results').innerHTML = `<div class="empty"><i class="fas fa-triangle-exclamation"></i><h3>Erro ao carregar</h3><p>${escapeHtml(e.message)}</p></div>`;
       }
     }
 
+    // Ícones para categorias de exames
+    const CAT_ICONS = {
+      'Ressonância Magnética':'🧲', 'Tomografia':'💻', 'Angio-RM':'🩸',
+      'Angio-TC':'🩸', 'Raio-X':'🦴', 'Ultrassom':'🔊',
+      'Mamografia':'🎗️', 'Densitometria':'🦷', 'Espirometria':'🫁',
+      'Endoscopia / Gastro':'🔭', 'Ginecologia':'💃', 'Biópsia':'🔬',
+      'Otorrinolaringologia':'👃', 'Uro-Imagem':'🫘', 'Parceiro':'🏥',
+      'Geral':'📋', 'Neurológico':'🧠', 'Cardiológico':'🫀',
+      'Oftalmologia':'👁️', 'Dermatologia':'🧬', 'Laboratorial':'🧪',
+      'Ortopédico':'🩼', 'default':'🏷️'
+    };
+
     function renderCategories() {
       const cats = [...new Set(exams.map(e => e.categoria))].sort();
+      const total = exams.length;
       const el = document.getElementById('categoryChips');
-      el.innerHTML = `<button class="chip ${!activeCategory?'active':''}" data-cat="">Todos (${exams.length})</button>` +
+      el.innerHTML =
+        `<div class="sbar-chip ${!activeCategory?'cat-active':''}" data-cat="">
+           <span class="sbar-chip-icon">⊞</span>Todos
+           <span class="sbar-chip-count">${total}</span>
+         </div>` +
         cats.map(c => {
           const n = exams.filter(e => e.categoria===c).length;
-          return `<button class="chip ${activeCategory===c?'active':''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)} (${n})</button>`;
+          const icon = CAT_ICONS[c] || CAT_ICONS.default;
+          return `<div class="sbar-chip ${activeCategory===c?'cat-active':''}" data-cat="${escapeHtml(c)}">
+            <span class="sbar-chip-icon">${icon}</span>${escapeHtml(c)}
+            <span class="sbar-chip-count">${n}</span>
+          </div>`;
         }).join('');
-      el.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+      el.querySelectorAll('.sbar-chip').forEach(btn => btn.addEventListener('click', () => {
         activeCategory = btn.dataset.cat || null;
-        renderCategories(); applyFilters(); atualizarBadge();
+        activeClinic = null;
+        renderCategories(); buildClinicFilters(); applyFilters();
       }));
     }
 
-    window.toggleFiltros = function() {
-      document.getElementById('categoryChips').classList.toggle('open');
-      document.getElementById('btnFiltros').classList.toggle('active');
-    };
-    function atualizarBadge() {
-      const badge = document.getElementById('filtrosBadge');
-      const btn   = document.getElementById('btnFiltros');
-      if (activeCategory) { badge.textContent='1'; badge.classList.add('show'); btn.classList.add('active'); }
-      else { badge.classList.remove('show'); btn.classList.remove('active'); document.getElementById('categoryChips').classList.remove('open'); }
+    function buildClinicFilters() {
+      const parcMap = window._PARC || {};
+      const el = document.getElementById('clinicChips');
+      el.innerHTML = Object.entries(parcMap).map(([key, parc]) => {
+        const n = parc.exames.length;
+        return `<div class="sbar-chip ${activeClinic===parc.nome?'cli-active':''}" data-clinic="${escapeHtml(parc.nome)}">
+          <span class="sbar-chip-icon">🏥</span>${escapeHtml(parc.nome)}
+          <span class="sbar-chip-count">${n}</span>
+        </div>`;
+      }).join('');
+      el.querySelectorAll('.sbar-chip').forEach(btn => btn.addEventListener('click', () => {
+        const name = btn.dataset.clinic;
+        if (activeClinic === name) { clearClinic(); return; }
+        activeClinic = name;
+        activeCategory = null;
+        buildClinicFilters(); renderCategories(); applyFilters();
+        document.getElementById('clinicTagName').textContent = name;
+        document.getElementById('clinicTagBar').classList.add('show');
+      }));
     }
+
+    window.clearClinic = function() {
+      activeClinic = null;
+      document.getElementById('clinicTagBar').classList.remove('show');
+      buildClinicFilters(); renderCategories(); applyFilters();
+    };
 
     function applyFilters() {
       const q = normalize(searchQuery);
       filtered = exams.filter(e => {
+        // Filtro por parceiro específico (clínica)
+        if (activeClinic) {
+          if (!e.isPartner) return false;
+          const hasClinic = (e.partnerOptions||[]).some(o => o.nome === activeClinic);
+          if (!hasClinic) return false;
+        }
         if (activeCategory && e.categoria !== activeCategory) return false;
         if (!q) return true;
         const hay = normalize(`${e.nome} ${e.categoria} ${e.fornecedor} ${e.observacao||''}`);
@@ -731,19 +846,31 @@
       const el = document.getElementById('results');
       if (filtered.length===0) { el.innerHTML='<div class="empty"><i class="fas fa-magnifying-glass"></i><h3>Nenhum resultado</h3><p>Tente outros termos ou limpe os filtros.</p></div>'; return; }
       el.innerHTML = `<div class="grid">${filtered.map(e => {
-        if (e.isPartner) return `
-          <div class="card partner-card" data-id="${e.id}">
-            <div class="card-header-row">
-              <span class="cat-tag">${escapeHtml(e.categoria)}</span>
-              <span class="partner-badge"><i class="fas fa-hospital" style="font-size:9px;"></i> Parceiro</span>
-            </div>
-            <div class="card-name">${escapeHtml(e.nome)}</div>
-            <div class="card-forn"><i class="fas fa-building" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.fornecedor)}</div>
-            <div class="card-prices">
-              <div class="price-box guia"><div class="price-lbl">Guia (aqui)</div><div class="price-val">${fmtBRL(e.guia)}</div></div>
-              <div class="price-box resta"><div class="price-lbl">Restante</div><div class="price-val">${fmtBRL(e.resta)}</div></div>
-            </div>
-          </div>`;
+        if (e.isPartner) {
+          const opts = e.partnerOptions || [];
+          const multiPartner = opts.length > 1;
+          const minTotal = multiPartner ? Math.min(...opts.map(o=>o.total)) : e.total;
+          // Tags dos parceiros disponíveis
+          const partnerTags = multiPartner
+            ? `<div class="partner-tags-row">${opts.map(o=>`<span class="ptag-sm">${escapeHtml(o.nome)}</span>`).join('')}</div>`
+            : `<div class="card-forn"><i class="fas fa-building" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.partnerNome)}</div>`;
+          return `
+            <div class="card partner-card" data-id="${e.id}">
+              <div class="card-header-row">
+                <span class="cat-tag">${escapeHtml(e.categoria)}</span>
+                <span class="partner-badge"><i class="fas fa-hospital" style="font-size:9px;"></i> ${multiPartner?opts.length+' clínicas':'Parceiro'}</span>
+              </div>
+              <div class="card-name">${escapeHtml(e.nome)}</div>
+              ${partnerTags}
+              <div class="card-prices">
+                ${multiPartner
+                  ? `<div class="price-box guia" style="flex:1;"><div class="price-min-label">a partir de</div><div class="price-val" style="color:var(--amber)">${fmtBRL(minTotal)}</div></div>`
+                  : `<div class="price-box guia"><div class="price-lbl">Guia (aqui)</div><div class="price-val">${fmtBRL(e.guia)}</div></div>
+                     <div class="price-box resta"><div class="price-lbl">Restante</div><div class="price-val">${fmtBRL(e.resta)}</div></div>`
+                }
+              </div>
+            </div>`;
+        }
         return `
           <div class="card" data-id="${e.id}">
             <span class="cat-tag">${escapeHtml(e.categoria)}</span>
@@ -758,19 +885,20 @@
       el.querySelectorAll('.card').forEach(card => card.addEventListener('click', () => openModal(card.dataset.id)));
     }
 
-    // ── Build partner WhatsApp message ──
-    function buildPartnerMsg(e) {
+    // ── Build partner WhatsApp message (aceita opção explícita ou usa dados do exam) ──
+    function buildPartnerMsg(e, opt) {
       const clinica      = sessionStorage.getItem('clinicaNome') || 'Amor Saúde';
-      const nomeParceiro = e.partnerNome;
-      const tel          = e.partnerTel || '';
-      const fTotal       = fmtBRL(e.total);
-      const fGuia        = fmtBRL(e.guia);
-      const fResta       = fmtBRL(e.resta);
+      const nomeParceiro = opt ? opt.nome  : e.partnerNome;
+      const tel          = opt ? (opt.tel||'') : (e.partnerTel||'');
+      const total        = opt ? opt.total : e.total;
+      const guia         = opt ? opt.guia  : e.guia;
+      const resta        = opt ? opt.resta : e.resta;
+      const fTotal = fmtBRL(total), fGuia = fmtBRL(guia), fResta = fmtBRL(resta);
 
       let m = `🏥 *${e.nome}*\n`;
       m += `📍 Realizado na clínica parceira *${nomeParceiro}*\n\n`;
       m += `💰 *Valor Total:* ${fTotal}\n`;
-      if (e.guia > 0) {
+      if (guia > 0) {
         m += `📋 *Guia (pagar aqui na ${clinica}):* ${fGuia}\n`;
         m += `🏥 *Restante (pagar na ${nomeParceiro}):* ${fResta}\n`;
         m += `\n*Como funciona:*\n\n`;
@@ -794,50 +922,126 @@
       return m;
     }
 
+    // ── Copiar mensagem parceiro ──
+    function copyPartnerMsg(msg) {
+      const copy = () => {
+        toast('Mensagem copiada!', 'success');
+        const btn = document.getElementById('partnerCopyBtn');
+        if (btn) { const orig = btn.innerHTML; btn.innerHTML='<i class="fas fa-check"></i> Copiado!'; setTimeout(()=>{ btn.innerHTML=orig; }, 2000); }
+      };
+      navigator.clipboard.writeText(msg).then(copy).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value=msg; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+        copy();
+      });
+    }
+
+    // ── Renderiza corpo do modal parceiro (com opção escolhida) ──
+    function renderPartnerModalBody(e, opt) {
+      const msg = buildPartnerMsg(e, opt);
+      const obs = opt ? opt.obs : e.partnerObs;
+      const tel = opt ? opt.tel : e.partnerTel;
+      const total = opt ? opt.total : e.total;
+      const guia  = opt ? opt.guia  : e.guia;
+      const resta = opt ? opt.resta : e.resta;
+      const nome  = opt ? opt.nome  : e.partnerNome;
+      return `
+        ${(tel || obs) ? `
+        <div class="partner-info-box">
+          ${tel ? `<div>📞 <strong>${escapeHtml(tel)}</strong></div>` : ''}
+          ${obs ? `<div class="partner-obs">${escapeHtml(obs)}</div>` : ''}
+        </div>` : ''}
+        <div class="modal-prices three">
+          <div class="mpbox total-box"><div class="mpbox-lbl">Valor Total</div><div class="mpbox-val">${fmtBRL(total)}</div></div>
+          <div class="mpbox guia-box"><div class="mpbox-lbl">Guia (aqui)</div><div class="mpbox-val">${fmtBRL(guia)}</div></div>
+          <div class="mpbox resta-box"><div class="mpbox-lbl">Restante</div><div class="mpbox-val">${fmtBRL(resta)}</div></div>
+        </div>
+        <div class="msg-section-lbl"><i class="fas fa-comment-dots" style="color:var(--teal);font-size:11px;"></i> Mensagem WhatsApp — ${escapeHtml(nome)}</div>
+        <div class="partner-msg-area">${escapeHtml(msg)}</div>
+        <button class="btn-copy-msg" id="partnerCopyBtn"><i class="fas fa-copy"></i> Copiar Mensagem</button>`;
+    }
+
     // ── Open partner modal ──
+    // Se o exame tem múltiplos parceiros, exibe seletor de parceiro primeiro.
+    let _selectedPartnerOpt = null; // parceiro escolhido no picker
+
     function openPartnerModal(e) {
-      const msg = buildPartnerMsg(e);
-      document.getElementById('modalContent').innerHTML = `
+      const opts = e.partnerOptions || [];
+      const multiPartner = opts.length > 1;
+
+      // Selecionar automaticamente o único parceiro (sem picker)
+      const defaultOpt = opts.length === 1 ? opts[0] : null;
+      _selectedPartnerOpt = defaultOpt;
+
+      const headerHtml = `
         <div class="modal-head">
           <div class="modal-titles">
             <div class="modal-name">${escapeHtml(e.nome)}</div>
             <div class="modal-meta">
               <span class="modal-tag">${escapeHtml(e.categoria)}</span>
-              <span class="modal-tag parceiro"><i class="fas fa-hospital" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.partnerNome)}</span>
+              ${multiPartner
+                ? `<span class="modal-tag parceiro"><i class="fas fa-hospital" style="font-size:9px;margin-right:3px;"></i>${opts.length} clínicas disponíveis</span>`
+                : `<span class="modal-tag parceiro"><i class="fas fa-hospital" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(defaultOpt.nome)}</span>`}
             </div>
           </div>
           <button class="modal-close" id="closeBtn"><i class="fas fa-xmark"></i></button>
-        </div>
-        <div class="modal-body">
-          ${(e.partnerTel || e.partnerObs) ? `
-          <div class="partner-info-box">
-            ${e.partnerTel ? `<div>📞 <strong>${escapeHtml(e.partnerTel)}</strong></div>` : ''}
-            ${e.partnerObs ? `<div class="partner-obs">${escapeHtml(e.partnerObs)}</div>` : ''}
-          </div>` : ''}
-          <div class="modal-prices three">
-            <div class="mpbox total-box"><div class="mpbox-lbl">Valor Total</div><div class="mpbox-val">${fmtBRL(e.total)}</div></div>
-            <div class="mpbox guia-box"><div class="mpbox-lbl">Guia (aqui)</div><div class="mpbox-val">${fmtBRL(e.guia)}</div></div>
-            <div class="mpbox resta-box"><div class="mpbox-lbl">Restante</div><div class="mpbox-val">${fmtBRL(e.resta)}</div></div>
-          </div>
-          <div class="msg-section-lbl"><i class="fas fa-comment-dots" style="color:var(--teal);font-size:11px;"></i> Mensagem WhatsApp</div>
-          <div class="partner-msg-area">${escapeHtml(msg)}</div>
-          <button class="btn-copy-msg" id="partnerCopyBtn"><i class="fas fa-copy"></i> Copiar Mensagem</button>
         </div>`;
-      document.getElementById('modal').classList.add('show');
-      document.getElementById('closeBtn').addEventListener('click', closeModal);
-      document.getElementById('partnerCopyBtn').addEventListener('click', () => {
-        const copy = () => {
-          toast('Mensagem copiada!', 'success');
-          const btn = document.getElementById('partnerCopyBtn');
-          if (btn) { const orig = btn.innerHTML; btn.innerHTML='<i class="fas fa-check"></i> Copiado!'; setTimeout(()=>{ btn.innerHTML=orig; }, 2000); }
-        };
-        navigator.clipboard.writeText(msg).then(copy).catch(() => {
-          const ta = document.createElement('textarea');
-          ta.value=msg; ta.style.position='fixed'; ta.style.opacity='0';
-          document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
-          copy();
-        });
-      });
+
+      function buildBody() {
+        if (multiPartner) {
+          // Seletor de parceiros
+          const pickerHtml = `
+            <div class="popt-section-title">Selecione a clínica parceira</div>
+            <div class="popt-grid">
+              ${opts.map((opt, i) => `
+                <div class="popt-card ${_selectedPartnerOpt===opt?'selected':''}" data-popt="${i}">
+                  <div class="popt-card-header">
+                    <div>
+                      <div class="popt-name">${escapeHtml(opt.nome)}</div>
+                      ${opt.tel?`<div class="popt-meta">📞 ${escapeHtml(opt.tel)}</div>`:''}
+                    </div>
+                    <button class="popt-sel-btn" data-popt="${i}">Selecionar</button>
+                  </div>
+                  <div class="popt-prices">
+                    <div class="popt-pbox guia"><div class="popt-pbox-lbl">Guia (aqui)</div><div class="popt-pbox-val">${fmtBRL(opt.guia)}</div></div>
+                    <div class="popt-pbox resta"><div class="popt-pbox-lbl">Restante</div><div class="popt-pbox-val">${fmtBRL(opt.resta)}</div></div>
+                    <div class="popt-pbox total"><div class="popt-pbox-lbl">Total</div><div class="popt-pbox-val">${fmtBRL(opt.total)}</div></div>
+                  </div>
+                  ${opt.obs?`<div class="popt-obs">${escapeHtml(opt.obs)}</div>`:''}
+                </div>`).join('')}
+            </div>
+            ${_selectedPartnerOpt ? renderPartnerModalBody(e, _selectedPartnerOpt) : ''}`;
+          return `<div class="modal-body">${pickerHtml}</div>`;
+        }
+        return `<div class="modal-body">${renderPartnerModalBody(e, defaultOpt)}</div>`;
+      }
+
+      const render = () => {
+        document.getElementById('modalContent').innerHTML = headerHtml + buildBody();
+        document.getElementById('modal').classList.add('show');
+        document.getElementById('closeBtn').addEventListener('click', closeModal);
+
+        // Botão copiar
+        const copyBtn = document.getElementById('partnerCopyBtn');
+        if (copyBtn) {
+          copyBtn.addEventListener('click', () => copyPartnerMsg(buildPartnerMsg(e, _selectedPartnerOpt)));
+        }
+
+        if (multiPartner) {
+          // Clique em card ou botão selecionar
+          document.querySelectorAll('.popt-card,.popt-sel-btn').forEach(el => {
+            el.addEventListener('click', ev => {
+              ev.stopPropagation();
+              const i = parseInt(el.dataset.popt);
+              _selectedPartnerOpt = opts[i];
+              render(); // re-render com parceiro selecionado
+            });
+          });
+        }
+      };
+
+      render();
     }
 
     // ── Open modal (regular) ──
