@@ -13,22 +13,20 @@
     :root{
       --navy:#0A1F44; --navy-mid:#122b5e;
       --red:#C62828;  --red-h:#ad1f1f;
-      --teal:#61C1D0; --teal-h:#4fa8b8;
+      --teal:#61C1D0;
       --gray-50:#f8fafc; --gray-100:#f1f5f9; --gray-200:#e2e8f0;
       --gray-300:#cbd5e1; --gray-400:#94a3b8; --gray-500:#64748b;
       --gray-600:#475569; --gray-800:#1e293b;
-      --green:#15803d; --green-bg:#dcfce7;
-      --shadow:0 4px 20px rgba(10,31,68,.1);
-      --radius:12px;
+      --green:#15803d;
+      --amber:#b45309;
     }
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
     body{font-family:'Inter',sans-serif;background:#f0f4f8;color:var(--gray-800);height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 
-    /* ── Top bar ── */
     .red-bar{height:3px;background:var(--red);position:fixed;top:0;left:0;right:0;z-index:200;}
     .s-header{background:white;border-bottom:2px solid var(--gray-200);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:relative;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.05);}
     .s-logo{display:flex;align-items:center;gap:12px;}
-    .s-logo-icon{width:38px;height:38px;border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+    .s-logo-icon{width:38px;height:38px;border-radius:8px;overflow:hidden;flex-shrink:0;}
     .s-logo-icon img{width:100%;height:100%;object-fit:contain;}
     .s-logo-name{font-size:15px;font-weight:800;color:var(--navy);}
     .s-logo-sub{font-size:10px;color:var(--gray-400);}
@@ -40,7 +38,7 @@
     .back-btn{background:var(--red);color:white;border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;}
     .back-btn:hover{background:var(--red-h);}
 
-    /* ── Search section ── */
+    /* Search */
     .search-section{background:white;border-bottom:1px solid var(--gray-200);padding:16px 24px;flex-shrink:0;box-shadow:0 2px 6px rgba(0,0,0,.04);}
     .search-row{display:flex;align-items:center;gap:12px;max-width:900px;margin:0 auto;}
     .search-wrap{position:relative;flex:1;}
@@ -48,54 +46,58 @@
     #searchInput{width:100%;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:30px;padding:11px 16px 11px 42px;font-size:14px;font-family:inherit;outline:none;transition:all .2s;color:var(--gray-800);}
     #searchInput:focus{border-color:var(--navy);background:white;box-shadow:0 0 0 3px rgba(10,31,68,.07);}
     #searchInput::placeholder{color:var(--gray-400);}
-    .clear-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:var(--gray-200);border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;color:var(--gray-500);font-size:13px;display:none;align-items:center;justify-content:center;line-height:1;transition:background .15s;}
+    .clear-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:var(--gray-200);border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;color:var(--gray-500);font-size:13px;display:none;align-items:center;justify-content:center;transition:background .15s;}
     .clear-btn.show{display:flex;}
     .clear-btn:hover{background:var(--gray-300);}
-
-    /* admin buttons inline */
     .admin-row{display:flex;gap:6px;}
     .btn-chip-sm{padding:6px 12px;border-radius:20px;background:var(--gray-100);border:1.5px solid var(--gray-200);font-family:inherit;font-size:11px;font-weight:700;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .15s;white-space:nowrap;}
     .btn-chip-sm:hover{border-color:var(--navy);color:var(--navy);background:white;}
-
-    /* filter chips */
+    .btn-filtros{padding:8px 14px;border-radius:20px;background:var(--gray-50);border:1.5px solid var(--gray-200);font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+    .btn-filtros:hover,.btn-filtros.active{border-color:var(--navy);color:var(--navy);background:#eff6ff;}
+    .filtros-badge{background:var(--navy);color:white;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:800;display:none;}
+    .filtros-badge.show{display:inline-block;}
     .chips-row{display:none;gap:7px;flex-wrap:wrap;max-width:900px;margin:8px auto 0;padding-top:10px;border-top:1px solid var(--gray-100);}
     .chips-row.open{display:flex;}
     .chip{padding:6px 14px;border-radius:20px;background:var(--gray-50);border:1.5px solid var(--gray-200);font-family:inherit;font-size:12px;font-weight:600;color:var(--gray-500);cursor:pointer;transition:all .15s;white-space:nowrap;}
     .chip:hover{border-color:var(--teal);color:var(--teal);}
     .chip.active{background:var(--navy);color:white;border-color:var(--navy);}
-    .btn-filtros{padding:8px 14px;border-radius:20px;background:var(--gray-50);border:1.5px solid var(--gray-200);font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;white-space:nowrap;flex-shrink:0;}
-    .btn-filtros:hover{border-color:var(--navy);color:var(--navy);background:white;}
-    .btn-filtros.active{border-color:var(--navy);color:var(--navy);background:#eff6ff;}
-    .filtros-badge{background:var(--navy);color:white;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:800;display:none;}
-    .filtros-badge.show{display:inline-block;}
 
-    /* ── Main layout ── */
-    .layout{display:grid;grid-template-columns:1fr 320px;flex:1;overflow:hidden;gap:0;}
+    /* Layout */
+    .layout{display:grid;grid-template-columns:1fr 320px;flex:1;overflow:hidden;}
     .main-content{overflow-y:auto;padding:20px 20px 20px 24px;}
     .results-meta{font-size:12px;color:var(--gray-400);font-weight:600;margin-bottom:14px;padding-left:2px;}
 
-    /* ── Exam cards grid ── */
+    /* Cards */
     .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;align-content:start;}
     .card{background:white;border:1.5px solid var(--gray-200);border-radius:14px;padding:17px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:9px;position:relative;overflow:hidden;}
     .card::after{content:'';position:absolute;inset:0;border-radius:14px;box-shadow:0 8px 24px rgba(10,31,68,.12);opacity:0;transition:opacity .2s;}
     .card:hover{transform:translateY(-3px);border-color:var(--navy);}
     .card:hover::after{opacity:1;}
-    .cat-tag{display:inline-block;padding:3px 9px;border-radius:20px;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;align-self:flex-start;}
+    .card.partner-card{border-color:#fde68a;}
+    .card.partner-card:hover{border-color:var(--amber);}
+    .card-header-row{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+    .cat-tag{display:inline-block;padding:3px 9px;border-radius:20px;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;}
+    .partner-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;background:#fef3c7;color:var(--amber);font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0;}
     .card-name{font-size:14px;font-weight:700;color:var(--navy);line-height:1.35;}
     .card-forn{font-size:11px;color:var(--gray-400);}
     .card-prices{display:flex;gap:10px;margin-top:auto;padding-top:10px;border-top:1px solid var(--gray-100);}
     .price-box{flex:1;text-align:center;padding:7px 6px;border-radius:8px;}
     .price-box.ct{background:#eff6ff;}
     .price-box.pt{background:#fff1f2;}
+    .price-box.guia{background:#fef3c7;}
+    .price-box.resta{background:#f0fdf4;}
     .price-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
     .price-box.ct .price-lbl{color:#3b82f6;}
     .price-box.pt .price-lbl{color:var(--red);}
+    .price-box.guia .price-lbl{color:var(--amber);}
+    .price-box.resta .price-lbl{color:var(--green);}
     .price-val{font-size:14px;font-weight:800;}
     .price-box.ct .price-val{color:#1d4ed8;}
     .price-box.pt .price-val{color:var(--red);}
+    .price-box.guia .price-val{color:var(--amber);}
+    .price-box.resta .price-val{color:var(--green);}
     .price-null{color:var(--gray-300);font-size:12px;}
 
-    /* empty / loader */
     .empty{text-align:center;padding:60px 24px;color:var(--gray-400);}
     .empty i{font-size:36px;margin-bottom:14px;opacity:.3;display:block;}
     .empty h3{color:var(--gray-500);margin-bottom:6px;font-size:16px;}
@@ -105,7 +107,7 @@
     .loader p{color:var(--gray-400);font-size:13px;}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ── Cart panel ── */
+    /* Cart */
     .cart-panel{background:white;border-left:1px solid var(--gray-200);display:flex;flex-direction:column;overflow:hidden;}
     .cart-head{padding:16px 18px;border-bottom:2px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
     .cart-title{font-size:14px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;}
@@ -123,7 +125,7 @@
     .cart-item-preco{font-size:12px;font-weight:800;margin-top:3px;}
     .cart-item-preco.ct{color:#1d4ed8;}
     .cart-item-preco.pt{color:var(--red);}
-    .cart-rm{background:none;border:none;color:var(--gray-300);cursor:pointer;font-size:15px;padding:2px 4px;border-radius:4px;line-height:1;transition:all .15s;flex-shrink:0;}
+    .cart-rm{background:none;border:none;color:var(--gray-300);cursor:pointer;font-size:15px;padding:2px 4px;border-radius:4px;transition:all .15s;flex-shrink:0;}
     .cart-rm:hover{background:#fee2e2;color:var(--red);}
     .cart-footer{padding:14px 16px;border-top:2px solid var(--gray-100);flex-shrink:0;}
     .cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
@@ -137,7 +139,7 @@
     .btn-pdf{background:var(--gray-100);color:var(--gray-600);border:1.5px solid var(--gray-200);}
     .btn-pdf:hover:not(:disabled){background:var(--gray-200);}
 
-    /* ── Modal ── */
+    /* Modal */
     .modal-overlay{position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:500;padding:20px;}
     .modal-overlay.show{display:flex;}
     .modal{background:white;border-radius:20px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.3);}
@@ -146,37 +148,50 @@
     .modal-name{font-size:20px;font-weight:900;color:var(--navy);margin-bottom:5px;letter-spacing:-.3px;}
     .modal-meta{display:flex;gap:6px;flex-wrap:wrap;}
     .modal-tag{font-size:10px;padding:3px 9px;border-radius:20px;background:var(--gray-100);color:var(--gray-600);font-weight:700;}
+    .modal-tag.parceiro{background:#fef3c7;color:var(--amber);}
     .modal-close{background:var(--gray-100);border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;color:var(--gray-500);font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
     .modal-close:hover{background:var(--gray-200);color:var(--navy);}
     .modal-body{padding:20px 24px;}
-    .modal-prices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;}
+    .modal-prices{display:grid;gap:12px;margin-bottom:18px;}
+    .modal-prices.two{grid-template-columns:1fr 1fr;}
+    .modal-prices.three{grid-template-columns:1fr 1fr 1fr;}
     .mpbox{padding:14px;border-radius:12px;text-align:center;}
     .mpbox.ct{background:#eff6ff;border:1.5px solid #bfdbfe;}
     .mpbox.pt{background:#fff1f2;border:1.5px solid #fecdd3;}
+    .mpbox.total-box{background:var(--gray-50);border:1.5px solid var(--gray-200);}
+    .mpbox.guia-box{background:#fef3c7;border:1.5px solid #fde68a;}
+    .mpbox.resta-box{background:#f0fdf4;border:1.5px solid #bbf7d0;}
     .mpbox-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
     .mpbox.ct .mpbox-lbl{color:#3b82f6;}
     .mpbox.pt .mpbox-lbl{color:var(--red);}
+    .mpbox.total-box .mpbox-lbl{color:var(--gray-500);}
+    .mpbox.guia-box .mpbox-lbl{color:var(--amber);}
+    .mpbox.resta-box .mpbox-lbl{color:var(--green);}
     .mpbox-val{font-size:22px;font-weight:900;}
     .mpbox.ct .mpbox-val{color:#1d4ed8;}
     .mpbox.pt .mpbox-val{color:var(--red);}
+    .mpbox.total-box .mpbox-val{color:var(--gray-800);}
+    .mpbox.guia-box .mpbox-val{color:var(--amber);}
+    .mpbox.resta-box .mpbox-val{color:var(--green);}
     .modal-section{margin-bottom:14px;}
     .modal-section-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--gray-400);margin-bottom:5px;}
-    .modal-section textarea{width:100%;border:1.5px solid var(--gray-200);border-radius:9px;padding:10px 12px;font-family:inherit;font-size:13px;resize:vertical;min-height:64px;outline:none;color:var(--gray-800);background:var(--gray-50);transition:border-color .2s;}
-    .modal-section textarea:focus{border-color:var(--navy);background:white;}
     .modal-actions{display:flex;gap:8px;margin-top:18px;padding-top:18px;border-top:1px solid var(--gray-100);}
     .modal-actions button{flex:1;padding:11px 8px;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:5px;}
     .modal-actions button:disabled{opacity:.35;cursor:not-allowed;}
-    .btn-save{background:var(--gray-100);color:var(--gray-600);}
-    .btn-save:hover:not(:disabled){background:var(--gray-200);}
     .btn-add-ct{background:#1d4ed8;color:white;}
     .btn-add-ct:hover:not(:disabled){background:#1e40af;}
     .btn-add-pt{background:var(--red);color:white;}
     .btn-add-pt:hover:not(:disabled){background:var(--red-h);}
-
-    /* preparo read-only */
+    .btn-copy-msg{background:var(--green);color:white;width:100%;padding:11px;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;border:none;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;}
+    .btn-copy-msg:hover{background:#166534;}
     .preparo-box{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:9px;padding:11px 14px;font-size:13px;color:#166534;line-height:1.7;white-space:pre-wrap;}
+    .partner-info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:11px 14px;font-size:12px;color:#1e40af;line-height:1.6;margin-bottom:16px;}
+    .partner-info-box strong{display:block;font-size:13px;margin-bottom:2px;}
+    .partner-obs{margin-top:7px;background:#fff7ed;border-radius:6px;padding:7px 10px;font-size:11px;color:#92400e;line-height:1.5;}
+    .partner-msg-area{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:9px;padding:13px 15px;font-size:12px;color:#166534;line-height:1.75;white-space:pre-wrap;font-family:inherit;margin-bottom:14px;max-height:300px;overflow-y:auto;}
+    .msg-section-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--gray-400);margin-bottom:7px;display:flex;align-items:center;gap:5px;}
 
-    /* qty mini-modal */
+    /* Qty modal */
     .qty-overlay{position:fixed;inset:0;background:rgba(10,31,68,.62);backdrop-filter:blur(4px);z-index:600;display:none;align-items:center;justify-content:center;padding:20px;}
     .qty-overlay.show{display:flex;}
     .qty-box{background:white;border-radius:18px;padding:28px 24px;max-width:380px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.35);}
@@ -189,60 +204,11 @@
     .qty-cancel{width:100%;padding:9px;border-radius:9px;border:1.5px solid var(--gray-200);background:white;font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-500);cursor:pointer;transition:all .15s;}
     .qty-cancel:hover{background:var(--gray-100);}
 
-    /* chips de tipo — aba parceiros */
-    .p-tipo-bar{display:flex;gap:6px;flex-wrap:wrap;}
-    .p-tchip{padding:4px 11px;border-radius:20px;border:1.5px solid var(--gray-200);background:var(--gray-50);font-family:inherit;font-size:11px;font-weight:700;color:var(--gray-500);cursor:pointer;transition:all .15s;white-space:nowrap;}
-    .p-tchip:hover{border-color:var(--navy);color:var(--navy);}
-    .p-tchip.active{background:var(--navy);color:white;border-color:var(--navy);}
-    .p-exame-count{font-size:11px;color:var(--gray-400);margin-top:2px;}
-
-    /* toast */
     .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:opacity .2s;z-index:2000;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25);}
     .toast.show{opacity:1;}
     .toast.success{background:var(--green);}
     .toast.error{background:var(--red);}
-
-    /* file input */
     .file-input{display:none;}
-
-    /* ── TABS ── */
-    .tabs-bar{display:flex;gap:0;border-bottom:2px solid var(--gray-200);padding:0 24px;background:white;flex-shrink:0;}
-    .tab-btn{padding:10px 18px;font-family:inherit;font-size:13px;font-weight:700;color:var(--gray-500);background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;white-space:nowrap;}
-    .tab-btn:hover{color:var(--navy);}
-    .tab-btn.active{color:var(--navy);border-bottom-color:var(--navy);}
-    .tab-btn .tab-icon{font-size:13px;}
-
-    /* ── PARCEIROS PANEL ── */
-    .parceiros-panel{flex:1;overflow-y:auto;padding:24px;display:none;}
-    .parceiros-panel.active{display:block;}
-    .p-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:860px;margin:0 auto;}
-    @media(max-width:700px){.p-grid{grid-template-columns:1fr;}}
-    .p-card{background:white;border:1.5px solid var(--gray-200);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;}
-    .p-card-title{font-size:13px;font-weight:800;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;gap:7px;}
-    .p-card-title i{color:var(--teal);}
-    .f-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-500);margin-bottom:4px;display:block;}
-    .p-select,.p-input{width:100%;border:1.5px solid var(--gray-200);border-radius:9px;padding:9px 12px;font-family:inherit;font-size:13px;color:var(--gray-800);background:var(--gray-50);outline:none;transition:border-color .2s;}
-    .p-select:focus,.p-input:focus{border-color:var(--navy);background:white;box-shadow:0 0 0 3px rgba(10,31,68,.06);}
-    .vals-row{display:flex;gap:8px;}
-    .val-chip{flex:1;text-align:center;padding:9px 6px;border-radius:9px;background:var(--gray-50);border:1.5px solid var(--gray-100);}
-    .val-chip .vc-lbl{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400);}
-    .val-chip .vc-val{font-size:16px;font-weight:900;color:var(--navy);}
-    .val-chip.guia .vc-val{color:#b45309;}
-    .val-chip.resta .vc-val{color:#15803d;}
-    .p-partner-info{background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;padding:10px 13px;font-size:12px;color:#1e40af;line-height:1.55;display:none;}
-    .p-partner-info.show{display:block;}
-    .p-partner-info strong{display:block;font-size:13px;margin-bottom:3px;}
-    .p-obs{background:#fff7ed;border:1px solid #fed7aa;border-radius:7px;padding:7px 10px;font-size:11px;color:#92400e;margin-top:4px;line-height:1.5;}
-    .msg-area{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.7;white-space:pre-wrap;font-family:inherit;color:var(--gray-800);min-height:80px;display:none;max-height:340px;overflow-y:auto;}
-    .msg-area.show{display:block;}
-    .p-btn-row{display:flex;gap:8px;flex-wrap:wrap;}
-    .p-btn{padding:9px 16px;border-radius:9px;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;}
-    .p-btn.gerar{background:var(--navy);color:white;}
-    .p-btn.gerar:hover{background:var(--navy-mid);}
-    .p-btn.copiar{background:var(--green);color:white;display:none;}
-    .p-btn.copiar:hover{background:#166534;}
-    .p-btn.limpar{background:var(--gray-100);color:var(--gray-600);border:1.5px solid var(--gray-200);}
-    .p-btn.limpar:hover{background:var(--gray-200);}
 
     @media(max-width:900px){
       .layout{grid-template-columns:1fr;}
@@ -257,10 +223,9 @@
 <body>
   <div class="red-bar"></div>
 
-  <!-- HEADER -->
   <div class="s-header">
     <div class="s-logo">
-      <div class="s-logo-icon"><img src="assets/favicon.png" alt="Logo" id="headerLogo"></div>
+      <div class="s-logo-icon"><img src="assets/favicon.png" alt="Logo"></div>
       <div><div class="s-logo-name">Amor Saúde</div><div class="s-logo-sub">Orçamentos · Pirituba</div></div>
     </div>
     <div class="header-right">
@@ -270,12 +235,11 @@
     </div>
   </div>
 
-  <!-- SEARCH SECTION -->
   <div class="search-section">
     <div class="search-row">
       <div class="search-wrap">
         <i class="fas fa-magnifying-glass search-icon"></i>
-        <input type="text" id="searchInput" placeholder="Buscar exame, categoria ou fornecedor…" autocomplete="off">
+        <input type="text" id="searchInput" placeholder="Buscar exame, categoria ou parceiro…" autocomplete="off">
         <button class="clear-btn" id="clearBtn">×</button>
       </div>
       <button class="btn-filtros" id="btnFiltros" onclick="toggleFiltros()">
@@ -291,24 +255,11 @@
     <div class="chips-row" id="categoryChips"></div>
   </div>
 
-  <!-- TABS -->
-  <div class="tabs-bar">
-    <button class="tab-btn active" id="tabOrc" onclick="switchTab('orc')">
-      <i class="tab-icon fas fa-file-invoice-dollar"></i> Orçamentos
-    </button>
-    <button class="tab-btn" id="tabParc" onclick="switchTab('parc')">
-      <i class="tab-icon fas fa-handshake"></i> Exames Parceiros
-    </button>
-  </div>
-
-  <!-- MAIN LAYOUT (tab orc) -->
-  <div class="layout" id="panelOrc">
+  <div class="layout">
     <main class="main-content">
       <div class="results-meta" id="resultsMeta"></div>
       <div id="results"></div>
     </main>
-
-    <!-- CART -->
     <aside class="cart-panel">
       <div class="cart-head">
         <div class="cart-title"><i class="fas fa-clipboard-list"></i> Orçamento <span class="cart-badge" id="cartBadge">0</span></div>
@@ -322,114 +273,16 @@
           <span class="cart-total-lbl">Total</span>
           <span class="cart-total-val" id="cartTotal">R$ 0,00</span>
         </div>
-        <button class="cart-btn btn-copy" id="btnWpp" disabled>
-          <i class="fas fa-copy"></i> Copiar Mensagem
-        </button>
-        <button class="cart-btn btn-pdf" id="btnPdf" disabled>
-          <i class="fas fa-file-pdf"></i> Exportar PDF
-        </button>
+        <button class="cart-btn btn-copy" id="btnWpp" disabled><i class="fas fa-copy"></i> Copiar Mensagem</button>
+        <button class="cart-btn btn-pdf" id="btnPdf" disabled><i class="fas fa-file-pdf"></i> Exportar PDF</button>
       </div>
     </aside>
   </div>
 
-  <!-- PAINEL PARCEIROS (tab parc) -->
-  <div class="parceiros-panel" id="panelParc">
-    <div class="p-grid">
-
-      <!-- Coluna esquerda: seleção -->
-      <div class="p-card">
-        <div class="p-card-title"><i class="fas fa-hospital"></i> Dados do Encaminhamento</div>
-
-        <div>
-          <label class="f-label">Parceiro</label>
-          <select id="pSelParceiro" class="p-select" onchange="pOnParceiro()">
-            <option value="">— Selecione o parceiro —</option>
-            <option value="auri">Auri Medicina</option>
-            <option value="cergoli">Cergoli — Lapa</option>
-            <option value="imadi">IMADI Imagem</option>
-            <option value="medicom">Medicom 2.0</option>
-            <option value="prezecor">Prezecor 2.0</option>
-            <option value="scoppeta">Scoppeta</option>
-            <option value="tc_prezecor">TC Prezecor (Freguesia / Guarulhos)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="f-label">Exame</label>
-          <!-- busca + chips — aparecem após selecionar parceiro -->
-          <input type="text" id="pBuscaExame" class="p-input"
-                 placeholder="🔍 Buscar exame..." oninput="pFiltrarExames()"
-                 style="display:none;margin-bottom:8px;">
-          <div id="pTipoChips" class="p-tipo-bar" style="display:none;margin-bottom:8px;">
-            <button class="p-tchip active" onclick="pSetTipo(this,'')">Todos</button>
-            <button class="p-tchip" onclick="pSetTipo(this,'rm')">RM</button>
-            <button class="p-tchip" onclick="pSetTipo(this,'tc')">TC</button>
-            <button class="p-tchip" onclick="pSetTipo(this,'angio')">Angio</button>
-            <button class="p-tchip" onclick="pSetTipo(this,'raio')">Raio-X</button>
-            <button class="p-tchip" onclick="pSetTipo(this,'outro')">Outros</button>
-          </div>
-          <select id="pSelExame" class="p-select" onchange="pOnExame()">
-            <option value="">— Selecione o parceiro primeiro —</option>
-          </select>
-          <div id="pExameCount" class="p-exame-count" style="display:none;"></div>
-        </div>
-
-        <div>
-          <label class="f-label">Nome do Paciente</label>
-          <input type="text" id="pPaciente" class="p-input" placeholder="Ex: Maria da Silva">
-        </div>
-
-        <div>
-          <label class="f-label">Observação extra (opcional)</label>
-          <input type="text" id="pObs" class="p-input" placeholder="Ex: Levar pedido médico, exame em jejum…">
-        </div>
-
-        <!-- Info do parceiro -->
-        <div id="pInfoBox" class="p-partner-info">
-          <strong id="pInfoNome"></strong>
-          <span id="pInfoTel"></span>
-          <div id="pInfoObs" class="p-obs" style="display:none"></div>
-        </div>
-      </div>
-
-      <!-- Coluna direita: valores + mensagem -->
-      <div class="p-card">
-        <div class="p-card-title"><i class="fas fa-comment-dots"></i> Mensagem</div>
-
-        <!-- Chips de valor -->
-        <div id="pValsRow" class="vals-row" style="display:none">
-          <div class="val-chip">
-            <div class="vc-lbl">Valor Total</div>
-            <div class="vc-val" id="pChipTotal">—</div>
-          </div>
-          <div class="val-chip guia">
-            <div class="vc-lbl">Guia (aqui)</div>
-            <div class="vc-val" id="pChipGuia">—</div>
-          </div>
-          <div class="val-chip resta">
-            <div class="vc-lbl">Restante (parceiro)</div>
-            <div class="vc-val" id="pChipResta">—</div>
-          </div>
-        </div>
-
-        <div class="p-btn-row">
-          <button class="p-btn gerar" onclick="pGerar()"><i class="fas fa-magic"></i> Gerar Mensagem</button>
-          <button class="p-btn copiar" id="pBtnCopiar" onclick="pCopiar()"><i class="fas fa-copy"></i> Copiar</button>
-          <button class="p-btn limpar" onclick="pLimpar()"><i class="fas fa-redo"></i> Limpar</button>
-        </div>
-
-        <div id="pMsgArea" class="msg-area"></div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- MODAL -->
   <div class="modal-overlay" id="modal">
     <div class="modal" id="modalContent"></div>
   </div>
 
-  <!-- MINI-MODAL: quantidade / bilateral -->
   <div class="qty-overlay" id="qtyOverlay">
     <div class="qty-box">
       <div class="qty-title" id="qtyTitle"></div>
@@ -441,681 +294,9 @@
 
   <div class="toast" id="toast"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script type="module">
-    import { initializeApp }                                from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut }         from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-    import { getFirestore, collection, doc, getDocs, updateDoc, writeBatch, getDoc }
-                                                            from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
-
-    const _app = initializeApp(window.FIREBASE_CONFIG);
-    const auth = getAuth(_app);
-    const db   = getFirestore(_app);
-
-    function initialsFor(user) {
-      const n = user.displayName || user.email || '';
-      return n.split(/[\s@]/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0, 2) || '??';
-    }
-
-    // ── AUTH ──
-    let currentUser = null;
-    onAuthStateChanged(auth, user => {
-      if (!user) { window.location.replace('login.html'); return; }
-      currentUser = user;
-      document.getElementById('userAvatar').textContent = initialsFor(user);
-      const nome = user.displayName || user.email.split('@')[0];
-      document.getElementById('userName').textContent = nome;
-      // Botão "Base inicial" visível apenas para admins
-      try {
-        const perms = JSON.parse(sessionStorage.getItem('perms') || '{}');
-        if (!perms.admin) document.getElementById('loadSeedBtn').style.display = 'none';
-      } catch(e) {
-        document.getElementById('loadSeedBtn').style.display = 'none';
-      }
-      loadExamsFromFirestore();
-    });
-    document.getElementById('logoutBtn').addEventListener('click', () =>
-      signOut(auth).then(() => window.location.replace('login.html'))
-    );
-
-    // ── STATE ──
-    let exams = [], filtered = [], cart = [];
-    let activeCategory = null, searchQuery = '';
-
-    // ── TOAST ──
-    const toastEl = document.getElementById('toast');
-    function toast(msg, tipo, ms = 2400) {
-      toastEl.textContent = msg;
-      toastEl.className = 'toast show' + (tipo ? ' ' + tipo : '');
-      setTimeout(() => toastEl.classList.remove('show'), ms);
-    }
-
-    // ── FORMAT ──
-    const fmtBRL = v => v == null ? '—' : v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    function escapeHtml(s) {
-      return (s || '').toString().replace(/[&<>"']/g,
-        c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
-    }
-    function normalize(s) {
-      return (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    }
-
-    // ── LOAD FROM FIRESTORE ──
-    async function loadExamsFromFirestore() {
-      document.getElementById('results').innerHTML = '<div class="loader"><div class="spinner"></div><p>Carregando exames…</p></div>';
-      try {
-        const snap = await getDocs(collection(db, 'orcamentos_exames'));
-        exams = [];
-        snap.forEach(d => exams.push({ id: d.id, ...d.data() }));
-        // Separar exames combinados Holter + MAPA em dois cards independentes
-        exams = exams.flatMap(e => {
-          const n = normalize(e.nome);
-          if (n.includes('holter') && n.includes('mapa')) {
-            return [
-              { ...e, id: e.id + '_holter', nome: 'Holter 24h' },
-              { ...e, id: e.id + '_mapa',   nome: 'MAPA 24h'   }
-            ];
-          }
-          return [e];
-        });
-        if (exams.length === 0) {
-          document.getElementById('results').innerHTML = `
-            <div class="empty">
-              <i class="fas fa-database"></i>
-              <h3>Nenhum exame na base ainda</h3>
-              <p>Clique em <strong>Base inicial</strong> para importar os exames pré-cadastrados,<br>ou em <strong>Importar</strong> para carregar sua planilha.</p>
-            </div>`;
-          document.getElementById('categoryChips').innerHTML = '';
-          document.getElementById('resultsMeta').textContent = '';
-          return;
-        }
-        renderCategories();
-        applyFilters();
-      } catch (e) {
-        document.getElementById('results').innerHTML = `<div class="empty"><i class="fas fa-triangle-exclamation"></i><h3>Erro ao carregar</h3><p>${escapeHtml(e.message)}</p></div>`;
-      }
-    }
-
-    // ── CATEGORIES ──
-    function renderCategories() {
-      const cats = [...new Set(exams.map(e => e.categoria))].sort();
-      const el = document.getElementById('categoryChips');
-      el.innerHTML = `<button class="chip ${!activeCategory ? 'active' : ''}" data-cat="">Todos (${exams.length})</button>` +
-        cats.map(c => {
-          const n = exams.filter(e => e.categoria === c).length;
-          return `<button class="chip ${activeCategory === c ? 'active' : ''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)} (${n})</button>`;
-        }).join('');
-      el.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
-        activeCategory = btn.dataset.cat || null;
-        renderCategories();
-        applyFilters();
-        atualizarBadgeFiltros();
-      }));
-    }
-
-    // ── FILTROS TOGGLE ──
-    window.toggleFiltros = function() {
-      const chips = document.getElementById('categoryChips');
-      const btn   = document.getElementById('btnFiltros');
-      chips.classList.toggle('open');
-      btn.classList.toggle('active');
-    };
-    function atualizarBadgeFiltros() {
-      const badge = document.getElementById('filtrosBadge');
-      const btn   = document.getElementById('btnFiltros');
-      if (activeCategory) {
-        badge.textContent = '1';
-        badge.classList.add('show');
-        btn.classList.add('active');
-      } else {
-        badge.classList.remove('show');
-        btn.classList.remove('active');
-        // Fecha os chips se voltou para "Todos"
-        document.getElementById('categoryChips').classList.remove('open');
-      }
-    }
-
-    // ── FORNECEDORES PARCEIROS — excluídos da aba regular ──
-    const FORN_PARCEIROS = new Set([
-      'Auri Medicina', 'Cergoli (Lapa)', 'IMADI Imagem',
-      'Medicom 2.0', 'Medicom',
-      'Prezecor 2.0', 'Prezecor', 'Prezecor (TC)',
-      'Scoppeta'
-    ]);
-
-    // ── SEARCH & FILTER ──
-    function applyFilters() {
-      const q = normalize(searchQuery);
-      filtered = exams.filter(e => {
-        if (FORN_PARCEIROS.has(e.fornecedor)) return false; // ← parceiros só na aba própria
-        if (activeCategory && e.categoria !== activeCategory) return false;
-        if (!q) return true;
-        const hay = normalize(`${e.nome} ${e.categoria} ${e.fornecedor} ${e.observacao||''}`);
-        return q.split(/\s+/).every(t => hay.includes(t));
-      });
-      renderResults();
-    }
-    const searchInput = document.getElementById('searchInput');
-    const clearBtn    = document.getElementById('clearBtn');
-    searchInput.addEventListener('input', e => {
-      searchQuery = e.target.value;
-      clearBtn.classList.toggle('show', !!searchQuery);
-      applyFilters();
-    });
-    clearBtn.addEventListener('click', () => {
-      searchInput.value = ''; searchQuery = '';
-      clearBtn.classList.remove('show');
-      applyFilters(); searchInput.focus();
-    });
-
-    // ── RENDER RESULTS ──
-    function renderResults() {
-      const meta = document.getElementById('resultsMeta');
-      meta.textContent = filtered.length === exams.length
-        ? `${exams.length} exames disponíveis`
-        : `${filtered.length} de ${exams.length} exames`;
-      const el = document.getElementById('results');
-      if (filtered.length === 0) {
-        el.innerHTML = '<div class="empty"><i class="fas fa-magnifying-glass"></i><h3>Nenhum resultado</h3><p>Tente outros termos ou limpe os filtros.</p></div>';
-        return;
-      }
-      el.innerHTML = `<div class="grid">${filtered.map(e => `
-        <div class="card" data-id="${e.id}">
-          <span class="cat-tag">${escapeHtml(e.categoria)}</span>
-          <div class="card-name">${escapeHtml(e.nome)}</div>
-          ${e.fornecedor ? `<div class="card-forn"><i class="fas fa-building" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.fornecedor)}</div>` : ''}
-          <div class="card-prices">
-            <div class="price-box ct">
-              <div class="price-lbl">Cartão</div>
-              <div class="price-val">${e.preco_ct != null ? fmtBRL(e.preco_ct) : '<span class="price-null">—</span>'}</div>
-            </div>
-            <div class="price-box pt">
-              <div class="price-lbl">Particular</div>
-              <div class="price-val">${e.preco_pt != null ? fmtBRL(e.preco_pt) : '<span class="price-null">—</span>'}</div>
-            </div>
-          </div>
-        </div>
-      `).join('')}</div>`;
-      el.querySelectorAll('.card').forEach(card =>
-        card.addEventListener('click', () => openModal(card.dataset.id))
-      );
-    }
-
-    // ── MODAL ──
-    function openModal(id) {
-      const e = exams.find(x => x.id === id);
-      if (!e) return;
-      const prepTxt = getPreparo(e);
-      const needsPrompt = examNeedsPrompt(e);
-      const ctLabel  = needsPrompt ? `<i class="fas fa-plus"></i> Cartão${e.preco_ct != null ? ' — ' + fmtBRL(e.preco_ct) : ''}` : `<i class="fas fa-plus"></i> Cartão ${e.preco_ct != null ? fmtBRL(e.preco_ct) : ''}`;
-      const ptLabel  = needsPrompt ? `<i class="fas fa-plus"></i> Particular${e.preco_pt != null ? ' — ' + fmtBRL(e.preco_pt) : ''}` : `<i class="fas fa-plus"></i> Particular ${e.preco_pt != null ? fmtBRL(e.preco_pt) : ''}`;
-      document.getElementById('modalContent').innerHTML = `
-        <div class="modal-head">
-          <div class="modal-titles">
-            <div class="modal-name">${escapeHtml(e.nome)}</div>
-            <div class="modal-meta">
-              <span class="modal-tag">${escapeHtml(e.categoria)}</span>
-              ${e.fornecedor ? `<span class="modal-tag">${escapeHtml(e.fornecedor)}</span>` : ''}
-            </div>
-          </div>
-          <button class="modal-close" id="closeBtn"><i class="fas fa-xmark"></i></button>
-        </div>
-        <div class="modal-body">
-          <div class="modal-prices">
-            <div class="mpbox ct">
-              <div class="mpbox-lbl">Cartão de Todos</div>
-              <div class="mpbox-val">${e.preco_ct != null ? fmtBRL(e.preco_ct) : '—'}</div>
-            </div>
-            <div class="mpbox pt">
-              <div class="mpbox-lbl">Particular</div>
-              <div class="mpbox-val">${e.preco_pt != null ? fmtBRL(e.preco_pt) : '—'}</div>
-            </div>
-          </div>
-          <div class="modal-section">
-            <div class="modal-section-lbl" style="display:flex;align-items:center;gap:5px;">
-              <i class="fas fa-notes-medical" style="color:var(--teal);font-size:11px;"></i> Preparo
-            </div>
-            <div class="preparo-box">${escapeHtml(prepTxt)}</div>
-          </div>
-          ${e.observacao ? `<div class="modal-section"><div class="modal-section-lbl">Observação interna</div><div style="font-size:13px;color:var(--gray-600);padding:8px 10px;background:var(--gray-50);border-radius:8px;line-height:1.5;">${escapeHtml(e.observacao)}</div></div>` : ''}
-          <div class="modal-actions">
-            <button class="btn-add-ct" id="addCtBtn" ${e.preco_ct == null ? 'disabled' : ''}>${ctLabel}</button>
-            <button class="btn-add-pt" id="addPtBtn" ${e.preco_pt == null ? 'disabled' : ''}>${ptLabel}</button>
-          </div>
-        </div>`;
-      document.getElementById('modal').classList.add('show');
-      document.getElementById('closeBtn').addEventListener('click', closeModal);
-      document.getElementById('addCtBtn').addEventListener('click', () => promptAddToCart(id, 'ct'));
-      document.getElementById('addPtBtn').addEventListener('click', () => promptAddToCart(id, 'pt'));
-    }
-    function closeModal() { document.getElementById('modal').classList.remove('show'); }
-    document.getElementById('modal').addEventListener('click', e => { if (e.target.id === 'modal') closeModal(); });
-
-    // ── PREPARO: retorna texto de preparo para cada exame ──
-    function getPreparo(e) {
-      if (e.preparo && e.preparo.trim()) return e.preparo.trim();
-      const n  = normalize(e.nome);
-      const cat = normalize(e.categoria || '');
-
-      if (n.includes('holter'))
-        return 'Tomar banho antes e não usar desodorante, creme ou talco na região do tórax.\nVestir roupa confortável e de fácil acesso ao tórax.\nTrazer lista de medicamentos em uso.';
-      if (n.includes('mapa'))
-        return 'Não praticar atividades físicas intensas durante o exame.\nManter o braço estendido e imóvel durante as medições automáticas.\nTrazer lista de medicamentos em uso.';
-      if (n.includes('eletrocardiograma') || n === 'ecg' || n.startsWith('ecg '))
-        return 'Sem preparo especial.\nEvitar cremes e loções na região do tórax no dia do exame.';
-      if (n.includes('ecocardiograma'))
-        return 'Sem preparo especial.\nTrajar roupas confortáveis.\nTrazer lista de medicamentos em uso.';
-      if (n.includes('ergometria') || n.includes('teste ergometrico') || n.includes('teste de esforco'))
-        return 'Usar tênis e roupas esportivas confortáveis.\nNão realizar refeições pesadas nas 2 horas anteriores.\nSuspender betabloqueadores apenas se orientado pelo médico solicitante.';
-      if (n.includes('eletroencefalograma') || n.includes('eeg'))
-        return 'Lavar o cabelo no dia do exame (sem condicionador ou gel).\nNão ingerir café, chá, refrigerante ou estimulantes nas 4 horas anteriores.\nDormir menos na noite anterior, se indicado pelo médico.';
-      if (n.includes('eletroneuromiografia') || n.includes('eletromiografia') || n.includes('enmg') || n.includes('miografia') || (n.includes('facial') && (n.includes('nervo') || n.includes('eletr'))) || (n.includes('neurolog') && n.includes('membro')))
-        return 'Sem preparo especial.\nNão aplicar cremes ou loções na pele do local a ser examinado.\nInformar ao médico sobre uso de anticoagulantes.';
-      if (n.includes('potencial') && (n.includes('auditi') || n.includes('bera') || n.includes('peate')))
-        return 'Lavar o cabelo no dia do exame (sem condicionador).\nCrianças pequenas podem necessitar de sedação — verificar com o médico com antecedência.\nComparecer com o cabelo limpo e seco.';
-      if (n.includes('potencial') && (n.includes('visual') || n.includes('pev')))
-        return 'Trazer óculos ou lentes de contato se usar correção visual.\nSem preparo específico necessário.';
-
-      // RM
-      if ((n.includes('ressonancia') || /\brm\b/.test(n) || n.includes('angio-rm') || n.includes('colangio-rm') || n.includes('hidro-rm') || n.includes('uroressonancia')) && (n.includes('primovist') || n.includes('contraste')))
-        return 'Jejum de 2 horas antes.\nTrazer pedido médico e exames anteriores.\nInformar próteses metálicas, marca-passo ou implantes.\nTrazer creatinina recente (obrigatório para contraste).';
-      if (n.includes('ressonancia') || /\brm\b/.test(n) || n.includes('angio-rm') || n.includes('colangio-rm') || n.includes('hidro-rm') || n.includes('uroressonancia'))
-        return 'Sem preparo especial.\nRetirar objetos metálicos (brincos, piercing, relógio, cinto).\nInformar ao técnico sobre próteses, marca-passo, implantes cocleares, clipes cirúrgicos ou DIU.';
-
-      // TC
-      if ((n.includes('tomografia') || /\btc\b/.test(n) || n.includes('angio-tc') || n.includes('urotomografia')) && (n.includes('angio') || n.includes('abdome') || n.includes('abdominal') || n.includes('torax') || n.includes('tórax') || n.includes('pelve') || n.includes('total')))
-        return 'Jejum de 4 horas (para exames com contraste).\nTrazer resultado de creatinina recente.\nTrazer pedido médico e exames anteriores.\nInformar alergias, especialmente a contraste iodado.';
-      if (n.includes('tomografia') || /\btc\b/.test(n) || n.includes('angio-tc') || n.includes('urotomografia'))
-        return 'Sem preparo especial.\nTrazer pedido médico e exames anteriores.\nRetirar objetos metálicos da região a ser examinada.';
-
-      // Ultrassom
-      if ((n.includes('ultrassom') || n.includes('usg') || n.includes('ecografia')) && (n.includes('abdome') || n.includes('hepat') || n.includes('figado') || n.includes('bilio') || n.includes('pancre') || n.includes('baco') || n.includes('renal') || n.includes('rim') || n.includes('vias urin')))
-        return 'Jejum de 4 horas antes.\nPara visualização de rim e bexiga: também manter bexiga cheia (beber 1 litro de água 1h antes e não urinar).';
-      if ((n.includes('ultrassom') || n.includes('usg') || n.includes('ecografia')) && (n.includes('pelv') || n.includes('utero') || n.includes('útero') || n.includes('ovario') || n.includes('vesical') || n.includes('bexiga')))
-        return 'Bexiga cheia: beber 1 litro de água 1 hora antes e não urinar.';
-      if (n.includes('transvaginal'))
-        return 'Bexiga vazia: urinar antes de entrar no consultório.';
-      if ((n.includes('ultrassom') || n.includes('usg') || n.includes('ecografia')) && (n.includes('obstet') || n.includes('morfolog') || n.includes('fetal') || n.includes('gestac') || n.includes('doppler') || n.includes('translucenc')))
-        return 'Bexiga semi-cheia: beber meio litro de água 30 minutos antes.\nTrajar roupas confortáveis.\nTrazer carteirinha de pré-natal.';
-      if ((n.includes('ultrassom') || n.includes('usg') || n.includes('ecografia')) && (n.includes('mama') || n.includes('tireoide') || n.includes('tireóide') || n.includes('prostata') || n.includes('próstata') || n.includes('escrotal') || n.includes('bolsa') || n.includes('partes moles')))
-        return 'Sem preparo especial.\nTrajar roupas confortáveis.';
-      if (n.includes('ultrassom') || n.includes('usg') || n.includes('ecografia'))
-        return 'Sem preparo especial.\nEm caso de dúvida sobre o tipo de ultrassom, verificar com a recepção.';
-
-      if (n.includes('mamografia'))
-        return 'Não usar desodorante, talco ou cremes na axila e região mamária no dia do exame.\nPreferir usar blusa e calça separadas.\nTrazer mamografias anteriores se disponíveis.';
-
-      // Raio-X
-      if ((n.includes('raio') || n.includes('radiografia')) && (n.includes('abdome') || n.includes('bario') || n.includes('contraste')))
-        return 'Jejum de 4 horas.\nTrajar peças sem botões ou zíperes metálicos na região examinada.';
-      if (n.includes('raio') || n.includes('radiografia'))
-        return 'Sem preparo especial.\nRetirar adornos metálicos (brincos, colar, piercing) na região a ser examinada.';
-
-      if (n.includes('densitometria'))
-        return 'Não realizar exames com contraste nos 7 dias anteriores.\nNão ingerir suplementos de cálcio ou vitamina D no dia do exame.\nInformar peso, altura e data da última menstruação.';
-      if (n.includes('espirometria'))
-        return 'Não usar broncodilatador nas 4 horas anteriores (salvo orientação médica).\nNão fumar nas 4 horas anteriores.\nEvitar refeições pesadas.\nUsar roupa confortável.';
-      if (n.includes('audiometria') || n.includes('impedanciometria') || n.includes('otoneurologico') || n.includes('otoneurológico'))
-        return 'Evitar exposição a ruídos intensos nas 12 horas anteriores.\nComparecer com o ouvido limpo (higiene habitual).';
-      if (n.includes('endoscopia') || n.includes('esofagoscopia'))
-        return 'Jejum rigoroso de 8 horas de sólidos e 4 horas de líquidos claros.\nInformar ao médico sobre uso de anticoagulantes com antecedência.';
-      if (n.includes('colonoscopia') || n.includes('retossigmoidoscopia') || n.includes('anuscopia') || n.includes('polipectomia'))
-        return 'Preparo intestinal completo: seguir rigorosamente o protocolo indicado pelo médico (dieta líquida + laxante).\nSuspender ferro e aspirina conforme orientação.\nJejum de 6 horas antes.';
-      if (n.includes('colposcopia') || n.includes('vulvoscopia'))
-        return 'Não realizar o exame durante o período menstrual.\nAbstinência sexual 48 horas antes.\nNão usar cremes, óvulos ou medicamentos vaginais nos 2 dias anteriores.';
-      if (n.includes('biopsia') || n.includes('biópsia') || n.includes('paaf') || n.includes('core'))
-        return 'Conforme orientação médica específica.\nInformar ao médico sobre uso de anticoagulantes (aspirina, warfarina, rivaroxabana, apixabana) com pelo menos 7 dias de antecedência.';
-      if (cat.includes('laborat') || n.includes('hemograma') || n.includes('glicemia') || n.includes('colesterol') || n.includes('trigliceri') || n.includes('tsh') || n.includes('hormonio') || n.includes('coleta'))
-        return 'Jejum de 8 a 12 horas (apenas água é permitida).\nInformar todos os medicamentos em uso ao médico.';
-      if (n.includes('fundo de olho') || n.includes('mapeamento de retina') || n.includes('angiografia') && cat.includes('oftalmo'))
-        return 'Os olhos serão dilatados com colírio — não dirigir após o exame.\nTrazer acompanhante se necessário.\nTrazer óculos e receitas anteriores.';
-      if (cat.includes('oftalmo') || n.includes('campo visual') || n.includes('topografia') || n.includes('biometria') || n.includes('tonometria'))
-        return 'Sem preparo especial.\nTrazer óculos e receitas anteriores se houver.';
-
-      return 'Sem preparo especial necessário.\nEm caso de dúvida, confirme com a recepção antes de vir ao exame.';
-    }
-
-    // ── DETECTA EXAMES COM PROMPT DE QUANTIDADE / BILATERAL ──
-    function examNeedsPrompt(e) {
-      const n = normalize(e.nome);
-      return n.includes('eletroneuromiografia') || n.includes('eletromiografia') ||
-             n.includes('enmg') || n.includes('miografia') ||
-             (n.includes('potencial') && (n.includes('auditi') || n.includes('bera') || n.includes('peate') || n.includes('visual') || n.includes('pev')));
-    }
-
-    // ── PROMPT DE QUANTIDADE / BILATERAL ──
-    let _qtyPending = null, _qtyOpts = [];
-    function promptAddToCart(id, tipo) {
-      const e = exams.find(x => x.id === id);
-      if (!e) return;
-      if (!examNeedsPrompt(e)) { addToCart(id, tipo); closeModal(); return; }
-
-      const n = normalize(e.nome);
-      const preco = tipo === 'ct' ? e.preco_ct : e.preco_pt;
-      const f1 = fmtBRL(preco), f2 = fmtBRL(preco * 2);
-      const isEMG = n.includes('eletroneuromiografia') || n.includes('eletromiografia') || n.includes('enmg') || n.includes('miografia');
-
-      _qtyPending = { id, tipo };
-      _qtyOpts = isEMG
-        ? [{ label: '1 membro',  price: f1, mult: 1, suffix: '— 1 Membro'  },
-           { label: '2 membros', price: f2, mult: 2, suffix: '— 2 Membros' }]
-        : [{ label: 'Unilateral', price: f1, mult: 1, suffix: 'Unilateral' },
-           { label: 'Bilateral',  price: f2, mult: 2, suffix: 'Bilateral'  }];
-
-      document.getElementById('qtyTitle').textContent = isEMG ? 'Quantos membros serão examinados?' : 'Unilateral ou Bilateral?';
-      document.getElementById('qtySub').textContent   = e.nome;
-      document.getElementById('qtyOpts').innerHTML    = _qtyOpts.map((o, i) =>
-        `<button class="qty-opt" onclick="qtyConfirm(${i})"><span>${o.label}</span><span class="qty-price">${o.price}</span></button>`
-      ).join('');
-      document.getElementById('qtyOverlay').classList.add('show');
-    }
-    window.qtyConfirm = function(idx) {
-      if (!_qtyPending) return;
-      const { id, tipo } = _qtyPending;
-      const opt = _qtyOpts[idx];
-      const e   = exams.find(x => x.id === id);
-      const label = opt.mult > 1 ? e.nome + ' — ' + opt.suffix : null;
-      addToCart(id, tipo, label, opt.mult);
-      window.qtyClose(); closeModal();
-    };
-    window.qtyClose = function() {
-      document.getElementById('qtyOverlay').classList.remove('show');
-      _qtyPending = null;
-    };
-
-    // ── CART ──
-    function addToCart(id, tipo, customLabel = null, mult = 1) {
-      const e = exams.find(x => x.id === id);
-      if (!e) return;
-      const preco = tipo === 'ct' ? e.preco_ct : e.preco_pt;
-      if (preco == null) return;
-      const finalPreco = preco * mult;
-      const finalNome  = customLabel || e.nome;
-      cart.push({ id, exam: { ...e, nome: finalNome }, tipo, preco: finalPreco });
-      renderCart();
-      toast(`Adicionado: ${finalNome}`, 'success');
-    }
-    function removeFromCart(idx) { cart.splice(idx, 1); renderCart(); }
-
-    function renderCart() {
-      const list   = document.getElementById('cartList');
-      const footer = document.getElementById('cartFooter');
-      document.getElementById('cartBadge').textContent = cart.length;
-      if (cart.length === 0) {
-        list.innerHTML = '<div class="cart-empty"><i class="fas fa-clipboard"></i>Nenhum exame adicionado.<br>Clique nos cards para adicionar.</div>';
-        footer.style.display = 'none';
-        document.getElementById('btnWpp').disabled = true;
-        document.getElementById('btnPdf').disabled = true;
-        return;
-      }
-      list.innerHTML = cart.map((it, i) => `
-        <div class="cart-item">
-          <div class="cart-item-info">
-            <div class="cart-item-name">${escapeHtml(it.exam.nome)}</div>
-            <div class="cart-item-tipo">${it.tipo === 'ct' ? 'Cartão de Todos' : 'Particular'}</div>
-            <div class="cart-item-preco ${it.tipo}">${fmtBRL(it.preco)}</div>
-          </div>
-          <button class="cart-rm" data-i="${i}">×</button>
-        </div>`).join('');
-      list.querySelectorAll('.cart-rm').forEach(b =>
-        b.addEventListener('click', () => removeFromCart(+b.dataset.i))
-      );
-      const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
-      document.getElementById('cartTotal').textContent = fmtBRL(total);
-      footer.style.display = 'block';
-      document.getElementById('btnWpp').disabled = false;
-      document.getElementById('btnPdf').disabled = false;
-    }
-
-    document.getElementById('btnClear').addEventListener('click', () => {
-      if (cart.length && confirm('Limpar todos os exames do orçamento?')) { cart = []; renderCart(); }
-    });
-
-    // ── WHATSAPP ──
-    document.getElementById('btnWpp').addEventListener('click', () => {
-      if (!cart.length) return;
-      const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
-      const ct = cart.filter(it => it.tipo === 'ct');
-      const pt = cart.filter(it => it.tipo === 'pt');
-      const _clinNome = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
-      let msg = `🏥 *${_clinNome}*\n\n`;
-      msg += `Olá! Preparamos com carinho o orçamento dos exames indicados para você 💙\n\n`;
-      if (ct.length) {
-        msg += `💳 *Cartão de Todos*\n`;
-        ct.forEach(it => { msg += `• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`; });
-        msg += `\n`;
-      }
-      if (pt.length) {
-        msg += `👛 *Particular*\n`;
-        pt.forEach(it => { msg += `• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`; });
-        msg += `\n`;
-      }
-      msg += `💰 *Total estimado: ${fmtBRL(total)}*\n\n`;
-      msg += `Estamos aqui para cuidar de você com atenção e qualidade! 😊\n`;
-      msg += `_Orçamento gerado em ${new Date().toLocaleDateString('pt-BR')} — ${_clinNome}_`;
-      navigator.clipboard.writeText(msg).then(() => {
-        const btn = document.getElementById('btnWpp');
-        const orig = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
-        btn.style.background = '#15803d';
-        setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 2000);
-      }).catch(() => {
-        // Fallback para navegadores sem permissão de clipboard
-        const ta = document.createElement('textarea');
-        ta.value = msg; ta.style.position = 'fixed'; ta.style.opacity = '0';
-        document.body.appendChild(ta); ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        toast('Mensagem copiada!', 'success');
-      });
-    });
-
-    // ── PDF ──
-    document.getElementById('btnPdf').addEventListener('click', () => {
-      if (!cart.length) return;
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF();
-      const clinicaNome = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
-      let y = 14;
-      // Logo
-      const logoUrl = sessionStorage.getItem('logoDataUrl');
-      if (logoUrl) {
-        try {
-          pdf.addImage(logoUrl, 'PNG', 14, y, 28, 14);
-          pdf.setFontSize(14); pdf.setFont('helvetica', 'bold');
-          pdf.text(clinicaNome, 46, y + 6);
-          pdf.setFontSize(9); pdf.setFont('helvetica', 'normal');
-          pdf.text('ORÇAMENTO DE EXAMES', 46, y + 12);
-        } catch(e) {
-          pdf.setFontSize(16); pdf.setFont('helvetica', 'bold');
-          pdf.text('ORÇAMENTO — ' + clinicaNome.toUpperCase(), 105, y + 8, { align: 'center' });
-        }
-      } else {
-        pdf.setFontSize(16); pdf.setFont('helvetica', 'bold');
-        pdf.text('ORÇAMENTO — ' + clinicaNome.toUpperCase(), 105, y + 8, { align: 'center' });
-      }
-      y += 20;
-      pdf.setFontSize(9); pdf.setFont('helvetica', 'normal');
-      pdf.text('Emitido em: ' + new Date().toLocaleDateString('pt-BR'), 190, y, { align: 'right' }); y += 4;
-      pdf.line(14, y, 196, y); y += 7;
-      const total = cart.reduce((s, it) => s + (it.preco || 0), 0);
-      cart.forEach((it, i) => {
-        if (y > 270) { pdf.addPage(); y = 20; }
-        pdf.setFontSize(11); pdf.setFont('helvetica', 'bold');
-        pdf.text(`${i + 1}. ${it.exam.nome}`, 20, y);
-        pdf.text(fmtBRL(it.preco), 190, y, { align: 'right' }); y += 5;
-        pdf.setFontSize(9); pdf.setFont('helvetica', 'normal');
-        const tipoLabel = it.tipo === 'ct' ? 'Cartao de Todos' : 'Particular';
-        pdf.text(`${it.exam.categoria}  |  ${tipoLabel}`, 20, y); y += 4;
-        const prepText = getPreparo(it.exam);
-        if (prepText && !prepText.startsWith('Sem preparo especial')) {
-          pdf.setFont('helvetica', 'italic'); pdf.setFontSize(8);
-          const lines = pdf.splitTextToSize(`Preparo: ${prepText.replace(/\n/g, ' | ')}`, 170);
-          pdf.text(lines, 20, y); y += lines.length * 4;
-        }
-        y += 3;
-      });
-      if (y > 260) { pdf.addPage(); y = 20; }
-      pdf.line(20, y, 190, y); y += 8;
-      pdf.setFontSize(14); pdf.setFont('helvetica', 'bold');
-      pdf.text('TOTAL:', 20, y);
-      pdf.text(fmtBRL(total), 190, y, { align: 'right' });
-      pdf.save(`orcamento-${Date.now()}.pdf`);
-    });
-
-    // ── IMPORT ──
-    document.getElementById('importBtn').addEventListener('click', () => document.getElementById('fileInput').click());
-    document.getElementById('fileInput').addEventListener('change', async ev => {
-      const file = ev.target.files[0];
-      if (!file) return;
-      if (!confirm(`Importar exames de "${file.name}"?\n\nIsso vai SUBSTITUIR a base atual de ${exams.length} exames.`)) {
-        ev.target.value = ''; return;
-      }
-      try {
-        const buf = await file.arrayBuffer();
-        const wb  = XLSX.read(buf, { type: 'array' });
-        const parsed = parseWorkbook(wb);
-        if (parsed.length === 0) { toast('Nenhum exame encontrado na planilha', 'error', 3500); return; }
-        if (!confirm(`${parsed.length} exames encontrados. Importar agora?`)) return;
-        await saveAllExams(parsed);
-        toast(`${parsed.length} exames importados!`, 'success', 3000);
-        await loadExamsFromFirestore();
-      } catch (err) {
-        toast('Erro: ' + err.message, 'error', 4000);
-      } finally { ev.target.value = ''; }
-    });
-
-    document.getElementById('loadSeedBtn').addEventListener('click', async () => {
-      if (!confirm('Carregar a base inicial com 589 exames pré-cadastrados?\n\nIsso vai SUBSTITUIR a base atual.')) return;
-      try {
-        document.getElementById('results').innerHTML = '<div class="loader"><div class="spinner"></div><p>Carregando base inicial…</p></div>';
-        const res = await fetch('exams-seed.json');
-        if (!res.ok) throw new Error('Arquivo exams-seed.json não encontrado');
-        const seed = await res.json();
-        await saveAllExams(seed);
-        toast(`${seed.length} exames carregados!`, 'success', 3000);
-        await loadExamsFromFirestore();
-      } catch (err) { toast('Erro: ' + err.message, 'error', 4000); }
-    });
-
-    // ── XLSX PARSER ──
-    function parsePrice(v) {
-      if (v == null || v === '') return null;
-      if (typeof v === 'number') return v;
-      const m = String(v).trim().match(/(\d{1,3}(?:[\.\s]\d{3})*(?:,\d{1,2})?|\d+(?:[\.,]\d{1,2})?)/);
-      if (!m) return null;
-      const n = parseFloat(m[1].replace(/\./g, '').replace(',', '.'));
-      return isNaN(n) ? null : n;
-    }
-    function cleanStr(v) { return v == null ? '' : String(v).trim().replace(/\n/g, ' ').replace(/\\n/g, ' '); }
-    function looksLikeExamName(s) {
-      if (!s || s.length < 3) return false;
-      const u = s.toUpperCase();
-      const bad = ['NOME DO EXAME','CARTÃO DE TODOS','PARTICULAR','VALOR TOTAL','VALOR GUIA','AGENDAMENTO',
-        'OBSERVAÇÃO','PROCEDIMENTO ','PRESTADOR','OBS:','WHATSAPP','CONTRASTE','ENDEREÇO','CNPJ',
-        'NÃO AGENDAR','TODOS OS EXAMES','COBRADO','COD ','PROCEDIMENTO P'];
-      for (const b of bad) if (u.startsWith(b)) return false;
-      if (['NAN','-','.'].includes(u)) return false;
-      return true;
-    }
-    function parseWorkbook(wb) {
-      const result = [];
-      const skipNames = new Set(['amor cirugias','amor cirugias ']);
-      const fornMap = {
-        'EXAMES  AMOR SAUDE ':'Amor Saúde','USG ':'USG (Equipe Interna)','IMADI-IMAGEM':'IMADI Imagem',
-        'OFTALMO':'Oftalmologia','TC PREZECOR':'Prezecor (TC)','SCOPPETA':'Scoppeta',
-        'PREZECOR 2.0':'Prezecor 2.0','DERMATOLOGIA':'Dermatologia',
-        'EXAMES LABORATORIAIS ':'Laboratorial','MEDICOM 2.0':'Medicom 2.0',
-        'FARAGE - OCULTO':'Farage','MARCUS (UROLOGISTA)':'Marcus (Urologia)',
-        'PREZECOR':'Prezecor','MEDICOM':'Medicom','CERGOLI - LAPA':'Cergoli (Lapa)',
-        'AURI MEDICINA':'Auri Medicina','VF':'VF Oftalmologia'
-      };
-      for (const sheetName of wb.SheetNames) {
-        const lower = sheetName.toLowerCase();
-        if (skipNames.has(lower) || lower.includes('desativada')) continue;
-        const ws = wb.Sheets[sheetName];
-        const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-        if (!rows || rows.length === 0) continue;
-        const isAmor = sheetName.toUpperCase().includes('AMOR SAUDE');
-        let currentCat = sheetName.trim();
-        const fornecedor = fornMap[sheetName] || sheetName.trim();
-        if (isAmor) currentCat = 'Geral';
-        for (const row of rows) {
-          if (!row || row.length === 0) continue;
-          const nome = cleanStr(row[0]);
-          if (!nome) continue;
-          if (isAmor) {
-            const ct = parsePrice(row[2]), pt = parsePrice(row[3]);
-            if (/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(nome) && ct == null && pt == null) {
-              currentCat = nome.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, '').trim(); continue;
-            }
-            if (!looksLikeExamName(nome) || (ct == null && pt == null)) continue;
-            result.push({ nome, categoria: currentCat, fornecedor, preco_ct: ct, preco_pt: pt,
-              observacao: cleanStr(row[1]), preparo: '', caracteristica: '', beneficio: '' });
-          } else {
-            const nums = row.map(parsePrice);
-            const allNull = nums.slice(1).every(n => n == null);
-            if (allNull && looksLikeExamName(nome) && nome.length < 50) {
-              if (/RAIO|DIAGN|EXAMES |PROCEDIMENT|RESSON|TOMOG|GINECO|BIOPSIA|GASTRO/i.test(nome)) {
-                currentCat = nome; continue;
-              }
-            }
-            if (!looksLikeExamName(nome)) continue;
-            const prices = nums.slice(1).filter(n => n != null && n > 0);
-            if (prices.length === 0) continue;
-            const preco_ct = prices[0];
-            const preco_pt = prices.length >= 2 ? Math.max(...prices) : null;
-            let obs = '';
-            for (const c of row.slice(1).map(cleanStr)) {
-              if (c && parsePrice(c) == null && c.length > 5) { obs = c; break; }
-            }
-            result.push({ nome, categoria: currentCat, fornecedor, preco_ct, preco_pt,
-              observacao: obs, preparo: '', caracteristica: '', beneficio: '' });
-          }
-        }
-      }
-      result.forEach((e, i) => e.id = `exam_${String(i + 1).padStart(4, '0')}`);
-      return result;
-    }
-
-    async function saveAllExams(list) {
-      const existing = await getDocs(collection(db, 'orcamentos_exames'));
-      let cur = writeBatch(db), cnt = 0;
-      const delBatches = [];
-      existing.forEach(d => { cur.delete(d.ref); if (++cnt >= 400) { delBatches.push(cur); cur = writeBatch(db); cnt = 0; } });
-      if (cnt > 0) delBatches.push(cur);
-      for (const b of delBatches) await b.commit();
-      cur = writeBatch(db); cnt = 0;
-      const insBatches = [];
-      for (const e of list) {
-        const ref = doc(db, 'orcamentos_exames', e.id);
-        const { id, ...data } = e;
-        cur.set(ref, { ...data, createdAt: new Date().toISOString(), createdBy: currentUser.email });
-        if (++cnt >= 400) { insBatches.push(cur); cur = writeBatch(db); cnt = 0; }
-      }
-      if (cnt > 0) insBatches.push(cur);
-      for (const b of insBatches) await b.commit();
-    }
-  </script>
-
-  <!-- ═══════════════════════════════════════════════════
-       PARCEIROS — dados + lógica (script separado, não-module)
-  ═══════════════════════════════════════════════════ -->
+  <!-- ═══ DADOS DOS PARCEIROS ═══ -->
   <script>
-  /* ── Troca de abas ── */
-  window.switchTab = function(tab) {
-    const isOrc = tab === 'orc';
-    document.getElementById('panelOrc').style.display  = isOrc ? '' : 'none';
-    document.getElementById('panelParc').style.display = isOrc ? 'none' : 'block';
-    document.getElementById('tabOrc').classList.toggle('active', isOrc);
-    document.getElementById('tabParc').classList.toggle('active', !isOrc);
-    // Oculta search-section quando parceiros está ativo
-    document.querySelector('.search-section').style.display = isOrc ? '' : 'none';
-  };
-
-  /* ── Dados dos parceiros ── */
-  const _PARC = {
+  window._PARC = {
     auri: {
       nome: 'Auri Medicina',
       tel:  '(11) 4517-4907',
@@ -1155,7 +336,6 @@
         ].map(n => ({ nome: n, total: 210, guia: 80, resta: 130 }))
       ]
     },
-
     cergoli: {
       nome: 'Clínica Cergoli — Lapa',
       tel:  '(11) 3021-5058 / (11) 99775-8497',
@@ -1167,7 +347,6 @@
         { nome: 'Otoneurológico — Particular',                       total: 350, guia: 100, resta: 300 }
       ]
     },
-
     imadi: {
       nome: 'IMADI Imagem',
       tel:  '',
@@ -1194,7 +373,6 @@
         ].map(n => ({ nome: n, total: 60, guia: 25, resta: 35 }))
       ]
     },
-
     medicom: {
       nome: 'Medicom 2.0',
       tel:  '(11) 97104-9868 (WhatsApp ADECLIN)',
@@ -1245,11 +423,10 @@
         ].map(n => ({ nome: n, total: 166, guia: 56, resta: 110 }))
       ]
     },
-
     prezecor: {
       nome: 'Prezecor 2.0',
       tel:  'Confirmar a unidade com o paciente',
-      obs:  'Unidades: Santana, Guarulhos Centro, Tatuapé e Freguesia. Raio-X a partir de 6 anos. Exames gastrointestinais: faixa etária e peso máximo variam por unidade.',
+      obs:  'Unidades: Santana, Guarulhos Centro, Tatuapé e Freguesia. Raio-X a partir de 6 anos.',
       exames: [
         ...[
           'Raio-X — Crânio','Raio-X — Mastóides / Rochedos','Raio-X — Órbitas',
@@ -1288,11 +465,10 @@
         { nome: 'Biópsia Percutânea de Linfonodos (Core)',   total: 700, guia: 100, resta: 600 }
       ]
     },
-
     scoppeta: {
       nome: 'Scoppeta',
       tel:  '',
-      obs:  '⚠️ Não agendar em aparelho aberto: exame com contraste, HD Parkinson, Mastóides, Face, Crânio. Peso máx. TC: 140 kg. Laudo: 7–10 dias úteis. Imagens retiradas no mesmo dia.',
+      obs:  '⚠️ Não agendar em aparelho aberto: exame com contraste, HD Parkinson, Mastóides, Face, Crânio. Peso máx. TC: 140 kg. Laudo: 7–10 dias úteis.',
       exames: [
         ...[
           'RM Abdome Superior','RM Antebraço (cada)','RM Articulação (cada)',
@@ -1311,7 +487,7 @@
         { nome: 'RM Mamas (Bilateral)',                     total: 734, guia: 110, resta: 624 },
         { nome: 'RM Multiparamétrica da Próstata',          total: 734, guia: 110, resta: 624 },
         { nome: 'RM Colangioressonância',                   total: 530, guia: 110, resta: 420 },
-        { nome: 'UroressonânciaMagnética (Vias Urinárias)',  total: 630, guia: 110, resta: 520 },
+        { nome: 'Uroressonância Magnética (Vias Urinárias)', total: 630, guia: 110, resta: 520 },
         { nome: 'RM Coração Morfológico e Funcional',       total: 942, guia: 110, resta: 832 },
         { nome: 'RM Abdome Total (contraste primovist)',    total: 1097, guia: 110, resta: 987 },
         { nome: 'RM Abdome Superior (contraste primovist)', total:  992, guia: 110, resta: 882 },
@@ -1350,7 +526,6 @@
         ].map(n => ({ nome: n, total: 793, guia: 110, resta: 683 }))
       ]
     },
-
     tc_prezecor: {
       nome: 'TC Prezecor (Freguesia / Guarulhos)',
       tel:  'Confirmar a unidade com o paciente',
@@ -1377,213 +552,524 @@
       ]
     }
   };
+  </script>
 
-  /* ── Estado ── */
-  let _pParc = null, _pExame = null, _pMsg = '', _pTipoAtivo = '';
-  const _fBRL = v => 'R$ ' + parseFloat(v).toFixed(2).replace('.', ',');
-  const _normP = s => (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script type="module">
+    import { initializeApp }       from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, collection, doc, getDocs, writeBatch }
+                                   from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
 
-  /* ── Filtro por tipo de exame ── */
-  window.pSetTipo = function(btn, tipo) {
-    document.querySelectorAll('.p-tchip').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    _pTipoAtivo = tipo;
-    pFiltrarExames();
-  };
+    const _app = initializeApp(window.FIREBASE_CONFIG);
+    const auth = getAuth(_app);
+    const db   = getFirestore(_app);
 
-  /* ── Filtro de exames (busca + tipo) ── */
-  window.pFiltrarExames = function() {
-    if (!_pParc) return;
-    const q = _normP(document.getElementById('pBuscaExame').value);
-    const t = _pTipoAtivo;
-    const filtrados = _pParc.exames.filter(ex => {
-      const n = _normP(ex.nome);
-      const okTipo = !t
-        || (t === 'rm'    && /^rm\b/.test(n) && !n.includes('angio'))
-        || (t === 'tc'    && /^tc\b/.test(n) && !n.includes('angio'))
-        || (t === 'angio' && n.includes('angio'))
-        || (t === 'raio'  && n.includes('raio'))
-        || (t === 'outro' && !/^rm\b|^tc\b|angio|raio/.test(n));
-      return okTipo && (!q || n.includes(q));
+    function initialsFor(u) {
+      const n = u.displayName || u.email || '';
+      return n.split(/[\s@]/).filter(Boolean).map(w => w[0]).join('').toUpperCase().slice(0,2) || '??';
+    }
+
+    let currentUser = null;
+    onAuthStateChanged(auth, user => {
+      if (!user) { window.location.replace('login.html'); return; }
+      currentUser = user;
+      document.getElementById('userAvatar').textContent = initialsFor(user);
+      document.getElementById('userName').textContent   = user.displayName || user.email.split('@')[0];
+      try {
+        const perms = JSON.parse(sessionStorage.getItem('perms') || '{}');
+        if (!perms.admin) document.getElementById('loadSeedBtn').style.display = 'none';
+      } catch(e) { document.getElementById('loadSeedBtn').style.display = 'none'; }
+      loadExamsFromFirestore();
     });
-    const sel = document.getElementById('pSelExame');
-    _pExame = null;
-    pOcultarMsg();
-    document.getElementById('pValsRow').style.display = 'none';
-    sel.innerHTML = filtrados.length
-      ? '<option value="">— Selecione o exame —</option>'
-      : '<option value="">Nenhum resultado para este filtro</option>';
-    filtrados.forEach(ex => {
-      const realIdx = _pParc.exames.indexOf(ex);
-      const o = document.createElement('option');
-      o.value = realIdx; o.textContent = ex.nome;
-      sel.appendChild(o);
-    });
-    const cnt = document.getElementById('pExameCount');
-    cnt.textContent = filtrados.length + ' de ' + _pParc.exames.length + ' exames';
-    cnt.style.display = 'block';
-  };
+    document.getElementById('logoutBtn').addEventListener('click', () =>
+      signOut(auth).then(() => window.location.replace('login.html'))
+    );
 
-  /* ── Seleção de parceiro ── */
-  window.pOnParceiro = function() {
-    const id = document.getElementById('pSelParceiro').value;
-    _pParc = id ? _PARC[id] : null;
-    _pExame = null; _pTipoAtivo = '';
-    pOcultarMsg();
+    let exams = [], filtered = [], cart = [];
+    let activeCategory = null, searchQuery = '';
 
-    // Esconder filtros se nenhum parceiro
-    const busca  = document.getElementById('pBuscaExame');
-    const chips  = document.getElementById('pTipoChips');
-    const cnt    = document.getElementById('pExameCount');
-    if (!_pParc) {
-      document.getElementById('pSelExame').innerHTML = '<option value="">— Selecione o parceiro primeiro —</option>';
-      document.getElementById('pInfoBox').classList.remove('show');
-      document.getElementById('pValsRow').style.display = 'none';
-      busca.style.display = 'none'; busca.value = '';
-      chips.style.display = 'none'; cnt.style.display = 'none';
-      return;
+    // Fornecedores cujos exames vêm exclusivamente pela aba de Parceiros (_PARC)
+    // e devem ser ocultados da grade principal (evita duplicatas com o Firestore)
+    const FORN_PARCEIROS = new Set([
+      'Auri Medicina', 'Cergoli (Lapa)', 'IMADI Imagem',
+      'Medicom 2.0', 'Medicom',
+      'Prezecor 2.0', 'Prezecor', 'Prezecor (TC)',
+      'Scoppeta'
+    ]);
+
+    const toastEl = document.getElementById('toast');
+    function toast(msg, tipo, ms = 2400) {
+      toastEl.textContent = msg;
+      toastEl.className = 'toast show' + (tipo ? ' ' + tipo : '');
+      setTimeout(() => toastEl.classList.remove('show'), ms);
     }
 
-    // Mostrar busca + chips e resetar chips para "Todos"
-    busca.style.display = 'block'; busca.value = '';
-    chips.style.display = 'flex';
-    document.querySelectorAll('.p-tchip').forEach((b, i) => b.classList.toggle('active', i === 0));
-
-    // Populate select via filtro (com tipo = '' = Todos)
-    pFiltrarExames();
-
-    // Info box
-    const ib = document.getElementById('pInfoBox');
-    ib.classList.add('show');
-    document.getElementById('pInfoNome').textContent = '🏥 ' + _pParc.nome;
-    const telEl = document.getElementById('pInfoTel');
-    telEl.textContent = _pParc.tel ? '📞 ' + _pParc.tel : '';
-    const obsEl = document.getElementById('pInfoObs');
-    if (_pParc.obs) { obsEl.textContent = _pParc.obs; obsEl.style.display = 'block'; }
-    else obsEl.style.display = 'none';
-
-    document.getElementById('pValsRow').style.display = 'none';
-  };
-
-  /* ── Seleção de exame ── */
-  window.pOnExame = function() {
-    const idx = document.getElementById('pSelExame').value;
-    if (idx === '' || !_pParc) {
-      _pExame = null;
-      document.getElementById('pValsRow').style.display = 'none';
-      pOcultarMsg(); return;
+    const fmtBRL = v => v == null ? '—' : v.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+    function escapeHtml(s) {
+      return (s||'').toString().replace(/[&<>"']/g,
+        c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);
     }
-    _pExame = _pParc.exames[parseInt(idx)];
-    document.getElementById('pChipTotal').textContent = _fBRL(_pExame.total);
-    document.getElementById('pChipGuia').textContent  = _fBRL(_pExame.guia);
-    document.getElementById('pChipResta').textContent = _fBRL(_pExame.resta);
-    document.getElementById('pValsRow').style.display = 'flex';
-    pOcultarMsg();
-  };
-
-  /* ── Gerar mensagem ── */
-  window.pGerar = function() {
-    if (!_pParc || !_pExame) {
-      // reutiliza o toast do sistema de orçamentos
-      const toastEl = document.getElementById('toast');
-      toastEl.textContent = 'Selecione o parceiro e o exame.';
-      toastEl.className = 'toast show error';
-      setTimeout(() => toastEl.classList.remove('show'), 2400);
-      return;
+    function normalize(s) {
+      return (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     }
-    const paciente = document.getElementById('pPaciente').value.trim();
-    const obs      = document.getElementById('pObs').value.trim();
-    const clinica  = sessionStorage.getItem('clinicaNome') || 'Amor Saúde';
-    const nomeParceiro = _pParc.nome;
-    const tel      = _pParc.tel;
-    const nomeExame = _pExame.nome;
-    const fTotal   = _fBRL(_pExame.total);
-    const fGuia    = _fBRL(_pExame.guia);
-    const fResta   = _fBRL(_pExame.resta);
-    const saudacao = paciente ? `Olá, *${paciente}*! ` : 'Olá! ';
 
-    let m = `Cuidar da sua saúde é nossa prioridade. 🌸\n\n`;
-    m += `${saudacao}Informamos que seu exame de *${nomeExame}* será realizado na clínica parceira *${nomeParceiro}*.\n\n`;
-    m += `💰 *Valor Total:* ${fTotal}\n`;
-    if (_pExame.guia > 0) {
-      m += `📋 *Guia (pagar aqui na ${clinica}):* ${fGuia}\n`;
-      m += `🏥 *Valor Restante (${nomeParceiro}):* ${fResta}\n`;
-    } else {
-      m += `🏥 *Valor (pagar na ${nomeParceiro}):* ${fResta}\n`;
+    // ── Partner category inference ──
+    function inferPartnerCat(nome) {
+      const n = normalize(nome);
+      if (n.startsWith('angio-rm')||n.startsWith('angio rm')) return 'Angio-RM';
+      if (n.startsWith('angio-tc')||n.startsWith('angio tc')) return 'Angio-TC';
+      if (n.startsWith('rm ') || n==='rm') return 'Ressonância Magnética';
+      if (n.startsWith('tc ') || n==='tc') return 'Tomografia';
+      if (n.startsWith('raio-x')||n.startsWith('raio x')) return 'Raio-X';
+      if (n.includes('mamografia'))   return 'Mamografia';
+      if (n.includes('densitometria'))return 'Densitometria';
+      if (n.includes('espirometria')) return 'Espirometria';
+      if (n.includes('endoscopia')||n.includes('colonoscopia')||n.includes('anuscopia')||
+          n.includes('retossigmoidoscopia')||n.includes('polipectomia')) return 'Endoscopia / Gastro';
+      if (n.includes('colposcopia')||n.includes('vulvoscopia')) return 'Ginecologia';
+      if (n.includes('biopsia')||n.includes('paaf')||n.includes('core')) return 'Biópsia';
+      if (n.includes('audiometria')||n.includes('impedanciometria')||n.includes('otoneurologico')) return 'Otorrinolaringologia';
+      if (n.includes('ultrassom')||n.includes('usg')) return 'Ultrassom';
+      if (n.includes('uroressonancia')||n.includes('urotomografia')) return 'Uro-Imagem';
+      return 'Parceiro';
     }
-    m += `\n📋 *Passo a passo:*\n\n`;
-    if (_pExame.guia > 0) {
-      m += `1️⃣ *Guia:* Após o pagamento de *${fGuia}* aqui na ${clinica}, enviaremos a sua guia de encaminhamento (válida por 30 dias e necessária para agendar).\n\n`;
-      if (tel && !tel.toLowerCase().includes('confirmar')) {
-        m += `2️⃣ *Agendamento:* Com a guia em mãos, ligue para *${tel}* para agendar o melhor horário.\n\n`;
-      } else {
-        m += `2️⃣ *Agendamento:* Com a guia em mãos, entre em contato com a *${nomeParceiro}* para agendar o melhor horário.\n\n`;
+
+    function loadPartnerExams() {
+      return Object.entries(window._PARC || {}).flatMap(([key, parc]) =>
+        parc.exames.map((ex, i) => ({
+          id: `parc_${key}_${i}`,
+          nome: ex.nome,
+          categoria: inferPartnerCat(ex.nome),
+          fornecedor: parc.nome,
+          preco_ct: null, preco_pt: null,
+          isPartner: true,
+          partnerNome: parc.nome,
+          partnerTel: parc.tel,
+          partnerObs: parc.obs,
+          total: ex.total, guia: ex.guia, resta: ex.resta,
+          preparo: '', observacao: ''
+        }))
+      );
+    }
+
+    async function loadExamsFromFirestore() {
+      document.getElementById('results').innerHTML = '<div class="loader"><div class="spinner"></div><p>Carregando exames…</p></div>';
+      try {
+        const snap = await getDocs(collection(db, 'orcamentos_exames'));
+        let fsExams = [];
+        snap.forEach(d => fsExams.push({ id: d.id, ...d.data() }));
+        fsExams = fsExams.flatMap(e => {
+          const n = normalize(e.nome);
+          if (n.includes('holter') && n.includes('mapa')) return [
+            { ...e, id: e.id+'_holter', nome: 'Holter 24h' },
+            { ...e, id: e.id+'_mapa',   nome: 'MAPA 24h'   }
+          ];
+          return [e];
+        });
+        // Mescla Firestore + parceiros; remove exames do Firestore cujo
+        // fornecedor já está representado com guia/restante em _PARC
+        exams = [...fsExams.filter(e => !FORN_PARCEIROS.has(e.fornecedor)),
+                 ...loadPartnerExams()];
+        if (exams.length === 0) {
+          document.getElementById('results').innerHTML = `<div class="empty"><i class="fas fa-database"></i><h3>Nenhum exame na base ainda</h3><p>Clique em <strong>Base inicial</strong> para importar os exames pré-cadastrados,<br>ou em <strong>Importar</strong> para carregar sua planilha.</p></div>`;
+          document.getElementById('categoryChips').innerHTML = '';
+          document.getElementById('resultsMeta').textContent = '';
+          return;
+        }
+        renderCategories();
+        applyFilters();
+      } catch(e) {
+        document.getElementById('results').innerHTML = `<div class="empty"><i class="fas fa-triangle-exclamation"></i><h3>Erro ao carregar</h3><p>${escapeHtml(e.message)}</p></div>`;
       }
-      m += `3️⃣ *No dia do exame:* O valor restante de *${fResta}* deverá ser pago diretamente na recepção da *${nomeParceiro}*.\n`;
-    } else {
-      if (tel && !tel.toLowerCase().includes('confirmar')) {
-        m += `1️⃣ *Agendamento:* Ligue para *${tel}* (${nomeParceiro}) para agendar o melhor horário.\n\n`;
-      } else {
-        m += `1️⃣ *Agendamento:* Entre em contato com a *${nomeParceiro}* para agendar o melhor horário.\n\n`;
-      }
-      m += `2️⃣ *No dia do exame:* O valor de *${fResta}* deverá ser pago diretamente na recepção da *${nomeParceiro}*.\n`;
     }
-    if (obs) m += `\n📌 *Observação:* ${obs}\n`;
-    m += `\nEstamos aqui para cuidar de você com atenção e carinho! 💙`;
 
-    _pMsg = m;
-    const area = document.getElementById('pMsgArea');
-    area.textContent = m;
-    area.classList.add('show');
-    document.getElementById('pBtnCopiar').style.display = 'flex';
-  };
+    function renderCategories() {
+      const cats = [...new Set(exams.map(e => e.categoria))].sort();
+      const el = document.getElementById('categoryChips');
+      el.innerHTML = `<button class="chip ${!activeCategory?'active':''}" data-cat="">Todos (${exams.length})</button>` +
+        cats.map(c => {
+          const n = exams.filter(e => e.categoria===c).length;
+          return `<button class="chip ${activeCategory===c?'active':''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)} (${n})</button>`;
+        }).join('');
+      el.querySelectorAll('.chip').forEach(btn => btn.addEventListener('click', () => {
+        activeCategory = btn.dataset.cat || null;
+        renderCategories(); applyFilters(); atualizarBadge();
+      }));
+    }
 
-  /* ── Copiar ── */
-  window.pCopiar = function() {
-    if (!_pMsg) return;
-    const copy = () => {
-      const toastEl = document.getElementById('toast');
-      toastEl.textContent = 'Mensagem copiada! ✅';
-      toastEl.className = 'toast show success';
-      setTimeout(() => toastEl.classList.remove('show'), 2200);
-      const btn = document.getElementById('pBtnCopiar');
-      const orig = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
-      setTimeout(() => { btn.innerHTML = orig; }, 2000);
+    window.toggleFiltros = function() {
+      document.getElementById('categoryChips').classList.toggle('open');
+      document.getElementById('btnFiltros').classList.toggle('active');
     };
-    navigator.clipboard.writeText(_pMsg).then(copy).catch(() => {
-      const ta = document.createElement('textarea');
-      ta.value = _pMsg; ta.style.position='fixed'; ta.style.opacity='0';
-      document.body.appendChild(ta); ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-      copy();
+    function atualizarBadge() {
+      const badge = document.getElementById('filtrosBadge');
+      const btn   = document.getElementById('btnFiltros');
+      if (activeCategory) { badge.textContent='1'; badge.classList.add('show'); btn.classList.add('active'); }
+      else { badge.classList.remove('show'); btn.classList.remove('active'); document.getElementById('categoryChips').classList.remove('open'); }
+    }
+
+    function applyFilters() {
+      const q = normalize(searchQuery);
+      filtered = exams.filter(e => {
+        if (activeCategory && e.categoria !== activeCategory) return false;
+        if (!q) return true;
+        const hay = normalize(`${e.nome} ${e.categoria} ${e.fornecedor} ${e.observacao||''}`);
+        return q.split(/\s+/).every(t => hay.includes(t));
+      });
+      renderResults();
+    }
+    const searchInput = document.getElementById('searchInput');
+    const clearBtn    = document.getElementById('clearBtn');
+    searchInput.addEventListener('input', e => { searchQuery=e.target.value; clearBtn.classList.toggle('show',!!searchQuery); applyFilters(); });
+    clearBtn.addEventListener('click', () => { searchInput.value=''; searchQuery=''; clearBtn.classList.remove('show'); applyFilters(); searchInput.focus(); });
+
+    function renderResults() {
+      const meta = document.getElementById('resultsMeta');
+      meta.textContent = filtered.length===exams.length ? `${exams.length} exames disponíveis` : `${filtered.length} de ${exams.length} exames`;
+      const el = document.getElementById('results');
+      if (filtered.length===0) { el.innerHTML='<div class="empty"><i class="fas fa-magnifying-glass"></i><h3>Nenhum resultado</h3><p>Tente outros termos ou limpe os filtros.</p></div>'; return; }
+      el.innerHTML = `<div class="grid">${filtered.map(e => {
+        if (e.isPartner) return `
+          <div class="card partner-card" data-id="${e.id}">
+            <div class="card-header-row">
+              <span class="cat-tag">${escapeHtml(e.categoria)}</span>
+              <span class="partner-badge"><i class="fas fa-hospital" style="font-size:9px;"></i> Parceiro</span>
+            </div>
+            <div class="card-name">${escapeHtml(e.nome)}</div>
+            <div class="card-forn"><i class="fas fa-building" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.fornecedor)}</div>
+            <div class="card-prices">
+              <div class="price-box guia"><div class="price-lbl">Guia (aqui)</div><div class="price-val">${fmtBRL(e.guia)}</div></div>
+              <div class="price-box resta"><div class="price-lbl">Restante</div><div class="price-val">${fmtBRL(e.resta)}</div></div>
+            </div>
+          </div>`;
+        return `
+          <div class="card" data-id="${e.id}">
+            <span class="cat-tag">${escapeHtml(e.categoria)}</span>
+            <div class="card-name">${escapeHtml(e.nome)}</div>
+            ${e.fornecedor?`<div class="card-forn"><i class="fas fa-building" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.fornecedor)}</div>`:''}
+            <div class="card-prices">
+              <div class="price-box ct"><div class="price-lbl">Cartão</div><div class="price-val">${e.preco_ct!=null?fmtBRL(e.preco_ct):'<span class="price-null">—</span>'}</div></div>
+              <div class="price-box pt"><div class="price-lbl">Particular</div><div class="price-val">${e.preco_pt!=null?fmtBRL(e.preco_pt):'<span class="price-null">—</span>'}</div></div>
+            </div>
+          </div>`;
+      }).join('')}</div>`;
+      el.querySelectorAll('.card').forEach(card => card.addEventListener('click', () => openModal(card.dataset.id)));
+    }
+
+    // ── Build partner WhatsApp message ──
+    function buildPartnerMsg(e) {
+      const clinica      = sessionStorage.getItem('clinicaNome') || 'Amor Saúde';
+      const nomeParceiro = e.partnerNome;
+      const tel          = e.partnerTel || '';
+      const fTotal       = fmtBRL(e.total);
+      const fGuia        = fmtBRL(e.guia);
+      const fResta       = fmtBRL(e.resta);
+
+      let m = `🏥 *${e.nome}*\n`;
+      m += `📍 Realizado na clínica parceira *${nomeParceiro}*\n\n`;
+      m += `💰 *Valor Total:* ${fTotal}\n`;
+      if (e.guia > 0) {
+        m += `📋 *Guia (pagar aqui na ${clinica}):* ${fGuia}\n`;
+        m += `🏥 *Restante (pagar na ${nomeParceiro}):* ${fResta}\n`;
+        m += `\n*Como funciona:*\n\n`;
+        m += `1️⃣ Após o pagamento de *${fGuia}* aqui na ${clinica}, emitimos a guia de encaminhamento (válida por 30 dias).\n\n`;
+        if (tel && !tel.toLowerCase().includes('confirmar')) {
+          m += `2️⃣ Com a guia em mãos, ligue para *${tel}* para agendar o melhor horário.\n\n`;
+        } else {
+          m += `2️⃣ Com a guia em mãos, entre em contato com a *${nomeParceiro}* para agendar.\n\n`;
+        }
+        m += `3️⃣ O valor restante de *${fResta}* é pago diretamente na *${nomeParceiro}* no dia do exame.`;
+      } else {
+        m += `🏥 *Valor (pagar na ${nomeParceiro}):* ${fResta}\n`;
+        m += `\n*Como funciona:*\n\n`;
+        if (tel && !tel.toLowerCase().includes('confirmar')) {
+          m += `1️⃣ Ligue para *${tel}* (${nomeParceiro}) para agendar o melhor horário.\n\n`;
+        } else {
+          m += `1️⃣ Entre em contato com a *${nomeParceiro}* para agendar.\n\n`;
+        }
+        m += `2️⃣ O valor de *${fResta}* é pago diretamente na recepção da *${nomeParceiro}* no dia do exame.`;
+      }
+      return m;
+    }
+
+    // ── Open partner modal ──
+    function openPartnerModal(e) {
+      const msg = buildPartnerMsg(e);
+      document.getElementById('modalContent').innerHTML = `
+        <div class="modal-head">
+          <div class="modal-titles">
+            <div class="modal-name">${escapeHtml(e.nome)}</div>
+            <div class="modal-meta">
+              <span class="modal-tag">${escapeHtml(e.categoria)}</span>
+              <span class="modal-tag parceiro"><i class="fas fa-hospital" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.partnerNome)}</span>
+            </div>
+          </div>
+          <button class="modal-close" id="closeBtn"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+          ${(e.partnerTel || e.partnerObs) ? `
+          <div class="partner-info-box">
+            ${e.partnerTel ? `<div>📞 <strong>${escapeHtml(e.partnerTel)}</strong></div>` : ''}
+            ${e.partnerObs ? `<div class="partner-obs">${escapeHtml(e.partnerObs)}</div>` : ''}
+          </div>` : ''}
+          <div class="modal-prices three">
+            <div class="mpbox total-box"><div class="mpbox-lbl">Valor Total</div><div class="mpbox-val">${fmtBRL(e.total)}</div></div>
+            <div class="mpbox guia-box"><div class="mpbox-lbl">Guia (aqui)</div><div class="mpbox-val">${fmtBRL(e.guia)}</div></div>
+            <div class="mpbox resta-box"><div class="mpbox-lbl">Restante</div><div class="mpbox-val">${fmtBRL(e.resta)}</div></div>
+          </div>
+          <div class="msg-section-lbl"><i class="fas fa-comment-dots" style="color:var(--teal);font-size:11px;"></i> Mensagem WhatsApp</div>
+          <div class="partner-msg-area">${escapeHtml(msg)}</div>
+          <button class="btn-copy-msg" id="partnerCopyBtn"><i class="fas fa-copy"></i> Copiar Mensagem</button>
+        </div>`;
+      document.getElementById('modal').classList.add('show');
+      document.getElementById('closeBtn').addEventListener('click', closeModal);
+      document.getElementById('partnerCopyBtn').addEventListener('click', () => {
+        const copy = () => {
+          toast('Mensagem copiada!', 'success');
+          const btn = document.getElementById('partnerCopyBtn');
+          if (btn) { const orig = btn.innerHTML; btn.innerHTML='<i class="fas fa-check"></i> Copiado!'; setTimeout(()=>{ btn.innerHTML=orig; }, 2000); }
+        };
+        navigator.clipboard.writeText(msg).then(copy).catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value=msg; ta.style.position='fixed'; ta.style.opacity='0';
+          document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+          copy();
+        });
+      });
+    }
+
+    // ── Open modal (regular) ──
+    function openModal(id) {
+      const e = exams.find(x => x.id===id);
+      if (!e) return;
+      if (e.isPartner) { openPartnerModal(e); return; }
+      const prepTxt = getPreparo(e);
+      document.getElementById('modalContent').innerHTML = `
+        <div class="modal-head">
+          <div class="modal-titles">
+            <div class="modal-name">${escapeHtml(e.nome)}</div>
+            <div class="modal-meta">
+              <span class="modal-tag">${escapeHtml(e.categoria)}</span>
+              ${e.fornecedor?`<span class="modal-tag">${escapeHtml(e.fornecedor)}</span>`:''}
+            </div>
+          </div>
+          <button class="modal-close" id="closeBtn"><i class="fas fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-prices two">
+            <div class="mpbox ct"><div class="mpbox-lbl">Cartão de Todos</div><div class="mpbox-val">${e.preco_ct!=null?fmtBRL(e.preco_ct):'—'}</div></div>
+            <div class="mpbox pt"><div class="mpbox-lbl">Particular</div><div class="mpbox-val">${e.preco_pt!=null?fmtBRL(e.preco_pt):'—'}</div></div>
+          </div>
+          <div class="modal-section">
+            <div class="modal-section-lbl" style="display:flex;align-items:center;gap:5px;"><i class="fas fa-notes-medical" style="color:var(--teal);font-size:11px;"></i> Preparo</div>
+            <div class="preparo-box">${escapeHtml(prepTxt)}</div>
+          </div>
+          ${e.observacao?`<div class="modal-section"><div class="modal-section-lbl">Observação interna</div><div style="font-size:13px;color:var(--gray-600);padding:8px 10px;background:var(--gray-50);border-radius:8px;line-height:1.5;">${escapeHtml(e.observacao)}</div></div>`:''}
+          <div class="modal-actions">
+            <button class="btn-add-ct" id="addCtBtn" ${e.preco_ct==null?'disabled':''}><i class="fas fa-plus"></i> Cartão${e.preco_ct!=null?' — '+fmtBRL(e.preco_ct):''}</button>
+            <button class="btn-add-pt" id="addPtBtn" ${e.preco_pt==null?'disabled':''}><i class="fas fa-plus"></i> Particular${e.preco_pt!=null?' — '+fmtBRL(e.preco_pt):''}</button>
+          </div>
+        </div>`;
+      document.getElementById('modal').classList.add('show');
+      document.getElementById('closeBtn').addEventListener('click', closeModal);
+      document.getElementById('addCtBtn').addEventListener('click', () => promptAddToCart(id,'ct'));
+      document.getElementById('addPtBtn').addEventListener('click', () => promptAddToCart(id,'pt'));
+    }
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+    document.getElementById('modal').addEventListener('click', e => { if (e.target.id==='modal') closeModal(); });
+
+    // ── Preparo ──
+    function getPreparo(e) {
+      if (e.preparo && e.preparo.trim()) return e.preparo.trim();
+      const n   = normalize(e.nome);
+      const cat = normalize(e.categoria||'');
+      if (n.includes('holter')) return 'Tomar banho antes e não usar desodorante, creme ou talco na região do tórax.\nVestir roupa confortável e de fácil acesso ao tórax.\nTrazer lista de medicamentos em uso.';
+      if (n.includes('mapa')) return 'Não praticar atividades físicas intensas durante o exame.\nManter o braço estendido e imóvel durante as medições automáticas.\nTrazer lista de medicamentos em uso.';
+      if (n.includes('eletrocardiograma')||n==='ecg'||n.startsWith('ecg ')) return 'Sem preparo especial.\nEvitar cremes e loções na região do tórax no dia do exame.';
+      if (n.includes('ecocardiograma')) return 'Sem preparo especial.\nTrajar roupas confortáveis.\nTrazer lista de medicamentos em uso.';
+      if (n.includes('ergometria')||n.includes('teste ergometrico')||n.includes('teste de esforco')) return 'Usar tênis e roupas esportivas confortáveis.\nNão realizar refeições pesadas nas 2 horas anteriores.\nSuspender betabloqueadores apenas se orientado pelo médico solicitante.';
+      if (n.includes('eletroencefalograma')||n.includes('eeg')) return 'Lavar o cabelo no dia do exame (sem condicionador ou gel).\nNão ingerir café, chá, refrigerante ou estimulantes nas 4 horas anteriores.\nDormir menos na noite anterior, se indicado pelo médico.';
+      if (n.includes('eletroneuromiografia')||n.includes('eletromiografia')||n.includes('enmg')||n.includes('miografia')||(n.includes('facial')&&(n.includes('nervo')||n.includes('eletr')))||(n.includes('neurolog')&&n.includes('membro'))) return 'Sem preparo especial.\nNão aplicar cremes ou loções na pele do local a ser examinado.\nInformar ao médico sobre uso de anticoagulantes.';
+      if (n.includes('potencial')&&(n.includes('auditi')||n.includes('bera')||n.includes('peate'))) return 'Lavar o cabelo no dia do exame (sem condicionador).\nCrianças pequenas podem necessitar de sedação — verificar com o médico com antecedência.';
+      if (n.includes('potencial')&&(n.includes('visual')||n.includes('pev'))) return 'Trazer óculos ou lentes de contato se usar correção visual.\nSem preparo específico necessário.';
+      if ((n.includes('ressonancia')||/\brm\b/.test(n)||n.includes('angio-rm')||n.includes('colangio-rm')||n.includes('hidro-rm')||n.includes('uroressonancia'))&&(n.includes('primovist')||n.includes('contraste'))) return 'Jejum de 2 horas antes.\nTrazer pedido médico e exames anteriores.\nInformar próteses metálicas, marca-passo ou implantes.\nTrazer creatinina recente (obrigatório para contraste).';
+      if (n.includes('ressonancia')||/\brm\b/.test(n)||n.includes('angio-rm')||n.includes('colangio-rm')||n.includes('hidro-rm')||n.includes('uroressonancia')) return 'Sem preparo especial.\nRetirar objetos metálicos (brincos, piercing, relógio, cinto).\nInformar ao técnico sobre próteses, marca-passo, implantes cocleares, clipes cirúrgicos ou DIU.';
+      if ((n.includes('tomografia')||/\btc\b/.test(n)||n.includes('angio-tc')||n.includes('urotomografia'))&&(n.includes('angio')||n.includes('abdome')||n.includes('abdominal')||n.includes('torax')||n.includes('tórax')||n.includes('pelve')||n.includes('total'))) return 'Jejum de 4 horas (para exames com contraste).\nTrazer resultado de creatinina recente.\nTrazer pedido médico e exames anteriores.\nInformar alergias, especialmente a contraste iodado.';
+      if (n.includes('tomografia')||/\btc\b/.test(n)||n.includes('angio-tc')||n.includes('urotomografia')) return 'Sem preparo especial.\nTrazer pedido médico e exames anteriores.\nRetirar objetos metálicos da região a ser examinada.';
+      if ((n.includes('ultrassom')||n.includes('usg')||n.includes('ecografia'))&&(n.includes('abdome')||n.includes('hepat')||n.includes('figado')||n.includes('bilio')||n.includes('pancre')||n.includes('baco')||n.includes('renal')||n.includes('rim')||n.includes('vias urin'))) return 'Jejum de 4 horas antes.\nPara visualização de rim e bexiga: manter bexiga cheia (beber 1 litro de água 1h antes e não urinar).';
+      if ((n.includes('ultrassom')||n.includes('usg')||n.includes('ecografia'))&&(n.includes('pelv')||n.includes('utero')||n.includes('útero')||n.includes('ovario')||n.includes('vesical')||n.includes('bexiga'))) return 'Bexiga cheia: beber 1 litro de água 1 hora antes e não urinar.';
+      if (n.includes('transvaginal')) return 'Bexiga vazia: urinar antes de entrar no consultório.';
+      if ((n.includes('ultrassom')||n.includes('usg')||n.includes('ecografia'))&&(n.includes('obstet')||n.includes('morfolog')||n.includes('fetal')||n.includes('gestac')||n.includes('doppler')||n.includes('translucenc'))) return 'Bexiga semi-cheia: beber meio litro de água 30 minutos antes.\nTrajar roupas confortáveis.\nTrazer carteirinha de pré-natal.';
+      if ((n.includes('ultrassom')||n.includes('usg')||n.includes('ecografia'))&&(n.includes('mama')||n.includes('tireoide')||n.includes('tireóide')||n.includes('prostata')||n.includes('próstata')||n.includes('escrotal')||n.includes('bolsa')||n.includes('partes moles'))) return 'Sem preparo especial.\nTrajar roupas confortáveis.';
+      if (n.includes('ultrassom')||n.includes('usg')||n.includes('ecografia')) return 'Sem preparo especial.\nEm caso de dúvida sobre o tipo de ultrassom, verificar com a recepção.';
+      if (n.includes('mamografia')) return 'Não usar desodorante, talco ou cremes na axila e região mamária no dia do exame.\nPreferir usar blusa e calça separadas.\nTrazer mamografias anteriores se disponíveis.';
+      if ((n.includes('raio')||n.includes('radiografia'))&&(n.includes('abdome')||n.includes('bario')||n.includes('contraste'))) return 'Jejum de 4 horas.\nTrajar peças sem botões ou zíperes metálicos na região examinada.';
+      if (n.includes('raio')||n.includes('radiografia')) return 'Sem preparo especial.\nRetirar adornos metálicos (brincos, colar, piercing) na região a ser examinada.';
+      if (n.includes('densitometria')) return 'Não realizar exames com contraste nos 7 dias anteriores.\nNão ingerir suplementos de cálcio ou vitamina D no dia do exame.\nInformar peso, altura e data da última menstruação.';
+      if (n.includes('espirometria')) return 'Não usar broncodilatador nas 4 horas anteriores (salvo orientação médica).\nNão fumar nas 4 horas anteriores.\nEvitar refeições pesadas.\nUsar roupa confortável.';
+      if (n.includes('audiometria')||n.includes('impedanciometria')||n.includes('otoneurologico')||n.includes('otoneurológico')) return 'Evitar exposição a ruídos intensos nas 12 horas anteriores.\nComparecer com o ouvido limpo (higiene habitual).';
+      if (n.includes('endoscopia')||n.includes('esofagoscopia')) return 'Jejum rigoroso de 8 horas de sólidos e 4 horas de líquidos claros.\nInformar ao médico sobre uso de anticoagulantes com antecedência.';
+      if (n.includes('colonoscopia')||n.includes('retossigmoidoscopia')||n.includes('anuscopia')||n.includes('polipectomia')) return 'Preparo intestinal completo: seguir rigorosamente o protocolo indicado pelo médico (dieta líquida + laxante).\nSuspender ferro e aspirina conforme orientação.\nJejum de 6 horas antes.';
+      if (n.includes('colposcopia')||n.includes('vulvoscopia')) return 'Não realizar o exame durante o período menstrual.\nAbstinência sexual 48 horas antes.\nNão usar cremes, óvulos ou medicamentos vaginais nos 2 dias anteriores.';
+      if (n.includes('biopsia')||n.includes('biópsia')||n.includes('paaf')||n.includes('core')) return 'Conforme orientação médica específica.\nInformar ao médico sobre uso de anticoagulantes com pelo menos 7 dias de antecedência.';
+      if (cat.includes('laborat')||n.includes('hemograma')||n.includes('glicemia')||n.includes('colesterol')||n.includes('trigliceri')||n.includes('tsh')||n.includes('hormonio')||n.includes('coleta')) return 'Jejum de 8 a 12 horas (apenas água é permitida).\nInformar todos os medicamentos em uso ao médico.';
+      if (n.includes('fundo de olho')||n.includes('mapeamento de retina')||(n.includes('angiografia')&&cat.includes('oftalmo'))) return 'Os olhos serão dilatados com colírio — não dirigir após o exame.\nTrazer acompanhante se necessário.\nTrazer óculos e receitas anteriores.';
+      if (cat.includes('oftalmo')||n.includes('campo visual')||n.includes('topografia')||n.includes('biometria')||n.includes('tonometria')) return 'Sem preparo especial.\nTrazer óculos e receitas anteriores se houver.';
+      return 'Sem preparo especial necessário.\nEm caso de dúvida, confirme com a recepção antes de vir ao exame.';
+    }
+
+    // ── Quantity prompt ──
+    function examNeedsPrompt(e) {
+      const n = normalize(e.nome);
+      return n.includes('eletroneuromiografia')||n.includes('eletromiografia')||n.includes('enmg')||n.includes('miografia')||
+             (n.includes('potencial')&&(n.includes('auditi')||n.includes('bera')||n.includes('peate')||n.includes('visual')||n.includes('pev')));
+    }
+    let _qtyPending=null, _qtyOpts=[];
+    function promptAddToCart(id, tipo) {
+      const e = exams.find(x=>x.id===id);
+      if (!e) return;
+      if (!examNeedsPrompt(e)) { addToCart(id,tipo); closeModal(); return; }
+      const n=normalize(e.nome), preco=tipo==='ct'?e.preco_ct:e.preco_pt;
+      const f1=fmtBRL(preco), f2=fmtBRL(preco*2);
+      const isEMG=n.includes('eletroneuromiografia')||n.includes('eletromiografia')||n.includes('enmg')||n.includes('miografia');
+      _qtyPending={id,tipo};
+      _qtyOpts=isEMG
+        ?[{label:'1 membro',price:f1,mult:1,suffix:'— 1 Membro'},{label:'2 membros',price:f2,mult:2,suffix:'— 2 Membros'}]
+        :[{label:'Unilateral',price:f1,mult:1,suffix:'Unilateral'},{label:'Bilateral',price:f2,mult:2,suffix:'Bilateral'}];
+      document.getElementById('qtyTitle').textContent=isEMG?'Quantos membros serão examinados?':'Unilateral ou Bilateral?';
+      document.getElementById('qtySub').textContent=e.nome;
+      document.getElementById('qtyOpts').innerHTML=_qtyOpts.map((o,i)=>`<button class="qty-opt" onclick="qtyConfirm(${i})"><span>${o.label}</span><span class="qty-price">${o.price}</span></button>`).join('');
+      document.getElementById('qtyOverlay').classList.add('show');
+    }
+    window.qtyConfirm=function(idx){
+      if(!_qtyPending)return;
+      const {id,tipo}=_qtyPending, opt=_qtyOpts[idx], e=exams.find(x=>x.id===id);
+      addToCart(id,tipo,opt.mult>1?e.nome+' — '+opt.suffix:null,opt.mult);
+      window.qtyClose(); closeModal();
+    };
+    window.qtyClose=function(){ document.getElementById('qtyOverlay').classList.remove('show'); _qtyPending=null; };
+
+    // ── Cart ──
+    function addToCart(id,tipo,customLabel=null,mult=1){
+      const e=exams.find(x=>x.id===id); if(!e)return;
+      const preco=tipo==='ct'?e.preco_ct:e.preco_pt; if(preco==null)return;
+      cart.push({id,exam:{...e,nome:customLabel||e.nome},tipo,preco:preco*mult});
+      renderCart(); toast(`Adicionado: ${customLabel||e.nome}`,'success');
+    }
+    function removeFromCart(idx){cart.splice(idx,1);renderCart();}
+
+    function renderCart(){
+      const list=document.getElementById('cartList'), footer=document.getElementById('cartFooter');
+      document.getElementById('cartBadge').textContent=cart.length;
+      if(!cart.length){
+        list.innerHTML='<div class="cart-empty"><i class="fas fa-clipboard"></i>Nenhum exame adicionado.<br>Clique nos cards para adicionar.</div>';
+        footer.style.display='none'; document.getElementById('btnWpp').disabled=true; document.getElementById('btnPdf').disabled=true; return;
+      }
+      list.innerHTML=cart.map((it,i)=>`
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${escapeHtml(it.exam.nome)}</div>
+            <div class="cart-item-tipo">${it.tipo==='ct'?'Cartão de Todos':'Particular'}</div>
+            <div class="cart-item-preco ${it.tipo}">${fmtBRL(it.preco)}</div>
+          </div>
+          <button class="cart-rm" data-i="${i}">×</button>
+        </div>`).join('');
+      list.querySelectorAll('.cart-rm').forEach(b=>b.addEventListener('click',()=>removeFromCart(+b.dataset.i)));
+      const total=cart.reduce((s,it)=>s+(it.preco||0),0);
+      document.getElementById('cartTotal').textContent=fmtBRL(total);
+      footer.style.display='block'; document.getElementById('btnWpp').disabled=false; document.getElementById('btnPdf').disabled=false;
+    }
+
+    document.getElementById('btnClear').addEventListener('click',()=>{
+      if(cart.length&&confirm('Limpar todos os exames do orçamento?')){cart=[];renderCart();}
     });
-  };
 
-  /* ── Limpar ── */
-  window.pLimpar = function() {
-    document.getElementById('pSelParceiro').value = '';
-    document.getElementById('pSelExame').innerHTML = '<option value="">— Selecione o parceiro primeiro —</option>';
-    document.getElementById('pPaciente').value = '';
-    document.getElementById('pObs').value = '';
-    document.getElementById('pInfoBox').classList.remove('show');
-    document.getElementById('pValsRow').style.display = 'none';
-    const busca = document.getElementById('pBuscaExame');
-    busca.style.display = 'none'; busca.value = '';
-    document.getElementById('pTipoChips').style.display = 'none';
-    document.getElementById('pExameCount').style.display = 'none';
-    document.querySelectorAll('.p-tchip').forEach((b, i) => b.classList.toggle('active', i === 0));
-    _pParc = null; _pExame = null; _pTipoAtivo = '';
-    pOcultarMsg();
-  };
+    document.getElementById('btnWpp').addEventListener('click',()=>{
+      if(!cart.length)return;
+      const total=cart.reduce((s,it)=>s+(it.preco||0),0);
+      const ct=cart.filter(it=>it.tipo==='ct'), pt=cart.filter(it=>it.tipo==='pt');
+      const _clin=sessionStorage.getItem('clinicaNome')||'Amor Saúde Pirituba';
+      let msg=`🏥 *${_clin}*\n\nOlá! Preparamos com carinho o orçamento dos exames indicados para você 💙\n\n`;
+      if(ct.length){msg+=`💳 *Cartão de Todos*\n`;ct.forEach(it=>{msg+=`• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`;});msg+=`\n`;}
+      if(pt.length){msg+=`👛 *Particular*\n`;pt.forEach(it=>{msg+=`• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`;});msg+=`\n`;}
+      msg+=`💰 *Total estimado: ${fmtBRL(total)}*\n\nEstamos aqui para cuidar de você com atenção e qualidade! 😊\n_Orçamento gerado em ${new Date().toLocaleDateString('pt-BR')} — ${_clin}_`;
+      navigator.clipboard.writeText(msg).then(()=>{
+        const btn=document.getElementById('btnWpp'),orig=btn.innerHTML;
+        btn.innerHTML='<i class="fas fa-check"></i> Copiado!'; btn.style.background='#15803d';
+        setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';},2000);
+      }).catch(()=>{
+        const ta=document.createElement('textarea');ta.value=msg;ta.style.position='fixed';ta.style.opacity='0';
+        document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+        toast('Mensagem copiada!','success');
+      });
+    });
 
-  function pOcultarMsg() {
-    const area = document.getElementById('pMsgArea');
-    area.textContent = ''; area.classList.remove('show');
-    document.getElementById('pBtnCopiar').style.display = 'none';
-    _pMsg = '';
-  }
+    document.getElementById('btnPdf').addEventListener('click',()=>{
+      if(!cart.length)return;
+      const {jsPDF}=window.jspdf, pdf=new jsPDF();
+      const clin=sessionStorage.getItem('clinicaNome')||'Amor Saúde Pirituba';
+      let y=14;
+      const logo=sessionStorage.getItem('logoDataUrl');
+      if(logo){try{pdf.addImage(logo,'PNG',14,y,28,14);pdf.setFontSize(14);pdf.setFont('helvetica','bold');pdf.text(clin,46,y+6);pdf.setFontSize(9);pdf.setFont('helvetica','normal');pdf.text('ORÇAMENTO DE EXAMES',46,y+12);}catch(err){pdf.setFontSize(16);pdf.setFont('helvetica','bold');pdf.text('ORÇAMENTO — '+clin.toUpperCase(),105,y+8,{align:'center'});}}
+      else{pdf.setFontSize(16);pdf.setFont('helvetica','bold');pdf.text('ORÇAMENTO — '+clin.toUpperCase(),105,y+8,{align:'center'});}
+      y+=20;pdf.setFontSize(9);pdf.setFont('helvetica','normal');pdf.text('Emitido em: '+new Date().toLocaleDateString('pt-BR'),190,y,{align:'right'});y+=4;pdf.line(14,y,196,y);y+=7;
+      const total=cart.reduce((s,it)=>s+(it.preco||0),0);
+      cart.forEach((it,i)=>{
+        if(y>270){pdf.addPage();y=20;}
+        pdf.setFontSize(11);pdf.setFont('helvetica','bold');pdf.text(`${i+1}. ${it.exam.nome}`,20,y);pdf.text(fmtBRL(it.preco),190,y,{align:'right'});y+=5;
+        pdf.setFontSize(9);pdf.setFont('helvetica','normal');pdf.text(`${it.exam.categoria}  |  ${it.tipo==='ct'?'Cartao de Todos':'Particular'}`,20,y);y+=4;
+        const pt=getPreparo(it.exam);
+        if(pt&&!pt.startsWith('Sem preparo especial')){pdf.setFont('helvetica','italic');pdf.setFontSize(8);const ls=pdf.splitTextToSize(`Preparo: ${pt.replace(/\n/g,' | ')}`,170);pdf.text(ls,20,y);y+=ls.length*4;}
+        y+=3;
+      });
+      if(y>260){pdf.addPage();y=20;}pdf.line(20,y,190,y);y+=8;pdf.setFontSize(14);pdf.setFont('helvetica','bold');pdf.text('TOTAL:',20,y);pdf.text(fmtBRL(total),190,y,{align:'right'});
+      pdf.save(`orcamento-${Date.now()}.pdf`);
+    });
+
+    // ── Import / Seed ──
+    document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('fileInput').click());
+    document.getElementById('fileInput').addEventListener('change',async ev=>{
+      const file=ev.target.files[0]; if(!file)return;
+      if(!confirm(`Importar exames de "${file.name}"?\n\nIsso vai SUBSTITUIR a base atual de ${exams.length} exames.`)){ev.target.value='';return;}
+      try{
+        const buf=await file.arrayBuffer(), wb=XLSX.read(buf,{type:'array'}), parsed=parseWorkbook(wb);
+        if(parsed.length===0){toast('Nenhum exame encontrado na planilha','error',3500);return;}
+        if(!confirm(`${parsed.length} exames encontrados. Importar agora?`))return;
+        await saveAllExams(parsed); toast(`${parsed.length} exames importados!`,'success',3000); await loadExamsFromFirestore();
+      }catch(err){toast('Erro: '+err.message,'error',4000);}finally{ev.target.value='';}
+    });
+    document.getElementById('loadSeedBtn').addEventListener('click',async()=>{
+      if(!confirm('Carregar a base inicial?\n\nIsso vai SUBSTITUIR a base atual.'))return;
+      try{
+        document.getElementById('results').innerHTML='<div class="loader"><div class="spinner"></div><p>Carregando base inicial…</p></div>';
+        const res=await fetch('exams-seed.json'); if(!res.ok)throw new Error('Arquivo exams-seed.json não encontrado');
+        const seed=await res.json(); await saveAllExams(seed); toast(`${seed.length} exames carregados!`,'success',3000); await loadExamsFromFirestore();
+      }catch(err){toast('Erro: '+err.message,'error',4000);}
+    });
+
+    function parsePrice(v){if(v==null||v==='')return null;if(typeof v==='number')return v;const m=String(v).trim().match(/(\d{1,3}(?:[\.\s]\d{3})*(?:,\d{1,2})?|\d+(?:[\.,]\d{1,2})?)/);if(!m)return null;const n=parseFloat(m[1].replace(/\./g,'').replace(',','.'));return isNaN(n)?null:n;}
+    function cleanStr(v){return v==null?'':String(v).trim().replace(/\n/g,' ').replace(/\\n/g,' ');}
+    function looksLikeExamName(s){if(!s||s.length<3)return false;const u=s.toUpperCase();const bad=['NOME DO EXAME','CARTÃO DE TODOS','PARTICULAR','VALOR TOTAL','VALOR GUIA','AGENDAMENTO','OBSERVAÇÃO','PROCEDIMENTO ','PRESTADOR','OBS:','WHATSAPP','CONTRASTE','ENDEREÇO','CNPJ','NÃO AGENDAR','TODOS OS EXAMES','COBRADO','COD ','PROCEDIMENTO P'];for(const b of bad)if(u.startsWith(b))return false;if(['NAN','-','.'].includes(u))return false;return true;}
+    function parseWorkbook(wb){
+      const result=[],skipNames=new Set(['amor cirugias','amor cirugias ']);
+      const fornMap={'EXAMES  AMOR SAUDE ':'Amor Saúde','USG ':'USG (Equipe Interna)','IMADI-IMAGEM':'IMADI Imagem','OFTALMO':'Oftalmologia','TC PREZECOR':'Prezecor (TC)','SCOPPETA':'Scoppeta','PREZECOR 2.0':'Prezecor 2.0','DERMATOLOGIA':'Dermatologia','EXAMES LABORATORIAIS ':'Laboratorial','MEDICOM 2.0':'Medicom 2.0','FARAGE - OCULTO':'Farage','MARCUS (UROLOGISTA)':'Marcus (Urologia)','PREZECOR':'Prezecor','MEDICOM':'Medicom','CERGOLI - LAPA':'Cergoli (Lapa)','AURI MEDICINA':'Auri Medicina','VF':'VF Oftalmologia'};
+      for(const sheetName of wb.SheetNames){
+        const lower=sheetName.toLowerCase();if(skipNames.has(lower)||lower.includes('desativada'))continue;
+        const ws=wb.Sheets[sheetName],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});if(!rows||rows.length===0)continue;
+        const isAmor=sheetName.toUpperCase().includes('AMOR SAUDE');let currentCat=sheetName.trim();const fornecedor=fornMap[sheetName]||sheetName.trim();if(isAmor)currentCat='Geral';
+        for(const row of rows){if(!row||row.length===0)continue;const nome=cleanStr(row[0]);if(!nome)continue;
+          if(isAmor){const ct=parsePrice(row[2]),pt=parsePrice(row[3]);if(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(nome)&&ct==null&&pt==null){currentCat=nome.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').trim();continue;}if(!looksLikeExamName(nome)||(ct==null&&pt==null))continue;result.push({nome,categoria:currentCat,fornecedor,preco_ct:ct,preco_pt:pt,observacao:cleanStr(row[1]),preparo:'',caracteristica:'',beneficio:''});}
+          else{const nums=row.map(parsePrice);const allNull=nums.slice(1).every(n=>n==null);if(allNull&&looksLikeExamName(nome)&&nome.length<50){if(/RAIO|DIAGN|EXAMES |PROCEDIMENT|RESSON|TOMOG|GINECO|BIOPSIA|GASTRO/i.test(nome)){currentCat=nome;continue;}}if(!looksLikeExamName(nome))continue;const prices=nums.slice(1).filter(n=>n!=null&&n>0);if(prices.length===0)continue;const preco_ct=prices[0],preco_pt=prices.length>=2?Math.max(...prices):null;let obs='';for(const c of row.slice(1).map(cleanStr)){if(c&&parsePrice(c)==null&&c.length>5){obs=c;break;}}result.push({nome,categoria:currentCat,fornecedor,preco_ct,preco_pt,observacao:obs,preparo:'',caracteristica:'',beneficio:''});}
+        }
+      }
+      result.forEach((e,i)=>e.id=`exam_${String(i+1).padStart(4,'0')}`);return result;
+    }
+    async function saveAllExams(list){
+      const existing=await getDocs(collection(db,'orcamentos_exames'));let cur=writeBatch(db),cnt=0;const del=[];existing.forEach(d=>{cur.delete(d.ref);if(++cnt>=400){del.push(cur);cur=writeBatch(db);cnt=0;}});if(cnt>0)del.push(cur);for(const b of del)await b.commit();
+      cur=writeBatch(db);cnt=0;const ins=[];for(const e of list){const ref=doc(db,'orcamentos_exames',e.id);const{id,...data}=e;cur.set(ref,{...data,createdAt:new Date().toISOString(),createdBy:currentUser.email});if(++cnt>=400){ins.push(cur);cur=writeBatch(db);cnt=0;}}if(cnt>0)ins.push(cur);for(const b of ins)await b.commit();
+    }
   </script>
 </body>
 </html>
