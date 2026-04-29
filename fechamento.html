@@ -159,7 +159,12 @@
         <div><strong>Documento:</strong> <span id="calcProfissionalCpf">-</span></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label>Selecionado *</label><select id="selectProfissional"><option value="">Selecione...</option></select></div>
+        <div class="form-group">
+          <label>Buscar Profissional *</label>
+          <input type="text" id="calcBusca" placeholder="Digite o nome para buscar…" autocomplete="off">
+          <div id="calcResultados" class="search-results hidden"></div>
+          <input type="hidden" id="selectProfissional">
+        </div>
         <div class="form-group"><label>Pagamento</label><select id="formaPagamento" onchange="togglePagoCheckbox()"><option value="pix">PIX</option><option value="dinheiro">Dinheiro</option><option value="transferencia">Transferência</option></select></div>
       </div>
       <div class="items-header">
@@ -328,7 +333,10 @@
     function irParaCalculo(){
       const id=document.getElementById('profId').value,nome=document.getElementById('profNome').value,cpf=document.getElementById('profCpf').value,regime=document.getElementById('profRegime').value,cat=document.getElementById('profCategoria').value;
       if(!nome||!cpf||!regime||!cat){toast('Selecione e complete os dados antes de continuar','error');return;}
-      if(id)document.getElementById('selectProfissional').value=id;
+      if(id){
+        document.getElementById('selectProfissional').value=id;
+        document.getElementById('calcBusca').value=nome;
+      }
       document.getElementById('calcProfissionalNome').textContent=nome;
       document.getElementById('calcProfissionalCpf').textContent=cpf;
       currentStep=2;atualizarEtapas();
@@ -352,11 +360,39 @@
       document.getElementById('profissionalSelecionadoCpf').textContent=doc||'-';
     }
 
-    function selecionarProfissionalBase(nome,doc,cat){
-      document.getElementById('profNome').value=nome;document.getElementById('profCpf').value=doc;document.getElementById('profCategoria').value=cat;
-      document.getElementById('buscaProfissional').value='';document.getElementById('resultadosBusca').classList.add('hidden');document.getElementById('resultadosBusca').innerHTML='';
-      atualizarResumoProfissional(nome,doc);
+    function selecionarProfissionalBase(p){
+      const id=p.id||p.documento.replace(/\D/g,'');
+      document.getElementById('profId').value=id;
+      document.getElementById('profNome').value=p.nome;
+      document.getElementById('profCpf').value=p.documento;
+      document.getElementById('profRegime').value=p.regime||'pj-presumido';
+      document.getElementById('profCategoria').value=p.categoria||'repasse';
+      document.getElementById('profChavePix').value=p.chavePix||'';
+      document.getElementById('buscaProfissional').value='';
+      document.getElementById('resultadosBusca').classList.add('hidden');
+      document.getElementById('resultadosBusca').innerHTML='';
+      atualizarResumoProfissional(p.nome,p.documento);
     }
+
+    function selecionarProfissionalCalculo(p){
+      const id=p.id||p.documento.replace(/\D/g,'');
+      document.getElementById('selectProfissional').value=id;
+      document.getElementById('calcBusca').value=p.nome;
+      document.getElementById('calcResultados').classList.add('hidden');
+      document.getElementById('calcResultados').innerHTML='';
+      document.getElementById('calcProfissionalNome').textContent=p.nome;
+      document.getElementById('calcProfissionalCpf').textContent=p.documento;
+    }
+
+    const calcBuscarDebounced=debounce2(function(){
+      const t=document.getElementById('calcBusca').value.toLowerCase().trim();
+      const r=document.getElementById('calcResultados');
+      if(t.length<2){r.classList.add('hidden');r.innerHTML='';return;}
+      const f=profissionais.filter(p=>p.nome.toLowerCase().includes(t));
+      if(!f.length){r.classList.add('hidden');r.innerHTML='';return;}
+      r.innerHTML=f.map((p,i)=>`<div class="search-result-item" data-index="${i}"><strong>${esc(p.nome)}</strong><span style="display:block;font-size:11px;color:#64748b;">${esc(p.documento)} · ${p.regime==='funcionario'?'Sem Descontos':'PJ'}</span></div>`).join('');
+      r.classList.remove('hidden');r.dataset.currentResults=JSON.stringify(f);
+    },300);
 
     function salvarCadastro(){const id=document.getElementById('profId').value;if(id)editarProfissional(id);else cadastrar();}
 
@@ -392,17 +428,15 @@
     }
 
     function atualizarListas(){
-      const lista=document.getElementById('listaProfissionais'),sel=document.getElementById('selectProfissional');
-      if(!profissionais.length){document.getElementById('semProfissionais').classList.remove('hidden');lista.innerHTML='';sel.innerHTML='<option value="">Selecione...</option>';return;}
+      const lista=document.getElementById('listaProfissionais');
+      if(!profissionais.length){document.getElementById('semProfissionais').classList.remove('hidden');lista.innerHTML='';return;}
       document.getElementById('semProfissionais').classList.add('hidden');
       let html='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;"><tr style="border-bottom:2px solid #e5e7eb;"><th style="text-align:left;padding:8px;">Nome</th><th>Tipo</th><th>Ações</th></tr>';
-      let opts='<option value="">Selecione...</option>';
       profissionais.forEach(p=>{
         const t=p.regime==='funcionario'?'Sem Descontos':'PJ';
         html+=`<tr style="border-bottom:1px solid #f3f4f6;"><td style="padding:8px;">${esc(p.nome)}</td><td style="text-align:center;padding:8px;"><span class="badge ${esc(p.regime||'pj-presumido')}">${t}</span></td><td style="text-align:center;padding:8px;"><button class="btn-primary btn-small" onclick="preencherEdicao('${p.id}')"><i class="fas fa-edit"></i></button> <button class="btn-danger btn-small" onclick="excluir('${p.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
-        opts+=`<option value="${p.id}">${esc(p.nome)} (${t})</option>`;
       });
-      html+='</table></div>';lista.innerHTML=html;sel.innerHTML=opts;
+      html+='</table></div>';lista.innerHTML=html;
     }
 
     async function excluir(id){
@@ -483,13 +517,35 @@
 
     document.addEventListener('DOMContentLoaded',function(){
       aplicarTemaSalvo();
+
+      // ── Busca Step 1 (Profissional) ──
       document.getElementById('buscaProfissional').addEventListener('keyup',buscarDebounced);
       document.getElementById('resultadosBusca').addEventListener('click',function(e){
         const item=e.target.closest('.search-result-item');if(!item)return;
         const res=JSON.parse(document.getElementById('resultadosBusca').dataset.currentResults||'[]');
         const p=res[parseInt(item.dataset.index,10)];if(!p)return;
-        selecionarProfissionalBase(p.nome,p.documento,p.categoria);
+        selecionarProfissionalBase(p);
       });
+
+      // ── Busca Step 2 (Cálculo) ──
+      document.getElementById('calcBusca').addEventListener('keyup',calcBuscarDebounced);
+      document.getElementById('calcBusca').addEventListener('input',function(){
+        // se apagou o texto, limpa a seleção
+        if(!this.value.trim()){document.getElementById('selectProfissional').value='';document.getElementById('calcProfissionalNome').textContent='-';document.getElementById('calcProfissionalCpf').textContent='-';}
+      });
+      document.getElementById('calcResultados').addEventListener('click',function(e){
+        const item=e.target.closest('.search-result-item');if(!item)return;
+        const res=JSON.parse(document.getElementById('calcResultados').dataset.currentResults||'[]');
+        const p=res[parseInt(item.dataset.index,10)];if(!p)return;
+        selecionarProfissionalCalculo(p);
+      });
+      // fechar dropdown ao clicar fora
+      document.addEventListener('click',function(e){
+        if(!document.getElementById('calcBusca').contains(e.target)&&!document.getElementById('calcResultados').contains(e.target)){
+          document.getElementById('calcResultados').classList.add('hidden');
+        }
+      });
+
       document.getElementById('themeToggle').addEventListener('click',toggleTheme);
       atualizarResumoProfissional('','');
       window.atualizarListaGeralFechamento();
