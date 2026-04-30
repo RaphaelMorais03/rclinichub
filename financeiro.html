@@ -296,6 +296,48 @@
   let colaboradores = {}, recibos = [], editandoColabKey = null, colabAtualKey = null;
   let LOGO_FIN = '';
 
+  // ── Base fixa de colaboradores (hardcoded) ──
+  const colabBaseRaw = [
+    { nome: 'ALEXSANDRA DE CASSIA NUNES',          cpf: '32125692805' },
+    { nome: 'ALICE VITORIA DIAS',                   cpf: '54323124848' },
+    { nome: 'BRUNA TEIXEIRA RODRIGUES',             cpf: '57876434886' },
+    { nome: 'CARLA REGINA VASQUES DO SANTOS',       cpf: '25271255816' },
+    { nome: 'CAROLINA PIRES PARRA',                 cpf: '53882892811' },
+    { nome: 'CAROLINE PAOLA DA FONSECA',            cpf: '47520435806' },
+    { nome: 'EMILY ESHE DOS SANTOS DA SILVA',       cpf: '54299480805' },
+    { nome: 'FELIPE AZEVEDO BARBOSA',               cpf: '39956608866' },
+    { nome: 'FERNANDA CLARA DE SOUZA SERGIO',       cpf: '28834797809' },
+    { nome: 'GABRIEL OLIVEIRA BATISTA',             cpf: '45100790873' },
+    { nome: 'GIOVANNA PEREIRA ALBUQUERQUE',         cpf: '50266236898' },
+    { nome: 'GUSTAVO BRAMBILA ACOSTA CHAVES',       cpf: '43041882833' },
+    { nome: 'JESSICA DA CRUZ CARVALHO',             cpf: '22855216850' },
+    { nome: 'JOAO VICTOR SOUSA',                    cpf: '50349917809' },
+    { nome: 'JONATHAN SILVA OLIVEIRA',              cpf: '47949073896' },
+    { nome: 'KAUANNY DA ROSA MARTINS',              cpf: '54630232800' },
+    { nome: 'KAUANY DA SILVA DIAS',                 cpf: '48319531802' },
+    { nome: 'KAUANY NUNES MARTINS',                 cpf: '51521221898' },
+    { nome: 'KELLI CRISTINA COSTA MENDES',          cpf: '25824507821' },
+    { nome: 'LETICIA DE SOUZA NOLASCO',             cpf: '50904875881' },
+    { nome: 'LORENA PINHOTI DA COSTA',              cpf: '41547345802' },
+    { nome: 'LUIZA REBECA RIBEIRO DE OLIVEIRA',     cpf: '54269030852' },
+    { nome: 'MARIANA SANTOS DA ANUNCIAÇÃO',         cpf: '51757278850' },
+    { nome: 'MARLENE RODRIGUES DOS SANTOS',         cpf: '33602349870' },
+    { nome: 'NATIELY PALMITOS DOS SANTOS GOMES',    cpf: '35423570816' },
+    { nome: 'PAMELA DA SILVA URIAS',                cpf: '46813138820' },
+    { nome: 'RAISSA DAS VRIGENS NEVES',             cpf: '11656507544' },
+    { nome: 'RAPHAEL MORAIS DA SILVA',              cpf: '52465168819' },
+    { nome: 'TAINA SABINO ROCHA',                   cpf: '51771453877' },
+    { nome: 'TATIANE TEDESCO BERLAMINO',            cpf: '34914656809' },
+    { nome: 'TAYNA SAMPAIO MACHADO DE ARAUJO',      cpf: '48693791800' },
+    { nome: 'VINICIUS RODRIGO DA SILVA OLIVEIRA',   cpf: '36675394878' },
+    { nome: 'VIVIANE LUCIENE RODRIGUES NEVES',      cpf: '08989207444' },
+    { nome: 'YANE RILMARA SALVADOR',                cpf: '12488636401' }
+  ];
+
+  function formatCPF(cpf) {
+    return (cpf || '').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  }
+
   // ── Tabs ──
   function tab(t) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -409,60 +451,50 @@
     return ext;
   }
 
-  // ── Bloco de recibo compacto (cabe 4 por A4) ──
+  // ── Bloco de recibo clássico ──
   function buildReciboBlock(c, dados, logoSrc, clinicaNome, clinicaCnpj) {
-    const now   = new Date();
-    const data  = `São Paulo, ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+    const now    = new Date();
+    const data   = `São Paulo, ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
     const valorF = fmtMoeda(dados.valor);
     const extenso = valorExtenso(dados.valor);
-    const logoHtml = logoSrc
-      ? `<img src="${logoSrc}" style="height:28px;width:auto;object-fit:contain;" alt="Logo">`
-      : `<strong style="font-size:11px;color:#C62828;">${esc(clinicaNome)}</strong>`;
     const isTrans = dados.categoria === 'Vale-Transporte';
-    const titulo = isTrans ? 'Recibo de entrega de vale-transporte' : `Recibo de ${esc(dados.categoria||'Pagamento')}`;
+    const titulo  = isTrans
+      ? 'RECIBO DE ENTREGA DE VALE-TRANSPORTE'
+      : `RECIBO DE ${(dados.categoria || 'PAGAMENTO').toUpperCase()}`;
     let periodoTxt = '';
     if (dados.inicio && dados.fim) {
       const di = dados.inicio.split('-').reverse().join('/');
       const df = dados.fim.split('-').reverse().join('/');
       periodoTxt = ` para utilização no período de <strong>${di} a ${df}</strong>`;
     }
-    return `<div class="recibo-block">
-      <div class="rh">
-        <div>${logoHtml}</div>
-        <div class="rh-empresa">${esc(clinicaNome)}<br><span style="font-weight:400;font-size:7px;">${esc(clinicaCnpj||'')}</span></div>
-        <div class="rh-data">${data}</div>
-      </div>
-      <div class="rb-titulo">${titulo}</div>
-      <div style="font-size:9.5px;"><strong>Nome:</strong> ${esc(c.nome||'—')} &nbsp;|&nbsp; <strong>CPF:</strong> ${esc(c.cpf||'—')}</div>
-      ${c.cargo?`<div style="font-size:9px;color:#555;"><strong>Cargo:</strong> ${esc(c.cargo)}</div>`:''}
-      <div class="rb-val-box">
-        <div class="rb-valor-num">R$ ${valorF}</div>
-        <div class="rb-extenso">${extenso}</div>
-      </div>
-      <div class="rb-declaracao">Recebi da empresa <strong>${esc(clinicaNome)}</strong> o equivalente a <strong>R$ ${valorF} (${extenso})</strong> de ${esc(dados.categoria||'pagamento').toLowerCase()}${periodoTxt}.<br><em>${esc(dados.descricao||'')}</em></div>
-      <div class="rb-assin">
-        <div class="rb-assin-item"><div class="rb-assin-linha">${esc(c.nome||'')}</div></div>
-        <div class="rb-assin-item"><div class="rb-assin-linha">${esc(dados.usuario||'Responsável')}</div></div>
+    const cpfFmt = formatCPF((c.cpf || '').replace(/\D/g, '')) || (c.cpf || '—');
+    const descExtra = dados.descricao ? ' ' + esc(dados.descricao) : '';
+    return `<div class="recibo-print">
+      <div class="titulo">${titulo}</div>
+      <div class="empresa"><span>${esc(clinicaNome)}</span><span>CNPJ: ${esc(clinicaCnpj || '')}</span></div>
+      <div class="empregado">Nome do Empregado: ${esc(c.nome || '—')} &nbsp;—&nbsp; CPF: ${esc(cpfFmt)}</div>
+      <div class="texto">Recebi da empresa <strong>${esc(clinicaNome)}</strong> o equivalente a <strong>R$ ${valorF} (${extenso})</strong> de ${esc((dados.categoria || 'pagamento').toLowerCase())}${periodoTxt}.${descExtra}</div>
+      <div class="data-local">${data}</div>
+      <div class="assinatura">
+        <div class="linha-assinatura"></div>
+        <div class="nome-assinatura">${esc(c.nome || '')}</div>
       </div>
     </div>`;
   }
 
   // ── CSS compartilhado dos recibos ──
   const RECIBO_CSS = `
-    @page{size:A4 portrait;margin:8mm}
+    @page{size:A4;margin:0.8cm}
     body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#000}
-    .recibo-block{border:1px solid #aaa;border-radius:3px;padding:4mm 6mm;height:67mm;box-sizing:border-box;display:flex;flex-direction:column;gap:1.5mm;page-break-inside:avoid;margin-bottom:2mm;overflow:hidden;}
-    .rh{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #C62828;padding-bottom:1.5mm;margin-bottom:1mm}
-    .rh-empresa{font-size:8px;font-weight:700;text-align:center;line-height:1.4}
-    .rh-data{font-size:7.5px;text-align:right;color:#555}
-    .rb-titulo{font-size:10.5px;font-weight:700;color:#C62828}
-    .rb-val-box{background:#0A1F44;color:white;padding:1.5mm 4mm;border-radius:3px;text-align:center}
-    .rb-valor-num{font-size:13px;font-weight:900}
-    .rb-extenso{font-size:7.5px;opacity:.85}
-    .rb-declaracao{font-size:8px;color:#333;line-height:1.5;border:.5px solid #ccc;padding:1.5mm 2mm;border-radius:2px;flex:1}
-    .rb-assin{display:flex;gap:10mm;margin-top:auto}
-    .rb-assin-item{flex:1;text-align:center}
-    .rb-assin-linha{border-top:1px solid #333;padding-top:1mm;font-size:7.5px;color:#444}
+    .recibo-print{border:2px solid #000;padding:0.6cm;margin-bottom:0.7cm;page-break-inside:avoid;}
+    .recibo-print .titulo{font-size:18px;font-weight:bold;text-align:center;margin-bottom:10px;}
+    .recibo-print .empresa{font-size:12px;font-weight:bold;display:flex;justify-content:space-between;margin-bottom:12px;}
+    .recibo-print .empregado{font-size:12px;font-weight:bold;margin-bottom:12px;}
+    .recibo-print .texto{font-size:12px;line-height:1.5;margin-bottom:15px;}
+    .recibo-print .data-local{text-align:center;font-size:12px;margin-bottom:15px;}
+    .recibo-print .assinatura{text-align:center;margin-top:5px;}
+    .recibo-print .linha-assinatura{width:70%;margin:0 auto 4px;border-top:1px solid #000;}
+    .recibo-print .nome-assinatura{font-size:11px;text-transform:uppercase;}
   `;
 
   function montarHtmlRecibo(c, dados, usuario) {
@@ -471,12 +503,7 @@
     const logo = LOGO_FIN || sessionStorage.getItem('logoDataUrl') || '';
     const bloco = buildReciboBlock(c, {...dados, usuario}, logo, clinicaNome, clinicaCnpj);
     return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo — ${esc(c.nome||'')}</title>
-      <style>${RECIBO_CSS}
-      /* Versão página única — expande o bloco */
-      .recibo-block{height:auto;min-height:80mm;font-size:110%;}
-      .rb-titulo{font-size:13px}
-      .rb-valor-num{font-size:16px}
-      </style></head><body>
+      <style>${RECIBO_CSS}</style></head><body>
       ${bloco}
       <sc`+'ript>window.print();</s'+'cript></body></html>';
   }
@@ -490,22 +517,40 @@
 
   function renderLoteLista() {
     const el = document.getElementById('loteLista');
-    const keys = Object.keys(colaboradores);
-    if (!keys.length) { el.innerHTML = '<p style="padding:12px;text-align:center;color:#888;">Nenhum colaborador cadastrado.</p>'; return; }
-    el.innerHTML = keys.map(k => {
-      const c = colaboradores[k];
-      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid var(--gray-200);background:white;border-radius:6px;margin-bottom:4px;">
-        <input type="checkbox" class="lote-check" data-key="${k}" style="width:16px;height:16px;cursor:pointer;" checked>
+
+    // Mescla Firebase + base, deduplicando por CPF (Firebase tem prioridade)
+    const allItems = [];
+    const fbCpfs   = new Set();
+
+    Object.entries(colaboradores).forEach(([k, c]) => {
+      const raw = (c.cpf || '').replace(/\D/g, '');
+      if (raw) fbCpfs.add(raw);
+      allItems.push({ key: k, nome: c.nome || '—', cargo: c.cargo || '', cpf: c.cpf || '' });
+    });
+
+    colabBaseRaw.forEach((c, i) => {
+      const raw = (c.cpf || '').replace(/\D/g, '');
+      if (fbCpfs.has(raw)) return; // já existe no Firebase
+      allItems.push({ key: 'base_' + i, nome: c.nome, cargo: '', cpf: formatCPF(c.cpf) });
+    });
+
+    if (!allItems.length) { el.innerHTML = '<p style="padding:12px;text-align:center;color:#888;">Nenhum colaborador.</p>'; return; }
+
+    allItems.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+
+    el.innerHTML = allItems.map(item =>
+      `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid var(--gray-200);background:white;border-radius:6px;margin-bottom:4px;">
+        <input type="checkbox" class="lote-check" data-key="${item.key}" style="width:16px;height:16px;cursor:pointer;" checked>
         <div style="flex:1;">
-          <div style="font-size:13px;font-weight:700;color:var(--navy);">${esc(c.nome||'—')}</div>
-          <div style="font-size:10px;color:var(--gray-400);">${esc(c.cargo||'')}${c.cpf?' · '+esc(c.cpf):''}</div>
+          <div style="font-size:13px;font-weight:700;color:var(--navy);">${esc(item.nome)}</div>
+          <div style="font-size:10px;color:var(--gray-400);">${item.cargo ? esc(item.cargo) + ' · ' : ''}${esc(item.cpf)}</div>
         </div>
         <div style="display:flex;align-items:center;gap:4px;">
           <span style="font-size:12px;font-weight:700;color:var(--gray-600);">R$</span>
-          <input type="text" class="lote-valor f-input" data-key="${k}" placeholder="0,00" oninput="mascaraMoeda(this)" style="width:110px;padding:6px 10px;font-size:13px;">
+          <input type="text" class="lote-valor f-input" data-key="${item.key}" placeholder="0,00" oninput="mascaraMoeda(this)" style="width:110px;padding:6px 10px;font-size:13px;">
         </div>
-      </div>`;
-    }).join('');
+      </div>`
+    ).join('');
   }
 
   function selecionarTodosLote(sel) {
@@ -526,7 +571,17 @@
       const valInput = document.querySelector(`.lote-valor[data-key="${k}"]`);
       const valorStr = (valInput?.value || '').replace(/\./g,'').replace(',','.');
       const valor = parseFloat(valorStr) || 0;
-      if (valor > 0) itens.push({ colab: colaboradores[k], valor });
+      if (valor <= 0) return;
+
+      let colab;
+      if (k.startsWith('base_')) {
+        const idx = parseInt(k.replace('base_', ''), 10);
+        const raw = colabBaseRaw[idx];
+        colab = { nome: raw.nome, cpf: formatCPF(raw.cpf), cargo: '' };
+      } else {
+        colab = colaboradores[k];
+      }
+      if (colab) itens.push({ colab, valor });
     });
 
     if (!itens.length) { toast('Selecione ao menos um colaborador com valor', 'error'); return; }
@@ -535,9 +590,15 @@
     const clinicaCnpj = sessionStorage.getItem('clinicaCnpj') || '';
     const logo = LOGO_FIN || sessionStorage.getItem('logoDataUrl') || '';
 
-    const blocos = itens.map(it =>
-      buildReciboBlock(it.colab, { descricao: desc, valor: it.valor, categoria: cat, inicio, fim, usuario }, logo, clinicaNome, clinicaCnpj)
-    ).join('');
+    const blocos = itens.map((it, i) => {
+      const bloco = buildReciboBlock(it.colab,
+        { descricao: desc, valor: it.valor, categoria: cat, inicio, fim, usuario },
+        logo, clinicaNome, clinicaCnpj);
+      // quebra de página a cada 4 recibos
+      const quebra = ((i + 1) % 4 === 0 && i + 1 < itens.length)
+        ? '<div style="page-break-after:always;"></div>' : '';
+      return bloco + quebra;
+    }).join('');
 
     const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Lote de Recibos</title>
       <style>${RECIBO_CSS}</style></head><body>
