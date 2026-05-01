@@ -469,7 +469,11 @@
     }
     const cpfFmt = formatCPF((c.cpf || '').replace(/\D/g, '')) || (c.cpf || '—');
     const descExtra = dados.descricao ? ' ' + esc(dados.descricao) : '';
+    const logoHtml  = logoSrc
+      ? `<div class="recibo-logo"><img src="${logoSrc}" alt="Logo"></div>`
+      : '';
     return `<div class="recibo-print">
+      ${logoHtml}
       <div class="titulo">${titulo}</div>
       <div class="empresa"><span>${esc(clinicaNome)}</span><span>CNPJ: ${esc(clinicaCnpj || '')}</span></div>
       <div class="empregado">Nome do Empregado: ${esc(c.nome || '—')} &nbsp;—&nbsp; CPF: ${esc(cpfFmt)}</div>
@@ -487,6 +491,8 @@
     @page{size:A4;margin:0.8cm}
     body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#000}
     .recibo-print{border:2px solid #000;padding:0.6cm;margin-bottom:0.7cm;page-break-inside:avoid;}
+    .recibo-print .recibo-logo{text-align:center;margin-bottom:8px;}
+    .recibo-print .recibo-logo img{height:50px;width:auto;object-fit:contain;}
     .recibo-print .titulo{font-size:18px;font-weight:bold;text-align:center;margin-bottom:10px;}
     .recibo-print .empresa{font-size:12px;font-weight:bold;display:flex;justify-content:space-between;margin-bottom:12px;}
     .recibo-print .empregado{font-size:12px;font-weight:bold;margin-bottom:12px;}
