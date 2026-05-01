@@ -38,6 +38,22 @@
     .b-spin{display:none;width:17px;height:17px;border:2.5px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:rot .65s linear infinite;}
     @keyframes rot{to{transform:rotate(360deg)}}
     #telaPortal{display:none;min-height:100vh;background:#f0f4f8;}
+
+    /* ── Splash ── */
+    #splashScreen{position:fixed;inset:0;background:#0A1F44;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:10000;transition:opacity .45s ease;}
+    #splashScreen.fade-out{opacity:0;pointer-events:none;}
+    .sp-logo{width:72px;height:72px;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;animation:spPop .5s cubic-bezier(.34,1.56,.64,1) both;}
+    .sp-logo img{width:100%;height:100%;object-fit:contain;}
+    .sp-title{font-size:24px;font-weight:900;color:white;letter-spacing:-.5px;animation:spFu .4s .15s ease both;}
+    .sp-sub{font-size:12px;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase;animation:spFu .4s .25s ease both;}
+    .sp-dots{display:flex;gap:8px;margin-top:8px;animation:spFu .4s .35s ease both;}
+    .sp-dots span{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25);}
+    .sp-dots span:nth-child(1){animation:spDot 1.2s .0s ease-in-out infinite;}
+    .sp-dots span:nth-child(2){animation:spDot 1.2s .2s ease-in-out infinite;}
+    .sp-dots span:nth-child(3){animation:spDot 1.2s .4s ease-in-out infinite;}
+    @keyframes spPop{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:scale(1)}}
+    @keyframes spFu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spDot{0%,80%,100%{background:rgba(255,255,255,.2);transform:scale(.8)}40%{background:rgba(255,255,255,.9);transform:scale(1.2)}}
     .p-header{background:white;border-bottom:2px solid var(--gray-200);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,.05);}
     .p-logo{display:flex;align-items:center;gap:12px;}
     .p-logo-icon{width:40px;height:40px;border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
@@ -73,12 +89,20 @@
   </style>
 </head>
 <body>
+  <!-- ── Splash de carregamento ── -->
+  <div id="splashScreen">
+    <div class="sp-logo"><img src="assets/favicon.png" alt="Logo"></div>
+    <div class="sp-title">Amor Saúde</div>
+    <div class="sp-sub">Carregando portal</div>
+    <div class="sp-dots"><span></span><span></span><span></span></div>
+  </div>
+
   <div class="s-overlay" id="sOverlay">
     <div class="s-icon">🏥</div>
     <div class="s-sys" id="sSys"></div>
   </div>
 
-  <div id="telaLogin">
+  <div id="telaLogin" style="display:none;">
     <div class="login-right">
       <div class="login-form-box">
         <div style="margin-bottom:32px;">
@@ -184,17 +208,24 @@
     carregarLogoGlobal(['#logoHeader']);
     carregarClinica();
 
-    onAuthStateChanged(auth, user => {
-      if (user) abrirPortal(user);
-      else {
+    function esconderSplash() {
+      const s = document.getElementById('splashScreen');
+      s.classList.add('fade-out');
+      setTimeout(() => { s.style.display = 'none'; }, 450);
+    }
+
+    onAuthStateChanged(auth, async user => {
+      if (user) {
+        await abrirPortal(user);   // monta portal completo
+        esconderSplash();          // só então revela
+      } else {
         document.getElementById('telaLogin').style.display  = 'flex';
         document.getElementById('telaPortal').style.display = 'none';
+        esconderSplash();
       }
     });
 
     async function abrirPortal(user) {
-      document.getElementById('telaLogin').style.display  = 'none';
-      document.getElementById('telaPortal').style.display = 'block';
       let nomeCompleto = user.email.split('@')[0];
       let perms = {};
       try {
@@ -207,7 +238,7 @@
         }
       } catch(e) { console.warn('[abrirPortal] permissões:', e.message); }
 
-      // Permissões gerenciadas exclusivamente pelo Firebase (admin/usuarios/{uid}/perms)
+      // Monta UI completa antes de revelar
       const primeiroNome = nomeCompleto.split(' ')[0];
       document.getElementById('pUserNome').textContent = primeiroNome;
       sessionStorage.setItem('usuario',      nomeCompleto);
@@ -223,6 +254,10 @@
       if (isAdmin || perms.exames)     document.getElementById('cardExames').style.display     = 'flex';
       if (isAdmin || perms.cronograma) document.getElementById('cardCronograma').style.display = 'flex';
       if (isAdmin)                     document.getElementById('cardAdmin').style.display      = 'flex';
+
+      // Revela o portal já montado
+      document.getElementById('telaLogin').style.display  = 'none';
+      document.getElementById('telaPortal').style.display = 'block';
     }
 
     window.entrar = function() {
