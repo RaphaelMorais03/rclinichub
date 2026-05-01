@@ -208,17 +208,36 @@
     carregarLogoGlobal(['#logoHeader']);
     carregarClinica();
 
+    const TODOS_CARDS = ['cardOrcamentos','cardFechamento','cardFinanceiro','cardExames','cardCronograma','cardAdmin'];
+
     function esconderSplash() {
       const s = document.getElementById('splashScreen');
       s.classList.add('fade-out');
       setTimeout(() => { s.style.display = 'none'; }, 450);
     }
 
+    function mostrarSplash(texto) {
+      const s = document.getElementById('splashScreen');
+      const sub = s.querySelector('.sp-sub');
+      if (sub && texto) sub.textContent = texto;
+      s.style.display = 'flex';
+      s.classList.remove('fade-out');
+    }
+
+    let _portando = false; // evita chamadas duplas de onAuthStateChanged
     onAuthStateChanged(auth, async user => {
       if (user) {
-        await abrirPortal(user);   // monta portal completo
-        esconderSplash();          // só então revela
+        if (_portando) return;
+        _portando = true;
+        clearTimeout(_loginTimeout); // cancela timeout de segurança (login ok)
+        setLoad(false);              // reseta botão imediatamente, sem esperar Firebase
+        mostrarSplash('Carregando portal');
+        await abrirPortal(user);
+        esconderSplash();
+        _portando = false;
       } else {
+        _portando = false;
+        setLoad(false);          // garante reset se login falhou silenciosamente
         document.getElementById('telaLogin').style.display  = 'flex';
         document.getElementById('telaPortal').style.display = 'none';
         esconderSplash();
@@ -260,6 +279,8 @@
       document.getElementById('telaPortal').style.display = 'block';
     }
 
+    let _loginTimeout = null;
+
     window.entrar = function() {
       const email = document.getElementById('fEmail').value.trim();
       const senha = document.getElementById('fSenha').value;
@@ -267,7 +288,16 @@
       if (!email) { erro('Informe o e-mail.'); return; }
       if (!senha)  { erro('Informe a senha.');  return; }
       setLoad(true);
+
+      // Segurança: se nada acontecer em 12s, desbloqueia o botão
+      clearTimeout(_loginTimeout);
+      _loginTimeout = setTimeout(() => {
+        setLoad(false);
+        erro('Tempo esgotado. Verifique sua conexão e tente novamente.');
+      }, 12000);
+
       signInWithEmailAndPassword(auth, email, senha).catch(e => {
+        clearTimeout(_loginTimeout);
         setLoad(false);
         if (['auth/invalid-credential','auth/wrong-password','auth/user-not-found'].includes(e.code))
           erro('E-mail ou senha incorretos.');
@@ -280,10 +310,16 @@
     window.sair = function() {
       signOut(auth).then(() => {
         sessionStorage.clear();
+        // Reseta TODOS os cards para o próximo usuário não ver cards errados
+        TODOS_CARDS.forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.style.display = 'none';
+        });
         document.getElementById('telaPortal').style.display = 'none';
         document.getElementById('telaLogin').style.display  = 'flex';
-        document.getElementById('cardFinanceiro').style.display = 'none';
-        document.getElementById('cardAdmin').style.display      = 'none';
+        document.getElementById('fEmail').value = '';
+        document.getElementById('fSenha').value = '';
+        limparErro();
       });
     };
 
