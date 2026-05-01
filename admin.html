@@ -489,18 +489,24 @@
     btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
     try {
       if (editandoUserId) {
-        // Atualizar dados no Realtime DB (não pode alterar email/senha via admin SDK no client)
+        // Atualizar apenas nome, email e permissões no DB (senha não pode ser alterada aqui)
         await window._fbSet('admin/usuarios/' + editandoUserId, { nomeCompleto: nome, email, perms });
         toast('Usuário atualizado!', 'success');
       } else {
-        // Criar usuário via Firebase Auth (requer função cloud ou admin SDK — aqui apenas salva no DB como pendente)
-        const key = 'pending_' + Date.now();
-        await window._fbSet('admin/usuarios_pendentes/' + key, { nomeCompleto: nome, email, perms, criadoEm: new Date().toISOString() });
-        toast('Usuário salvo como pendente. Crie a conta no Console Firebase.', 'info');
+        // Cria conta no Firebase Auth via instância auxiliar e salva as permissões no DB
+        const uid = await window._criarUsuarioFirebase(email, senha);
+        await window._fbSet('admin/usuarios/' + uid, { nomeCompleto: nome, email, perms, criadoEm: new Date().toISOString() });
+        toast(`Conta criada para ${nome}!`, 'success');
       }
       fecharModalUser();
       carregarUsuarios();
-    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+    } catch(e) {
+      const msg = e.code === 'auth/email-already-in-use' ? 'Este e-mail já possui uma conta.'
+                : e.code === 'auth/invalid-email'        ? 'E-mail inválido.'
+                : e.code === 'auth/weak-password'        ? 'Senha fraca — use pelo menos 6 caracteres.'
+                : 'Erro: ' + e.message;
+      toast(msg, 'error');
+    }
     btn.disabled = false; btn.innerHTML = editandoUserId ? '<i class="fas fa-floppy-disk"></i> Atualizar' : '<i class="fas fa-floppy-disk"></i> Criar Usuário';
   }
 
@@ -955,8 +961,8 @@
   </script>
 
   <script type="module">
-    import { initializeApp }  from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { initializeApp, deleteApp }  from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
     import { getDatabase, ref, get, set, remove } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
     const app  = initializeApp(window.FIREBASE_CONFIG);
@@ -967,6 +973,21 @@
     // Helpers globais para operações de escrita/remoção
     window._fbSet    = (path, data)  => set(ref(db, path), data);
     window._fbRemove = (path)        => remove(ref(db, path));
+
+    // Cria conta Firebase Auth sem deslogar o admin (usa segunda instância temporária)
+    window._criarUsuarioFirebase = async function(email, senha) {
+      let appAux = null;
+      try {
+        appAux = initializeApp(window.FIREBASE_CONFIG, 'aux_create_' + Date.now());
+        const authAux = getAuth(appAux);
+        const cred = await createUserWithEmailAndPassword(authAux, email, senha);
+        const uid = cred.user.uid;
+        await signOut(authAux);
+        return uid;
+      } finally {
+        if (appAux) deleteApp(appAux).catch(() => {});
+      }
+    };
 
     onAuthStateChanged(auth, async user => {
       if (!user) { irPara('login.html'); return; }
