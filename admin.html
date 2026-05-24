@@ -121,6 +121,7 @@
             <label class="perm-check"><input type="checkbox" id="pOrc"> <span class="perm-check-label">Orçamentos</span></label>
             <label class="perm-check"><input type="checkbox" id="pExames"> <span class="perm-check-label">Exames</span></label>
             <label class="perm-check"><input type="checkbox" id="pCrono"> <span class="perm-check-label">Cronograma</span></label>
+            <label class="perm-check"><input type="checkbox" id="pCaixa"> <span class="perm-check-label">Caixa</span></label>
             <label class="perm-check"><input type="checkbox" id="pFin"> <span class="perm-check-label">Financeiro</span></label>
             <label class="perm-check"><input type="checkbox" id="pFech"> <span class="perm-check-label">Fechamento</span></label>
             <label class="perm-check"><input type="checkbox" id="pAdmin"> <span class="perm-check-label" style="color:var(--amber);">⚡ Admin</span></label>
@@ -453,7 +454,7 @@
     document.getElementById('modalUserTitle').textContent = uid ? 'Editar Usuário' : 'Novo Usuário';
     document.getElementById('btnSalvarUser').innerHTML = uid ? '<i class="fas fa-floppy-disk"></i> Atualizar' : '<i class="fas fa-floppy-disk"></i> Criar Usuário';
     ['uNome','uEmail','uSenha'].forEach(id => document.getElementById(id).value = '');
-    ['pOrc','pExames','pCrono','pFin','pFech','pAdmin'].forEach(id => document.getElementById(id).checked = false);
+    ['pOrc','pExames','pCrono','pCaixa','pFin','pFech','pAdmin'].forEach(id => document.getElementById(id).checked = false);
     if (uid && usuarios[uid]) {
       const u = usuarios[uid];
       document.getElementById('uNome').value  = u.nomeCompleto || '';
@@ -462,6 +463,7 @@
       document.getElementById('pOrc').checked    = !!p.orcamento;
       document.getElementById('pExames').checked = !!p.exames;
       document.getElementById('pCrono').checked  = !!p.cronograma;
+      document.getElementById('pCaixa').checked  = !!p.caixa;
       document.getElementById('pFin').checked    = !!p.financeiro;
       document.getElementById('pFech').checked   = !!p.fechamento;
       document.getElementById('pAdmin').checked  = !!p.admin;
@@ -481,6 +483,7 @@
       orcamento:  document.getElementById('pOrc').checked,
       exames:     document.getElementById('pExames').checked,
       cronograma: document.getElementById('pCrono').checked,
+      caixa:      document.getElementById('pCaixa').checked,
       financeiro: document.getElementById('pFin').checked,
       fechamento: document.getElementById('pFech').checked,
       admin:      document.getElementById('pAdmin').checked,

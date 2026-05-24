@@ -184,6 +184,11 @@
           <div><div class="pc-name">Cronograma</div><div class="pc-desc">Agenda diária por sala, checklist de abertura, notas e controle de caixa.</div></div>
           <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
         </div>
+        <div class="portal-card" id="cardCaixa" style="display:none;" onclick="abrirSistema('caixa.html','Caixa')">
+          <div class="pc-icon" style="background:#065f46;"><i class="fas fa-cash-register" style="color:white;font-size:22px;"></i></div>
+          <div><div class="pc-name">Caixa</div><div class="pc-desc">Controle diário de caixa, vales e relatório de produção gerado pelo AMEI.</div></div>
+          <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
+        </div>
         <div class="portal-card" id="cardAdmin" style="display:none;border-color:#fde68a;background:#fffbeb;" onclick="abrirSistema('admin.html','Painel Admin')">
           <div class="pc-icon" style="background:#92400e;"><i class="fas fa-shield-halved" style="color:white;font-size:22px;"></i></div>
           <div><div class="pc-name" style="color:#92400e;">Painel Admin</div><div class="pc-desc">Gerenciar usuários, clínica, atendentes e permissões de acesso.</div></div>
@@ -208,7 +213,7 @@
     carregarLogoGlobal(['#logoHeader']);
     carregarClinica();
 
-    const TODOS_CARDS = ['cardOrcamentos','cardFechamento','cardFinanceiro','cardExames','cardCronograma','cardAdmin'];
+    const TODOS_CARDS = ['cardOrcamentos','cardFechamento','cardFinanceiro','cardExames','cardCronograma','cardCaixa','cardAdmin'];
 
     function esconderSplash() {
       const s = document.getElementById('splashScreen');
@@ -272,6 +277,8 @@
       if (isAdmin || perms.financeiro) document.getElementById('cardFinanceiro').style.display = 'flex';
       if (isAdmin || perms.exames)     document.getElementById('cardExames').style.display     = 'flex';
       if (isAdmin || perms.cronograma) document.getElementById('cardCronograma').style.display = 'flex';
+      // Caixa: visível para todos os usuários autenticados
+      document.getElementById('cardCaixa').style.display = 'flex';
       if (isAdmin)                     document.getElementById('cardAdmin').style.display      = 'flex';
 
       // Revela o portal já montado
