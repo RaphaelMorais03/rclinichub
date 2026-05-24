@@ -547,7 +547,7 @@
     /* ── REMOVER DIA ── */
     window.removerDia = function(uid, dt) {
       if (!confirm('Remover relatório de ' + fmtData(dt) + '?')) return;
-      if (window.fbRemove) window.fbRemove('relatorios/' + uid + '/' + dt).catch(()=>{});
+      if (window.fbRemove) window.fbRemove('admin/relatorios/' + uid + '/' + dt).catch(()=>{});
     };
 
     /* ── TAXAS ── */
@@ -594,7 +594,7 @@
 
       // Carga inicial via get() — mais confiável que onValue para detectar erros
       function carregarDados() {
-        get(ref(db, 'relatorios')).then(snap => {
+        get(ref(db, 'admin/relatorios')).then(snap => {
           _dados = snap.val() || {};
           const opts = getMonthOptions(_dados);
           buildMesSelect(opts);
@@ -608,7 +608,7 @@
       window.carregarDados = carregarDados; // expõe para o botão Atualizar
 
       // Listener em tempo real (atualiza quando colaborador gera novo relatório)
-      onValue(ref(db, 'relatorios'), snap => {
+      onValue(ref(db, 'admin/relatorios'), snap => {
         _dados = snap.val() || {};
         const opts = getMonthOptions(_dados);
         buildMesSelect(opts);

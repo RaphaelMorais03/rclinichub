@@ -386,7 +386,7 @@
           })),
           dinheiroEntregar: d.dinheiroEntregar || null
         };
-        window.fbSet('relatorios/' + window.USER_UID + '/' + window.TK_FB, snap).catch(()=>{});
+        window.fbSet('admin/relatorios/' + window.USER_UID + '/' + window.TK_FB, snap).catch(()=>{});
       }
 
       // Carregar planilha NF em paralelo (não bloqueia se falhar)
