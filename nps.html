@@ -36,8 +36,16 @@
     .back-btn:hover{background:rgba(255,255,255,.2);}
     .content{max-width:1400px;margin:0 auto;padding:24px 24px 60px;}
 
+    /* ── TABS ── */
+    .tab-bar{display:flex;gap:4px;margin-bottom:20px;background:white;padding:6px;border-radius:12px;border:1px solid var(--gray-200);width:fit-content;box-shadow:var(--shadow);}
+    .tab-btn{padding:7px 18px;border-radius:8px;border:none;background:transparent;font-family:inherit;font-size:13px;font-weight:600;color:var(--gray-500);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:7px;}
+    .tab-btn.active{background:var(--navy);color:white;}
+    .tab-btn:hover:not(.active){background:var(--gray-100);}
+    .hist-badge{background:var(--red);color:white;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:800;min-width:18px;text-align:center;}
+    .tab-btn.active .hist-badge{background:rgba(255,255,255,.25);}
+
     /* ── UPLOAD ── */
-    .upload-zone{background:white;border:2.5px dashed var(--gray-300);border-radius:20px;padding:64px 30px;text-align:center;margin-top:16px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow);}
+    .upload-zone{background:white;border:2.5px dashed var(--gray-300);border-radius:20px;padding:64px 30px;text-align:center;margin-top:4px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow);}
     .upload-zone:hover,.upload-zone.drag{border-color:var(--navy);background:var(--gray-50);}
     .upload-icon{font-size:52px;color:var(--gray-300);margin-bottom:18px;display:block;}
     .upload-title{font-size:22px;font-weight:800;color:var(--navy);margin-bottom:8px;}
@@ -55,8 +63,8 @@
     .modal-sub{font-size:12px;color:var(--gray-500);margin-bottom:22px;line-height:1.6;}
     .mapper-row{margin-bottom:14px;}
     .mapper-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-500);margin-bottom:5px;display:block;}
-    .mapper-select{width:100%;padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:13px;color:var(--gray-800);background:var(--gray-50);outline:none;transition:border-color .2s;}
-    .mapper-select:focus{border-color:var(--navy);}
+    .mapper-select,.f-input-modal{width:100%;padding:9px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:13px;color:var(--gray-800);background:var(--gray-50);outline:none;transition:border-color .2s;}
+    .mapper-select:focus,.f-input-modal:focus{border-color:var(--navy);}
     .preview-wrap{overflow-x:auto;margin:14px 0;}
     .preview-table{width:100%;border-collapse:collapse;font-size:11px;}
     .preview-table th{background:var(--gray-100);padding:6px 10px;text-align:left;color:var(--gray-500);font-weight:700;white-space:nowrap;}
@@ -64,14 +72,19 @@
     .modal-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:10px;border-top:1px solid var(--gray-100);}
     .btn-p{padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .2s;}
     .btn-p:hover{background:var(--navy-mid);}
+    .btn-p:disabled{opacity:.5;cursor:not-allowed;}
     .btn-s{padding:9px 14px;background:var(--gray-100);color:var(--gray-600);border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
     .btn-s:hover{background:var(--gray-200);}
+    .btn-green{padding:8px 14px;background:#16a34a;color:white;border:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .2s;}
+    .btn-green:hover{background:var(--green);}
+    .btn-green:disabled{opacity:.5;cursor:not-allowed;}
 
     /* ── INFO BAR ── */
     .info-bar{background:white;border:1px solid var(--gray-200);border-radius:14px;padding:11px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:var(--shadow);}
     .file-chip{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:white;border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;}
     .info-chip{display:inline-flex;align-items:center;gap:5px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:600;color:var(--gray-600);}
     .scale-chip{background:var(--purple-bg);color:var(--purple);border:1px solid #c4b5fd;border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;}
+    .hist-chip{background:#f0fdf4;color:var(--green);border:1px solid #bbf7d0;border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;}
     .search-input{padding:7px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:13px;color:var(--gray-800);background:var(--gray-50);outline:none;min-width:200px;transition:border-color .2s;}
     .search-input:focus{border-color:var(--navy);}
 
@@ -140,13 +153,32 @@
     .n-pass{background:var(--blue-bg);color:var(--blue);}
     .n-detr{background:#fee2e2;color:var(--red);}
 
-    /* ── EMPTY ── */
+    /* ── HISTÓRICO ── */
+    .hist-section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--gray-400);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+    .hist-card{background:white;border:1px solid var(--gray-200);border-radius:14px;padding:16px 20px;box-shadow:var(--shadow);display:flex;align-items:center;gap:18px;margin-bottom:10px;transition:all .15s;}
+    .hist-card:hover{border-color:#c4b5fd;transform:translateY(-1px);}
+    .hist-nps-block{min-width:70px;text-align:center;flex-shrink:0;}
+    .hist-nps-val{font-size:32px;font-weight:900;letter-spacing:-.5px;line-height:1;}
+    .hist-zona-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;margin-top:4px;}
+    .hist-info{flex:1;min-width:0;}
+    .hist-title{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .hist-stats{font-size:11px;color:var(--gray-500);margin-bottom:3px;}
+    .hist-meta{font-size:10px;color:var(--gray-400);}
+    .hist-actions{display:flex;gap:6px;flex-shrink:0;}
+    .btn-danger{padding:7px 10px;background:#fee2e2;color:var(--red);border:1.5px solid #fecaca;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+    .btn-danger:hover{background:var(--red);color:white;}
+    .hist-dist{display:flex;height:5px;border-radius:3px;overflow:hidden;gap:1px;margin-top:6px;width:80px;}
+    .month-group{margin-bottom:28px;}
+
+    /* ── EMPTY / BANNER ── */
     .empty-state{text-align:center;padding:48px 20px;color:var(--gray-400);}
     .empty-state i{font-size:36px;margin-bottom:12px;display:block;opacity:.3;}
     .empty-state p{font-size:13px;font-weight:600;}
+    .hist-banner{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;color:var(--green);}
+    .hist-banner button{margin-left:auto;padding:5px 12px;background:var(--green);color:white;border:none;border-radius:7px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;}
 
     @media(max-width:1024px){.kpi-grid{grid-template-columns:1fr 1fr 1fr;}.dash-grid{grid-template-columns:1fr;}}
-    @media(max-width:640px){.kpi-grid{grid-template-columns:1fr 1fr;}.content{padding:14px 14px 60px;}}
+    @media(max-width:640px){.kpi-grid{grid-template-columns:1fr 1fr;}.content{padding:14px 14px 60px;}.hist-card{flex-wrap:wrap;}.hist-actions{width:100%;justify-content:flex-end;}}
   </style>
 </head>
 <body>
@@ -164,6 +196,17 @@
   </header>
 
   <div class="content">
+
+    <!-- ── TAB BAR ── -->
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tabImportar" onclick="setTab('importar')">
+        <i class="fas fa-file-arrow-up"></i> Nova Importação
+      </button>
+      <button class="tab-btn" id="tabHistorico" onclick="setTab('historico')">
+        <i class="fas fa-clock-rotate-left"></i> Histórico
+        <span class="hist-badge" id="histCount">0</span>
+      </button>
+    </div>
 
     <!-- ── UPLOAD ── -->
     <div id="uploadSection">
@@ -226,17 +269,61 @@
       </div>
     </div>
 
+    <!-- ── MODAL SALVAR PERÍODO ── -->
+    <div class="modal-overlay" id="saveModal" style="display:none;">
+      <div class="modal-box" style="max-width:420px;">
+        <div class="modal-title">
+          <i class="fas fa-cloud-arrow-up" style="color:var(--green);"></i>
+          Salvar período no histórico
+        </div>
+        <div class="modal-sub">
+          Os resultados serão salvos permanentemente e poderão ser visualizados por todos os administradores a qualquer momento.
+        </div>
+        <div class="mapper-row">
+          <label class="mapper-label">📅 Mês de referência *</label>
+          <input type="month" id="savePeriodo" class="mapper-select" style="cursor:pointer;">
+        </div>
+        <div class="mapper-row">
+          <label class="mapper-label">🏷️ Rótulo (opcional)</label>
+          <input type="text" id="saveLabel" class="f-input-modal" placeholder="Ex: Semana 1, Exportação completa...">
+        </div>
+        <div id="saveInfo" style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--gray-600);margin-bottom:16px;display:none;">
+          <i class="fas fa-info-circle" style="color:var(--blue);"></i>
+          <span id="saveInfoTxt"></span>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-s" onclick="document.getElementById('saveModal').style.display='none'">
+            <i class="fas fa-times"></i> Cancelar
+          </button>
+          <button class="btn-p" id="btnConfirmarSalvar" onclick="confirmarSalvar()">
+            <i class="fas fa-cloud-arrow-up"></i> Salvar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── DASHBOARD ── -->
     <div id="dashSection" style="display:none;">
+
+      <!-- Banner histórico -->
+      <div class="hist-banner" id="histBanner" style="display:none;">
+        <i class="fas fa-clock-rotate-left"></i>
+        <span id="histBannerTxt">Visualizando dados do histórico</span>
+        <button onclick="voltarUpload()"><i class="fas fa-rotate-right"></i> Nova Importação</button>
+      </div>
 
       <!-- Info bar -->
       <div class="info-bar">
         <span class="file-chip"><i class="fas fa-file-csv"></i> <span id="infoFile">—</span></span>
         <span class="info-chip" id="infoPeriod" style="display:none;"><i class="fas fa-calendar-range"></i> <span id="infoPeriodTxt"></span></span>
         <span class="scale-chip" id="infoScale"></span>
+        <span class="hist-chip" id="infoHistChip" style="display:none;"><i class="fas fa-cloud-check"></i> Dados salvos</span>
         <input class="search-input" type="text" id="searchInput" placeholder="🔍 Buscar atendente..." oninput="filtrar(this.value)">
         <span style="margin-left:auto;font-size:11px;color:var(--gray-400);" id="infoCount"></span>
-        <button class="btn-s" onclick="resetar()"><i class="fas fa-rotate-right"></i> Nova importação</button>
+        <button class="btn-green" id="btnSalvar" style="display:none;" onclick="abrirSalvar()">
+          <i class="fas fa-cloud-arrow-up"></i> Salvar período
+        </button>
+        <button class="btn-s" onclick="voltarUpload()"><i class="fas fa-rotate-right"></i> Nova importação</button>
       </div>
 
       <!-- KPIs -->
@@ -313,7 +400,18 @@
         </div>
       </div>
     </div>
-  </div>
+
+    <!-- ── HISTÓRICO ── -->
+    <div id="historicoSection" style="display:none;">
+      <div id="histList">
+        <div class="empty-state">
+          <i class="fas fa-clock-rotate-left"></i>
+          <p>Carregando histórico...</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
 
   <script>
     /* ════════════════════════════════════════
@@ -321,13 +419,16 @@
     ════════════════════════════════════════ */
     let _rawData     = [];
     let _headers     = [];
-    let _colMap      = {};          // { atendente, resposta, data, comentario }
+    let _colMap      = {};
     let _scale       = 5;
     let _allRanking  = [];
     let _viewRanking = [];
     let _chartInst   = null;
     let _openRow     = null;
     let _fileName    = '';
+    let _aggregated  = null;   // resumo processado pronto para salvar
+    let _histMode    = false;  // true quando visualizando dados do histórico
+    let _activeTab   = 'importar';
 
     /* ════════════════════════════════════════
        DETECÇÃO DE COLUNAS
@@ -360,7 +461,6 @@
         for (const [field, aliases] of Object.entries(ALIASES)) {
           if (found[field]) continue;
           if (aliases.includes(hn)) { found[field] = h; return; }
-          // match parcial
           if (aliases.some(a => hn.length >= 4 && (hn.includes(a) || a.includes(hn)))) {
             found[field] = h;
           }
@@ -395,7 +495,7 @@
     function badgeZona(nps) {
       const z = zonaInfo(nps);
       const cls = nps>=75?'b-excel':nps>=50?'b-qual':nps>=0?'b-aper':'b-crit';
-      return `<span class="badge ${cls}">${z.label.replace('Zona de ','').replace('Zona ','')} </span>`;
+      return `<span class="badge ${cls}">${z.label.replace('Zona de ','').replace('Zona ','')}</span>`;
     }
 
     function pct(n, t) { return t > 0 ? Math.round(n / t * 100) : 0; }
@@ -415,7 +515,7 @@
         skipEmptyLines: true,
         transformHeader: h => h.replace(/^﻿/, '').trim(),
         complete(results) {
-          if (!results.data.length) { alert('Arquivo vazio ou sem dados reconhecíveis.'); return; }
+          if (!results.data.length) { toast('Arquivo vazio ou sem dados reconhecíveis.','error'); return; }
           _rawData = results.data;
           _headers = results.meta.fields || [];
           const detected = detectColumns(_headers);
@@ -426,7 +526,7 @@
             processData();
           }
         },
-        error(err) { alert('Erro ao ler o arquivo: ' + (err.message || err)); }
+        error(err) { toast('Erro ao ler o arquivo: ' + (err.message || err),'error'); }
       });
     }
 
@@ -446,20 +546,16 @@
     function showMapper(detected) {
       const none = '<option value="">— não disponível —</option>';
       const opts = _headers.map(h => `<option value="${esc(h)}">${esc(h)}</option>`).join('');
-
       ['mapAtendente','mapResposta'].forEach(id => {
         document.getElementById(id).innerHTML = opts;
       });
       ['mapData','mapComentario'].forEach(id => {
         document.getElementById(id).innerHTML = none + opts;
       });
-
       if (detected.atendente)  document.getElementById('mapAtendente').value  = detected.atendente;
       if (detected.resposta)   document.getElementById('mapResposta').value   = detected.resposta;
       if (detected.data)       document.getElementById('mapData').value       = detected.data;
       if (detected.comentario) document.getElementById('mapComentario').value = detected.comentario;
-
-      // Prévia
       const rows3 = _rawData.slice(0, 3);
       const head  = `<thead><tr>${_headers.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead>`;
       const body  = `<tbody>${rows3.map(r=>`<tr>${_headers.map(h=>`<td>${esc(String(r[h]||''))}</td>`).join('')}</tr>`).join('')}</tbody>`;
@@ -475,7 +571,7 @@
     window.confirmarMapeamento = function() {
       const a = document.getElementById('mapAtendente').value;
       const r = document.getElementById('mapResposta').value;
-      if (!a || !r) { alert('Selecione ao menos Atendente e Nota/Resposta.'); return; }
+      if (!a || !r) { toast('Selecione ao menos Atendente e Nota/Resposta.','error'); return; }
       _colMap = {
         atendente:  a,
         resposta:   r,
@@ -491,7 +587,6 @@
     ════════════════════════════════════════ */
     function processData() {
       const { atendente:cA, resposta:cR, data:cD, comentario:cC } = _colMap;
-
       _scale = detectScale(_rawData, cR);
 
       let tP=0, tS=0, tD=0, tT=0;
@@ -503,44 +598,72 @@
         const raw  = String(row[cR] || '').replace(',', '.').trim();
         const val  = parseFloat(raw);
         if (isNaN(val) || val < 0) return;
-
         tT++;
         if (!map[nome]) map[nome] = { nome, total:0, p:0, s:0, d:0, pesquisas:[] };
         map[nome].total++;
-
         const tipo = classify(val, _scale);
         if (tipo==='p') { tP++; map[nome].p++; }
         else if (tipo==='s') { tS++; map[nome].s++; }
         else { tD++; map[nome].d++; }
-
         map[nome].pesquisas.push({
-          val,
-          tipo,
+          val, tipo,
           data:       cD ? (row[cD] || '') : null,
           comentario: cC ? (row[cC] || '') : null
         });
-
         if (cD && row[cD]) datas.push(row[cD]);
       });
 
-      if (!tT) { alert('Nenhuma nota numérica válida encontrada na coluna selecionada.'); return; }
+      if (!tT) { toast('Nenhuma nota numérica válida encontrada na coluna selecionada.','error'); return; }
 
       _allRanking = Object.values(map)
         .map(a => ({ ...a, nps: calcNPS(a.p, a.d, a.total) }))
         .sort((a, b) => b.nps - a.nps || b.total - a.total);
-
       _viewRanking = [..._allRanking];
 
-      /* KPIs */
+      // Armazenar resumo para salvar
+      _aggregated = {
+        npsGeral:       calcNPS(tP, tD, tT),
+        totalPesquisas: tT,
+        promotores:     tP,
+        passivos:       tS,
+        detratores:     tD,
+        escala:         _scale,
+        nomeArquivo:    _fileName,
+        ranking:        _allRanking.map(({nome,total,p,s,d,nps}) => ({nome,total,p,s,d,nps}))
+      };
+
+      atualizarKPIs(tP, tS, tD, tT, datas);
+      renderChart(_viewRanking);
+      renderRanking(_viewRanking);
+
+      // Info bar
+      document.getElementById('infoFile').textContent  = _fileName;
+      document.getElementById('infoScale').textContent = 'Escala 1–' + _scale;
+      document.getElementById('infoCount').textContent = tT + ' pesquisas · ' + _allRanking.length + ' atendentes';
+      document.getElementById('infoHistChip').style.display = 'none';
+
+      // Mostrar botão salvar
+      const btnS = document.getElementById('btnSalvar');
+      btnS.style.display   = 'inline-flex';
+      btnS.disabled        = false;
+      btnS.innerHTML       = '<i class="fas fa-cloud-arrow-up"></i> Salvar período';
+
+      // Ocultar banner histórico
+      document.getElementById('histBanner').style.display = 'none';
+      _histMode = false;
+
+      document.getElementById('uploadSection').style.display = 'none';
+      document.getElementById('dashSection').style.display   = 'block';
+      setTab('importar', true); // ativa aba sem esconder dashSection
+    }
+
+    function atualizarKPIs(tP, tS, tD, tT, datas) {
       const nps  = calcNPS(tP, tD, tT);
       const zona = zonaInfo(nps);
-
       document.getElementById('kpiNPS').textContent   = nps;
       document.getElementById('kpiNPS').style.color   = zona.color;
       const zEl = document.getElementById('kpiZone');
-      zEl.textContent        = zona.label;
-      zEl.style.background   = zona.bg;
-      zEl.style.color        = zona.color;
+      zEl.textContent = zona.label; zEl.style.background = zona.bg; zEl.style.color = zona.color;
       document.getElementById('kpiTotal').textContent = tT;
       document.getElementById('kpiAtend').textContent = _allRanking.length + ' atendente(s)';
       document.getElementById('kpiProm').textContent  = tP;
@@ -549,29 +672,273 @@
       document.getElementById('kpiPromPct').textContent = pct(tP,tT) + '% do total';
       document.getElementById('kpiPassPct').textContent = pct(tS,tT) + '% do total';
       document.getElementById('kpiDetrPct').textContent = pct(tD,tT) + '% do total';
-
       document.getElementById('distBar').innerHTML =
-        `<div style="flex:${tP||0};background:var(--green);"></div>` +
-        `<div style="flex:${tS||0};background:var(--blue);"></div>` +
-        `<div style="flex:${tD||0};background:var(--red);"></div>`;
-
-      /* Info bar */
-      document.getElementById('infoFile').textContent  = _fileName;
-      document.getElementById('infoScale').textContent = 'Escala 1–' + _scale;
-      document.getElementById('infoCount').textContent = tT + ' pesquisas · ' + _allRanking.length + ' atendentes';
-      if (datas.length) {
+        `<div style="flex:${tP||1};background:var(--green);"></div>` +
+        `<div style="flex:${tS||1};background:var(--blue);"></div>` +
+        `<div style="flex:${tD||1};background:var(--red);"></div>`;
+      if (datas && datas.length) {
         const sorted = [...datas].sort();
-        document.getElementById('infoPeriodTxt').textContent =
-          sorted[0] + ' → ' + sorted[sorted.length - 1];
+        document.getElementById('infoPeriodTxt').textContent = sorted[0] + ' → ' + sorted[sorted.length - 1];
         document.getElementById('infoPeriod').style.display = 'inline-flex';
+      } else {
+        document.getElementById('infoPeriod').style.display = 'none';
+      }
+    }
+
+    /* ════════════════════════════════════════
+       SALVAR PERÍODO
+    ════════════════════════════════════════ */
+    window.abrirSalvar = function() {
+      if (!_aggregated) return;
+      const now  = new Date();
+      const yyyy = now.getFullYear();
+      const mm   = String(now.getMonth()+1).padStart(2,'0');
+      document.getElementById('savePeriodo').value = yyyy + '-' + mm;
+      document.getElementById('saveLabel').value   = '';
+      // Info resumo
+      const inf = document.getElementById('saveInfo');
+      document.getElementById('saveInfoTxt').textContent =
+        `${_aggregated.totalPesquisas} pesquisas · NPS ${_aggregated.npsGeral} · ${_aggregated.ranking.length} atendentes · Escala 1–${_aggregated.escala}`;
+      inf.style.display = 'block';
+      document.getElementById('btnConfirmarSalvar').disabled = false;
+      document.getElementById('saveModal').style.display = 'flex';
+    };
+
+    window.confirmarSalvar = async function() {
+      const periodo = document.getElementById('savePeriodo').value;
+      if (!periodo) { toast('Selecione o mês de referência','error'); return; }
+      if (!_aggregated) return;
+      if (!window.fbNpsPush) { toast('Firebase não inicializado','error'); return; }
+
+      const label = document.getElementById('saveLabel').value.trim();
+      const snap = {
+        periodo,
+        label:          label || null,
+        importadoEm:    new Date().toISOString(),
+        importadoPor:   sessionStorage.getItem('usuario') || '—',
+        nomeArquivo:    _aggregated.nomeArquivo,
+        escala:         _aggregated.escala,
+        npsGeral:       _aggregated.npsGeral,
+        totalPesquisas: _aggregated.totalPesquisas,
+        promotores:     _aggregated.promotores,
+        passivos:       _aggregated.passivos,
+        detratores:     _aggregated.detratores,
+        ranking:        _aggregated.ranking
+      };
+
+      document.getElementById('btnConfirmarSalvar').disabled = true;
+      document.getElementById('btnConfirmarSalvar').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Salvando...';
+
+      try {
+        await window.fbNpsPush('nps/' + periodo, snap);
+        document.getElementById('saveModal').style.display = 'none';
+        toast('Período salvo com sucesso! ✅','success');
+
+        // Atualiza botão salvar
+        const btnS = document.getElementById('btnSalvar');
+        btnS.innerHTML = '<i class="fas fa-check"></i> Salvo';
+        btnS.disabled  = true;
+
+        // Mostra chip "Dados salvos"
+        document.getElementById('infoHistChip').style.display = 'inline-flex';
+
+        // Atualiza badge do histórico
+        carregarContadorHistorico();
+      } catch(e) {
+        toast('Erro ao salvar: ' + e.message, 'error');
+        document.getElementById('btnConfirmarSalvar').disabled = false;
+        document.getElementById('btnConfirmarSalvar').innerHTML = '<i class="fas fa-cloud-arrow-up"></i> Salvar';
+      }
+    };
+
+    /* ════════════════════════════════════════
+       HISTÓRICO
+    ════════════════════════════════════════ */
+    function carregarContadorHistorico() {
+      if (!window.fbNpsGet) return;
+      window.fbNpsGet('nps').then(snap => {
+        const data = snap.val() || {};
+        let total = 0;
+        Object.values(data).forEach(periodo => {
+          total += Object.keys(periodo).length;
+        });
+        document.getElementById('histCount').textContent = total;
+      }).catch(()=>{});
+    }
+
+    window.setTab = function(tab, preserveDash) {
+      _activeTab = tab;
+      document.getElementById('tabImportar').classList.toggle('active', tab === 'importar');
+      document.getElementById('tabHistorico').classList.toggle('active', tab === 'historico');
+
+      if (tab === 'historico') {
+        document.getElementById('uploadSection').style.display  = 'none';
+        document.getElementById('dashSection').style.display    = 'none';
+        document.getElementById('historicoSection').style.display = 'block';
+        carregarHistorico();
+      } else {
+        document.getElementById('historicoSection').style.display = 'none';
+        if (!preserveDash) {
+          // Se há dados carregados (de CSV ou histórico), mostra dash; senão, upload
+          const temDados = _allRanking.length > 0;
+          document.getElementById('dashSection').style.display    = temDados ? 'block' : 'none';
+          document.getElementById('uploadSection').style.display  = temDados ? 'none'  : 'block';
+        }
+      }
+    };
+
+    function carregarHistorico() {
+      if (!window.fbNpsGet) {
+        document.getElementById('histList').innerHTML =
+          '<div class="empty-state"><i class="fas fa-wifi-slash"></i><p>Firebase não inicializado</p></div>';
+        return;
+      }
+      document.getElementById('histList').innerHTML =
+        '<div class="empty-state"><i class="fas fa-spinner fa-spin" style="opacity:.5;"></i><p>Carregando...</p></div>';
+
+      window.fbNpsGet('nps').then(snap => {
+        renderHistorico(snap.val() || {});
+      }).catch(err => {
+        document.getElementById('histList').innerHTML =
+          `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Erro ao carregar: ${esc(err.message||'')}</p></div>`;
+      });
+    }
+
+    function renderHistorico(data) {
+      // data = { "2026-05": { pushId: {...}, ... }, ... }
+      const periodos = Object.entries(data).sort((a,b) => b[0].localeCompare(a[0]));
+
+      let total = 0;
+      periodos.forEach(([, imp]) => total += Object.keys(imp).length);
+      document.getElementById('histCount').textContent = total;
+
+      if (!periodos.length) {
+        document.getElementById('histList').innerHTML =
+          '<div class="empty-state"><i class="fas fa-clock-rotate-left"></i><p>Nenhum período salvo ainda.<br>Importe um CSV e clique em "Salvar período".</p></div>';
+        return;
       }
 
-      renderChart(_viewRanking);
-      renderRanking(_viewRanking);
+      let html = '';
+      periodos.forEach(([periodo, imports]) => {
+        const [yyyy, mm] = periodo.split('-');
+        const mesNome = new Date(Number(yyyy), Number(mm)-1, 1)
+          .toLocaleDateString('pt-BR', { month:'long', year:'numeric' });
 
-      document.getElementById('uploadSection').style.display = 'none';
-      document.getElementById('dashSection').style.display   = 'block';
+        html += `<div class="month-group">
+          <div class="hist-section-title">
+            <i class="fas fa-calendar-alt"></i> ${mesNome}
+          </div>`;
+
+        Object.entries(imports)
+          .sort((a,b) => (b[1].importadoEm||'').localeCompare(a[1].importadoEm||''))
+          .forEach(([id, d]) => {
+            const zona    = zonaInfo(d.npsGeral);
+            const dataFmt = d.importadoEm
+              ? new Date(d.importadoEm).toLocaleDateString('pt-BR',
+                  {day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})
+              : '—';
+            const tP = d.promotores||0, tS = d.passivos||0, tD = d.detratores||0, tT = d.totalPesquisas||0;
+
+            html += `
+            <div class="hist-card">
+              <div class="hist-nps-block">
+                <div class="hist-nps-val" style="color:${zona.color};">${d.npsGeral}</div>
+                <div class="hist-zona-badge" style="background:${zona.bg};color:${zona.color};">
+                  ${zona.label.replace('Zona de ','').replace('Zona ','')}
+                </div>
+                <div class="hist-dist" style="margin:6px auto 0;">
+                  <div style="flex:${tP||1};background:var(--green);"></div>
+                  <div style="flex:${tS||1};background:var(--blue);"></div>
+                  <div style="flex:${tD||1};background:var(--red);"></div>
+                </div>
+              </div>
+              <div class="hist-info">
+                <div class="hist-title">${esc(d.label || d.nomeArquivo || periodo)}</div>
+                <div class="hist-stats">
+                  ${tT} pesquisas &nbsp;·&nbsp;
+                  ${(d.ranking||[]).length} atendentes &nbsp;·&nbsp;
+                  Escala 1–${d.escala||'?'} &nbsp;·&nbsp;
+                  <span style="color:var(--green);">▮</span> ${tP} &nbsp;
+                  <span style="color:var(--blue);">▮</span> ${tS} &nbsp;
+                  <span style="color:var(--red);">▮</span> ${tD}
+                </div>
+                <div class="hist-meta">Salvo em ${dataFmt} por ${esc(d.importadoPor||'—')}</div>
+              </div>
+              <div class="hist-actions">
+                <button class="btn-p" onclick="carregarSalvo('${esc(periodo)}','${esc(id)}')">
+                  <i class="fas fa-eye"></i> Visualizar
+                </button>
+                <button class="btn-danger" onclick="deletarSalvo('${esc(periodo)}','${esc(id)}')" title="Excluir">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>`;
+          });
+
+        html += '</div>';
+      });
+
+      document.getElementById('histList').innerHTML = html;
     }
+
+    window.carregarSalvo = function(periodo, id) {
+      if (!window.fbNpsGet) return;
+      window.fbNpsGet('nps/' + periodo + '/' + id).then(snap => {
+        const d = snap.val();
+        if (!d) { toast('Dados não encontrados','error'); return; }
+
+        // Carrega ranking (sem pesquisas individuais)
+        _allRanking  = (d.ranking||[]).map(r => ({ ...r, pesquisas:[] }));
+        _viewRanking = [..._allRanking];
+        _scale       = d.escala || 10;
+        _fileName    = d.nomeArquivo || periodo;
+        _aggregated  = null; // não salvar novamente
+        _histMode    = true;
+
+        const tP=d.promotores||0, tS=d.passivos||0, tD=d.detratores||0, tT=d.totalPesquisas||0;
+        const [yyyy,mm] = periodo.split('-');
+        const mesNome = new Date(Number(yyyy),Number(mm)-1,1)
+          .toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+
+        atualizarKPIs(tP, tS, tD, tT, null);
+
+        // Info bar
+        document.getElementById('infoFile').textContent  = d.label || d.nomeArquivo || periodo;
+        document.getElementById('infoScale').textContent = 'Escala 1–' + _scale;
+        document.getElementById('infoCount').textContent = tT + ' pesquisas · ' + _allRanking.length + ' atendentes';
+        document.getElementById('infoPeriod').style.display   = 'none';
+        document.getElementById('infoHistChip').style.display = 'none';
+        document.getElementById('btnSalvar').style.display    = 'none';
+
+        // Banner
+        const ban = document.getElementById('histBanner');
+        document.getElementById('histBannerTxt').textContent =
+          `Histórico: ${d.label ? esc(d.label) + ' — ' : ''}${mesNome}`;
+        ban.style.display = 'flex';
+
+        renderChart(_viewRanking);
+        renderRanking(_viewRanking);
+
+        // Muda para aba importar e exibe dash
+        document.getElementById('historicoSection').style.display = 'none';
+        document.getElementById('uploadSection').style.display    = 'none';
+        document.getElementById('dashSection').style.display      = 'block';
+        _activeTab = 'importar';
+        document.getElementById('tabImportar').classList.add('active');
+        document.getElementById('tabHistorico').classList.remove('active');
+
+        toast('Período carregado: ' + (d.label || mesNome),'success');
+      }).catch(e => toast('Erro: ' + esc(e.message||e),'error'));
+    };
+
+    window.deletarSalvo = function(periodo, id) {
+      if (!confirm('Excluir este registro do histórico?\n\nEsta ação não pode ser desfeita.')) return;
+      if (!window.fbNpsRemove) return;
+      window.fbNpsRemove('nps/' + periodo + '/' + id).then(() => {
+        toast('Registro excluído','success');
+        carregarHistorico();
+      }).catch(e => toast('Erro: ' + esc(e.message||e),'error'));
+    };
 
     /* ════════════════════════════════════════
        GRÁFICO
@@ -593,10 +960,7 @@
         type: 'bar',
         data: {
           labels,
-          datasets: [{
-            label: 'NPS', data, backgroundColor: colors,
-            borderRadius: 5, borderSkipped: false
-          }]
+          datasets: [{ label:'NPS', data, backgroundColor:colors, borderRadius:5, borderSkipped:false }]
         },
         options: {
           indexAxis: 'y',
@@ -606,9 +970,9 @@
             x: {
               min: -100, max: 100,
               grid: { color: 'rgba(0,0,0,.05)' },
-              ticks: { font: { size: 11, family: 'Inter' } }
+              ticks: { font: { size:11, family:'Inter' } }
             },
-            y: { ticks: { font: { size: 11, family: 'Inter' }, color: '#334155' } }
+            y: { ticks: { font: { size:11, family:'Inter' }, color:'#334155' } }
           }
         }
       });
@@ -621,7 +985,6 @@
       _openRow = null;
       document.getElementById('rankLabel').textContent = ranking.length + ' atendente(s)';
       const tbody = document.getElementById('rankBody');
-
       if (!ranking.length) {
         tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">
           <i class="fas fa-user-slash"></i><p>Nenhum atendente encontrado</p>
@@ -631,39 +994,50 @@
 
       const hasData = !!_colMap.data;
       const hasCom  = !!_colMap.comentario;
+      const temPesquisas = ranking.some(r => r.pesquisas && r.pesquisas.length > 0);
 
       let html = '';
       ranking.forEach((r, i) => {
-        const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
-        const pos   = medal || `<span class="rank-num">#${i+1}</span>`;
+        const medal    = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+        const pos      = medal || `<span class="rank-num">#${i+1}</span>`;
         const npsColor = zonaInfo(r.nps).color;
-        const pW = pct(r.p, r.total), sW = pct(r.s, r.total), dW = pct(r.d, r.total);
 
-        // Header do detalhe
-        const dtHead = `<tr>
-          <th>Nota</th><th>Tipo</th>
-          ${hasData ? '<th>Data</th>' : ''}
-          ${hasCom  ? '<th>Comentário</th>' : ''}
-        </tr>`;
-
-        // Linhas do detalhe (limite 200)
-        const detRows = r.pesquisas.slice(0, 200).map(p => `<tr>
-          <td><span class="note-circle n-${p.tipo}">${p.val}</span></td>
-          <td>${p.tipo==='p'
-            ? '<span class="badge b-excel">Promotor</span>'
-            : p.tipo==='d'
-            ? '<span class="badge b-crit">Detrator</span>'
-            : '<span class="badge b-qual">Passivo</span>'
-          }</td>
-          ${hasData ? `<td style="color:var(--gray-500);">${esc(p.data||'—')}</td>` : ''}
-          ${hasCom  ? `<td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;">${esc(p.comentario||'—')}</td>` : ''}
-        </tr>`).join('');
-
-        const aviso = r.pesquisas.length > 200
-          ? `<tr><td colspan="${2+(hasData?1:0)+(hasCom?1:0)}" style="text-align:center;font-size:11px;color:var(--gray-400);padding:8px;">
-              Exibindo 200 de ${r.pesquisas.length} pesquisas
-             </td></tr>`
-          : '';
+        let detalheHtml = '';
+        if (!temPesquisas || !r.pesquisas || !r.pesquisas.length) {
+          // Modo histórico — sem pesquisas individuais
+          detalheHtml = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--gray-400);">
+            <i class="fas fa-info-circle"></i>
+            Pesquisas individuais não disponíveis — dados carregados do histórico.
+            <div style="margin-top:8px;display:flex;justify-content:center;gap:20px;font-weight:700;">
+              <span style="color:var(--green);">▲ ${r.p} promotores</span>
+              <span style="color:var(--blue);">▬ ${r.s} passivos</span>
+              <span style="color:var(--red);">▼ ${r.d} detratores</span>
+            </div>
+          </div>`;
+        } else {
+          const dtHead = `<tr>
+            <th>Nota</th><th>Tipo</th>
+            ${hasData ? '<th>Data</th>' : ''}
+            ${hasCom  ? '<th>Comentário</th>' : ''}
+          </tr>`;
+          const detRows = r.pesquisas.slice(0,200).map(p => `<tr>
+            <td><span class="note-circle n-${p.tipo}">${p.val}</span></td>
+            <td>${p.tipo==='p'
+              ? '<span class="badge b-excel">Promotor</span>'
+              : p.tipo==='d'
+              ? '<span class="badge b-crit">Detrator</span>'
+              : '<span class="badge b-qual">Passivo</span>'
+            }</td>
+            ${hasData ? `<td style="color:var(--gray-500);">${esc(p.data||'—')}</td>` : ''}
+            ${hasCom  ? `<td style="max-width:280px;overflow:hidden;text-overflow:ellipsis;">${esc(p.comentario||'—')}</td>` : ''}
+          </tr>`).join('');
+          const aviso = r.pesquisas.length > 200
+            ? `<tr><td colspan="${2+(hasData?1:0)+(hasCom?1:0)}" style="text-align:center;font-size:11px;color:var(--gray-400);padding:8px;">
+                Exibindo 200 de ${r.pesquisas.length} pesquisas</td></tr>` : '';
+          detalheHtml = `<div class="det-table-wrap">
+            <table class="det-table"><thead>${dtHead}</thead><tbody>${detRows}${aviso}</tbody></table>
+          </div>`;
+        }
 
         html += `
         <tr class="main-row" id="mrow-${i}" onclick="toggleDetail(${i})">
@@ -685,12 +1059,7 @@
                 <span style="color:var(--blue);">▮</span> ${r.s} pass &nbsp;
                 <span style="color:var(--red);">▮</span> ${r.d} detr
               </div>
-              <div class="det-table-wrap">
-                <table class="det-table">
-                  <thead>${dtHead}</thead>
-                  <tbody>${detRows}${aviso}</tbody>
-                </table>
-              </div>
+              ${detalheHtml}
             </div>
           </td>
         </tr>`;
@@ -700,11 +1069,11 @@
 
     window.toggleDetail = function(i) {
       if (_openRow !== null && _openRow !== i) {
-        const old = document.getElementById('drow-' + _openRow);
+        const old  = document.getElementById('drow-' + _openRow);
         const oico = document.getElementById('eico-' + _openRow);
-        const omrow = document.getElementById('mrow-' + _openRow);
+        const omrow= document.getElementById('mrow-' + _openRow);
         if (old)   old.style.display = 'none';
-        if (oico)  oico.className = 'fas fa-chevron-down';
+        if (oico)  oico.className    = 'fas fa-chevron-down';
         if (omrow) omrow.classList.remove('open');
       }
       const drow = document.getElementById('drow-' + i);
@@ -730,15 +1099,21 @@
       renderRanking(_viewRanking);
     };
 
-    window.resetar = function() {
+    window.voltarUpload = function() {
       _rawData = []; _headers = []; _colMap = {};
-      _allRanking = []; _viewRanking = []; _openRow = null;
+      _allRanking = []; _viewRanking = []; _openRow = null; _aggregated = null; _histMode = false;
       if (_chartInst) { _chartInst.destroy(); _chartInst = null; }
-      document.getElementById('dashSection').style.display   = 'none';
-      document.getElementById('uploadSection').style.display = 'block';
+      document.getElementById('dashSection').style.display    = 'none';
+      document.getElementById('historicoSection').style.display = 'none';
+      document.getElementById('uploadSection').style.display  = 'block';
       document.getElementById('fileInput').value  = '';
       document.getElementById('searchInput').value = '';
       document.getElementById('infoPeriod').style.display = 'none';
+      document.getElementById('histBanner').style.display = 'none';
+      document.getElementById('btnSalvar').style.display   = 'none';
+      _activeTab = 'importar';
+      document.getElementById('tabImportar').classList.add('active');
+      document.getElementById('tabHistorico').classList.remove('active');
     };
 
     /* ── helper ── */
@@ -751,12 +1126,18 @@
   <script type="module">
     import { initializeApp }               from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
-    import { getDatabase, ref, get }       from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+    import { getDatabase, ref, get, push, remove }
+                                           from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
 
     const _app  = initializeApp(window.FIREBASE_CONFIG);
     const _auth = getAuth(_app);
     const _db   = getDatabase(_app);
     window.initFirebaseUtils(_db, ref, get);
+
+    /* Operações Firebase expostas para o script principal */
+    window.fbNpsGet    = (path)       => get(ref(_db, path));
+    window.fbNpsPush   = (path, data) => push(ref(_db, path), data);
+    window.fbNpsRemove = (path)       => remove(ref(_db, path));
 
     onAuthStateChanged(_auth, async user => {
       if (!user) { irPara('login.html'); return; }
@@ -770,6 +1151,17 @@
         if (user.email !== 'raphael@amorsaude.com') { irPara('login.html'); return; }
       }
       carregarLogoGlobal(['#headerLogo']);
+      // Carrega contador do histórico ao entrar
+      setTimeout(() => {
+        if (window.fbNpsGet) {
+          window.fbNpsGet('nps').then(snap => {
+            const data = snap.val() || {};
+            let total = 0;
+            Object.values(data).forEach(p => total += Object.keys(p).length);
+            document.getElementById('histCount').textContent = total;
+          }).catch(()=>{});
+        }
+      }, 800);
     });
   </script>
 </body>
