@@ -318,6 +318,7 @@
             descricao:  (p[1]||'').trim(),
             lancadoPor: (p[6]||'').trim(),
             paciente:   paciente || '—',
+            valor,
             fmtValor:   fmtBRL(valor),
             isDespesa:  isDesp,
             isTroco:    false
@@ -368,6 +369,24 @@
       const d = parseCaixa(txt);
       if (!d.lancamentos.length && !Object.keys(d.totForma).length) {
         toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); return;
+      }
+
+      // Salvar snapshot para o dashboard admin
+      if (window.fbSet && window.USER_UID) {
+        const snap = {
+          colaborador: sessionStorage.getItem('usuario') || '—',
+          uid:         window.USER_UID,
+          data:        window.TK_FB,
+          geradoEm:    new Date().toISOString(),
+          totForma:    d.totForma,
+          lancamentos: d.lancamentos.map(l => ({
+            hora: l.hora, tipo: l.tipo, forma: l.forma,
+            descricao: l.descricao, paciente: l.paciente,
+            valor: l.valor || 0, isDespesa: l.isDespesa
+          })),
+          dinheiroEntregar: d.dinheiroEntregar || null
+        };
+        window.fbSet('relatorios/' + window.USER_UID + '/' + window.TK_FB, snap).catch(()=>{});
       }
 
       // Carregar planilha NF em paralelo (não bloqueia se falhar)

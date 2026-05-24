@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Produção — Amor Saúde</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="js/firebase-config.js"></script>
+  <script src="js/shared-utils.js"></script>
+  <style>
+    :root{
+      --navy:#0A1F44;--navy-mid:#122b5e;--red:#C62828;--red-h:#ad1f1f;
+      --green:#15803d;--green-bg:#dcfce7;--amber:#b45309;--amber-bg:#fef3c7;
+      --purple:#6d28d9;--purple-bg:#ede9fe;
+      --blue:#1d4ed8;--blue-bg:#dbeafe;
+      --teal:#0d9488;--teal-bg:#f0fdfa;
+      --gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;
+      --gray-300:#cbd5e1;--gray-400:#94a3b8;--gray-500:#64748b;
+      --gray-600:#475569;--gray-700:#334155;--gray-800:#1e293b;
+      --shadow:0 4px 20px rgba(10,31,68,.08);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:'Inter',sans-serif;background:#f0f4f8;color:var(--gray-800);min-height:100vh;}
+    .red-bar{height:3px;background:var(--red);position:fixed;top:0;left:0;right:0;z-index:200;}
+    .s-header{background:var(--navy);border-bottom:2px solid rgba(255,255,255,.08);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:3px;z-index:100;box-shadow:0 2px 12px rgba(10,31,68,.3);}
+    .s-logo{display:flex;align-items:center;gap:12px;}
+    .s-logo-icon{width:40px;height:40px;border-radius:10px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.1);}
+    .s-logo-icon img{width:100%;height:100%;object-fit:contain;}
+    .s-logo-name{font-size:16px;font-weight:800;color:white;}
+    .s-logo-sub{font-size:10px;color:rgba(255,255,255,.4);}
+    .header-right{display:flex;align-items:center;gap:10px;}
+    .back-btn{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;}
+    .back-btn:hover{background:rgba(255,255,255,.2);}
+    .content{max-width:1400px;margin:0 auto;padding:24px 24px 60px;}
+    /* MÉTRICAS */
+    .metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:22px;}
+    .metric-card{background:white;border:1px solid var(--gray-200);border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);border-top:3px solid transparent;transition:box-shadow .2s;}
+    .metric-card:hover{box-shadow:0 8px 30px rgba(10,31,68,.12);}
+    .metric-card.green{border-top-color:var(--green);}
+    .metric-card.blue{border-top-color:var(--blue);}
+    .metric-card.purple{border-top-color:var(--purple);}
+    .metric-card.amber{border-top-color:var(--amber);}
+    .metric-card.teal{border-top-color:var(--teal);}
+    .metric-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;margin-bottom:10px;}
+    .green .metric-icon{background:var(--green-bg);color:var(--green);}
+    .blue .metric-icon{background:var(--blue-bg);color:var(--blue);}
+    .purple .metric-icon{background:var(--purple-bg);color:var(--purple);}
+    .amber .metric-icon{background:var(--amber-bg);color:var(--amber);}
+    .teal .metric-icon{background:var(--teal-bg);color:var(--teal);}
+    .metric-lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);margin-bottom:4px;}
+    .metric-val{font-size:18px;font-weight:900;color:var(--gray-800);letter-spacing:-.5px;font-variant-numeric:tabular-nums;}
+    /* FILTROS */
+    .filters-bar{background:white;border:1px solid var(--gray-200);border-radius:14px;padding:14px 20px;margin-bottom:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;box-shadow:var(--shadow);}
+    .filter-label{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);}
+    .f-select{padding:7px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:13px;color:var(--gray-800);background:var(--gray-50);outline:none;cursor:pointer;transition:border-color .2s;}
+    .f-select:focus{border-color:var(--navy);}
+    .toggle-group{display:flex;gap:0;border:1.5px solid var(--gray-200);border-radius:9px;overflow:hidden;margin-left:auto;}
+    .toggle-btn{padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;border:none;background:white;color:var(--gray-500);transition:all .15s;}
+    .toggle-btn.active{background:var(--navy);color:white;}
+    /* TABELA */
+    .table-card{background:white;border:1px solid var(--gray-200);border-radius:18px;overflow:hidden;box-shadow:var(--shadow);}
+    .table-header{padding:16px 20px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .table-title{font-size:14px;font-weight:800;color:var(--navy);}
+    .period-pill{background:var(--purple-bg);color:var(--purple);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;border:1px solid #c4b5fd;}
+    .table-wrap{overflow-x:auto;}
+    table{width:100%;border-collapse:collapse;min-width:900px;}
+    thead th{padding:10px 14px;text-align:left;font-size:10px;font-weight:800;color:var(--gray-400);text-transform:uppercase;letter-spacing:.5px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);white-space:nowrap;}
+    th.num,td.num{text-align:right;}
+    th.center,td.center{text-align:center;}
+    td{padding:12px 14px;border-bottom:1px solid var(--gray-100);font-size:13px;color:var(--gray-800);white-space:nowrap;font-variant-numeric:tabular-nums;}
+    tbody tr:hover td{background:#fafbfd;}
+    tbody tr.open td{background:#f0fdf4;}
+    tfoot td{padding:12px 14px;background:var(--gray-50);border-top:2px solid var(--gray-200);font-size:13px;font-weight:800;color:var(--gray-800);white-space:nowrap;font-variant-numeric:tabular-nums;}
+    .collab-name{font-weight:700;color:var(--navy);}
+    .date-chip{display:inline-flex;align-items:center;gap:4px;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:600;color:var(--gray-600);}
+    .hl-green{color:var(--green);font-weight:700;}
+    .hl-blue{color:var(--blue);font-weight:700;}
+    .hl-purple{color:var(--purple);font-weight:700;}
+    .hl-amber{color:var(--amber);font-weight:700;}
+    .hl-red{color:var(--red);font-weight:700;}
+    .icon-btn{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:12px;transition:all .12s;}
+    .icon-btn:hover.expand{background:var(--green-bg);color:var(--green);}
+    .icon-btn:hover.del{background:#fee2e2;color:var(--red);}
+    /* DETAIL */
+    .detail-row td{padding:0 !important;border-bottom:1px solid var(--gray-200);}
+    .detail-inner{padding:16px 20px;background:#f0fdf4;}
+    .detail-title{font-size:12px;font-weight:800;color:var(--green);margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+    .detail-table-wrap{background:white;border:1px solid #bbf7d0;border-radius:10px;overflow:hidden;}
+    .detail-table-wrap thead th{background:#f0fdf4;color:var(--green);font-size:10px;padding:8px 12px;}
+    .detail-table-wrap td{font-size:12px;padding:8px 12px;border-bottom:1px solid #f0fdf4;}
+    .detail-table-wrap tbody tr:last-child td{border-bottom:none;}
+    .badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;}
+    .badge-rec{background:var(--green-bg);color:var(--green);}
+    .badge-desp{background:#fee2e2;color:var(--red);}
+    /* TAXAS */
+    .rates-bar{padding:14px 20px;background:#fffbeb;border-top:1px solid #fde68a;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+    .rates-label{font-size:11px;font-weight:800;color:var(--amber);display:flex;align-items:center;gap:6px;}
+    .rate-group{display:flex;align-items:center;gap:7px;}
+    .rate-group span{font-size:12px;color:var(--amber);font-weight:600;}
+    .rate-input{width:64px;padding:5px 10px;border-radius:20px;border:1.5px solid #fde68a;background:white;color:var(--amber);font-size:12px;font-weight:700;font-family:inherit;outline:none;text-align:center;}
+    .rate-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(180,83,9,.1);}
+    .rates-info{margin-left:auto;font-size:11px;color:var(--amber);opacity:.7;}
+    /* GRUPO-VIEW */
+    .group-block{background:white;border:1px solid var(--gray-200);border-radius:14px;margin-bottom:14px;overflow:hidden;box-shadow:var(--shadow);}
+    .group-header{padding:14px 20px;background:var(--navy);display:flex;align-items:center;gap:12px;}
+    .group-name{font-size:14px;font-weight:800;color:white;}
+    .group-days{font-size:11px;color:rgba(255,255,255,.5);margin-left:auto;}
+    .group-total{font-size:15px;font-weight:900;color:white;}
+    /* EMPTY */
+    .empty{text-align:center;padding:60px 24px;color:var(--gray-400);}
+    .empty i{font-size:42px;margin-bottom:14px;opacity:.25;display:block;}
+    .empty p{font-size:14px;font-weight:600;color:var(--gray-500);}
+    .empty small{font-size:12px;margin-top:6px;display:block;}
+    /* LOADING */
+    .loading{text-align:center;padding:40px;color:var(--gray-400);}
+    @media(max-width:768px){.content{padding:14px 14px 60px;}.metrics-grid{grid-template-columns:repeat(2,1fr);}}
+  </style>
+</head>
+<body>
+  <div class="red-bar"></div>
+
+  <header class="s-header">
+    <div class="s-logo">
+      <div class="s-logo-icon"><img src="assets/favicon.png" alt="" id="headerLogo"></div>
+      <div>
+        <div class="s-logo-name">Dashboard de Produção</div>
+        <div class="s-logo-sub">Visão admin · Todos os colaboradores</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="back-btn" onclick="irPara('login.html')"><i class="fas fa-home"></i> Portal</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- MÉTRICAS -->
+    <div class="metrics-grid" id="metricsGrid">
+      <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filters-bar">
+      <span class="filter-label"><i class="fas fa-filter"></i> Período</span>
+      <select class="f-select" id="mesSelect" onchange="renderDashboard()"></select>
+      <select class="f-select" id="colaboradorSelect" onchange="renderDashboard()">
+        <option value="">Todos os colaboradores</option>
+      </select>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="btnViewDia" onclick="setView('dia')"><i class="fas fa-calendar-day"></i> Por dia</button>
+        <button class="toggle-btn" id="btnViewCollab" onclick="setView('collab')"><i class="fas fa-users"></i> Por colaborador</button>
+      </div>
+    </div>
+
+    <!-- TABELA / GRUPOS -->
+    <div id="mainContent">
+      <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ── HELPERS ── */
+    function fmtBRL(v) {
+      if (!v && v !== 0) return 'R$ 0,00';
+      return 'R$ ' + Number(v).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+    }
+    function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function fmtData(yyyy_mm_dd) {
+      if (!yyyy_mm_dd) return '—';
+      const [y,m,d] = yyyy_mm_dd.split('-');
+      return d + '/' + m + '/' + y;
+    }
+    function primeiroNome(nome) { return (nome||'').split(' ')[0]; }
+
+    /* ── ESTADO ── */
+    let _dados = {};       // _dados[uid][YYYY-MM-DD] = snapshot
+    let _view  = 'dia';    // 'dia' | 'collab'
+    let _rateAvista  = parseFloat(localStorage.getItem('dash_rateAvista')  || '0.5');
+    let _rateCredito = parseFloat(localStorage.getItem('dash_rateCredito') || '0.1');
+
+    /* ── MESES disponíveis ── */
+    function getMonthOptions(dados) {
+      const set = new Set();
+      for (const uid in dados)
+        for (const dt in dados[uid])
+          if (dt && dt.length === 10) set.add(dt.slice(0,7));
+      const sorted = [...set].sort().reverse();
+      const now = new Date();
+      const cur = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+      if (!sorted.includes(cur)) sorted.unshift(cur);
+      return sorted;
+    }
+    function buildMesSelect(options) {
+      const sel = document.getElementById('mesSelect');
+      const cur = sel.value;
+      const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      sel.innerHTML = options.map(o => {
+        const [y,m] = o.split('-');
+        const label = MESES[parseInt(m)-1] + ' ' + y;
+        return '<option value="' + o + '"' + (o===cur?' selected':'') + '>' + label + '</option>';
+      }).join('');
+      if (!cur && options.length) sel.value = options[0];
+    }
+    function buildColabSelect(dados, mes) {
+      const sel = document.getElementById('colaboradorSelect');
+      const cur = sel.value;
+      const names = new Set();
+      for (const uid in dados)
+        for (const dt in dados[uid])
+          if (dt.startsWith(mes)) names.add(dados[uid][dt].colaborador || uid);
+      sel.innerHTML = '<option value="">Todos os colaboradores</option>';
+      [...names].sort().forEach(n => {
+        const opt = document.createElement('option');
+        opt.value = n; opt.textContent = n;
+        if (n === cur) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    /* ── CÁLCULO ── */
+    function calcRow(totForma) {
+      const tf = totForma || {};
+      const debito   = (tf['Cartão de Débito']?.entrada  || 0);
+      const pix      = (tf['PIX']?.entrada               || 0);
+      const dinheiro = (tf['Dinheiro']?.entrada          || 0);
+      const credito  = (tf['Cartão de Crédito']?.entrada || 0);
+      let despesas = 0;
+      for (const f in tf) despesas += (tf[f].saida || 0);
+      const avista = debito + pix + dinheiro;
+      const total  = avista + credito - despesas;
+      const comissao = avista * (_rateAvista/100) + credito * (_rateCredito/100);
+      return { debito, pix, dinheiro, credito, avista, despesas, total, comissao };
+    }
+
+    /* ── BADGE de forma ── */
+    function formaBadge(forma) {
+      const f = (forma||'').toLowerCase();
+      if (f.includes('pix'))     return '<span class="badge" style="background:#ede9fe;color:#5b21b6;">PIX</span>';
+      if (f.includes('débito')||f.includes('debito'))
+                                  return '<span class="badge" style="background:var(--blue-bg);color:var(--blue);">Débito</span>';
+      if (f.includes('dinheiro')) return '<span class="badge" style="background:var(--green-bg);color:var(--green);">Dinheiro</span>';
+      if (f.includes('crédito')||f.includes('credito'))
+                                  return '<span class="badge" style="background:#fef3c7;color:#92400e;">Crédito</span>';
+      return '<span class="badge" style="background:var(--gray-100);color:var(--gray-600);">' + esc(forma||'—') + '</span>';
+    }
+
+    /* ── FILTRAR linhas ── */
+    function getLinhas(mes, colaboradorFiltro) {
+      const linhas = [];
+      for (const uid in _dados) {
+        for (const dt in _dados[uid]) {
+          if (!dt.startsWith(mes)) continue;
+          const snap = _dados[uid][dt];
+          if (colaboradorFiltro && snap.colaborador !== colaboradorFiltro) continue;
+          linhas.push({ uid, dt, snap });
+        }
+      }
+      linhas.sort((a,b) => a.dt < b.dt ? -1 : a.dt > b.dt ? 1 : (a.snap.colaborador||'').localeCompare(b.snap.colaborador||''));
+      return linhas;
+    }
+
+    /* ── RENDER METRICS ── */
+    function renderMetrics(linhas) {
+      let totalGeral=0, avista=0, credito=0, comissao=0;
+      const collabs = new Set();
+      linhas.forEach(({snap}) => {
+        const c = calcRow(snap.totForma);
+        totalGeral += c.total; avista += c.avista;
+        credito    += c.credito; comissao += c.comissao;
+        collabs.add(snap.colaborador);
+      });
+      document.getElementById('metricsGrid').innerHTML =
+        metricCard('green','fa-money-bill-wave','Total Geral',fmtBRL(totalGeral)) +
+        metricCard('blue','fa-credit-card','Total à Vista',fmtBRL(avista)) +
+        metricCard('purple','fa-brand','Total Crédito',fmtBRL(credito)) +
+        metricCard('amber','fa-percentage','Comissão Estimada',fmtBRL(comissao)) +
+        metricCard('teal','fa-users','Colaboradores',collabs.size + ' ativo' + (collabs.size===1?'':'s'));
+    }
+    function metricCard(color, icon, label, value) {
+      return '<div class="metric-card ' + color + '">' +
+        '<div class="metric-icon"><i class="fas ' + icon + '"></i></div>' +
+        '<div class="metric-lbl">' + label + '</div>' +
+        '<div class="metric-val">' + value + '</div>' +
+        '</div>';
+    }
+
+    /* ── RENDER VIEW POR DIA ── */
+    function renderViewDia(linhas) {
+      if (!linhas.length) {
+        return '<div class="table-card"><div class="empty">' +
+          '<i class="fas fa-chart-bar"></i><p>Nenhum relatório gerado neste período</p>' +
+          '<small>Os colaboradores precisam gerar o relatório de caixa para os dados aparecerem aqui.</small></div></div>';
+      }
+      // Totais do rodapé
+      let T = {debito:0,pix:0,dinheiro:0,credito:0,avista:0,despesas:0,total:0,comissao:0};
+      linhas.forEach(({snap}) => {
+        const c = calcRow(snap.totForma);
+        T.debito+=c.debito; T.pix+=c.pix; T.dinheiro+=c.dinheiro;
+        T.credito+=c.credito; T.avista+=c.avista; T.despesas+=c.despesas;
+        T.total+=c.total; T.comissao+=c.comissao;
+      });
+
+      const mes = document.getElementById('mesSelect').value;
+      const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      const [y,m] = mes.split('-');
+      const mesLabel = MESES[parseInt(m)-1] + ' ' + y;
+
+      let rows = '';
+      linhas.forEach(({uid, dt, snap}, idx) => {
+        const c = calcRow(snap.totForma);
+        rows += `<tr class="main-row" id="row-${idx}">
+          <td><span class="collab-name">${esc(primeiroNome(snap.colaborador))}</span>
+              <div style="font-size:10px;color:var(--gray-400);margin-top:2px;">${esc(snap.colaborador)}</div></td>
+          <td><span class="date-chip"><i class="fas fa-calendar" style="font-size:9px;"></i> ${fmtData(dt)}</span></td>
+          <td class="num">${fmtBRL(c.debito)}</td>
+          <td class="num">${fmtBRL(c.pix)}</td>
+          <td class="num">${fmtBRL(c.dinheiro)}</td>
+          <td class="num hl-green">${fmtBRL(c.avista)}</td>
+          <td class="num">${fmtBRL(c.credito)}</td>
+          <td class="num hl-red">${c.despesas>0?'−'+fmtBRL(c.despesas):'—'}</td>
+          <td class="num hl-purple">${fmtBRL(c.total)}</td>
+          <td class="num hl-amber">${fmtBRL(c.comissao)}</td>
+          <td class="center" style="width:70px;">
+            <button class="icon-btn expand" title="Ver lançamentos" onclick="toggleDetail(${idx},'${uid}','${dt}')">
+              <i class="fas fa-list-ul" id="icon-${idx}"></i>
+            </button>
+            <button class="icon-btn del" title="Remover" onclick="removerDia('${uid}','${dt}')">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+        <tr class="detail-row" id="detail-${idx}" style="display:none;">
+          <td colspan="11"><div class="detail-inner" id="detail-inner-${idx}"></div></td>
+        </tr>`;
+      });
+
+      return `<div class="table-card">
+        <div class="table-header">
+          <i class="fas fa-calendar-alt" style="font-size:16px;color:var(--purple);"></i>
+          <span class="table-title">Lançamentos por Dia</span>
+          <span class="period-pill"><i class="fas fa-calendar"></i> ${mesLabel}</span>
+          <span style="margin-left:auto;font-size:11px;color:var(--gray-400);">${linhas.length} registro(s)</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Colaborador</th><th>Data</th>
+              <th class="num">Débito</th><th class="num">PIX</th><th class="num">Dinheiro</th>
+              <th class="num" style="background:#f0fdf4;color:var(--green);">Total à Vista</th>
+              <th class="num">Crédito</th><th class="num">Despesas</th>
+              <th class="num" style="background:var(--purple-bg);color:var(--purple);">Total Geral</th>
+              <th class="num" style="background:var(--amber-bg);color:var(--amber);">Comissão</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="tableBody">${rows}</tbody>
+            <tfoot><tr>
+              <td colspan="2" style="color:var(--gray-500);font-size:11px;text-transform:uppercase;letter-spacing:.5px;">Totais do período</td>
+              <td class="num">${fmtBRL(T.debito)}</td>
+              <td class="num">${fmtBRL(T.pix)}</td>
+              <td class="num">${fmtBRL(T.dinheiro)}</td>
+              <td class="num hl-green">${fmtBRL(T.avista)}</td>
+              <td class="num">${fmtBRL(T.credito)}</td>
+              <td class="num hl-red">${T.despesas>0?'−'+fmtBRL(T.despesas):'—'}</td>
+              <td class="num hl-purple">${fmtBRL(T.total)}</td>
+              <td class="num hl-amber">${fmtBRL(T.comissao)}</td>
+              <td></td>
+            </tr></tfoot>
+          </table>
+        </div>
+        <div class="rates-bar">
+          <span class="rates-label"><i class="fas fa-percentage"></i> Taxas de comissão</span>
+          <div class="rate-group">
+            <span>À vista (Déb/PIX/Din)</span>
+            <input class="rate-input" id="rateAvista" type="number" step="0.01" min="0" max="100" value="${_rateAvista}" onchange="saveRates()">
+            <span>%</span>
+          </div>
+          <div class="rate-group">
+            <span>Crédito</span>
+            <input class="rate-input" id="rateCredito" type="number" step="0.01" min="0" max="100" value="${_rateCredito}" onchange="saveRates()">
+            <span>%</span>
+          </div>
+          <span class="rates-info">Salvo automaticamente</span>
+        </div>
+      </div>`;
+    }
+
+    /* ── RENDER VIEW POR COLABORADOR ── */
+    function renderViewCollab(linhas) {
+      if (!linhas.length) {
+        return '<div class="table-card"><div class="empty">' +
+          '<i class="fas fa-users"></i><p>Nenhum relatório neste período</p></div></div>';
+      }
+      // Agrupar por colaborador
+      const grupos = {};
+      linhas.forEach(({uid, dt, snap}) => {
+        const nome = snap.colaborador || uid;
+        if (!grupos[nome]) grupos[nome] = [];
+        grupos[nome].push({uid, dt, snap});
+      });
+      const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      const mes = document.getElementById('mesSelect').value;
+      const [y,m] = mes.split('-');
+      const mesLabel = MESES[parseInt(m)-1] + ' ' + y;
+
+      let html = '';
+      Object.keys(grupos).sort().forEach(nome => {
+        const dias = grupos[nome];
+        let T = {debito:0,pix:0,dinheiro:0,credito:0,avista:0,despesas:0,total:0,comissao:0};
+        dias.forEach(({snap}) => {
+          const c = calcRow(snap.totForma);
+          T.debito+=c.debito; T.pix+=c.pix; T.dinheiro+=c.dinheiro;
+          T.credito+=c.credito; T.avista+=c.avista; T.despesas+=c.despesas;
+          T.total+=c.total; T.comissao+=c.comissao;
+        });
+
+        let daysRows = dias.sort((a,b)=>a.dt<b.dt?-1:1).map(({dt,snap}) => {
+          const c = calcRow(snap.totForma);
+          return `<tr>
+            <td><span class="date-chip">${fmtData(dt)}</span></td>
+            <td class="num">${fmtBRL(c.debito)}</td>
+            <td class="num">${fmtBRL(c.pix)}</td>
+            <td class="num">${fmtBRL(c.dinheiro)}</td>
+            <td class="num hl-green">${fmtBRL(c.avista)}</td>
+            <td class="num">${fmtBRL(c.credito)}</td>
+            <td class="num hl-red">${c.despesas>0?'−'+fmtBRL(c.despesas):'—'}</td>
+            <td class="num hl-purple">${fmtBRL(c.total)}</td>
+            <td class="num hl-amber">${fmtBRL(c.comissao)}</td>
+          </tr>`;
+        }).join('');
+
+        html += `<div class="group-block">
+          <div class="group-header">
+            <i class="fas fa-user" style="color:rgba(255,255,255,.5);"></i>
+            <span class="group-name">${esc(nome)}</span>
+            <span class="group-days">${dias.length} dia(s) · ${mesLabel}</span>
+            <span class="group-total">${fmtBRL(T.total)}</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th>Data</th>
+                <th class="num">Débito</th><th class="num">PIX</th><th class="num">Dinheiro</th>
+                <th class="num" style="background:#f0fdf4;color:var(--green);">Total à Vista</th>
+                <th class="num">Crédito</th><th class="num">Despesas</th>
+                <th class="num" style="background:var(--purple-bg);color:var(--purple);">Total Geral</th>
+                <th class="num" style="background:var(--amber-bg);color:var(--amber);">Comissão</th>
+              </tr></thead>
+              <tbody>${daysRows}</tbody>
+              <tfoot><tr>
+                <td style="font-size:11px;text-transform:uppercase;color:var(--gray-400);">Total</td>
+                <td class="num">${fmtBRL(T.debito)}</td>
+                <td class="num">${fmtBRL(T.pix)}</td>
+                <td class="num">${fmtBRL(T.dinheiro)}</td>
+                <td class="num hl-green">${fmtBRL(T.avista)}</td>
+                <td class="num">${fmtBRL(T.credito)}</td>
+                <td class="num hl-red">${T.despesas>0?'−'+fmtBRL(T.despesas):'—'}</td>
+                <td class="num hl-purple">${fmtBRL(T.total)}</td>
+                <td class="num hl-amber">${fmtBRL(T.comissao)}</td>
+              </tr></tfoot>
+            </table>
+          </div>
+          <div class="rates-bar">
+            <span class="rates-label"><i class="fas fa-percentage"></i> Taxas aplicadas</span>
+            <div class="rate-group"><span>À vista</span><strong style="color:var(--amber);">${_rateAvista}%</strong></div>
+            <div class="rate-group"><span>Crédito</span><strong style="color:var(--amber);">${_rateCredito}%</strong></div>
+            <span style="margin-left:auto;font-size:11px;color:var(--amber);opacity:.7;">Altere as taxas na aba "Por dia"</span>
+          </div>
+        </div>`;
+      });
+      return html;
+    }
+
+    /* ── TOGGLE DETALHE ── */
+    window._openDetail = null;
+    window.toggleDetail = function(idx, uid, dt) {
+      const row = document.getElementById('detail-' + idx);
+      const icon = document.getElementById('icon-' + idx);
+      const mainRow = document.getElementById('row-' + idx);
+      if (row.style.display === 'none') {
+        // Fechar outro aberto
+        if (window._openDetail !== null && window._openDetail !== idx) {
+          const old = document.getElementById('detail-' + window._openDetail);
+          const oldIcon = document.getElementById('icon-' + window._openDetail);
+          const oldMain = document.getElementById('row-' + window._openDetail);
+          if (old) old.style.display = 'none';
+          if (oldIcon) oldIcon.className = 'fas fa-list-ul';
+          if (oldMain) oldMain.classList.remove('open');
+        }
+        window._openDetail = idx;
+        row.style.display = '';
+        mainRow.classList.add('open');
+        icon.className = 'fas fa-chevron-up';
+        const snap = _dados[uid] && _dados[uid][dt];
+        if (snap) renderDetailInner(idx, snap);
+      } else {
+        row.style.display = 'none';
+        mainRow.classList.remove('open');
+        icon.className = 'fas fa-list-ul';
+        window._openDetail = null;
+      }
+    };
+
+    function renderDetailInner(idx, snap) {
+      const el = document.getElementById('detail-inner-' + idx);
+      const lncs = (snap.lancamentos || []).filter(l => !l.isDespesa);
+      const desp = (snap.lancamentos || []).filter(l => l.isDespesa);
+      const c = calcRow(snap.totForma);
+      let rows = lncs.map(l =>
+        `<tr>
+          <td style="color:var(--gray-400);font-size:11px;">${esc(l.hora||'—')}</td>
+          <td style="font-weight:500;max-width:180px;overflow:hidden;text-overflow:ellipsis;">${esc(l.paciente||'—')}</td>
+          <td>${formaBadge(l.forma)}</td>
+          <td>${esc(l.descricao||'—')}</td>
+          <td class="num" style="font-weight:700;color:var(--green);">${fmtBRL(l.valor||0)}</td>
+        </tr>`
+      ).join('');
+      let despRows = desp.length ? desp.map(l =>
+        `<tr style="background:#fff5f5;">
+          <td style="color:var(--gray-400);font-size:11px;">${esc(l.hora||'—')}</td>
+          <td style="font-weight:500;">${esc(l.paciente||'—')}</td>
+          <td><span class="badge badge-desp">Despesa</span></td>
+          <td>${esc(l.descricao||'—')}</td>
+          <td class="num" style="font-weight:700;color:var(--red);">−${fmtBRL(l.valor||0)}</td>
+        </tr>`
+      ).join('') : '';
+
+      el.innerHTML =
+        `<div class="detail-title">
+          <i class="fas fa-receipt"></i>
+          ${fmtData(snap.data)} &middot; ${lncs.length} recebimento(s) &middot; Total ${fmtBRL(c.total)}
+          ${snap.dinheiroEntregar ? ' &middot; <span style="color:var(--amber);">💵 Entregar: ' + esc(snap.dinheiroEntregar) + '</span>' : ''}
+        </div>
+        <div class="detail-table-wrap">
+          <table>
+            <thead><tr>
+              <th>Horário</th><th>Paciente</th><th>Forma</th><th>Descrição</th><th class="num">Valor</th>
+            </tr></thead>
+            <tbody>${rows}${despRows}</tbody>
+          </table>
+        </div>`;
+    }
+
+    /* ── REMOVER DIA ── */
+    window.removerDia = function(uid, dt) {
+      if (!confirm('Remover relatório de ' + fmtData(dt) + '?')) return;
+      if (window.fbRemove) window.fbRemove('relatorios/' + uid + '/' + dt).catch(()=>{});
+    };
+
+    /* ── TAXAS ── */
+    window.saveRates = function() {
+      _rateAvista  = parseFloat(document.getElementById('rateAvista')?.value  || _rateAvista);
+      _rateCredito = parseFloat(document.getElementById('rateCredito')?.value || _rateCredito);
+      localStorage.setItem('dash_rateAvista',  _rateAvista);
+      localStorage.setItem('dash_rateCredito', _rateCredito);
+      renderDashboard();
+    };
+
+    /* ── VIEW TOGGLE ── */
+    window.setView = function(v) {
+      _view = v;
+      document.getElementById('btnViewDia').classList.toggle('active',   v==='dia');
+      document.getElementById('btnViewCollab').classList.toggle('active', v==='collab');
+      renderDashboard();
+    };
+
+    /* ── RENDER PRINCIPAL ── */
+    window.renderDashboard = function() {
+      const mes   = document.getElementById('mesSelect').value;
+      const colab = document.getElementById('colaboradorSelect').value;
+      if (!mes) return;
+      buildColabSelect(_dados, mes);
+      const linhas = getLinhas(mes, colab);
+      renderMetrics(linhas);
+      document.getElementById('mainContent').innerHTML =
+        _view === 'dia' ? renderViewDia(linhas) : renderViewCollab(linhas);
+      window._openDetail = null;
+    };
+
+    /* ── FIREBASE INIT ── */
+    function initDashboard(db, ref, get, onValue, remove) {
+      carregarLogoGlobal(['#headerLogo']);
+      window.fbRemove = path => remove(ref(db, path));
+
+      onValue(ref(db, 'relatorios'), snap => {
+        _dados = snap.val() || {};
+        const opts = getMonthOptions(_dados);
+        buildMesSelect(opts);
+        renderDashboard();
+      });
+    }
+  </script>
+
+  <script type="module">
+    import { initializeApp }               from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getDatabase, ref, get, set, onValue, remove } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-database.js";
+
+    const _app  = initializeApp(window.FIREBASE_CONFIG);
+    const _auth = getAuth(_app);
+    const _db   = getDatabase(_app);
+    window.initFirebaseUtils(_db, ref, get);
+
+    onAuthStateChanged(_auth, async user => {
+      if (!user) { irPara('login.html'); return; }
+
+      // Verificar se é admin
+      const snapUser = await get(ref(_db, 'admin/usuarios/' + user.uid));
+      const perms = snapUser.val()?.perms || {};
+      const isAdmin = !!perms.admin;
+      // Fallback: email hardcoded como admin
+      const adminEmail = 'raphael@amorsaude.com';
+      if (!isAdmin && user.email !== adminEmail) {
+        irPara('login.html'); return;
+      }
+
+      initDashboard(_db, ref, get, onValue, remove);
+    });
+  </script>
+</body>
+</html>

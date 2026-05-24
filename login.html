@@ -194,6 +194,11 @@
           <div><div class="pc-name" style="color:#92400e;">Painel Admin</div><div class="pc-desc">Gerenciar usuários, clínica, atendentes e permissões de acesso.</div></div>
           <div class="pc-arrow" style="color:#92400e;"><i class="fas fa-arrow-right"></i> Gerenciar</div>
         </div>
+        <div class="portal-card" id="cardDashboard" style="display:none;" onclick="abrirSistema('dashboard.html','Dashboard de Produção')">
+          <div class="pc-icon" style="background:#6d28d9;"><i class="fas fa-chart-line" style="color:white;font-size:22px;"></i></div>
+          <div><div class="pc-name">Dashboard</div><div class="pc-desc">Produção, recebimentos e comissões de todos os colaboradores.</div></div>
+          <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
+        </div>
       </div>
     </div>
   </div>
@@ -213,7 +218,7 @@
     carregarLogoGlobal(['#logoHeader']);
     carregarClinica();
 
-    const TODOS_CARDS = ['cardOrcamentos','cardFechamento','cardFinanceiro','cardExames','cardCronograma','cardCaixa','cardAdmin'];
+    const TODOS_CARDS = ['cardOrcamentos','cardFechamento','cardFinanceiro','cardExames','cardCronograma','cardCaixa','cardAdmin','cardDashboard'];
 
     function esconderSplash() {
       const s = document.getElementById('splashScreen');
@@ -280,6 +285,7 @@
       // Caixa: visível para todos os usuários autenticados
       document.getElementById('cardCaixa').style.display = 'flex';
       if (isAdmin)                     document.getElementById('cardAdmin').style.display      = 'flex';
+      if (isAdmin)                     document.getElementById('cardDashboard').style.display  = 'flex';
 
       // Revela o portal já montado
       document.getElementById('telaLogin').style.display  = 'none';
