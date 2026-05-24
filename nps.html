@@ -443,7 +443,8 @@
                   'nota1a10','notapesquisa','codigorespostaagente'],
       data:      ['data','date','datetime','datahora','dataatendimento','criadoem',
                   'createdat','timestamp','horario','hora','datahorario','dtatend',
-                  'dataabertura','dataresposta','dataenvio'],
+                  'dataabertura','dataresposta','dataenvio','datapesquisa',
+                  'datapesquisanps','dataavaliacao','datacriacao','dataregistro'],
       comentario:['comentario','observacao','mensagem','message','feedback','comment',
                   'texto','notas','notes','justificativa','motivo','descricao','obs',
                   'comentariocliente','textorespostaaberta','resposta_aberta']
@@ -461,7 +462,9 @@
         for (const [field, aliases] of Object.entries(ALIASES)) {
           if (found[field]) continue;
           if (aliases.includes(hn)) { found[field] = h; return; }
-          if (aliases.some(a => hn.length >= 4 && (hn.includes(a) || a.includes(hn)))) {
+          // Parcial: só hn.includes(a) + alias >= 6 chars
+          // Evita falsos positivos: 'Atendimento' não vira atendente pelo alias curto 'atend'
+          if (aliases.some(a => a.length >= 6 && hn.length >= 5 && hn.includes(a))) {
             found[field] = h;
           }
         }
