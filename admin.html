@@ -326,6 +326,29 @@
           </div>
         </div>
       </div>
+
+      <!-- PLANILHA DE NOTAS FISCAIS -->
+      <div class="panel" style="margin-top:18px;">
+        <div class="panel-header">
+          <div class="panel-title"><i class="fas fa-table"></i> Planilha de Notas Fiscais</div>
+        </div>
+        <p style="font-size:13px;color:var(--gray-500);margin-bottom:14px;line-height:1.6;">
+          No Google Sheets: <strong>Arquivo → Compartilhar → Publicar na web → CSV → Publicar</strong>.<br>
+          Cole a URL gerada abaixo. Ao gerar o relatório de caixa, o sistema cruzará automaticamente os nomes
+          dos pacientes com a planilha e exibirá a coluna <strong>N° NF</strong>.
+        </p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+          <div style="flex:1;min-width:260px;">
+            <label class="f-label">URL publicada (CSV)</label>
+            <input type="text" id="planilhaNfUrl" class="f-input" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv">
+          </div>
+          <div style="display:flex;gap:8px;padding-bottom:1px;">
+            <button class="btn-p" onclick="salvarPlanilhaNf()"><i class="fas fa-save"></i> Salvar</button>
+            <button class="btn-s" onclick="testarPlanilhaNf()"><i class="fas fa-vial"></i> Testar</button>
+          </div>
+        </div>
+        <div id="planilhaNfStatus" style="font-size:11px;margin-top:8px;color:var(--gray-400);"></div>
+      </div>
     </div>
 
     <!-- ABA PROFISSIONAIS -->
@@ -1019,11 +1042,47 @@
         }
       }).catch(() => {});
 
+      // Carregar URL da planilha de NF (se existir)
+      get(ref(db, 'admin/configCaixa/planilhaUrl')).then(snap => {
+        if (snap.val()) document.getElementById('planilhaNfUrl').value = snap.val();
+      }).catch(() => {});
+
       // Carregar dados de todas as abas
       carregarUsuarios();
       carregarAtendentes();
       carregarClinica();
       carregarProfissionais();
+
+      // Funções — Planilha de Notas Fiscais
+      window.salvarPlanilhaNf = async function() {
+        const url = document.getElementById('planilhaNfUrl').value.trim();
+        if (!url) { toast('Cole a URL da planilha', 'error'); return; }
+        try {
+          await window._fbSet('admin/configCaixa/planilhaUrl', url);
+          toast('URL da planilha salva!', 'success');
+          document.getElementById('planilhaNfStatus').textContent = '✅ URL salva com sucesso.';
+          document.getElementById('planilhaNfStatus').style.color = 'var(--green)';
+        } catch(e) { toast('Erro ao salvar URL: ' + e.message, 'error'); }
+      };
+      window.testarPlanilhaNf = async function() {
+        const url = document.getElementById('planilhaNfUrl').value.trim();
+        if (!url) { toast('Cole a URL da planilha primeiro', 'error'); return; }
+        const status = document.getElementById('planilhaNfStatus');
+        status.textContent = 'Testando conexão...';
+        status.style.color = 'var(--gray-400)';
+        try {
+          const r = await fetch(url);
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          const txt = await r.text();
+          const linhas = txt.trim().split('\n');
+          const registros = Math.max(0, linhas.length - 1);
+          status.textContent = '✅ Conexão OK — ' + registros + ' registro(s) encontrado(s)';
+          status.style.color = 'var(--green)';
+        } catch(e) {
+          status.textContent = '❌ Falha ao acessar — verifique se a planilha foi publicada corretamente';
+          status.style.color = 'var(--red)';
+        }
+      };
 
       // Log de acesso
       set(ref(db, 'admin_logs/' + Date.now()), {
