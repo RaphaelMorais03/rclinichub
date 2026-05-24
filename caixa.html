@@ -256,43 +256,72 @@
 
     /* ── PARSE CAIXA ── */
     function parseCaixa(txt) {
-      // "Cartão de Crédito à Vista" → "Cartão de Crédito" (unificado)
-      const FORMA_NORM = {
-        'cartão de crédito à vista': 'Cartão de Crédito',
-        'credito a vista':            'Cartão de Crédito',
-        'cartão de crédito':          'Cartão de Crédito',
-        'cartão de débito':           'Cartão de Débito',
-        'debito':                     'Cartão de Débito',
-        'pix':                        'PIX',
-        'dinheiro':                   'Dinheiro'
-      };
-      function parseBRL(s) { if (!s) return 0; return parseFloat(s.trim().replace(/\s/g,'').replace(/\./g,'').replace(',','.')) || 0; }
+      // Normaliza forma de pagamento via regex — captura qualquer variante
+      function normForma(raw) {
+        if (!raw) return 'Outros';
+        const r = raw.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+        if (/pix/.test(r))                          return 'PIX';
+        if (/dinheiro|especie|espécie/.test(r))     return 'Dinheiro';
+        if (/credit|crédito|credito/.test(r))       return 'Cartão de Crédito';
+        if (/debit|débito|debito/.test(r))          return 'Cartão de Débito';
+        return raw.trim() || 'Outros';
+      }
+      function parseBRL(s) {
+        if (!s) return 0;
+        return Math.abs(parseFloat((s+'').trim().replace(/\s/g,'').replace(/\./g,'').replace(',','.')) || 0);
+      }
       function fmtBRL(v) { return 'R$ ' + v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+
       const lancamentos = [], transferencias = [], totForma = {};
       let dinheiroEntregar = null;
       const smD = txt.match(/Valor em dinheiro a entregar\s*:\s*(R\$\s*[\d.,]+)/i);
       if (smD) dinheiroEntregar = smD[1].trim();
+
       for (const linha of txt.split('\n')) {
         const l = linha.trim();
         if (!l || !/^\d{2}\/\d{2}\/\d{4}/.test(l)) continue;
-        const p = l.split(/\t/); if (p.length < 9) continue;
-        const dtHora = (p[0]||'').trim(), hora = dtHora.length > 11 ? dtHora.slice(11,16) : dtHora;
-        const tipo   = (p[2]||'').trim().toLowerCase(), formaR = (p[3]||'').trim().toLowerCase();
-        const origem = (p[4]||'').trim().toUpperCase(), paciente = (p[7]||'').trim(), valor = parseBRL(p[8]||'0');
+        const p = l.split(/\t/);
+        if (p.length < 5) continue; // mínimo: data, desc, tipo, forma, valor
+
+        const dtHora   = (p[0]||'').trim();
+        const hora     = dtHora.length > 11 ? dtHora.slice(11,16) : dtHora;
+        const tipo     = (p[2]||'').trim().toLowerCase();
+        const formaR   = (p[3]||'').trim();
+        const origem   = (p[4]||'').trim().toUpperCase();
+        const paciente = (p[7]||'').trim();
+
+        // Valor: tenta p[8], depois última coluna que contenha número
+        let valor = parseBRL(p[8]);
+        if (valor === 0) valor = parseBRL(p[p.length - 1]);
         if (valor === 0) continue;
+
         if (/saldo inicial/i.test(origem)) continue;
-        const forma = FORMA_NORM[formaR] || p[3].trim();
-        const isRec = tipo.startsWith('receit'), isDesp = tipo.startsWith('desp');
-        const isTE  = origem.includes('TE_CAIXA'), isTS = origem.includes('TS_CAIXA');
-        if (isTE || isTS) {
+
+        const forma  = normForma(formaR);
+        const isRec  = tipo.startsWith('receit');
+        // Despesa: captura Despesa, Saída, Saida, Sangria, Retirada e similares
+        const isDesp = /^desp|^saíd|^said|^saida|^sangr|^retir/.test(tipo);
+        const isTE   = origem.includes('TE_CAIXA');
+        const isTS   = origem.includes('TS_CAIXA');
+
+        // Transferências internas de caixa (apenas se NÃO forem receita/despesa)
+        if ((isTE || isTS) && !isRec && !isDesp) {
           transferencias.push({hora, tipo:isTE?'Entrada':'Saída', forma, valor, fmtValor:fmtBRL(valor)});
         } else {
           if (!totForma[forma]) totForma[forma] = {entrada:0, saida:0};
           if (isRec)  totForma[forma].entrada += valor;
           if (isDesp) totForma[forma].saida   += valor;
-          lancamentos.push({dtHora, hora, tipo: isRec?'Receita':(isDesp?'Despesa':tipo), forma,
-            descricao: (p[1]||'').trim(), lancadoPor: (p[6]||'').trim(),
-            paciente: paciente||'—', fmtValor: fmtBRL(valor), isDespesa: isDesp, isTroco: false});
+          lancamentos.push({
+            dtHora, hora,
+            tipo:       isRec ? 'Receita' : (isDesp ? 'Despesa' : tipo),
+            forma,
+            descricao:  (p[1]||'').trim(),
+            lancadoPor: (p[6]||'').trim(),
+            paciente:   paciente || '—',
+            fmtValor:   fmtBRL(valor),
+            isDespesa:  isDesp,
+            isTroco:    false
+          });
         }
       }
       function fmtBRL2(v) { return 'R$ ' + v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
