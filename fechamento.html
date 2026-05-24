@@ -161,19 +161,7 @@
       <div style="margin-top:10px;display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.7);border:1px solid rgba(0,0,0,.12);border-radius:10px;padding:6px 14px;" class="no-print">
         <i class="fas fa-user-tie" style="color:#0A1F44;font-size:13px;"></i>
         <label style="margin:0;font-size:12px;font-weight:700;color:#0A1F44;white-space:nowrap;">Responsável:</label>
-        <select id="selectResponsavel" onchange="usuario=this.value" style="border:none;background:transparent;font-size:13px;font-weight:600;color:#0A1F44;cursor:pointer;padding:0;outline:none;min-width:180px;">
-          <option value="">— selecione —</option>
-          <option value="Giovanna Pereira De Albuquerque Silva">Giovanna</option>
-          <option value="Natiely Palmito Dos Santos Gomes">Natiely</option>
-          <option value="Luiza Rebeca Ribeiro de Oliveira">Luiza</option>
-          <option value="Kauany da Silva Dias">Kauany</option>
-          <option value="Gustavo Brambila Acosta Chaves">Gustavo</option>
-          <option value="Fernanda Clara De Souza Sergio">Fernanda</option>
-          <option value="Kauany Nunes Martins">Kauany Nunes</option>
-          <option value="Tayna Sampaio Machado de Araújo">Tayna</option>
-          <option value="Carla Regina Vasques dos Santos">Carla</option>
-          <option value="Mariluce Ferreira de Lima Souza">Mariluce</option>
-        </select>
+        <span id="badgeResponsavel" style="font-size:13px;font-weight:600;color:#0A1F44;">—</span>
       </div>
       <div class="theme-toggle no-print">
         <button id="themeToggle" class="btn-small"><i class="fas fa-moon"></i> Tema Escuro</button>
@@ -394,18 +382,13 @@
     if (usuSessao) { usuario=usuSessao; document.getElementById('userGreeting').textContent=`Olá, ${usuSessao.split(' ')[0]}! 👋`; }
     window._setUsuario = function(nome){
       usuario = nome;
-      // Tenta pré-selecionar no dropdown de responsável pelo primeiro nome
-      const sel = document.getElementById('selectResponsavel');
-      if (!sel) return;
-      const primeiroNome = nome.split(' ')[0].toLowerCase();
-      for (const opt of sel.options) {
-        if (opt.value.toLowerCase().startsWith(primeiroNome)) {
-          sel.value = opt.value;
-          usuario = opt.value; // usa o nome completo do atendente
-          break;
-        }
-      }
+      const badge = document.getElementById('badgeResponsavel');
+      if (badge) badge.textContent = nome.split(' ').slice(0, 2).join(' ');
+      const el = document.getElementById('userGreeting');
+      if (el) el.textContent = 'Olá, ' + nome.split(' ')[0] + '! 👋';
     };
+    // Aplica imediatamente se já veio do sessionStorage
+    if (usuSessao) window._setUsuario(usuSessao);
     let LOGO_RECIBO = sessionStorage.getItem('logoDataUrl') || '';
 
     function salvarTema(e){localStorage.setItem('theme',e?'dark':'light');}
