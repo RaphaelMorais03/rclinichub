@@ -202,7 +202,7 @@
       window.caixa.entradas = pv(document.getElementById('cEntradas').value);
       window.caixa.saidas   = pv(document.getElementById('cSaidas').value);
       window.caixa.sobra    = pv(document.getElementById('cSobra').value);
-      if (window.fbSet) window.fbSet('operacao/caixa/' + window.TK_FB, window.caixa);
+      if (window.fbSet) window.fbSet('operacao/' + (window.USER_UID||'_') + '/caixa/' + window.TK_FB, window.caixa);
       updSaldo();
     };
     window.updSaldo = function() {
@@ -228,14 +228,14 @@
         val: document.getElementById('vVal').value,
         hora: new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
       });
-      if (window.fbSet) window.fbSet('operacao/vales/' + window.TK_FB, window.vales);
+      if (window.fbSet) window.fbSet('operacao/' + (window.USER_UID||'_') + '/vales/' + window.TK_FB, window.vales);
       ['vPac','vCpf','vEsp','vVal'].forEach(x => document.getElementById(x).value = '');
       renderVales();
       toast('Troco registrado!', 'success');
     };
     window.delVale = function(id) {
       window.vales = window.vales.filter(v => v.id !== id);
-      if (window.fbSet) window.fbSet('operacao/vales/' + window.TK_FB, window.vales);
+      if (window.fbSet) window.fbSet('operacao/' + (window.USER_UID||'_') + '/vales/' + window.TK_FB, window.vales);
       renderVales();
     };
     window.renderVales = function() {
@@ -563,6 +563,9 @@
     onAuthStateChanged(_auth, user => {
       if (!user) { irPara('login.html'); return; }
 
+      // Identificador único do usuário — separa dados de caixa por login
+      window.USER_UID = user.uid;
+
       set(ref(_db, 'admin_logs/' + Date.now()), {
         tipo:'info', msg:(user.email||user.uid)+' acessou o Caixa', ts:new Date().toISOString()
       }).catch(()=>{});
@@ -580,16 +583,16 @@
         if (snap.val()) window._planilhaNfUrl = snap.val();
       }).catch(()=>{});
 
-      // Dados de caixa em tempo real
-      _on(ref(_db, `operacao/caixa/${window.TK_FB}`), snap => {
+      // Dados de caixa em tempo real — separado por usuário (user.uid / data)
+      _on(ref(_db, `operacao/${user.uid}/caixa/${window.TK_FB}`), snap => {
         window.caixa = snap.val() || {fundo:0, entradas:0, saidas:0, sobra:0};
         if (!window.caixa.sobra) window.caixa.sobra = 0;
         if (typeof window.renderCaixa === 'function') window.renderCaixa();
         if (typeof window.updSaldo    === 'function') window.updSaldo();
       });
 
-      // Vales em tempo real
-      _on(ref(_db, `operacao/vales/${window.TK_FB}`), snap => {
+      // Vales em tempo real — separado por usuário (user.uid / data)
+      _on(ref(_db, `operacao/${user.uid}/vales/${window.TK_FB}`), snap => {
         window.vales = snap.val() || [];
         if (typeof window.renderVales === 'function') window.renderVales();
       });
