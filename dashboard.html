@@ -148,6 +148,7 @@
       <select class="f-select" id="colaboradorSelect" onchange="renderDashboard()">
         <option value="">Todos os colaboradores</option>
       </select>
+      <button onclick="if(window.carregarDados)window.carregarDados()" style="margin-left:auto;padding:7px 14px;background:white;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-600);cursor:pointer;display:flex;align-items:center;gap:6px;" title="Recarregar dados"><i class="fas fa-rotate-right"></i> Atualizar</button>
       <div class="toggle-group">
         <button class="toggle-btn active" id="btnViewDia" onclick="setView('dia')"><i class="fas fa-calendar-day"></i> Por dia</button>
         <button class="toggle-btn" id="btnViewCollab" onclick="setView('collab')"><i class="fas fa-users"></i> Por colaborador</button>
@@ -584,11 +585,37 @@
       carregarLogoGlobal(['#headerLogo']);
       window.fbRemove = path => remove(ref(db, path));
 
+      function showErr(msg) {
+        document.getElementById('metricsGrid').innerHTML =
+          '<div style="grid-column:1/-1;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:12px;padding:14px 18px;font-size:13px;display:flex;align-items:center;gap:10px;">' +
+          '<i class="fas fa-exclamation-triangle"></i><div><strong>Erro ao carregar dados</strong><br><small>' + msg + '</small></div></div>';
+        document.getElementById('mainContent').innerHTML = '';
+      }
+
+      // Carga inicial via get() — mais confiável que onValue para detectar erros
+      function carregarDados() {
+        get(ref(db, 'relatorios')).then(snap => {
+          _dados = snap.val() || {};
+          const opts = getMonthOptions(_dados);
+          buildMesSelect(opts);
+          renderDashboard();
+        }).catch(err => {
+          showErr('Permissão negada ou falha de rede. Detalhe: ' + (err.message || err.code || err));
+        });
+      }
+
+      carregarDados();
+      window.carregarDados = carregarDados; // expõe para o botão Atualizar
+
+      // Listener em tempo real (atualiza quando colaborador gera novo relatório)
       onValue(ref(db, 'relatorios'), snap => {
         _dados = snap.val() || {};
         const opts = getMonthOptions(_dados);
         buildMesSelect(opts);
         renderDashboard();
+      }, err => {
+        // Não bloqueia — carga via get() já funcionou
+        console.warn('Dashboard listener error:', err.code, err.message);
       });
     }
   </script>
@@ -606,14 +633,19 @@
     onAuthStateChanged(_auth, async user => {
       if (!user) { irPara('login.html'); return; }
 
-      // Verificar se é admin
-      const snapUser = await get(ref(_db, 'admin/usuarios/' + user.uid));
-      const perms = snapUser.val()?.perms || {};
-      const isAdmin = !!perms.admin;
-      // Fallback: email hardcoded como admin
-      const adminEmail = 'raphael@amorsaude.com';
-      if (!isAdmin && user.email !== adminEmail) {
-        irPara('login.html'); return;
+      try {
+        const snapUser = await get(ref(_db, 'admin/usuarios/' + user.uid));
+        const perms    = (snapUser.val() || {}).perms || {};
+        const isAdmin  = !!perms.admin;
+        // Fallback: email admin hardcoded
+        if (!isAdmin && user.email !== 'raphael@amorsaude.com') {
+          irPara('login.html'); return;
+        }
+      } catch(e) {
+        // Se falhar ao ler permissões, verificar email diretamente
+        if (user.email !== 'raphael@amorsaude.com') {
+          irPara('login.html'); return;
+        }
       }
 
       initDashboard(_db, ref, get, onValue, remove);
