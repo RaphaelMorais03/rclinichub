@@ -369,10 +369,20 @@
         const linhas = txt.trim().split('\n');
         if (linhas.length < 2) return vazio('vazio', 'Planilha sem dados');
 
-        // Detecta colunas pelo cabeçalho
-        const rawHeader = parseCsvLine(linhas[0]);
-        const header = rawHeader.map(h => normNome(h).replace(/\s/g,''));
-        const iNome  = header.findIndex(h => h.includes('paciente') || h.includes('nome'));
+        // Procura a linha de cabeçalho real (pode não ser a linha 0 se houver título)
+        let headerIdx = -1;
+        let rawHeader = [], header = [];
+        for (let i = 0; i < Math.min(10, linhas.length); i++) {
+          rawHeader = parseCsvLine(linhas[i]);
+          header    = rawHeader.map(h => normNome(h).replace(/\s/g,''));
+          const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
+          const temNf   = header.some(h => h.includes('nf') || h.includes('nota') || h.includes('numero'));
+          if (temNome && temNf) { headerIdx = i; break; }
+        }
+
+        if (headerIdx < 0) return vazio('col_header', 'Cabeçalho não encontrado nas 10 primeiras linhas. Verifique se a planilha tem colunas NOME e N° NOTA FISCAL');
+
+        const iNome  = header.findIndex(h => h === 'nome' || h.includes('paciente'));
         const iNf    = header.findIndex(h => h.includes('nf') || h.includes('nota') || h.includes('numero'));
         const iAtend = header.findIndex(h =>
           h.includes('atendente') || h.includes('operador') ||
@@ -380,15 +390,12 @@
           h.includes('emissor') || h.includes('usuario')
         );
 
-        if (iNome < 0) return vazio('col_nome', 'Coluna NOME não encontrada. Colunas: ' + rawHeader.join(', '));
-        if (iNf   < 0) return vazio('col_nf',   'Coluna NF não encontrada. Colunas: ' + rawHeader.join(', '));
-
         // Prepara filtro por colaborador (primeiro nome)
         const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
 
         const mapa = {};
         let pulados = 0;
-        for (let i = 1; i < linhas.length; i++) {
+        for (let i = headerIdx + 1; i < linhas.length; i++) {
           const cols = parseCsvLine(linhas[i]);
           const nome = normNome(cols[iNome] || '');
           const nf   = (cols[iNf] || '').replace(/"/g,'').trim();
