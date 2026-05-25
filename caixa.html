@@ -372,8 +372,9 @@
         );
         // Coluna de atendente/colaborador (opcional)
         const iAtend = header.findIndex(h =>
-          h.includes('atendente') || h.includes('colaborador') ||
-          h.includes('responsavel') || h.includes('emissor') || h.includes('usuario')
+          h.includes('atendente') || h.includes('operador') ||
+          h.includes('colaborador') || h.includes('responsavel') ||
+          h.includes('emissor') || h.includes('usuario')
         );
 
         if (iNome < 0 || iNf < 0) return {};
