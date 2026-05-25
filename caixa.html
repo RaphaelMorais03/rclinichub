@@ -457,7 +457,8 @@
           const cols = parseCsvLine(linhas[i]);
           const nome = normNome(cols[iNome] || '');
           const nf   = (cols[iNf] || '').replace(/"/g,'').trim();
-          if (!nome || !nf) continue;
+          if (!nome) continue;
+          if (!nf) { console.log('[NF-CSV] linha', i, '— NF vazia para:', JSON.stringify(nome), '| cols:', JSON.stringify(cols)); continue; }
           mapaTudo[nome] = nf;
 
           if (iAtend >= 0 && fnFiltro) {
