@@ -348,12 +348,61 @@
       return url;
     }
 
+    // Converte YYYY-MM-DD → DD/MM/YYYY (nome das abas da planilha)
+    function tkParaNomeAba(tkFb) {
+      if (!tkFb || tkFb.length !== 10) return null;
+      const [y, m, d] = tkFb.split('-');
+      return d + '/' + m + '/' + y;
+    }
+
+    // Busca o gid da aba com o nome informado, parseando o pubhtml
+    async function buscarGidAba(csvBaseUrl, nomeAba) {
+      try {
+        const pubhtmlUrl = csvBaseUrl.replace(/pub\?output=csv.*$/, 'pubhtml');
+        const r = await fetch(pubhtmlUrl);
+        if (!r.ok) return null;
+        const html = await r.text();
+        const doc  = new DOMParser().parseFromString(html, 'text/html');
+
+        // Tenta li#sheet-button-GID com texto = nomeAba
+        for (const el of doc.querySelectorAll('[id^="sheet-button-"]')) {
+          if (el.textContent.trim() === nomeAba)
+            return el.id.replace('sheet-button-', '');
+        }
+        // Fallback: links com #gid= e texto = nomeAba
+        for (const a of doc.querySelectorAll('a[href*="gid="]')) {
+          const m = a.href.match(/gid=(\d+)/);
+          if (m && a.textContent.trim() === nomeAba) return m[1];
+        }
+        // Fallback 2: regex no HTML bruto
+        const re = new RegExp('gid=(\\d+)[^>]*>\\s*' + nomeAba.replace(/\//g,'\\/') + '\\s*<', 'i');
+        const mt = html.match(re);
+        if (mt) return mt[1];
+        return null;
+      } catch(e) { return null; }
+    }
+
     // Retorna { mapa, erro, detalhes } para diagnóstico
     async function carregarNotasFiscais(atendenteFiltro) {
       const vazio = (erro, detalhes) => ({ mapa: {}, erro, detalhes: detalhes || '' });
       if (!window._planilhaNfUrl) return vazio('sem_url');
       try {
-        const csvUrl = normalizeSheetUrl(window._planilhaNfUrl);
+        const csvBase = normalizeSheetUrl(window._planilhaNfUrl);
+
+        // Descobre a aba pela data do caixa (window.TK_FB = YYYY-MM-DD)
+        const nomeAba = tkParaNomeAba(window.TK_FB);
+        let csvUrl = csvBase;
+        let abaInfo = '';
+        if (nomeAba) {
+          const gid = await buscarGidAba(csvBase, nomeAba);
+          if (gid) {
+            csvUrl  = csvBase.replace(/&gid=\d+/, '') + '&gid=' + gid;
+            abaInfo = ' · aba ' + nomeAba;
+          } else {
+            abaInfo = ' · aba ' + nomeAba + ' não encontrada, usando planilha geral';
+          }
+        }
+
         let r;
         try {
           r = await fetch(csvUrl);
@@ -417,8 +466,8 @@
         const usouFiltro = iAtend >= 0 && fnFiltro && Object.keys(mapaTudo).length > 0;
         const mapa = (usouFiltro && Object.keys(mapaFiltrado).length === 0) ? mapaTudo : mapaFiltrado;
         const obs  = usouFiltro && Object.keys(mapaFiltrado).length === 0
-          ? Object.keys(mapa).length + ' NFs (exibindo todas — operador não encontrado na planilha)'
-          : Object.keys(mapa).length + ' NFs' + (usouFiltro ? ' deste operador' : '');
+          ? Object.keys(mapa).length + ' NFs (exibindo todas — operador não encontrado na planilha)' + abaInfo
+          : Object.keys(mapa).length + ' NFs' + (usouFiltro ? ' deste operador' : '') + abaInfo;
 
         return { mapa, erro: null, detalhes: obs };
       } catch(e) {
