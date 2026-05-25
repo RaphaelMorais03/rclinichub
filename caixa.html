@@ -374,14 +374,15 @@
     }
 
     // Retorna { mapa, erro, detalhes } para diagnóstico
-    async function carregarNotasFiscais(atendenteFiltro) {
+    // caixaDataStr: "DD/MM/YYYY" extraída dos lançamentos do AMEI (tem precedência sobre a data de hoje)
+    async function carregarNotasFiscais(atendenteFiltro, caixaDataStr) {
       const vazio = (erro, detalhes) => ({ mapa: {}, erro, detalhes: detalhes || '' });
       if (!window._planilhaNfUrl) return vazio('sem_url');
       try {
         const csvBase = normalizeSheetUrl(window._planilhaNfUrl).replace(/&sheet=[^&]*/,'');
 
-        // Tenta buscar a aba da data exata (DD/MM/YYYY)
-        const nomeAba = tkParaNomeAba(window.TK_FB);
+        // Usa a data dos lançamentos do AMEI; fallback para data de hoje
+        const nomeAba = caixaDataStr || tkParaNomeAba(window.TK_FB);
         let csvUrl = csvBase;
         let abaInfo = '';
         if (nomeAba) {
@@ -544,12 +545,14 @@
         window.fbSet('relatorios/' + window.USER_UID + '/' + window.TK_FB, snap).catch(()=>{});
       }
 
+      // Data do AMEI (dd/mm/yyyy) — usada para buscar a aba correta da planilha de NF
+      const caixaDataAmei = d.lancamentos[0]?.dtHora?.slice(0,10) || null; // "dd/mm/yyyy"
+
       // Carregar planilha NF filtrando pelo colaborador logado
-      const nfResult   = await carregarNotasFiscais(sessionStorage.getItem('usuario'));
+      const nfResult   = await carregarNotasFiscais(sessionStorage.getItem('usuario'), caixaDataAmei);
       const mapaFiscal = nfResult.mapa;
       const temNf      = Object.keys(mapaFiscal).length > 0;
-      console.log('[NF] mapa:', JSON.stringify(mapaFiscal), '| erro:', nfResult.erro, '| det:', nfResult.detalhes);
-      console.log('[NF] pacientes no relatório:', d.lancamentos.map(l => JSON.stringify(normNome(l.paciente))));
+      console.log('[NF] data AMEI:', caixaDataAmei, '| mapa keys:', Object.keys(mapaFiscal), '| det:', nfResult.detalhes);
 
       const aten       = sessionStorage.getItem('usuario') || 'Responsável';
       const now        = new Date();
