@@ -139,7 +139,7 @@
             <label class="f-label" style="margin-bottom:6px;">Cole os dados do caixa (AMEI)</label>
             <textarea id="cxPaste" style="width:100%;height:280px;padding:14px;border:1.5px solid var(--gray-200);border-radius:12px;font-family:monospace;font-size:12px;resize:vertical;outline:none;transition:border-color .2s;" placeholder="Cole aqui os dados copiados do sistema AMEI..." onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--gray-200)'"></textarea>
             <div style="margin-top:14px;">
-              <button class="btn-r" onclick="gerarRelatorio()" style="width:100%;justify-content:center;padding:14px;font-size:15px;"><i class="fas fa-chart-bar"></i> Gerar Relatório</button>
+              <button class="btn-r" id="btnGerar" onclick="gerarRelatorio()" style="width:100%;justify-content:center;padding:14px;font-size:15px;"><i class="fas fa-chart-bar"></i> Gerar Relatório</button>
             </div>
           </div>
         </div>
@@ -400,6 +400,13 @@
       return d + '/' + m + '/' + y;
     }
 
+    // fetch com timeout (ms) — aborta se demorar demais
+    function fetchComTimeout(url, ms) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), ms);
+      return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(timer));
+    }
+
     // Retorna { mapa, erro, detalhes } para diagnóstico
     // caixaDataStr: "DD/MM/YYYY" extraída dos lançamentos do AMEI (tem precedência sobre a data de hoje)
     async function carregarNotasFiscais(atendenteFiltro, caixaDataStr) {
@@ -415,10 +422,9 @@
         if (nomeAba) {
           try {
             const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
-            const rh = await fetch(pubhtmlUrl);
+            const rh = await fetchComTimeout(pubhtmlUrl, 8000);
             if (rh.ok) {
               const html = await rh.text();
-              // Extrai mapa nome→gid do array items.push({name:"...",pageUrl:"...gid=N..."})
               const tabRe = /items\.push\(\{name:\s*"((?:[^"\\]|\\.)+?)",\s*pageUrl:\s*"([^"]+)"/g;
               let m;
               while ((m = tabRe.exec(html)) !== null) {
@@ -431,14 +437,14 @@
                 }
               }
             }
-          } catch(e) {}
+          } catch(e) { /* timeout ou erro de rede — usa aba padrão */ }
 
           if (csvUrl === csvBase) abaInfo = ' · aba ' + nomeAba + ' não encontrada, usando planilha geral';
         }
 
         let r;
         try {
-          r = await fetch(csvUrl);
+          r = await fetchComTimeout(csvUrl, 8000);
         } catch(e) {
           return vazio('fetch_erro', e.message);
         }
@@ -539,6 +545,11 @@
     window.gerarRelatorio = async function() {
       const txt = document.getElementById('cxPaste').value.trim();
       if (!txt) { toast('Cole os dados do caixa antes de gerar', 'error'); return; }
+
+      const btn = document.getElementById('btnGerar');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando…'; }
+      const _restoreBtn = () => { if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-chart-bar"></i> Gerar Relatório'; } };
+      try {
       const d = parseCaixa(txt);
       if (!d.lancamentos.length && !Object.keys(d.totForma).length) {
         toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); return;
@@ -741,6 +752,12 @@
         '</div>';
 
       document.getElementById('telaPreview').classList.add('open');
+      _restoreBtn();
+      } catch(err) {
+        console.error('[gerarRelatorio] erro:', err);
+        toast('Erro ao gerar relatório: ' + (err.message || err), 'error');
+        _restoreBtn();
+      }
     };
 
     window.voltarMain = function() { document.getElementById('telaPreview').classList.remove('open'); };
