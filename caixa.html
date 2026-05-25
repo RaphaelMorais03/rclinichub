@@ -368,63 +368,21 @@
         let csvUrl = csvBase;
         let abaInfo = '';
         if (nomeAba) {
-          // Tenta 1: parâmetro &sheet=NOME
-          const urlSheet = csvBase + '&sheet=' + encodeURIComponent(nomeAba);
+          // Parse pubhtml para extrair gid da aba da data
           try {
-            const r0 = await fetch(urlSheet);
-            if (r0.ok) {
-              const t0 = await r0.text();
-              console.log('[NF sheet=] primeiros 200 chars:', t0.substring(0,200));
-              if (t0 && !t0.trim().startsWith('<') && t0.trim().split('\n').length > 1) {
-                csvUrl = urlSheet; abaInfo = ' · aba ' + nomeAba + ' (sheet=)';
-              }
+            const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
+            const rh = await fetch(pubhtmlUrl);
+            if (rh.ok) {
+              const html = await rh.text();
+              console.log('[NF pubhtml] length:', html.length, '| primeiros 5000 chars:', html.substring(0,5000));
+              // Log todos links e elementos com id/class relacionados a sheet
+              const doc = new DOMParser().parseFromString(html, 'text/html');
+              const allLinks = [...doc.querySelectorAll('a[href]')].filter(a => a.href.includes('gid') || a.textContent.includes('/'));
+              console.log('[NF links com gid ou data]', allLinks.map(a => ({href: a.href, text: a.textContent.trim().substring(0,40)})));
+              const allLi = [...doc.querySelectorAll('li')].filter(li => li.id || li.textContent.trim().length < 20);
+              console.log('[NF li elements]', allLi.map(e => ({id: e.id, class: e.className, text: e.textContent.trim().substring(0,30)})));
             }
-          } catch(e) { console.log('[NF sheet= erro]', e.message); }
-
-          // Tenta 2: parse pubhtml para extrair gid
-          if (csvUrl === csvBase) {
-            try {
-              const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
-              const rh = await fetch(pubhtmlUrl);
-              if (rh.ok) {
-                const html = await rh.text();
-                console.log('[NF pubhtml] primeiros 3000 chars:', html.substring(0,3000));
-                const doc = new DOMParser().parseFromString(html, 'text/html');
-                // Tenta múltiplos seletores
-                const candidates = [
-                  ...doc.querySelectorAll('[id^="sheet-button-"]'),
-                  ...doc.querySelectorAll('[data-sheet-id]'),
-                  ...doc.querySelectorAll('li[class*="sheet"]'),
-                ];
-                console.log('[NF pubhtml tabs]', candidates.map(e => ({id: e.id, attr: e.getAttribute('data-sheet-id'), text: e.textContent.trim().substring(0,30)})));
-                for (const el of candidates) {
-                  const txt = el.textContent.trim();
-                  if (txt === nomeAba || txt.includes(nomeAba)) {
-                    const gid = el.id?.replace('sheet-button-','') || el.getAttribute('data-sheet-id');
-                    if (gid && /^\d+$/.test(gid)) {
-                      csvUrl  = csvBase + '&gid=' + gid;
-                      abaInfo = ' · aba ' + nomeAba + ' (gid=' + gid + ')';
-                      break;
-                    }
-                  }
-                }
-                // Fallback regex no HTML bruto
-                if (csvUrl === csvBase) {
-                  const ne = nomeAba.replace(/\//g,'\\/');
-                  const patterns = [
-                    new RegExp('gid[=:"]+?(\\d{5,})[^"]{0,200}' + ne),
-                    new RegExp(ne + '[^"]{0,200}gid[=:"]+?(\\d{5,})'),
-                    new RegExp('"(\\d{5,})"[^"]{0,100}"' + ne + '"'),
-                    new RegExp('"' + ne + '"[^"]{0,100}"(\\d{5,})"'),
-                  ];
-                  for (const re of patterns) {
-                    const m = html.match(re);
-                    if (m) { csvUrl = csvBase + '&gid=' + m[1]; abaInfo = ' · aba ' + nomeAba + ' (regex gid=' + m[1] + ')'; break; }
-                  }
-                }
-              }
-            } catch(e) { console.log('[NF pubhtml erro]', e.message); }
-          }
+          } catch(e) { console.log('[NF pubhtml erro]', e.message); }
 
           if (csvUrl === csvBase) abaInfo = ' · aba ' + nomeAba + ' não encontrada, usando planilha geral';
         }
