@@ -355,52 +355,31 @@
       return d + '/' + m + '/' + y;
     }
 
-    // Busca o gid da aba com o nome informado, parseando o pubhtml
-    async function buscarGidAba(csvBaseUrl, nomeAba) {
-      try {
-        const pubhtmlUrl = csvBaseUrl.replace(/pub\?output=csv.*$/, 'pubhtml');
-        const r = await fetch(pubhtmlUrl);
-        if (!r.ok) return null;
-        const html = await r.text();
-        const doc  = new DOMParser().parseFromString(html, 'text/html');
-
-        // Tenta li#sheet-button-GID com texto = nomeAba
-        for (const el of doc.querySelectorAll('[id^="sheet-button-"]')) {
-          if (el.textContent.trim() === nomeAba)
-            return el.id.replace('sheet-button-', '');
-        }
-        // Fallback: links com #gid= e texto = nomeAba
-        for (const a of doc.querySelectorAll('a[href*="gid="]')) {
-          const m = a.href.match(/gid=(\d+)/);
-          if (m && a.textContent.trim() === nomeAba) return m[1];
-        }
-        // Fallback 2: regex no HTML bruto
-        const re = new RegExp('gid=(\\d+)[^>]*>\\s*' + nomeAba.replace(/\//g,'\\/') + '\\s*<', 'i');
-        const mt = html.match(re);
-        if (mt) return mt[1];
-        return null;
-      } catch(e) { return null; }
-    }
-
     // Retorna { mapa, erro, detalhes } para diagnóstico
     async function carregarNotasFiscais(atendenteFiltro) {
       const vazio = (erro, detalhes) => ({ mapa: {}, erro, detalhes: detalhes || '' });
       if (!window._planilhaNfUrl) return vazio('sem_url');
       try {
-        const csvBase = normalizeSheetUrl(window._planilhaNfUrl);
+        const csvBase = normalizeSheetUrl(window._planilhaNfUrl).replace(/&sheet=[^&]*/,'');
 
-        // Descobre a aba pela data do caixa (window.TK_FB = YYYY-MM-DD)
+        // Tenta buscar a aba da data exata (DD/MM/YYYY)
         const nomeAba = tkParaNomeAba(window.TK_FB);
         let csvUrl = csvBase;
         let abaInfo = '';
         if (nomeAba) {
-          const gid = await buscarGidAba(csvBase, nomeAba);
-          if (gid) {
-            csvUrl  = csvBase.replace(/&gid=\d+/, '') + '&gid=' + gid;
-            abaInfo = ' · aba ' + nomeAba;
-          } else {
-            abaInfo = ' · aba ' + nomeAba + ' não encontrada, usando planilha geral';
-          }
+          const urlComAba = csvBase + '&sheet=' + encodeURIComponent(nomeAba);
+          try {
+            const teste = await fetch(urlComAba);
+            if (teste.ok) {
+              const txt = await teste.text();
+              // Se retornou CSV real (não HTML vazio), usa essa aba
+              if (txt && !txt.trim().startsWith('<') && txt.trim().split('\n').length > 1) {
+                csvUrl  = urlComAba;
+                abaInfo = ' · aba ' + nomeAba;
+              }
+            }
+          } catch(e) {}
+          if (csvUrl === csvBase) abaInfo = ' · aba ' + nomeAba + ' não encontrada, usando planilha geral';
         }
 
         let r;
@@ -441,6 +420,7 @@
 
         // Prepara filtro por colaborador (primeiro nome)
         const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
+        console.log('[NF] atendenteFiltro:', atendenteFiltro, '→ fnFiltro:', fnFiltro, '| iAtend col:', rawHeader[iAtend]);
 
         // Primeira passagem: com filtro por operador
         const mapaFiltrado = {};
