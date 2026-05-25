@@ -168,11 +168,29 @@
       return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
     }
     function parseCsvLine(line) {
-      const result = [], re = /("(?:[^"]|"")*"|[^,]*)/g;
-      let m;
-      while ((m = re.exec(line)) !== null) {
-        if (m.index === re.lastIndex) { re.lastIndex++; continue; }
-        result.push(m[1].replace(/^"|"$/g,'').replace(/""/g,'"').trim());
+      // State-machine parser — handles quoted fields with internal commas (e.g. "R$ 257,00")
+      const result = [];
+      let i = 0, field = '';
+      while (i <= line.length) {
+        if (i === line.length) {
+          result.push(field.trim()); break;
+        }
+        const ch = line[i];
+        if (ch === '"') {
+          // quoted field
+          i++;
+          while (i < line.length) {
+            if (line[i] === '"' && line[i+1] === '"') { field += '"'; i += 2; }
+            else if (line[i] === '"') { i++; break; }
+            else { field += line[i++]; }
+          }
+          // skip to next comma
+          while (i < line.length && line[i] !== ',') i++;
+        } else if (ch === ',') {
+          result.push(field.trim()); field = ''; i++;
+        } else {
+          field += ch; i++;
+        }
       }
       return result;
     }
@@ -404,6 +422,7 @@
 
         const linhas = txt.trim().split('\n');
         if (linhas.length < 2) return vazio('vazio', 'Planilha sem dados');
+        console.log('[NF-CSV] primeiras linhas:', linhas.slice(0,4).map((l,i)=>i+': '+l.slice(0,120)));
 
         // Procura a linha de cabeçalho real (pode não ser a linha 0 se houver título)
         let headerIdx = -1;
@@ -413,6 +432,7 @@
           header    = rawHeader.map(h => normNome(h).replace(/\s/g,''));
           const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
           const temNf   = header.some(h => h.includes('nf') || h.includes('nota') || h.includes('numero'));
+          console.log('[NF-CSV] linha', i, '→ cols:', JSON.stringify(rawHeader), '| temNome:', temNome, '| temNf:', temNf);
           if (temNome && temNf) { headerIdx = i; break; }
         }
 
