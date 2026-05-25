@@ -330,12 +330,31 @@
     }
 
     /* ── PLANILHA NF (Google Sheets CSV) ── */
+    // Converte qualquer URL do Sheets publicado para versão CSV
+    function normalizeSheetUrl(url) {
+      if (!url) return url;
+      url = url.trim();
+      if (url.includes('output=csv')) return url;          // já está correto
+      // pubhtml → pub?output=csv  (preserva ?gid= se houver)
+      if (url.includes('pubhtml')) {
+        const gid = (url.match(/[?&]gid=(\d+)/) || [])[1];
+        const base = url.replace(/pubhtml.*$/, 'pub?output=csv');
+        return gid ? base + '&gid=' + gid : base;
+      }
+      // /pub sem output=csv
+      if (/\/pub(\?|$)/.test(url)) {
+        return url + (url.includes('?') ? '&' : '?') + 'output=csv';
+      }
+      return url;
+    }
+
     // atendenteFiltro: nome completo do colaborador logado (opcional)
     // Se a planilha tiver coluna de atendente, filtra só as NFs desse colaborador.
     async function carregarNotasFiscais(atendenteFiltro) {
       if (!window._planilhaNfUrl) return {};
       try {
-        const r   = await fetch(window._planilhaNfUrl);
+        const csvUrl = normalizeSheetUrl(window._planilhaNfUrl);
+        const r   = await fetch(csvUrl);
         if (!r.ok) return {};
         const txt = await r.text();
         const linhas = txt.trim().split('\n');

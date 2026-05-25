@@ -340,7 +340,7 @@
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
           <div style="flex:1;min-width:260px;">
             <label class="f-label">URL publicada (CSV)</label>
-            <input type="text" id="planilhaNfUrl" class="f-input" placeholder="https://docs.google.com/spreadsheets/d/.../pub?output=csv">
+            <input type="text" id="planilhaNfUrl" class="f-input" placeholder="Cole a URL pública do Google Sheets (pubhtml ou pub?output=csv)">
           </div>
           <div style="display:flex;gap:8px;padding-bottom:1px;">
             <button class="btn-p" onclick="salvarPlanilhaNf()"><i class="fas fa-save"></i> Salvar</button>
@@ -1064,6 +1064,19 @@
           document.getElementById('planilhaNfStatus').style.color = 'var(--green)';
         } catch(e) { toast('Erro ao salvar URL: ' + e.message, 'error'); }
       };
+      // Converte pubhtml → pub?output=csv (idêntico ao caixa.html)
+      function normalizeSheetUrl(url) {
+        if (!url) return url;
+        url = url.trim();
+        if (url.includes('output=csv')) return url;
+        if (url.includes('pubhtml')) {
+          const gid = (url.match(/[?&]gid=(\d+)/) || [])[1];
+          const base = url.replace(/pubhtml.*$/, 'pub?output=csv');
+          return gid ? base + '&gid=' + gid : base;
+        }
+        if (/\/pub(\?|$)/.test(url)) return url + (url.includes('?') ? '&' : '?') + 'output=csv';
+        return url;
+      }
       window.testarPlanilhaNf = async function() {
         const url = document.getElementById('planilhaNfUrl').value.trim();
         if (!url) { toast('Cole a URL da planilha primeiro', 'error'); return; }
@@ -1071,12 +1084,14 @@
         status.textContent = 'Testando conexão...';
         status.style.color = 'var(--gray-400)';
         try {
-          const r = await fetch(url);
+          const csvUrl = normalizeSheetUrl(url);
+          const r = await fetch(csvUrl);
           if (!r.ok) throw new Error('HTTP ' + r.status);
           const txt = await r.text();
           const linhas = txt.trim().split('\n');
           const registros = Math.max(0, linhas.length - 1);
-          status.textContent = '✅ Conexão OK — ' + registros + ' registro(s) encontrado(s)';
+          const header = linhas[0].split(',').map(h => h.replace(/"/g,'').trim());
+          status.textContent = '✅ ' + registros + ' registro(s) · Colunas: ' + header.join(' | ');
           status.style.color = 'var(--green)';
         } catch(e) {
           status.textContent = '❌ Falha ao acessar — verifique se a planilha foi publicada corretamente';
