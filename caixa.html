@@ -474,7 +474,6 @@
       }
 
       // 3. Palavras em comum (≥2 palavras com ≥4 letras cada)
-      // Cobre casos como "DANILO DIAS" vs "DANILO RICARDO DIAS"
       const wpac = np.split(/\s+/).filter(w => w.length >= 4);
       if (wpac.length >= 2) {
         for (const [k, v] of Object.entries(mapa)) {
@@ -484,6 +483,17 @@
         }
       }
 
+      // 4. Match por primeira palavra longa (≥5 letras) — fallback para nomes com variações
+      const primPac = np.split(/\s+/).find(w => w.length >= 5);
+      if (primPac) {
+        for (const [k, v] of Object.entries(mapa)) {
+          const primNf = k.split(/\s+/).find(w => w.length >= 5);
+          if (primNf && primPac === primNf) return v;
+        }
+      }
+
+      // Log para diagnóstico quando há NFs no mapa mas não houve match
+      console.warn('[buscarNf] SEM MATCH — pac:', JSON.stringify(np), '| mapa:', JSON.stringify(Object.fromEntries(Object.entries(mapa).slice(0,5))));
       return null;
     }
 
@@ -518,6 +528,8 @@
       const nfResult   = await carregarNotasFiscais(sessionStorage.getItem('usuario'));
       const mapaFiscal = nfResult.mapa;
       const temNf      = Object.keys(mapaFiscal).length > 0;
+      console.log('[NF] mapa:', JSON.stringify(mapaFiscal), '| erro:', nfResult.erro, '| det:', nfResult.detalhes);
+      console.log('[NF] pacientes no relatório:', d.lancamentos.map(l => JSON.stringify(normNome(l.paciente))));
 
       const aten       = sessionStorage.getItem('usuario') || 'Responsável';
       const now        = new Date();
@@ -590,8 +602,12 @@
       const todosLancamentos = [...d.lancamentos, ...valesLancamentos];
 
       /* Indicador NF no topo do relatório */
+      const mapaKeys = Object.keys(mapaFiscal);
+      const mapaPreview = mapaKeys.length
+        ? ' · Nomes na planilha: ' + mapaKeys.slice(0,3).map(k => '"' + k + '"').join(', ') + (mapaKeys.length > 3 ? ' …' : '')
+        : '';
       const nfIndicador = temNf
-        ? '<div style="font-size:11px;color:#15803d;margin-top:6px;"><i class="fas fa-check-circle"></i> Planilha NF carregada — ' + nfResult.detalhes + '</div>'
+        ? '<div style="font-size:11px;color:#15803d;margin-top:6px;"><i class="fas fa-check-circle"></i> Planilha NF carregada — ' + esc(nfResult.detalhes) + esc(mapaPreview) + '</div>'
         : (window._planilhaNfUrl
             ? '<div style="font-size:11px;color:#b45309;margin-top:6px;">⚠️ Planilha NF inacessível — ' + esc(nfResult.detalhes || nfResult.erro || '') + '</div>'
             : '');
