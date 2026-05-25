@@ -168,23 +168,19 @@
       return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
     }
     function parseCsvLine(line) {
-      // State-machine parser — handles quoted fields with internal commas (e.g. "R$ 257,00")
+      // Usado para dados tab-separados do AMEI — mantido separado
       const result = [];
       let i = 0, field = '';
       while (i <= line.length) {
-        if (i === line.length) {
-          result.push(field.trim()); break;
-        }
+        if (i === line.length) { result.push(field.trim()); break; }
         const ch = line[i];
         if (ch === '"') {
-          // quoted field
           i++;
           while (i < line.length) {
             if (line[i] === '"' && line[i+1] === '"') { field += '"'; i += 2; }
             else if (line[i] === '"') { i++; break; }
             else { field += line[i++]; }
           }
-          // skip to next comma
           while (i < line.length && line[i] !== ',') i++;
         } else if (ch === ',') {
           result.push(field.trim()); field = ''; i++;
@@ -193,6 +189,37 @@
         }
       }
       return result;
+    }
+
+    // Parser de CSV completo (RFC 4180) — respeita campos multi-linha entre aspas
+    function parseCsv(txt) {
+      const rows = [];
+      let i = 0, field = '', row = [], inQ = false;
+      const n = txt.length;
+      while (i <= n) {
+        if (i === n) {
+          row.push(field.trim());
+          if (row.some(f => f !== '')) rows.push(row);
+          break;
+        }
+        const ch = txt[i];
+        if (inQ) {
+          if (ch === '"') {
+            if (txt[i+1] === '"') { field += '"'; i += 2; } // "" → "
+            else { inQ = false; i++; }                       // fecha aspas
+          } else { field += ch; i++; }                       // newline dentro de aspas = parte do campo
+        } else {
+          if      (ch === '"')  { inQ = true; i++; }
+          else if (ch === ',')  { row.push(field.trim()); field = ''; i++; }
+          else if (ch === '\r') { i++; }
+          else if (ch === '\n') {
+            row.push(field.trim()); field = '';
+            if (row.some(f => f !== '')) rows.push(row);
+            row = []; i++;
+          } else { field += ch; i++; }
+        }
+      }
+      return rows;
     }
 
     /* ── INIT ── */
@@ -421,19 +448,18 @@
         // Verifica se voltou HTML em vez de CSV (URL errada ainda)
         if (txt.trim().startsWith('<')) return vazio('retornou_html', 'A URL retornou HTML — verifique se publicou como CSV');
 
-        const linhas = txt.trim().split('\n');
-        if (linhas.length < 2) return vazio('vazio', 'Planilha sem dados');
-        console.log('[NF-CSV] primeiras linhas:', linhas.slice(0,4).map((l,i)=>i+': '+l.slice(0,120)));
+        // Usa parseCsv completo (RFC 4180) — suporta células com quebra de linha interna
+        const todasLinhas = parseCsv(txt);
+        if (todasLinhas.length < 2) return vazio('vazio', 'Planilha sem dados');
 
         // Procura a linha de cabeçalho real (pode não ser a linha 0 se houver título)
         let headerIdx = -1;
         let rawHeader = [], header = [];
-        for (let i = 0; i < Math.min(10, linhas.length); i++) {
-          rawHeader = parseCsvLine(linhas[i]);
+        for (let i = 0; i < Math.min(10, todasLinhas.length); i++) {
+          rawHeader = todasLinhas[i];
           header    = rawHeader.map(h => normNome(h).replace(/\s/g,''));
           const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
           const temNf   = header.some(h => h.includes('nf') || h.includes('nota') || h.includes('numero'));
-          console.log('[NF-CSV] linha', i, '→ cols:', JSON.stringify(rawHeader), '| temNome:', temNome, '| temNf:', temNf);
           if (temNome && temNf) { headerIdx = i; break; }
         }
 
@@ -450,15 +476,14 @@
         // Prepara filtro por colaborador (primeiro nome)
         const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
 
-        // Primeira passagem: com filtro por operador
+        // Monta mapa nome→nf
         const mapaFiltrado = {};
         const mapaTudo     = {};
-        for (let i = headerIdx + 1; i < linhas.length; i++) {
-          const cols = parseCsvLine(linhas[i]);
+        for (let i = headerIdx + 1; i < todasLinhas.length; i++) {
+          const cols = todasLinhas[i];
           const nome = normNome(cols[iNome] || '');
           const nf   = (cols[iNf] || '').replace(/"/g,'').trim();
-          if (!nome) continue;
-          if (!nf) { console.log('[NF-CSV] linha', i, '— NF vazia para:', JSON.stringify(nome), '| cols:', JSON.stringify(cols)); continue; }
+          if (!nome || !nf) continue;
           mapaTudo[nome] = nf;
 
           if (iAtend >= 0 && fnFiltro) {
@@ -553,7 +578,7 @@
       const nfResult   = await carregarNotasFiscais(sessionStorage.getItem('usuario'), caixaDataAmei);
       const mapaFiscal = nfResult.mapa;
       const temNf      = Object.keys(mapaFiscal).length > 0;
-      console.log('[NF] data AMEI:', caixaDataAmei, '| mapa keys:', Object.keys(mapaFiscal), '| det:', nfResult.detalhes);
+      console.log('[NF] data AMEI:', caixaDataAmei, '| NFs:', Object.keys(mapaFiscal).length, '| det:', nfResult.detalhes);
 
       const aten       = sessionStorage.getItem('usuario') || 'Responsável';
       const now        = new Date();
