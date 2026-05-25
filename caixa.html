@@ -530,15 +530,6 @@
         }
       }
 
-      // 4. Match por primeira palavra longa (≥5 letras) — fallback para nomes com variações
-      const primPac = np.split(/\s+/).find(w => w.length >= 5);
-      if (primPac) {
-        for (const [k, v] of Object.entries(mapa)) {
-          const primNf = k.split(/\s+/).find(w => w.length >= 5);
-          if (primNf && primPac === primNf) return v;
-        }
-      }
-
       // Log para diagnóstico quando há NFs no mapa mas não houve match
       console.warn('[buscarNf] SEM MATCH — pac:', JSON.stringify(np), '| mapa:', JSON.stringify(Object.fromEntries(Object.entries(mapa).slice(0,5))));
       return null;
