@@ -544,6 +544,9 @@
         toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); return;
       }
 
+      // Data do AMEI (dd/mm/yyyy) — usada para buscar a aba correta da planilha de NF
+      const caixaDataAmei = d.lancamentos[0]?.dtHora?.slice(0,10) || null; // "dd/mm/yyyy"
+
       // Salvar snapshot para o dashboard admin
       // Usa a data do AMEI como chave (não a data de hoje), para relatórios retroativos
       const snapData = caixaDataAmei
@@ -572,9 +575,6 @@
       } else {
         console.warn('[Firebase] fbSet ou USER_UID não disponível — snapshot não salvo');
       }
-
-      // Data do AMEI (dd/mm/yyyy) — usada para buscar a aba correta da planilha de NF
-      const caixaDataAmei = d.lancamentos[0]?.dtHora?.slice(0,10) || null; // "dd/mm/yyyy"
 
       // Carregar planilha NF filtrando pelo colaborador logado
       const nfResult   = await carregarNotasFiscais(sessionStorage.getItem('usuario'), caixaDataAmei);
