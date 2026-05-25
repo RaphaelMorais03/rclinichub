@@ -464,10 +464,26 @@
     function buscarNf(paciente, mapa) {
       if (!paciente || paciente === '—' || !Object.keys(mapa).length) return null;
       const np = normNome(paciente);
+
+      // 1. Match exato
       if (mapa[np]) return mapa[np];
+
+      // 2. Um contém o outro (substring)
       for (const [k, v] of Object.entries(mapa)) {
         if (np.length > 3 && k.length > 3 && (np.includes(k) || k.includes(np))) return v;
       }
+
+      // 3. Palavras em comum (≥2 palavras com ≥4 letras cada)
+      // Cobre casos como "DANILO DIAS" vs "DANILO RICARDO DIAS"
+      const wpac = np.split(/\s+/).filter(w => w.length >= 4);
+      if (wpac.length >= 2) {
+        for (const [k, v] of Object.entries(mapa)) {
+          const wnf = k.split(/\s+/).filter(w => w.length >= 4);
+          const comuns = wpac.filter(w => wnf.includes(w));
+          if (comuns.length >= 2) return v;
+        }
+      }
+
       return null;
     }
 
