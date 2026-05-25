@@ -402,9 +402,8 @@
 
     // fetch com timeout (ms) — aborta se demorar demais
     function fetchComTimeout(url, ms) {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), ms);
-      return fetch(url, { signal: ctrl.signal }).finally(() => clearTimeout(timer));
+      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
+      return Promise.race([fetch(url), timeout]);
     }
 
     // Retorna { mapa, erro, detalhes } para diagnóstico
@@ -422,7 +421,7 @@
         if (nomeAba) {
           try {
             const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
-            const rh = await fetchComTimeout(pubhtmlUrl, 8000);
+            const rh = await fetchComTimeout(pubhtmlUrl, 4000);
             if (rh.ok) {
               const html = await rh.text();
               const tabRe = /items\.push\(\{name:\s*"((?:[^"\\]|\\.)+?)",\s*pageUrl:\s*"([^"]+)"/g;
@@ -444,7 +443,7 @@
 
         let r;
         try {
-          r = await fetchComTimeout(csvUrl, 8000);
+          r = await fetchComTimeout(csvUrl, 5000);
         } catch(e) {
           return vazio('fetch_erro', e.message);
         }
@@ -742,33 +741,49 @@
       document.getElementById('telaPreview').classList.add('open');
       _restoreBtn();
 
-      // Carrega NFs em segundo plano — não bloqueia a exibição do relatório
+      // Carrega NFs em segundo plano (máx ~9s) — não bloqueia a exibição do relatório
       if (temNf) {
+        const _ind = () => document.getElementById('nfIndicador');
+        // Guarda referência local para o array — closure segura
+        const _lancamentos = todosLancamentos.slice();
+
         carregarNotasFiscais(sessionStorage.getItem('usuario'), caixaDataAmei)
           .then(nfResult => {
             const mapa = nfResult.mapa;
-            const ind  = document.getElementById('nfIndicador');
+            const ind  = _ind();
             if (!Object.keys(mapa).length) {
               if (ind) ind.innerHTML = nfResult.erro && nfResult.erro !== 'sem_url'
-                ? '<span style="color:#b45309;">⚠️ NF: ' + esc(nfResult.detalhes || nfResult.erro) + '</span>'
-                : '';
+                ? '<span style="color:#b45309;">⚠️ ' + esc(nfResult.detalhes || nfResult.erro) + '</span>'
+                : '<span style="color:#94a3b8;font-size:11px;">NF não disponível para esta data</span>';
+              // Limpa ⋯ das células
+              _lancamentos.forEach((_, i) => {
+                const c = document.getElementById('nfc' + i);
+                if (c) c.innerHTML = '<span style="color:#9ca3af;font-size:10px;">—</span>';
+              });
               return;
             }
             // Preenche cada célula NF
-            todosLancamentos.forEach((l, i) => {
+            let encontradas = 0;
+            _lancamentos.forEach((l, i) => {
               const cell = document.getElementById('nfc' + i);
               if (!cell) return;
               const nf = buscarNf(l.paciente, mapa);
+              if (nf) encontradas++;
               cell.innerHTML = nf
                 ? '<span style="background:#dcfce7;color:#15803d;padding:2px 6px;border-radius:5px;font-size:9px;font-weight:800;">' + esc(nf) + '</span>'
                 : '<span style="color:#9ca3af;font-size:10px;">—</span>';
             });
             // Atualiza indicador
-            if (ind) ind.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> ' + esc(nfResult.detalhes) + '</span>';
+            if (ind) ind.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> ' + encontradas + ' NF(s) encontrada(s) — ' + esc(nfResult.detalhes) + '</span>';
           })
-          .catch(() => {
-            const ind = document.getElementById('nfIndicador');
-            if (ind) ind.innerHTML = '';
+          .catch(e => {
+            const ind = _ind();
+            if (ind) ind.innerHTML = '<span style="color:#b45309;">⚠️ Planilha NF não respondeu a tempo</span>';
+            // Limpa ⋯
+            todosLancamentos.forEach((_, i) => {
+              const c = document.getElementById('nfc' + i);
+              if (c) c.innerHTML = '<span style="color:#9ca3af;font-size:10px;">—</span>';
+            });
           });
       }
 
