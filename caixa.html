@@ -541,7 +541,7 @@
     }
 
     /* ── GERAR RELATÓRIO ── */
-    window.gerarRelatorio = async function() {
+    window.gerarRelatorio = function() {
       const txt = document.getElementById('cxPaste').value.trim();
       if (!txt) { toast('Cole os dados do caixa antes de gerar', 'error'); return; }
 
@@ -597,7 +597,7 @@
       const logoEsq    = _logoUrl ? '<img src="' + _logoUrl + '" alt="Logo" style="height:50px;width:auto;object-fit:contain;">' : '<div style="font-size:18px;font-weight:900;color:#0A1F44;">Amor Saúde</div>';
       const imgCentro  = sessionStorage.getItem('caixaHeaderImg') ? '<img src="' + sessionStorage.getItem('caixaHeaderImg') + '" alt="" style="max-height:64px;max-width:260px;width:auto;object-fit:contain;">' : '';
       const clinicaNome = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
-      const sobra      = window.caixa.sobra || 0;
+      const sobra      = (window.caixa && window.caixa.sobra) ? window.caixa.sobra : 0;
 
       /* Cards de forma de pagamento — ordem fixa */
       const CORES = {
