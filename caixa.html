@@ -348,63 +348,65 @@
       return url;
     }
 
-    // atendenteFiltro: nome completo do colaborador logado (opcional)
-    // Se a planilha tiver coluna de atendente, filtra só as NFs desse colaborador.
+    // Retorna { mapa, erro, detalhes } para diagnóstico
     async function carregarNotasFiscais(atendenteFiltro) {
-      if (!window._planilhaNfUrl) return {};
+      const vazio = (erro, detalhes) => ({ mapa: {}, erro, detalhes: detalhes || '' });
+      if (!window._planilhaNfUrl) return vazio('sem_url');
       try {
         const csvUrl = normalizeSheetUrl(window._planilhaNfUrl);
-        const r   = await fetch(csvUrl);
-        if (!r.ok) return {};
+        let r;
+        try {
+          r = await fetch(csvUrl);
+        } catch(e) {
+          return vazio('fetch_erro', e.message);
+        }
+        if (!r.ok) return vazio('http_erro', 'HTTP ' + r.status);
         const txt = await r.text();
+
+        // Verifica se voltou HTML em vez de CSV (URL errada ainda)
+        if (txt.trim().startsWith('<')) return vazio('retornou_html', 'A URL retornou HTML — verifique se publicou como CSV');
+
         const linhas = txt.trim().split('\n');
-        if (linhas.length < 2) return {};
+        if (linhas.length < 2) return vazio('vazio', 'Planilha sem dados');
 
         // Detecta colunas pelo cabeçalho
-        const header = parseCsvLine(linhas[0]).map(h =>
-          normNome(h).replace(/\s/g,'')
-        );
-        const iNome  = header.findIndex(h =>
-          h.includes('paciente') || h.includes('nome')
-        );
-        const iNf    = header.findIndex(h =>
-          h.includes('nf') || h.includes('nota') || h.includes('numero')
-        );
-        // Coluna de atendente/colaborador (opcional)
+        const rawHeader = parseCsvLine(linhas[0]);
+        const header = rawHeader.map(h => normNome(h).replace(/\s/g,''));
+        const iNome  = header.findIndex(h => h.includes('paciente') || h.includes('nome'));
+        const iNf    = header.findIndex(h => h.includes('nf') || h.includes('nota') || h.includes('numero'));
         const iAtend = header.findIndex(h =>
           h.includes('atendente') || h.includes('operador') ||
           h.includes('colaborador') || h.includes('responsavel') ||
           h.includes('emissor') || h.includes('usuario')
         );
 
-        if (iNome < 0 || iNf < 0) return {};
+        if (iNome < 0) return vazio('col_nome', 'Coluna NOME não encontrada. Colunas: ' + rawHeader.join(', '));
+        if (iNf   < 0) return vazio('col_nf',   'Coluna NF não encontrada. Colunas: ' + rawHeader.join(', '));
 
-        // Prepara filtro por colaborador
-        const fnFiltro = atendenteFiltro
-          ? normNome(atendenteFiltro).split(' ')[0]   // primeiro nome
-          : null;
+        // Prepara filtro por colaborador (primeiro nome)
+        const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
 
         const mapa = {};
+        let pulados = 0;
         for (let i = 1; i < linhas.length; i++) {
           const cols = parseCsvLine(linhas[i]);
           const nome = normNome(cols[iNome] || '');
           const nf   = (cols[iNf] || '').replace(/"/g,'').trim();
           if (!nome || !nf) continue;
 
-          // Filtra por atendente se a coluna existir e o filtro estiver definido
           if (iAtend >= 0 && fnFiltro) {
             const nomeAtend = normNome(cols[iAtend] || '');
-            // Match pelo primeiro nome (flexível para variações de escrita)
-            const fnAtend = nomeAtend.split(' ')[0];
+            const fnAtend   = nomeAtend.split(' ')[0];
             if (fnAtend && fnFiltro && !nomeAtend.includes(fnFiltro) && !fnFiltro.includes(fnAtend)) {
-              continue; // NF de outro colaborador — pula
+              pulados++; continue;
             }
           }
-
           mapa[nome] = nf;
         }
-        return mapa;
-      } catch(e) { return {}; }
+        return { mapa, erro: null, detalhes: Object.keys(mapa).length + ' NFs · ' + pulados + ' de outros operadores ignoradas' };
+      } catch(e) {
+        return vazio('excecao', e.message);
+      }
     }
     function buscarNf(paciente, mapa) {
       if (!paciente || paciente === '—' || !Object.keys(mapa).length) return null;
@@ -444,8 +446,9 @@
       }
 
       // Carregar planilha NF filtrando pelo colaborador logado
-      const mapaFiscal = await carregarNotasFiscais(sessionStorage.getItem('usuario'));
-      const temNf = Object.keys(mapaFiscal).length > 0;
+      const nfResult   = await carregarNotasFiscais(sessionStorage.getItem('usuario'));
+      const mapaFiscal = nfResult.mapa;
+      const temNf      = Object.keys(mapaFiscal).length > 0;
 
       const aten       = sessionStorage.getItem('usuario') || 'Responsável';
       const now        = new Date();
@@ -519,8 +522,10 @@
 
       /* Indicador NF no topo do relatório */
       const nfIndicador = temNf
-        ? '<div style="font-size:11px;color:#15803d;margin-top:6px;"><i class="fas fa-check-circle"></i> Planilha NF carregada — ' + Object.keys(mapaFiscal).length + ' registros</div>'
-        : (window._planilhaNfUrl ? '<div style="font-size:11px;color:#b45309;margin-top:6px;">⚠️ Planilha NF configurada mas inacessível</div>' : '');
+        ? '<div style="font-size:11px;color:#15803d;margin-top:6px;"><i class="fas fa-check-circle"></i> Planilha NF carregada — ' + nfResult.detalhes + '</div>'
+        : (window._planilhaNfUrl
+            ? '<div style="font-size:11px;color:#b45309;margin-top:6px;">⚠️ Planilha NF inacessível — ' + esc(nfResult.detalhes || nfResult.erro || '') + '</div>'
+            : '');
 
       /* Coluna NF no cabeçalho */
       const thNf = temNf ? '<th style="border:1px solid #374151;padding:7px 8px;font-size:9px;color:rgba(255,255,255,.7);text-align:center;">N° NF</th>' : '';
