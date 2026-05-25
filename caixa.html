@@ -545,11 +545,15 @@
       }
 
       // Salvar snapshot para o dashboard admin
+      // Usa a data do AMEI como chave (não a data de hoje), para relatórios retroativos
+      const snapData = caixaDataAmei
+        ? caixaDataAmei.split('/').reverse().join('-')   // dd/mm/yyyy → yyyy-mm-dd
+        : window.TK_FB;
       if (window.fbSet && window.USER_UID) {
         const snap = {
           colaborador: sessionStorage.getItem('usuario') || '—',
           uid:         window.USER_UID,
-          data:        window.TK_FB,
+          data:        snapData,
           geradoEm:    new Date().toISOString(),
           totForma:    d.totForma,
           lancamentos: d.lancamentos.map(l => ({
@@ -559,7 +563,14 @@
           })),
           dinheiroEntregar: d.dinheiroEntregar || null
         };
-        window.fbSet('relatorios/' + window.USER_UID + '/' + window.TK_FB, snap).catch(()=>{});
+        window.fbSet('relatorios/' + window.USER_UID + '/' + snapData, snap)
+          .then(() => toast('Relatório salvo no dashboard ✓', 'success'))
+          .catch(e => {
+            console.error('[Firebase] Erro ao salvar relatório:', e);
+            toast('Relatório gerado, mas não foi salvo no dashboard — verifique as permissões do Firebase', 'error');
+          });
+      } else {
+        console.warn('[Firebase] fbSet ou USER_UID não disponível — snapshot não salvo');
       }
 
       // Data do AMEI (dd/mm/yyyy) — usada para buscar a aba correta da planilha de NF
