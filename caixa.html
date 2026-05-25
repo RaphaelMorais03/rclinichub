@@ -364,25 +364,28 @@
 
         // Tenta buscar a aba da data exata (DD/MM/YYYY)
         const nomeAba = tkParaNomeAba(window.TK_FB);
-        console.log('[NF] TK_FB:', JSON.stringify(window.TK_FB), '| nomeAba:', JSON.stringify(nomeAba));
         let csvUrl = csvBase;
         let abaInfo = '';
         if (nomeAba) {
-          // Parse pubhtml para extrair gid da aba da data
           try {
             const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
             const rh = await fetch(pubhtmlUrl);
             if (rh.ok) {
               const html = await rh.text();
-              console.log('[NF pubhtml] length:', html.length, '| primeiros 5000 chars:', html.substring(0,5000));
-              // Log todos links e elementos com id/class relacionados a sheet
-              const doc = new DOMParser().parseFromString(html, 'text/html');
-              const allLinks = [...doc.querySelectorAll('a[href]')].filter(a => a.href.includes('gid') || a.textContent.includes('/'));
-              console.log('[NF links com gid ou data]', allLinks.map(a => ({href: a.href, text: a.textContent.trim().substring(0,40)})));
-              const allLi = [...doc.querySelectorAll('li')].filter(li => li.id || li.textContent.trim().length < 20);
-              console.log('[NF li elements]', allLi.map(e => ({id: e.id, class: e.className, text: e.textContent.trim().substring(0,30)})));
+              // Extrai mapa nome→gid do array items.push({name:"...",pageUrl:"...gid=N..."})
+              const tabRe = /items\.push\(\{name:"((?:[^"\\]|\\.)+?)",\s*pageUrl:"([^"]+)"/g;
+              let m;
+              while ((m = tabRe.exec(html)) !== null) {
+                const tabName = m[1].replace(/\\\//g, '/').replace(/\\\\/g, '\\');
+                const gidM   = m[2].match(/gid=(-?\d+)/);
+                if (gidM && tabName === nomeAba) {
+                  csvUrl  = csvBase.replace(/&gid=\d+/, '') + '&gid=' + gidM[1];
+                  abaInfo = ' · aba ' + nomeAba;
+                  break;
+                }
+              }
             }
-          } catch(e) { console.log('[NF pubhtml erro]', e.message); }
+          } catch(e) {}
 
           if (csvUrl === csvBase) abaInfo = ' · aba ' + nomeAba + ' não encontrada, usando planilha geral';
         }
@@ -425,7 +428,6 @@
 
         // Prepara filtro por colaborador (primeiro nome)
         const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
-        console.log('[NF] atendenteFiltro:', atendenteFiltro, '→ fnFiltro:', fnFiltro, '| iAtend col:', rawHeader[iAtend]);
 
         // Primeira passagem: com filtro por operador
         const mapaFiltrado = {};
