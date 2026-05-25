@@ -373,7 +373,7 @@
             if (rh.ok) {
               const html = await rh.text();
               // Extrai mapa nome→gid do array items.push({name:"...",pageUrl:"...gid=N..."})
-              const tabRe = /items\.push\(\{name:"((?:[^"\\]|\\.)+?)",\s*pageUrl:"([^"]+)"/g;
+              const tabRe = /items\.push\(\{name:\s*"((?:[^"\\]|\\.)+?)",\s*pageUrl:\s*"([^"]+)"/g;
               let m;
               while ((m = tabRe.exec(html)) !== null) {
                 const tabName = m[1].replace(/\\\//g, '/').replace(/\\\\/g, '\\');
