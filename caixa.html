@@ -393,24 +393,34 @@
         // Prepara filtro por colaborador (primeiro nome)
         const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
 
-        const mapa = {};
-        let pulados = 0;
+        // Primeira passagem: com filtro por operador
+        const mapaFiltrado = {};
+        const mapaTudo     = {};
         for (let i = headerIdx + 1; i < linhas.length; i++) {
           const cols = parseCsvLine(linhas[i]);
           const nome = normNome(cols[iNome] || '');
           const nf   = (cols[iNf] || '').replace(/"/g,'').trim();
           if (!nome || !nf) continue;
+          mapaTudo[nome] = nf;
 
           if (iAtend >= 0 && fnFiltro) {
             const nomeAtend = normNome(cols[iAtend] || '');
             const fnAtend   = nomeAtend.split(' ')[0];
             if (fnAtend && fnFiltro && !nomeAtend.includes(fnFiltro) && !fnFiltro.includes(fnAtend)) {
-              pulados++; continue;
+              continue; // outro operador
             }
           }
-          mapa[nome] = nf;
+          mapaFiltrado[nome] = nf;
         }
-        return { mapa, erro: null, detalhes: Object.keys(mapa).length + ' NFs · ' + pulados + ' de outros operadores ignoradas' };
+
+        // Fallback: se o filtro zerou tudo (ex: admin testando), usa todas as NFs
+        const usouFiltro = iAtend >= 0 && fnFiltro && Object.keys(mapaTudo).length > 0;
+        const mapa = (usouFiltro && Object.keys(mapaFiltrado).length === 0) ? mapaTudo : mapaFiltrado;
+        const obs  = usouFiltro && Object.keys(mapaFiltrado).length === 0
+          ? Object.keys(mapa).length + ' NFs (exibindo todas — operador não encontrado na planilha)'
+          : Object.keys(mapa).length + ' NFs' + (usouFiltro ? ' deste operador' : '');
+
+        return { mapa, erro: null, detalhes: obs };
       } catch(e) {
         return vazio('excecao', e.message);
       }
