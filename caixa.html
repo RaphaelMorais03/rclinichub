@@ -364,6 +364,7 @@
 
         // Tenta buscar a aba da data exata (DD/MM/YYYY)
         const nomeAba = tkParaNomeAba(window.TK_FB);
+        console.log('[NF] TK_FB:', JSON.stringify(window.TK_FB), '| nomeAba:', JSON.stringify(nomeAba));
         let csvUrl = csvBase;
         let abaInfo = '';
         if (nomeAba) {
