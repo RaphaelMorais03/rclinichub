@@ -330,7 +330,9 @@
     }
 
     /* ── PLANILHA NF (Google Sheets CSV) ── */
-    async function carregarNotasFiscais() {
+    // atendenteFiltro: nome completo do colaborador logado (opcional)
+    // Se a planilha tiver coluna de atendente, filtra só as NFs desse colaborador.
+    async function carregarNotasFiscais(atendenteFiltro) {
       if (!window._planilhaNfUrl) return {};
       try {
         const r   = await fetch(window._planilhaNfUrl);
@@ -338,16 +340,48 @@
         const txt = await r.text();
         const linhas = txt.trim().split('\n');
         if (linhas.length < 2) return {};
-        const header = parseCsvLine(linhas[0]).map(h => h.toLowerCase());
-        const iNome  = header.findIndex(h => h.includes('paciente') || h.includes('nome'));
-        const iNf    = header.findIndex(h => h.includes('nf') || h.includes('nota') || h.includes('número') || h.includes('numero'));
+
+        // Detecta colunas pelo cabeçalho
+        const header = parseCsvLine(linhas[0]).map(h =>
+          normNome(h).replace(/\s/g,'')
+        );
+        const iNome  = header.findIndex(h =>
+          h.includes('paciente') || h.includes('nome')
+        );
+        const iNf    = header.findIndex(h =>
+          h.includes('nf') || h.includes('nota') || h.includes('numero')
+        );
+        // Coluna de atendente/colaborador (opcional)
+        const iAtend = header.findIndex(h =>
+          h.includes('atendente') || h.includes('colaborador') ||
+          h.includes('responsavel') || h.includes('emissor') || h.includes('usuario')
+        );
+
         if (iNome < 0 || iNf < 0) return {};
+
+        // Prepara filtro por colaborador
+        const fnFiltro = atendenteFiltro
+          ? normNome(atendenteFiltro).split(' ')[0]   // primeiro nome
+          : null;
+
         const mapa = {};
         for (let i = 1; i < linhas.length; i++) {
           const cols = parseCsvLine(linhas[i]);
           const nome = normNome(cols[iNome] || '');
-          const nf   = (cols[iNf] || '').trim();
-          if (nome && nf) mapa[nome] = nf;
+          const nf   = (cols[iNf] || '').replace(/"/g,'').trim();
+          if (!nome || !nf) continue;
+
+          // Filtra por atendente se a coluna existir e o filtro estiver definido
+          if (iAtend >= 0 && fnFiltro) {
+            const nomeAtend = normNome(cols[iAtend] || '');
+            // Match pelo primeiro nome (flexível para variações de escrita)
+            const fnAtend = nomeAtend.split(' ')[0];
+            if (fnAtend && fnFiltro && !nomeAtend.includes(fnFiltro) && !fnFiltro.includes(fnAtend)) {
+              continue; // NF de outro colaborador — pula
+            }
+          }
+
+          mapa[nome] = nf;
         }
         return mapa;
       } catch(e) { return {}; }
@@ -389,8 +423,8 @@
         window.fbSet('relatorios/' + window.USER_UID + '/' + window.TK_FB, snap).catch(()=>{});
       }
 
-      // Carregar planilha NF em paralelo (não bloqueia se falhar)
-      const mapaFiscal = await carregarNotasFiscais();
+      // Carregar planilha NF filtrando pelo colaborador logado
+      const mapaFiscal = await carregarNotasFiscais(sessionStorage.getItem('usuario'));
       const temNf = Object.keys(mapaFiscal).length > 0;
 
       const aten       = sessionStorage.getItem('usuario') || 'Responsável';
