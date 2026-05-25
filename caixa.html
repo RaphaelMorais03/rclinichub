@@ -552,7 +552,7 @@
       try {
       const d = parseCaixa(txt);
       if (!d.lancamentos.length && !Object.keys(d.totForma).length) {
-        toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); return;
+        toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); _restoreBtn(); return;
       }
 
       // Data do AMEI (dd/mm/yyyy) — usada para buscar a aba correta da planilha de NF
@@ -587,11 +587,8 @@
         console.warn('[Firebase] fbSet ou USER_UID não disponível — snapshot não salvo');
       }
 
-      // Carregar planilha NF filtrando pelo colaborador logado
-      const nfResult   = await carregarNotasFiscais(sessionStorage.getItem('usuario'), caixaDataAmei);
-      const mapaFiscal = nfResult.mapa;
-      const temNf      = Object.keys(mapaFiscal).length > 0;
-      console.log('[NF] data AMEI:', caixaDataAmei, '| NFs:', Object.keys(mapaFiscal).length, '| det:', nfResult.detalhes);
+      // Coluna NF mostrada imediatamente se URL configurada; dados carregam em segundo plano
+      const temNf = !!window._planilhaNfUrl;
 
       const aten       = sessionStorage.getItem('usuario') || 'Responsável';
       const now        = new Date();
@@ -663,16 +660,10 @@
       }));
       const todosLancamentos = [...d.lancamentos, ...valesLancamentos];
 
-      /* Indicador NF no topo do relatório */
-      const mapaKeys = Object.keys(mapaFiscal);
-      const mapaPreview = mapaKeys.length
-        ? ' · Nomes na planilha: ' + mapaKeys.slice(0,3).map(k => '"' + k + '"').join(', ') + (mapaKeys.length > 3 ? ' …' : '')
-        : '';
+      /* Indicador NF — atualizado depois pelo loader assíncrono */
       const nfIndicador = temNf
-        ? '<div style="font-size:11px;color:#15803d;margin-top:6px;"><i class="fas fa-check-circle"></i> Planilha NF carregada — ' + esc(nfResult.detalhes) + esc(mapaPreview) + '</div>'
-        : (window._planilhaNfUrl
-            ? '<div style="font-size:11px;color:#b45309;margin-top:6px;">⚠️ Planilha NF inacessível — ' + esc(nfResult.detalhes || nfResult.erro || '') + '</div>'
-            : '');
+        ? '<div id="nfIndicador" style="font-size:11px;color:#94a3b8;margin-top:6px;"><i class="fas fa-spinner fa-spin"></i> Carregando NFs…</div>'
+        : '';
 
       /* Coluna NF no cabeçalho */
       const thNf = temNf ? '<th style="border:1px solid #374151;padding:7px 8px;font-size:9px;color:rgba(255,255,255,.7);text-align:center;">N° NF</th>' : '';
@@ -686,11 +677,8 @@
           : (l.isDespesa
               ? '<span style="background:#fee2e2;color:#C62828;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:800;">Despesa</span>'
               : '<span style="background:#dcfce7;color:#15803d;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:800;">Receita</span>');
-        const nf    = buscarNf(l.paciente, mapaFiscal);
         const nfCell = temNf
-          ? '<td style="border:1px solid #e5e7eb;padding:5px 8px;font-size:10px;text-align:center;">' +
-            (nf ? '<span style="background:#dcfce7;color:#15803d;padding:2px 6px;border-radius:5px;font-size:9px;font-weight:800;">' + esc(nf) + '</span>'
-                : '<span style="color:#9ca3af;font-size:10px;">—</span>') + '</td>'
+          ? '<td id="nfc' + i + '" style="border:1px solid #e5e7eb;padding:5px 8px;font-size:10px;text-align:center;"><span style="color:#94a3b8;font-size:10px;">⋯</span></td>'
           : '';
         return '<tr style="background:' + bg + ';">' +
           '<td style="border:1px solid #e5e7eb;padding:5px 8px;font-size:10px;color:#9ca3af;white-space:nowrap;">' + esc(l.dtHora || l.hora) + '</td>' +
@@ -753,6 +741,37 @@
 
       document.getElementById('telaPreview').classList.add('open');
       _restoreBtn();
+
+      // Carrega NFs em segundo plano — não bloqueia a exibição do relatório
+      if (temNf) {
+        carregarNotasFiscais(sessionStorage.getItem('usuario'), caixaDataAmei)
+          .then(nfResult => {
+            const mapa = nfResult.mapa;
+            const ind  = document.getElementById('nfIndicador');
+            if (!Object.keys(mapa).length) {
+              if (ind) ind.innerHTML = nfResult.erro && nfResult.erro !== 'sem_url'
+                ? '<span style="color:#b45309;">⚠️ NF: ' + esc(nfResult.detalhes || nfResult.erro) + '</span>'
+                : '';
+              return;
+            }
+            // Preenche cada célula NF
+            todosLancamentos.forEach((l, i) => {
+              const cell = document.getElementById('nfc' + i);
+              if (!cell) return;
+              const nf = buscarNf(l.paciente, mapa);
+              cell.innerHTML = nf
+                ? '<span style="background:#dcfce7;color:#15803d;padding:2px 6px;border-radius:5px;font-size:9px;font-weight:800;">' + esc(nf) + '</span>'
+                : '<span style="color:#9ca3af;font-size:10px;">—</span>';
+            });
+            // Atualiza indicador
+            if (ind) ind.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> ' + esc(nfResult.detalhes) + '</span>';
+          })
+          .catch(() => {
+            const ind = document.getElementById('nfIndicador');
+            if (ind) ind.innerHTML = '';
+          });
+      }
+
       } catch(err) {
         console.error('[gerarRelatorio] erro:', err);
         toast('Erro ao gerar relatório: ' + (err.message || err), 'error');
