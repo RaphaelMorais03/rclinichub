@@ -636,6 +636,37 @@
         return vazio('excecao', e.message);
       }
     }
+    // Palavras comuns em nomes brasileiros que NÃO identificam uma pessoa
+    const _STOPWORDS = new Set([
+      'de','da','do','dos','das','di','e','a','o','em','com','por','para',
+      // Prenomes muito comuns
+      'maria','jose','joao','ana','luiz','luis','antonio','carlos','francisco',
+      'roberto','paulo','pedro','lucas','gabriel','marcos','rafael','jorge',
+      'anderson','alexandre','andre','bruno','diego','eduardo','fabio','felipe',
+      'fernando','gilberto','gustavo','henrique','igor','junior','leandro',
+      'marcelo','mario','mateus','mauricio','miguel','nelson','paulo','rafael',
+      'renato','ricardo','rodrigo','sergio','thiago','victor','vitor','wagner',
+      'adriana','aline','amanda','ana','beatriz','bruna','camila','cristina',
+      'daniela','elaine','fernanda','gabriela','isabela','jessica','juliana',
+      'larissa','leticia','luciana','mariana','natalia','patricia','priscila',
+      'renata','sabrina','sandra','simone','tatiana','valeria','vanessa','vera',
+      // Sobrenomes muito comuns
+      'silva','santos','oliveira','souza','sousa','pereira','ferreira','alves',
+      'lima','costa','gomes','martins','rodrigues','carvalho','araujo','melo',
+      'ribeiro','rocha','freitas','xavier','mendes','barros','lopes','campos',
+      'moreira','teixeira','moura','brito','cavalcanti','monteiro','azevedo',
+      'ramos','pinto','nunes','fernandes','vieira','barbosa','cavalcante',
+      'nascimento','andrade','cunha','medeiros','batista','machado','nogueira',
+      // Sufixos/partículas de família
+      'filho','filha','junior','neto','neta','sobrinho','segundo','terceiro',
+      'espirito','santo','santa','nossa','senhora','divino','sagrado'
+    ]);
+
+    function _palavrasChave(nome) {
+      // Retorna apenas palavras que NÃO são stopwords e têm ≥5 letras
+      return nome.split(/\s+/).filter(w => w.length >= 5 && !_STOPWORDS.has(w));
+    }
+
     function buscarNf(paciente, mapa) {
       if (!paciente || paciente === '—' || !Object.keys(mapa).length) return null;
       const np = normNome(paciente);
@@ -643,22 +674,32 @@
       // 1. Match exato
       if (mapa[np]) return mapa[np];
 
-      // 2. Um contém o outro (substring)
+      // 2. Substring forte: o nome mais curto deve ter ≥10 chars
+      //    e representar ≥75% do nome mais longo
       for (const [k, v] of Object.entries(mapa)) {
-        if (np.length > 3 && k.length > 3 && (np.includes(k) || k.includes(np))) return v;
-      }
-
-      // 3. Palavras em comum (≥2 palavras com ≥4 letras cada)
-      const wpac = np.split(/\s+/).filter(w => w.length >= 4);
-      if (wpac.length >= 2) {
-        for (const [k, v] of Object.entries(mapa)) {
-          const wnf = k.split(/\s+/).filter(w => w.length >= 4);
-          const comuns = wpac.filter(w => wnf.includes(w));
-          if (comuns.length >= 2) return v;
+        const menor = np.length <= k.length ? np : k;
+        const maior = np.length <= k.length ? k  : np;
+        if (menor.length >= 10 && maior.includes(menor) && menor.length / maior.length >= 0.75) {
+          return v;
         }
       }
 
-      // Log para diagnóstico quando há NFs no mapa mas não houve match
+      // 3. Palavras-chave em comum (ignora stopwords e palavras curtas)
+      //    Exige ≥2 palavras-chave em comum E que cubram ≥60% das chaves do paciente
+      const chavesPac = _palavrasChave(np);
+      if (chavesPac.length >= 1) {
+        for (const [k, v] of Object.entries(mapa)) {
+          const chavesNf = _palavrasChave(k);
+          if (!chavesNf.length) continue;
+          const comuns = chavesPac.filter(w => chavesNf.includes(w));
+          const cobertura = comuns.length / Math.min(chavesPac.length, chavesNf.length);
+          // Precisa de ≥2 palavras-chave em comum OU cobertura total (todos os termos batem)
+          if (comuns.length >= 2 || (comuns.length >= 1 && cobertura === 1.0 && chavesPac.length >= 2)) {
+            return v;
+          }
+        }
+      }
+
       console.warn('[buscarNf] SEM MATCH — pac:', JSON.stringify(np), '| mapa:', JSON.stringify(Object.fromEntries(Object.entries(mapa).slice(0,5))));
       return null;
     }
