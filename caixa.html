@@ -67,9 +67,44 @@
     @media(max-width:900px){.caixa-nums{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:768px){.caixa-grid{grid-template-columns:1fr;}.content{padding:14px 14px 60px;}.print-doc{width:100%;}.user-banner{flex-direction:column;align-items:flex-start;gap:12px;}}
     @media print{.preview-bar{display:none!important;}.preview-wrap{padding:0!important;}.print-doc{box-shadow:none!important;margin:0!important;width:100%!important;}}
+
+    /* ── LOADING OVERLAY (auth) ── */
+    #loadingOverlay{position:fixed;inset:0;background:#f0f4f8;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .4s;}
+    #loadingOverlay.hide{opacity:0;pointer-events:none;}
+    .lo-logo{width:64px;height:64px;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:white;box-shadow:0 4px 20px rgba(10,31,68,.15);}
+    .lo-logo img{width:100%;height:100%;object-fit:contain;}
+    .lo-title{font-size:15px;font-weight:800;color:var(--navy);}
+    .lo-ring{position:relative;width:72px;height:72px;}
+    .lo-ring svg{transform:rotate(-90deg);}
+    .lo-ring circle.track{fill:none;stroke:#e2e8f0;stroke-width:6;}
+    .lo-ring circle.progress{fill:none;stroke:var(--red);stroke-width:6;stroke-linecap:round;stroke-dasharray:188.5;stroke-dashoffset:188.5;transition:stroke-dashoffset .5s ease;}
+    .lo-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:var(--navy);}
+    .lo-msg{font-size:12px;color:var(--gray-500);font-weight:600;letter-spacing:.3px;}
+
+    /* ── SPINNER BOTÃO com % ── */
+    .btn-spinner{display:inline-flex;align-items:center;gap:8px;}
+    .btn-ring{position:relative;width:20px;height:20px;flex-shrink:0;}
+    .btn-ring svg{transform:rotate(-90deg);}
+    .btn-ring circle.track{fill:none;stroke:rgba(255,255,255,.3);stroke-width:3;}
+    .btn-ring circle.prog{fill:none;stroke:white;stroke-width:3;stroke-linecap:round;stroke-dasharray:53.4;stroke-dashoffset:53.4;transition:stroke-dashoffset .4s ease;}
+    .btn-pct{font-size:12px;font-weight:800;}
   </style>
 </head>
 <body>
+  <!-- LOADING OVERLAY (aguarda Firebase Auth) -->
+  <div id="loadingOverlay">
+    <div class="lo-logo"><img src="assets/favicon.png" alt="Logo"></div>
+    <div class="lo-title">Amor Saúde · Caixa</div>
+    <div class="lo-ring">
+      <svg width="72" height="72" viewBox="0 0 72 72">
+        <circle class="track" cx="36" cy="36" r="30"/>
+        <circle class="progress" id="loCircle" cx="36" cy="36" r="30"/>
+      </svg>
+      <div class="lo-pct" id="loPct">0%</div>
+    </div>
+    <div class="lo-msg" id="loMsg">Conectando…</div>
+  </div>
+
   <div class="red-bar"></div>
 
   <!-- TELA PRINCIPAL -->
@@ -139,7 +174,7 @@
             <label class="f-label" style="margin-bottom:6px;">Cole os dados do caixa (AMEI)</label>
             <textarea id="cxPaste" style="width:100%;height:280px;padding:14px;border:1.5px solid var(--gray-200);border-radius:12px;font-family:monospace;font-size:12px;resize:vertical;outline:none;transition:border-color .2s;" placeholder="Cole aqui os dados copiados do sistema AMEI..." onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--gray-200)'"></textarea>
             <div style="margin-top:14px;">
-              <button class="btn-r" id="btnGerar" onclick="gerarRelatorio()" style="width:100%;justify-content:center;padding:14px;font-size:15px;"><i class="fas fa-chart-bar"></i> Gerar Relatório</button>
+              <button class="btn-r" id="btnGerar" onclick="gerarRelatorio()" disabled style="width:100%;justify-content:center;padding:14px;font-size:15px;opacity:.6;cursor:not-allowed;"><i class="fas fa-spinner fa-spin"></i> Carregando…</button>
             </div>
           </div>
         </div>
@@ -161,6 +196,69 @@
   </div>
 
   <script>
+    /* ── LOADING OVERLAY ── */
+    const _loCircle = () => document.getElementById('loCircle');
+    const _loPct    = () => document.getElementById('loPct');
+    const _loMsg    = () => document.getElementById('loMsg');
+    const CIRCUM_LO = 2 * Math.PI * 30; // 188.5
+
+    function setLoadingProgress(pct, msg) {
+      const offset = CIRCUM_LO - (pct / 100) * CIRCUM_LO;
+      const c = _loCircle(); if (c) c.style.strokeDashoffset = offset;
+      const p = _loPct();    if (p) p.textContent = pct + '%';
+      const m = _loMsg();    if (m) m.textContent = msg;
+    }
+
+    function hideLoadingOverlay() {
+      const ov = document.getElementById('loadingOverlay');
+      if (!ov) return;
+      ov.classList.add('hide');
+      setTimeout(() => { try { ov.remove(); } catch(e){} }, 450);
+    }
+
+    /* ── SPINNER DO BOTÃO com % ── */
+    const CIRCUM_BTN = 2 * Math.PI * 8.5; // 53.4
+    let _btnPct = 0, _btnTimer = null;
+
+    function setBtnSpinner(pct, label) {
+      const btn = document.getElementById('btnGerar');
+      if (!btn) return;
+      const offset = CIRCUM_BTN - (pct / 100) * CIRCUM_BTN;
+      btn.innerHTML =
+        '<span class="btn-spinner">' +
+        '<span class="btn-ring"><svg width="20" height="20" viewBox="0 0 20 20">' +
+        '<circle class="track" cx="10" cy="10" r="8.5"/>' +
+        '<circle class="prog" id="btnCircle" cx="10" cy="10" r="8.5" style="stroke-dashoffset:' + offset + '"/>' +
+        '</svg></span>' +
+        '<span class="btn-pct">' + pct + '%</span>' +
+        '<span>' + label + '</span>' +
+        '</span>';
+    }
+
+    function startBtnProgress(etapas) {
+      // etapas: [{pct, label, ms}]
+      const btn = document.getElementById('btnGerar');
+      if (btn) { btn.disabled = true; btn.style.opacity = '1'; btn.style.cursor = 'wait'; }
+      let i = 0;
+      function next() {
+        if (i >= etapas.length) return;
+        const e = etapas[i++];
+        setBtnSpinner(e.pct, e.label);
+        _btnTimer = setTimeout(next, e.ms);
+      }
+      next();
+    }
+
+    function resetBtn() {
+      clearTimeout(_btnTimer);
+      const btn = document.getElementById('btnGerar');
+      if (!btn) return;
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+      btn.innerHTML = '<i class="fas fa-chart-bar"></i> Gerar Relatório';
+    }
+
     /* ── HELPERS ── */
     function pv(v) { return parseFloat((v||'0').replace(/\./g,'').replace(',','.')) || 0; }
     function fm(v) { return 'R$ ' + v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
@@ -326,18 +424,20 @@
         const l = linha.trim();
         if (!l || !/^\d{2}\/\d{2}\/\d{4}/.test(l)) continue;
         const p = l.split(/\t/);
-        if (p.length < 5) continue; // mínimo: data, desc, tipo, forma, valor
+        // fallback: se não houver tabs suficientes, tenta separar por 2+ espaços
+        const cols = p.length >= 5 ? p : l.split(/  +/);
+        if (cols.length < 5) continue; // mínimo: data, desc, tipo, forma, valor
 
-        const dtHora   = (p[0]||'').trim();
+        const dtHora   = (cols[0]||'').trim();
         const hora     = dtHora.length > 11 ? dtHora.slice(11,16) : dtHora;
-        const tipo     = (p[2]||'').trim().toLowerCase();
-        const formaR   = (p[3]||'').trim();
-        const origem   = (p[4]||'').trim().toUpperCase();
-        const paciente = (p[7]||'').trim();
+        const tipo     = (cols[2]||'').trim().toLowerCase();
+        const formaR   = (cols[3]||'').trim();
+        const origem   = (cols[4]||'').trim().toUpperCase();
+        const paciente = (cols[7]||'').trim();
 
-        // Valor: tenta p[8], depois última coluna que contenha número
-        let valor = parseBRL(p[8]);
-        if (valor === 0) valor = parseBRL(p[p.length - 1]);
+        // Valor: tenta cols[8], depois última coluna que contenha número
+        let valor = parseBRL(cols[8]);
+        if (valor === 0) valor = parseBRL(cols[cols.length - 1]);
         if (valor === 0) continue;
 
         if (/saldo inicial/i.test(origem)) continue;
@@ -360,8 +460,8 @@
             dtHora, hora,
             tipo:       isRec ? 'Receita' : (isDesp ? 'Despesa' : tipo),
             forma,
-            descricao:  (p[1]||'').trim(),
-            lancadoPor: (p[6]||'').trim(),
+            descricao:  (cols[1]||'').trim(),
+            lancadoPor: (cols[6]||'').trim(),
             paciente:   paciente || '—',
             valor,
             fmtValor:   fmtBRL(valor),
@@ -545,13 +645,17 @@
       const txt = document.getElementById('cxPaste').value.trim();
       if (!txt) { toast('Cole os dados do caixa antes de gerar', 'error'); return; }
 
-      const btn = document.getElementById('btnGerar');
-      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando…'; }
-      const _restoreBtn = () => { if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-chart-bar"></i> Gerar Relatório'; } };
+      // Inicia spinner com etapas de porcentagem
+      startBtnProgress([
+        {pct: 25, label: 'Processando…',  ms: 300},
+        {pct: 50, label: 'Calculando…',   ms: 400},
+        {pct: 75, label: 'Montando…',     ms: 500}
+      ]);
+
       try {
       const d = parseCaixa(txt);
       if (!d.lancamentos.length && !Object.keys(d.totForma).length) {
-        toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); _restoreBtn(); return;
+        toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); resetBtn(); return;
       }
 
       // Data do AMEI (dd/mm/yyyy) — usada para buscar a aba correta da planilha de NF
@@ -740,7 +844,8 @@
         '</div>';
 
       document.getElementById('telaPreview').classList.add('open');
-      _restoreBtn();
+      setBtnSpinner(100, 'Pronto!');
+      setTimeout(() => resetBtn(), 600);
 
       // Carrega NFs em segundo plano (máx ~9s) — não bloqueia a exibição do relatório
       if (temNf) {
@@ -791,7 +896,7 @@
       } catch(err) {
         console.error('[gerarRelatorio] erro:', err);
         toast('Erro ao gerar relatório: ' + (err.message || err), 'error');
-        _restoreBtn();
+        resetBtn();
       }
     };
 
@@ -822,6 +927,9 @@
     window.initFirebaseUtils(_db, ref, get);
     window.fbSet = (path, data) => set(ref(_db, path), data);
 
+    // Inicia progresso do overlay
+    setLoadingProgress(20, 'Conectando ao Firebase…');
+
     const _unsubs = [];
     window.addEventListener('beforeunload', () => _unsubs.forEach(fn => { try { fn(); } catch(e){} }));
     const _on = (r, cb) => { const u = onValue(r, cb); _unsubs.push(u); return u; };
@@ -829,13 +937,21 @@
     onAuthStateChanged(_auth, user => {
       if (!user) { irPara('login.html'); return; }
 
+      setLoadingProgress(40, 'Autenticado…');
+
       // Identificador único do usuário — separa dados de caixa por login
       window.USER_UID = user.uid;
+
+      // Fallback: garante nome do usuário mesmo sem sessionStorage
+      if (!sessionStorage.getItem('usuario') && user.email) {
+        sessionStorage.setItem('usuario', user.email.split('@')[0]);
+      }
 
       set(ref(_db, 'admin_logs/' + Date.now()), {
         tipo:'info', msg:(user.email||user.uid)+' acessou o Caixa', ts:new Date().toISOString()
       }).catch(()=>{});
 
+      setLoadingProgress(60, 'Carregando dados…');
       carregarLogoGlobal(['#headerLogo']);
 
       // Cabeçalho do caixa
@@ -847,6 +963,7 @@
       // URL da planilha NF (Google Sheets publicado como CSV)
       get(ref(_db, 'admin/configCaixa/planilhaUrl')).then(snap => {
         if (snap.val()) window._planilhaNfUrl = snap.val();
+        setLoadingProgress(90, 'Quase lá…');
       }).catch(()=>{});
 
       // Dados de caixa em tempo real — separado por usuário (user.uid / data)
@@ -862,6 +979,21 @@
         window.vales = snap.val() || [];
         if (typeof window.renderVales === 'function') window.renderVales();
       });
+
+      // Habilita o botão e oculta overlay
+      setTimeout(() => {
+        setLoadingProgress(100, 'Pronto!');
+        setTimeout(() => {
+          hideLoadingOverlay();
+          const btn = document.getElementById('btnGerar');
+          if (btn) {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+            btn.innerHTML = '<i class="fas fa-chart-bar"></i> Gerar Relatório';
+          }
+        }, 400);
+      }, 600);
 
       init();
     });
