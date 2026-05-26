@@ -333,8 +333,7 @@
       let dataAmei = null;
 
       // Pré-processa: junta linhas de continuação
-      const linhasRaw = txt.split('
-');
+      const linhasRaw = txt.split('\n');
       const linhas = [];
       for (const l of linhasRaw) {
         const t = l.trim();
