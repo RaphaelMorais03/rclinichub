@@ -140,6 +140,7 @@
     .btn-lancamento{background:#16a34a;color:white;border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;}
     .btn-lancamento:hover{background:var(--green);}
     @media(max-width:768px){.content{padding:14px 14px 60px;}.metrics-grid{grid-template-columns:repeat(2,1fr);}.modal-grid2{grid-template-columns:1fr;}}
+
     /* TOAST */
     #toastBox{position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:8px;}
     .toast{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);animation:slideIn .25s ease;min-width:220px;}
@@ -147,12 +148,11 @@
     .toast.error{background:#fee2e2;color:#C62828;border:1px solid #fecaca;}
     .toast.info{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;}
     @keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-    .mode-toggle{display:flex;border:1.5px solid var(--gray-200);border-radius:9px;overflow:hidden;margin-bottom:18px;}
+    .mode-toggle{display:flex;border:1.5px solid var(--gray-200);border-radius:9px;overflow:hidden;margin-bottom:16px;}
     .mode-btn{flex:1;padding:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;border:none;background:var(--gray-50);color:var(--gray-500);transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;}
     .mode-btn.active{background:var(--navy);color:white;}
-    .amei-result{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--green);display:none;}
-    .amei-result.show{display:block;}
-    .amei-result strong{display:block;font-size:13px;margin-bottom:4px;}
+    .amei-ok{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:9px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#15803d;display:none;}
+    .amei-ok.show{display:block;}
   </style>
 </head>
 <body>
@@ -186,26 +186,16 @@
         Insira os totais manualmente ou cole os dados do AMEI para preencher automaticamente.
       </div>
 
-      <!-- Toggle de modo -->
       <div class="mode-toggle">
-        <button class="mode-btn active" id="btnModoManual" onclick="setModoLanc('manual')">
-          <i class="fas fa-pen"></i> Manual
-        </button>
-        <button class="mode-btn" id="btnModoAmei" onclick="setModoLanc('amei')">
-          <i class="fas fa-paste"></i> Colar do AMEI
-        </button>
+        <button class="mode-btn active" id="btnModoManual" onclick="setModoLanc('manual')"><i class="fas fa-pen"></i> Manual</button>
+        <button class="mode-btn" id="btnModoAmei" onclick="setModoLanc('amei')"><i class="fas fa-paste"></i> Colar do AMEI</button>
       </div>
 
-      <!-- Área de colar AMEI -->
       <div id="ameiArea" style="display:none;">
-        <div class="modal-row">
-          <label class="modal-label">Cole os dados do caixa (AMEI)</label>
-          <textarea id="ameiPaste" style="width:100%;height:160px;padding:10px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:monospace;font-size:11px;resize:vertical;outline:none;transition:border-color .2s;" placeholder="Ctrl+A → Ctrl+C no AMEI e cole aqui..." onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--gray-200)'"></textarea>
-        </div>
-        <button onclick="processarAmei()" style="width:100%;padding:10px;background:var(--navy);color:white;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px;">
-          <i class="fas fa-wand-magic-sparkles"></i> Processar dados do AMEI
-        </button>
-        <div class="amei-result" id="ameiResult"></div>
+        <label style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-500);display:block;margin-bottom:5px;">Cole os dados do caixa (AMEI)</label>
+        <textarea id="ameiPaste" style="width:100%;height:150px;padding:10px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:monospace;font-size:11px;resize:vertical;outline:none;" placeholder="Ctrl+A e Ctrl+C no AMEI e cole aqui..."></textarea>
+        <button onclick="processarAmei()" style="width:100%;margin:10px 0;padding:10px;background:var(--navy);color:white;border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-wand-magic-sparkles"></i> Processar dados do AMEI</button>
+        <div class="amei-ok" id="ameiOk"></div>
       </div>
 
       <div class="warn-box" id="lancWarn">
@@ -225,32 +215,31 @@
         <input type="date" class="modal-input" id="lancData" onchange="verificarExistente()">
       </div>
 
-      <div id="camposManual">
-        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);margin-bottom:10px;margin-top:4px;">
-          💰 Entradas por forma de pagamento
-        </div>
-        <div class="modal-grid2">
-          <div class="modal-row">
-            <label class="modal-label">PIX</label>
-            <input type="text" class="modal-input" id="lancPix" placeholder="0,00" oninput="mskVal(this);calcPreview()">
-          </div>
-          <div class="modal-row">
-            <label class="modal-label">Cartão de Débito</label>
-            <input type="text" class="modal-input" id="lancDebito" placeholder="0,00" oninput="mskVal(this);calcPreview()">
-          </div>
-          <div class="modal-row">
-            <label class="modal-label">Cartão de Crédito</label>
-            <input type="text" class="modal-input" id="lancCredito" placeholder="0,00" oninput="mskVal(this);calcPreview()">
-          </div>
-          <div class="modal-row">
-            <label class="modal-label">Dinheiro</label>
-            <input type="text" class="modal-input" id="lancDinheiro" placeholder="0,00" oninput="mskVal(this);calcPreview()">
-          </div>
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);margin-bottom:10px;margin-top:4px;">
+        💰 Entradas por forma de pagamento
+      </div>
+      <div class="modal-grid2">
+        <div class="modal-row">
+          <label class="modal-label">PIX</label>
+          <input type="text" class="modal-input" id="lancPix" placeholder="0,00" oninput="mskVal(this);calcPreview()">
         </div>
         <div class="modal-row">
-          <label class="modal-label">📤 Despesas / Saídas (dinheiro)</label>
-          <input type="text" class="modal-input" id="lancDespesas" placeholder="0,00" oninput="mskVal(this);calcPreview()">
+          <label class="modal-label">Cartão de Débito</label>
+          <input type="text" class="modal-input" id="lancDebito" placeholder="0,00" oninput="mskVal(this);calcPreview()">
         </div>
+        <div class="modal-row">
+          <label class="modal-label">Cartão de Crédito</label>
+          <input type="text" class="modal-input" id="lancCredito" placeholder="0,00" oninput="mskVal(this);calcPreview()">
+        </div>
+        <div class="modal-row">
+          <label class="modal-label">Dinheiro</label>
+          <input type="text" class="modal-input" id="lancDinheiro" placeholder="0,00" oninput="mskVal(this);calcPreview()">
+        </div>
+      </div>
+
+      <div class="modal-row">
+        <label class="modal-label">📤 Despesas / Saídas (dinheiro)</label>
+        <input type="text" class="modal-input" id="lancDespesas" placeholder="0,00" oninput="mskVal(this);calcPreview()">
       </div>
 
       <div class="preview-total" id="lancPreview">
@@ -297,142 +286,6 @@
 
   <script>
     /* ══════════════════════════════════════
-       MODO AMEI — PARSER
-    ══════════════════════════════════════ */
-    let _modoLanc = 'manual';
-
-    window.setModoLanc = function(modo) {
-      _modoLanc = modo;
-      document.getElementById('btnModoManual').classList.toggle('active', modo === 'manual');
-      document.getElementById('btnModoAmei').classList.toggle('active', modo === 'amei');
-      document.getElementById('ameiArea').style.display   = modo === 'amei'   ? '' : 'none';
-      document.getElementById('camposManual').style.display = modo === 'manual' ? '' : 'none';
-      document.getElementById('ameiResult').classList.remove('show');
-      if (modo === 'amei') document.getElementById('ameiPaste').value = '';
-    };
-
-    function normNomeD(s) {
-      return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
-    }
-    function parseBRLD(s) {
-      if (!s) return 0;
-      return Math.abs(parseFloat((s+'').trim().replace(/R\$\s*/gi,'').replace(/\s/g,'').replace(/\./g,'').replace(',','.')) || 0);
-    }
-    function normFormaD(raw) {
-      if (!raw) return 'Outros';
-      const r = normNomeD(raw);
-      if (/pix/.test(r))                        return 'PIX';
-      if (/dinheiro|especie|especie/.test(r))   return 'Dinheiro';
-      if (/credit|credito/.test(r))             return 'Cartão de Crédito';
-      if (/debit|debito/.test(r))               return 'Cartão de Débito';
-      return raw.trim() || 'Outros';
-    }
-
-    function parseCaixaD(txt) {
-      const totForma = {};
-      let dataAmei = null;
-
-      // Pré-processa: junta linhas de continuação
-      const linhasRaw = txt.split('\n');
-      const linhas = [];
-      for (const l of linhasRaw) {
-        const t = l.trim();
-        if (!t) continue;
-        if (/^\d{2}\/\d{2}\/\d{4}/.test(t)) {
-          linhas.push(t);
-        } else if (linhas.length > 0) {
-          linhas[linhas.length - 1] += ' ' + t;
-        }
-      }
-
-      for (const l of linhas) {
-        if (!l) continue;
-        const p = l.split(/	/);
-        const cols = p.length >= 5 ? p : l.split(/  +/);
-        if (cols.length < 5) continue;
-
-        const dtHora = (cols[0]||'').trim();
-        if (!dataAmei && dtHora.length >= 10) {
-          // dd/mm/yyyy → yyyy-mm-dd
-          const parts = dtHora.slice(0,10).split('/');
-          if (parts.length === 3) dataAmei = parts[2] + '-' + parts[1] + '-' + parts[0];
-        }
-
-        const tipo  = (cols[2]||'').trim().toLowerCase();
-        const formaR = (cols[3]||'').trim();
-        const origem = (cols[4]||'').trim().toUpperCase();
-
-        let valor = parseBRLD(cols[8]);
-        if (valor === 0) valor = parseBRLD(cols[cols.length - 1]);
-        if (valor === 0) continue;
-
-        if (/saldo inicial/i.test(origem)) continue;
-
-        const forma  = normFormaD(formaR);
-        const isRec  = tipo.startsWith('receit');
-        const isDesp = /^desp|^sa[ií]d|^sangr|^retir/.test(tipo);
-        const isTE   = origem.includes('TE_CAIXA');
-        const isTS   = origem.includes('TS_CAIXA');
-        if ((isTE || isTS) && !isRec && !isDesp) continue;
-
-        if (!totForma[forma]) totForma[forma] = {entrada:0, saida:0};
-        if (isRec)  totForma[forma].entrada += valor;
-        if (isDesp) totForma[forma].saida   += valor;
-      }
-
-      return {totForma, dataAmei};
-    }
-
-    window.processarAmei = function() {
-      const txt = document.getElementById('ameiPaste').value.trim();
-      if (!txt) { toast('Cole os dados do AMEI antes de processar', 'error'); return; }
-
-      const {totForma, dataAmei} = parseCaixaD(txt);
-      if (!Object.keys(totForma).length) {
-        toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); return;
-      }
-
-      // Preenche os campos
-      const pix      = (totForma['PIX']               || {entrada:0}).entrada;
-      const debito   = (totForma['Cartão de Débito']   || {entrada:0}).entrada;
-      const credito  = (totForma['Cartão de Crédito']  || {entrada:0}).entrada;
-      const dinheiro = (totForma['Dinheiro']           || {entrada:0}).entrada;
-      let despesas = 0;
-      for (const f in totForma) despesas += (totForma[f].saida || 0);
-
-      function fmtV(v) {
-        return v > 0 ? v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.') : '';
-      }
-      document.getElementById('lancPix').value      = fmtV(pix);
-      document.getElementById('lancDebito').value   = fmtV(debito);
-      document.getElementById('lancCredito').value  = fmtV(credito);
-      document.getElementById('lancDinheiro').value = fmtV(dinheiro);
-      document.getElementById('lancDespesas').value = fmtV(despesas);
-
-      // Preenche a data se encontrou
-      if (dataAmei) {
-        document.getElementById('lancData').value = dataAmei;
-        verificarExistente();
-      }
-
-      // Mostra resumo
-      const res = document.getElementById('ameiResult');
-      const total = pix + debito + dinheiro - despesas;
-      res.innerHTML = '<strong><i class="fas fa-check-circle"></i> Dados processados com sucesso!</strong>' +
-        (dataAmei ? 'Data detectada: ' + fmtData(dataAmei) + '<br>' : '') +
-        'PIX: ' + fmtBRL(pix) + ' · Débito: ' + fmtBRL(debito) + ' · Crédito: ' + fmtBRL(credito) +
-        ' · Dinheiro: ' + fmtBRL(dinheiro) +
-        (despesas > 0 ? ' · Despesas: ' + fmtBRL(despesas) : '') +
-        '<br><strong>Total à vista: ' + fmtBRL(total) + '</strong>';
-      res.classList.add('show');
-
-      // Muda para aba manual para mostrar os campos preenchidos
-      document.getElementById('camposManual').style.display = '';
-      calcPreview();
-      toast('Dados preenchidos! Selecione o colaborador e salve.', 'success');
-    };
-
-    /* ══════════════════════════════════════
        LANÇAMENTO MANUAL
     ══════════════════════════════════════ */
     function mskVal(el) {
@@ -458,13 +311,7 @@
         document.getElementById(id).value = '';
       });
       document.getElementById('lancWarn').classList.remove('show');
-      // Reset modo para manual
-      _modoLanc = 'manual';
-      document.getElementById('btnModoManual').classList.add('active');
-      document.getElementById('btnModoAmei').classList.remove('active');
-      document.getElementById('ameiArea').style.display = 'none';
-      document.getElementById('camposManual').style.display = '';
-      document.getElementById('ameiResult').classList.remove('show');
+      if(window.setModoLanc) setModoLanc('manual');
       calcPreview();
       // Carrega colaboradores
       if (window.carregarCollabSelect) window.carregarCollabSelect();
@@ -542,6 +389,110 @@
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Salvar lançamento';
       }
+    };
+
+
+    /* ── MODO AMEI ── */
+    var _modoLanc = 'manual';
+    window.setModoLanc = function(modo) {
+      _modoLanc = modo;
+      document.getElementById('btnModoManual').classList.toggle('active', modo === 'manual');
+      document.getElementById('btnModoAmei').classList.toggle('active',   modo === 'amei');
+      document.getElementById('ameiArea').style.display = modo === 'amei' ? '' : 'none';
+      document.getElementById('ameiOk').classList.remove('show');
+      if (modo === 'amei') document.getElementById('ameiPaste').value = '';
+    };
+
+    function _normNomeA(s) {
+      return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
+    }
+    function _parseBRLA(s) {
+      if (!s) return 0;
+      return Math.abs(parseFloat((s+'').trim().replace(/R\$\s*/gi,'').replace(/\s/g,'').replace(/\./g,'').replace(',','.')) || 0);
+    }
+    function _normFormaA(raw) {
+      if (!raw) return 'Outros';
+      var r = _normNomeA(raw);
+      if (/pix/.test(r))              return 'PIX';
+      if (/dinheiro|especie/.test(r)) return 'Dinheiro';
+      if (/credit|credito/.test(r))   return 'Cartão de Crédito';
+      if (/debit|debito/.test(r))     return 'Cartão de Débito';
+      return raw.trim() || 'Outros';
+    }
+    function _parseCaixaA(txt) {
+      var totForma = {}, dataAmei = null;
+      var linhasRaw = txt.split('\n'), linhas = [];
+      for (var i = 0; i < linhasRaw.length; i++) {
+        var t = linhasRaw[i].trim();
+        if (!t) continue;
+        if (/^\d{2}\/\d{2}\/\d{4}/.test(t)) { linhas.push(t); }
+        else if (linhas.length > 0) { linhas[linhas.length-1] += ' ' + t; }
+      }
+      for (var j = 0; j < linhas.length; j++) {
+        var l = linhas[j];
+        var p = l.split('\t');
+        var cols = p.length >= 5 ? p : l.split(/  +/);
+        if (cols.length < 5) continue;
+        var dtHora = (cols[0]||'').trim();
+        if (!dataAmei && dtHora.length >= 10) {
+          var pts = dtHora.slice(0,10).split('/');
+          if (pts.length === 3) dataAmei = pts[2]+'-'+pts[1]+'-'+pts[0];
+        }
+        var tipo  = (cols[2]||'').trim().toLowerCase();
+        var formaR = (cols[3]||'').trim();
+        var origem = (cols[4]||'').trim().toUpperCase();
+        var valor = _parseBRLA(cols[8]);
+        if (valor === 0) valor = _parseBRLA(cols[cols.length-1]);
+        if (valor === 0) continue;
+        if (/saldo inicial/i.test(origem)) continue;
+        var forma  = _normFormaA(formaR);
+        var isRec  = tipo.indexOf('receit') === 0;
+        var isDesp = /^(desp|sa[ií]d|sangr|retir)/.test(tipo);
+        var isTE   = origem.indexOf('TE_CAIXA') >= 0;
+        var isTS   = origem.indexOf('TS_CAIXA') >= 0;
+        if ((isTE || isTS) && !isRec && !isDesp) continue;
+        if (!totForma[forma]) totForma[forma] = {entrada:0, saida:0};
+        if (isRec)  totForma[forma].entrada += valor;
+        if (isDesp) totForma[forma].saida   += valor;
+      }
+      return {totForma: totForma, dataAmei: dataAmei};
+    }
+    function _fmtV(v) {
+      if (!v || v <= 0) return '';
+      return v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+    }
+    window.processarAmei = function() {
+      var txt = document.getElementById('ameiPaste').value.trim();
+      if (!txt) { toast('Cole os dados do AMEI antes de processar', 'error'); return; }
+      var res = _parseCaixaA(txt);
+      var tf = res.totForma;
+      if (!Object.keys(tf).length) { toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); return; }
+      var pix      = (tf['PIX']                || {entrada:0}).entrada;
+      var debito   = (tf['Cartão de Débito']   || {entrada:0}).entrada;
+      var credito  = (tf['Cartão de Crédito']  || {entrada:0}).entrada;
+      var dinheiro = (tf['Dinheiro']           || {entrada:0}).entrada;
+      var despesas = 0;
+      for (var f in tf) despesas += (tf[f].saida || 0);
+      document.getElementById('lancPix').value      = _fmtV(pix);
+      document.getElementById('lancDebito').value   = _fmtV(debito);
+      document.getElementById('lancCredito').value  = _fmtV(credito);
+      document.getElementById('lancDinheiro').value = _fmtV(dinheiro);
+      document.getElementById('lancDespesas').value = _fmtV(despesas);
+      if (res.dataAmei) {
+        document.getElementById('lancData').value = res.dataAmei;
+        if (window.verificarExistente) verificarExistente();
+      }
+      calcPreview();
+      var ok = document.getElementById('ameiOk');
+      var total = pix + debito + dinheiro - despesas;
+      ok.innerHTML = '<strong><i class="fas fa-check-circle"></i> Dados processados!</strong>' +
+        (res.dataAmei ? ' Data: ' + fmtData(res.dataAmei) + '<br>' : '') +
+        'PIX: ' + fmtBRL(pix) + ' &nbsp;|&nbsp; Débito: ' + fmtBRL(debito) +
+        ' &nbsp;|&nbsp; Crédito: ' + fmtBRL(credito) + ' &nbsp;|&nbsp; Dinheiro: ' + fmtBRL(dinheiro) +
+        (despesas > 0 ? ' &nbsp;|&nbsp; Despesas: ' + fmtBRL(despesas) : '') +
+        '<br><strong>Total à vista: ' + fmtBRL(total) + '</strong>';
+      ok.classList.add('show');
+      toast('Campos preenchidos! Selecione o colaborador e salve.', 'success');
     };
 
     /* ── HELPERS ── */
