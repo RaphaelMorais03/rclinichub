@@ -68,6 +68,13 @@
     @media(max-width:768px){.caixa-grid{grid-template-columns:1fr;}.content{padding:14px 14px 60px;}.print-doc{width:100%;}.user-banner{flex-direction:column;align-items:flex-start;gap:12px;}}
     @media print{.preview-bar{display:none!important;}.preview-wrap{padding:0!important;}.print-doc{box-shadow:none!important;margin:0!important;width:100%!important;}}
 
+    /* ── TOAST ── */
+    .toast{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);animation:slideIn .25s ease;min-width:220px;}
+    .toast.success{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;}
+    .toast.error{background:#fee2e2;color:#C62828;border:1px solid #fecaca;}
+    .toast.info{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;}
+    @keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
     /* ── LOADING OVERLAY (auth) ── */
     #loadingOverlay{position:fixed;inset:0;background:#f0f4f8;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .4s;}
     #loadingOverlay.hide{opacity:0;pointer-events:none;}
@@ -91,6 +98,9 @@
   </style>
 </head>
 <body>
+  <!-- TOAST -->
+  <div id="toastBox" style="position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:8px;"></div>
+
   <!-- LOADING OVERLAY (aguarda Firebase Auth) -->
   <div id="loadingOverlay">
     <div class="lo-logo"><img src="assets/favicon.png" alt="Logo"></div>
@@ -411,7 +421,8 @@
       }
       function parseBRL(s) {
         if (!s) return 0;
-        return Math.abs(parseFloat((s+'').trim().replace(/\s/g,'').replace(/\./g,'').replace(',','.')) || 0);
+        // Remove prefixo R$ e espaços antes de converter
+        return Math.abs(parseFloat((s+'').trim().replace(/R\$\s*/gi,'').replace(/\s/g,'').replace(/\./g,'').replace(',','.')) || 0);
       }
       function fmtBRL(v) { return 'R$ ' + v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
 
@@ -420,9 +431,21 @@
       const smD = txt.match(/Valor em dinheiro a entregar\s*:\s*(R\$\s*[\d.,]+)/i);
       if (smD) dinheiroEntregar = smD[1].trim();
 
-      for (const linha of txt.split('\n')) {
-        const l = linha.trim();
-        if (!l || !/^\d{2}\/\d{2}\/\d{4}/.test(l)) continue;
+      // Pré-processa: junta linhas de continuação (sem data no início) com a linha anterior
+      const linhasRaw = txt.split('\n');
+      const linhas = [];
+      for (const l of linhasRaw) {
+        const t = l.trim();
+        if (!t) continue;
+        if (/^\d{2}\/\d{2}\/\d{4}/.test(t)) {
+          linhas.push(t); // nova linha válida
+        } else if (linhas.length > 0) {
+          linhas[linhas.length - 1] += ' ' + t; // continuação da linha anterior
+        }
+      }
+
+      for (const l of linhas) {
+        if (!l) continue;
         const p = l.split(/\t/);
         // fallback: se não houver tabs suficientes, tenta separar por 2+ espaços
         const cols = p.length >= 5 ? p : l.split(/  +/);
