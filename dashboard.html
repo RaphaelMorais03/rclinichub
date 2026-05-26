@@ -320,7 +320,7 @@
     window.salvarLancamento = async function() {
       const sel    = document.getElementById('lancCollab');
       const uid    = sel.value;
-      const nome   = sel.options[sel.selectedIndex]?.text || '—';
+      const nome   = (sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : null) || '—';
       const data   = document.getElementById('lancData').value;
       if (!uid)  { toast('Selecione o colaborador','error'); return; }
       if (!data) { toast('Selecione a data','error'); return; }
@@ -425,10 +425,10 @@
     /* ── CÁLCULO ── */
     function calcRow(totForma) {
       const tf = totForma || {};
-      const debito   = (tf['Cartão de Débito']?.entrada  || 0);
-      const pix      = (tf['PIX']?.entrada               || 0);
-      const dinheiro = (tf['Dinheiro']?.entrada          || 0);
-      const credito  = (tf['Cartão de Crédito']?.entrada || 0);
+      const debito   = (tf['Cartão de Débito']   ? tf['Cartão de Débito'].entrada   : 0) || 0;
+      const pix      = (tf['PIX']               ? tf['PIX'].entrada                 : 0) || 0;
+      const dinheiro = (tf['Dinheiro']           ? tf['Dinheiro'].entrada            : 0) || 0;
+      const credito  = (tf['Cartão de Crédito'] ? tf['Cartão de Crédito'].entrada   : 0) || 0;
       let despesas = 0;
       for (const f in tf) despesas += (tf[f].saida || 0);
       const avista = debito + pix + dinheiro;
@@ -753,8 +753,9 @@
 
     /* ── TAXAS ── */
     window.saveRates = function() {
-      _rateAvista  = parseFloat(document.getElementById('rateAvista')?.value  || _rateAvista);
-      _rateCredito = parseFloat(document.getElementById('rateCredito')?.value || _rateCredito);
+      var _elA = document.getElementById('rateAvista'),  _elC = document.getElementById('rateCredito');
+      _rateAvista  = parseFloat((_elA  ? _elA.value  : null) || _rateAvista);
+      _rateCredito = parseFloat((_elC ? _elC.value : null) || _rateCredito);
       localStorage.setItem('dash_rateAvista',  _rateAvista);
       localStorage.setItem('dash_rateCredito', _rateCredito);
       renderDashboard();

@@ -5,7 +5,7 @@
 
 /* Escapa HTML para evitar XSS em interpolações de innerHTML */
 window.esc = function(s) {
-  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  return String(s != null ? s : '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
 };
 
 /* Navegação robusta — funciona em GitHub Pages e subdiretórios */

@@ -575,7 +575,7 @@
     document.querySelectorAll('.lote-check:checked').forEach(cb => {
       const k = cb.dataset.key;
       const valInput = document.querySelector(`.lote-valor[data-key="${k}"]`);
-      const valorStr = (valInput?.value || '').replace(/\./g,'').replace(',','.');
+      const valorStr = ((valInput ? valInput.value : '') || '').replace(/\./g,'').replace(',','.');
       const valor = parseFloat(valorStr) || 0;
       if (valor <= 0) return;
 

@@ -608,7 +608,7 @@
       const valid=dados.itens.filter(i=>i.descricao.trim()!==''&&i.valorTotal!==0);
       let linhas=valid.map(i=>`<tr><td class="col-qtd">${i.qtd}</td><td>${esc(i.descricao)}</td><td class="col-valor">R$ ${formatarMoeda(i.valorTotal)}</td><td class="col-valor col-liquido">R$ ${formatarMoeda(i.valorTotal*(1-aliq))}</td></tr>`).join('');
       linhas+=`<tr class="linha-totais"><td colspan="2"></td><td class="col-valor total-bruto">Total bruto: R$ ${formatarMoeda(dados.subtotal)}</td><td class="col-valor total-liquido">TOTAL: R$ ${formatarMoeda(dados.liquido)}</td></tr>`;
-      const pago=document.getElementById('pagoHojeCheckbox')?.checked;
+      const _phc=document.getElementById('pagoHojeCheckbox'); const pago=_phc?_phc.checked:false;
       const dia=String(now.getDate()).padStart(2,'0'),mes=String(now.getMonth()+1).padStart(2,'0'),ano=now.getFullYear();
       const dataPag=pago?`${dia}/${mes}/${ano}`:'_______/_______/_____';
       const imp=dados.profissional.regime==='pj-presumido'?`Impostos: PIS: R$ ${formatarMoeda(dados.pis)} | CSLL: R$ ${formatarMoeda(dados.csll)} | COFINS: R$ ${formatarMoeda(dados.cofins)}${dados.irrf>0?` | IRRF: R$ ${formatarMoeda(dados.irrf)}`:''}` :'';

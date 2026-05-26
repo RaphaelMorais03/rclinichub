@@ -409,9 +409,9 @@
       const pend = Object.values(examesPendentes);
       const ret  = Object.values(examesRetirados);
       document.getElementById('stTotal').textContent     = pend.length;
-      document.getElementById('stHoje').textContent      = pend.filter(e => e.cadastradoEm?.slice(0,10) === hoje).length;
+      document.getElementById('stHoje').textContent      = pend.filter(e => (e.cadastradoEm ? e.cadastradoEm.slice(0,10) : null) === hoje).length;
       document.getElementById('stAtrasados').textContent = pend.filter(e => diasParado(e) >= 7).length;
-      document.getElementById('stRetirados').textContent = ret.filter(e => e.retiradoEm?.slice(0,10) === hoje).length;
+      document.getElementById('stRetirados').textContent = ret.filter(e => (e.retiradoEm ? e.retiradoEm.slice(0,10) : null) === hoje).length;
     }
 
     function diasParado(exame) {
@@ -420,15 +420,16 @@
     }
 
     window.renderGaveta = function() {
-      const busca  = (document.getElementById('filtroBusca')?.value || '').toLowerCase();
-      const tipo   = document.getElementById('filtroTipo')?.value || '';
-      const status = document.getElementById('filtroStatus')?.value || '';
+      var _fb = document.getElementById('filtroBusca'), _ft = document.getElementById('filtroTipo'), _fs = document.getElementById('filtroStatus');
+      const busca  = ((_fb ? _fb.value : '') || '').toLowerCase();
+      const tipo   = (_ft ? _ft.value : '') || '';
+      const status = (_fs ? _fs.value : '') || '';
       const hoje   = new Date().toISOString().slice(0,10);
 
       let lista = Object.entries(examesPendentes).map(([id, e]) => ({ id, ...e }));
-      if (busca)  lista = lista.filter(e => e.paciente?.toLowerCase().includes(busca));
+      if (busca)  lista = lista.filter(e => e.paciente ? e.paciente.toLowerCase().includes(busca) : false);
       if (tipo)   lista = lista.filter(e => e.tipo === tipo);
-      if (status === 'hoje')      lista = lista.filter(e => e.cadastradoEm?.slice(0,10) === hoje);
+      if (status === 'hoje')      lista = lista.filter(e => (e.cadastradoEm ? e.cadastradoEm.slice(0,10) : null) === hoje);
       if (status === 'semana')    lista = lista.filter(e => diasParado(e) <= 7);
       if (status === 'atrasados') lista = lista.filter(e => diasParado(e) >= 7);
       lista.sort((a,b) => (a.cadastradoEm||'').localeCompare(b.cadastradoEm||''));
@@ -467,11 +468,12 @@
     };
 
     window.renderHistorico = function() {
-      const busca = (document.getElementById('filtroHist')?.value || '').toLowerCase();
-      const data  = document.getElementById('filtroHistData')?.value || '';
+      var _fh = document.getElementById('filtroHist'), _fd = document.getElementById('filtroHistData');
+      const busca = ((_fh ? _fh.value : '') || '').toLowerCase();
+      const data  = (_fd ? _fd.value : '') || '';
       let lista = Object.entries(examesRetirados).map(([id, e]) => ({ id, ...e }));
-      if (busca) lista = lista.filter(e => e.paciente?.toLowerCase().includes(busca) || e.quemRetirou?.toLowerCase().includes(busca));
-      if (data)  lista = lista.filter(e => e.retiradoEm?.slice(0,10) === data);
+      if (busca) lista = lista.filter(e => (e.paciente ? e.paciente.toLowerCase().includes(busca) : false) || (e.quemRetirou ? e.quemRetirou.toLowerCase().includes(busca) : false));
+      if (data)  lista = lista.filter(e => (e.retiradoEm ? e.retiradoEm.slice(0,10) : null) === data);
       lista.sort((a,b) => (b.retiradoEm||'').localeCompare(a.retiradoEm||''));
       const el = document.getElementById('histContainer');
       if (!lista.length) { el.innerHTML = '<div class="hist-empty">Nenhum exame retirado ainda</div>'; return; }
@@ -543,12 +545,12 @@
     window.mudarTab = function(tab) {
       ['gaveta','colar','cadastrar','importar','historico'].forEach(t => {
         const T = t.charAt(0).toUpperCase()+t.slice(1);
-        document.getElementById('tab'+T)?.classList.remove('active');
-        document.getElementById('pane'+T)?.classList.remove('active');
+        var _t = document.getElementById('tab'+T);  if (_t)  _t.classList.remove('active');
+        var _p = document.getElementById('pane'+T); if (_p) _p.classList.remove('active');
       });
       const T = tab.charAt(0).toUpperCase()+tab.slice(1);
-      document.getElementById('tab'+T)?.classList.add('active');
-      document.getElementById('pane'+T)?.classList.add('active');
+      var _ta = document.getElementById('tab'+T);  if (_ta)  _ta.classList.add('active');
+      var _pa = document.getElementById('pane'+T); if (_pa) _pa.classList.add('active');
       if (tab==='historico') window.renderHistorico();
     };
 

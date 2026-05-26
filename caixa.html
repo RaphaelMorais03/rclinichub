@@ -555,7 +555,7 @@
       }
 
       // Data do AMEI (dd/mm/yyyy) — usada para buscar a aba correta da planilha de NF
-      const caixaDataAmei = d.lancamentos[0]?.dtHora?.slice(0,10) || null; // "dd/mm/yyyy"
+      const caixaDataAmei = (d.lancamentos[0] && d.lancamentos[0].dtHora) ? d.lancamentos[0].dtHora.slice(0,10) : null; // "dd/mm/yyyy"
 
       // Salvar snapshot para o dashboard admin
       // Usa a data do AMEI como chave (não a data de hoje), para relatórios retroativos
@@ -643,7 +643,8 @@
       if (d.dinheiroEntregar) {
         totalEntregarStr = d.dinheiroEntregar;
       } else {
-        const dinheiroLiq = (d.totForma['Dinheiro']?.entrada || 0) - (d.totForma['Dinheiro']?.saida || 0) - sobra;
+        const _din = d.totForma['Dinheiro'] || {entrada:0, saida:0};
+        const dinheiroLiq = (_din.entrada || 0) - (_din.saida || 0) - sobra;
         totalEntregarStr = d.fmtBRL(Math.max(0, dinheiroLiq));
       }
       const sobraLinha = sobra > 0
