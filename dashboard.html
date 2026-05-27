@@ -174,6 +174,11 @@
     .cx-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
     /* Cards caixa */
     .caixa-card{background:white;border:1px solid var(--gray-200);border-radius:14px;padding:16px 18px;margin-bottom:10px;box-shadow:var(--shadow);transition:box-shadow .2s;}
+    .caixa-card.collapsed .caixa-body{display:none;}
+    .caixa-card.collapsed{padding-bottom:14px;}
+    .cx-collapse-btn{background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:13px;padding:2px 6px;border-radius:6px;transition:all .15s;line-height:1;}
+    .cx-collapse-btn:hover{background:var(--gray-100);color:var(--navy);}
+    .caixa-card.collapsed .cx-collapse-btn{color:var(--navy);}
     .caixa-card:hover{box-shadow:0 6px 24px rgba(10,31,68,.12);}
     .caixa-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
     .caixa-collab{font-size:14px;font-weight:800;color:var(--navy);}
@@ -420,6 +425,8 @@
       <div class="caixa-search">
         <input type="text" id="cxSearchInput" placeholder="🔍 Buscar por colaborador..." oninput="renderCaixaTab()">
         <select class="f-select" id="cxMesSelect" onchange="renderCaixaTab()" style="width:160px;"></select>
+        <button class="btn-sec" style="font-size:12px;padding:7px 12px;white-space:nowrap;" onclick="toggleTodosCaixaCards(true)"><i class="fas fa-compress-alt"></i> Recolher todos</button>
+        <button class="btn-sec" style="font-size:12px;padding:7px 12px;white-space:nowrap;" onclick="toggleTodosCaixaCards(false)"><i class="fas fa-expand-alt"></i> Expandir todos</button>
       </div>
       <div id="caixaTabContent">
         <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
@@ -723,6 +730,8 @@
       var r = _fechDados[id];
       if (!r) { toast('Registro não encontrado','error'); return; }
       var p = r.profissional||{};
+      var logoVal = sessionStorage.getItem('logoDataUrl') || '';
+      var logoHtml = logoVal ? '<img src="' + logoVal + '" style="height:56px;width:auto;max-width:140px;object-fit:contain;" alt="Logo">' : '<span style="font-size:12px;font-weight:700;">Amor Sa\u00fade</span>';
       var itens = (r.itens||[]).filter(function(it){ return it.descricao&&it.valorTotal!==0; });
       var TAXAS = {PIS:0.0065,CSLL:0.01,COFINS:0.03,IRRF:0.015};
       var aliq = (p.regime==='pj-presumido'&&r.subtotal>0) ? (r.totalDescontos||0)/r.subtotal : 0;
@@ -756,9 +765,7 @@
         '.rodape{margin-top:10mm;font-size:12px}.rodape-assin{display:flex;justify-content:space-between;margin-bottom:8mm;gap:30mm}'+
         '.assin{flex:1;text-align:center}.assin .linha{border-bottom:1px solid #000;height:18px;margin-bottom:4px}.assin .lbl{font-size:12px}'+
         '.info-pag{margin-top:2mm;font-size:12px;line-height:1.6}.quitado{margin-top:3mm;font-weight:600}</style></head><body>'+
-        '<div class="recibo"><div class="cabecalho"><div style="width:80px;font-size:12px;font-weight:700;">Amor Saúde</div>'+
-        '<div class="titulo">Repasse Consolidado</div><div style="width:80px"></div></div><hr>'+
-        '<div class="topo"><div><strong>Amor Saúde SP Pirituba</strong><br>Avenida Doutor Felipe Pinel — Pirituba / São Paulo/SP<br>Data/Hora: '+data+' '+hora+' - Pagamento: '+fpLabel+'</div>'+
+        '<div class="recibo"><div class="cabecalho">'+'<div style="width:80px;display:flex;align-items:center;">'+logoHtml+'</div>'+'<div class="titulo">Repasse Consolidado</div><div style="width:80px"></div></div><hr>'+'<div class="topo"><div><strong>Amor Sa\u00fade SP Pirituba</strong><br>Avenida Doutor Felipe Pinel — Pirituba / São Paulo/SP<br>Data/Hora: '+data+' '+hora+' - Pagamento: '+fpLabel+'</div>'+
         '<div style="text-align:right;">Usuário: '+esc2(r.criadoPor||'—')+'</div></div>'+
         '<div class="pagoa"><strong>Pago a: '+esc2(p.nome||'—')+'</strong> / CPF/CNPJ: <strong>'+esc2(p.documento||'—')+'</strong></div>'+
         '<table><thead><tr><th>Qtd</th><th>Item</th><th>Valor Bruto</th><th>Valor Líquido</th></tr></thead><tbody>'+linhas+'</tbody></table>'+
@@ -844,16 +851,21 @@
         }
         var total=pix+deb+din-desp;
         var initials=(snap.colaborador||'?').split(' ').filter(Boolean).map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
-        out += '<div class="caixa-card">' +
+        var cardId = 'cx-' + uid + '-' + dt;
+        out += '<div class="caixa-card" id="' + cardId + '">' +
           '<div class="caixa-card-header">' +
             '<div style="display:flex;align-items:center;gap:10px;">' +
               '<div style="width:38px;height:38px;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">' + esc(initials) + '</div>' +
               '<div><div class="caixa-collab">' + esc(snap.colaborador||uid) + '</div>' +
               '<div class="caixa-date"><i class="fas fa-calendar" style="font-size:9px;"></i> ' + fmtData(dt) + (snap.manualAdmin?' <span class="badge-manual">Manual</span>':'') + '</div></div>' +
             '</div>' +
-            '<div style="text-align:right;"><div style="font-size:11px;color:var(--gray-400);margin-bottom:2px;">Total à vista</div>' +
-            '<div style="font-size:18px;font-weight:900;color:var(--green);">' + fmtBRL(total) + '</div></div>' +
+            '<div style="display:flex;align-items:center;gap:10px;">' +
+              '<div style="text-align:right;"><div style="font-size:11px;color:var(--gray-400);margin-bottom:2px;">Total à vista</div>' +
+              '<div style="font-size:18px;font-weight:900;color:var(--green);">' + fmtBRL(total) + '</div></div>' +
+              '<button class="cx-collapse-btn" onclick="toggleCaixaCard(\'' + cardId + '\')" title="Recolher"><i class="fas fa-chevron-up"></i></button>' +
+            '</div>' +
           '</div>' +
+          '<div class="caixa-body">' +
           '<div class="caixa-vals">' +
             '<div class="caixa-val-item"><div class="caixa-val-lbl">PIX</div><div class="caixa-val-num">' + fmtBRL(pix) + '</div></div>' +
             '<div class="caixa-val-item"><div class="caixa-val-lbl">Débito</div><div class="caixa-val-num">' + fmtBRL(deb) + '</div></div>' +
@@ -864,9 +876,32 @@
           '<div class="caixa-actions">' +
             '<button class="btn-sec" style="font-size:12px;padding:7px 14px;" onclick="gerarReciboCaixa(\'' + uid + '\',\'' + dt + '\')"><i class="fas fa-receipt"></i> Recibo</button>' +
             '<button class="btn-p" style="font-size:12px;padding:7px 14px;" onclick="abrirEditCaixa(\'' + uid + '\',\'' + dt + '\')"><i class="fas fa-edit"></i> Editar</button>' +
-          '</div></div>';
+          '</div>' +
+          '</div>' +
+        '</div>';
       });
       container.innerHTML = out;
+    };
+
+    window.toggleCaixaCard = function(id) {
+      var card = document.getElementById(id);
+      if (!card) return;
+      card.classList.toggle('collapsed');
+      var btn = card.querySelector('.cx-collapse-btn i');
+      if (btn) { btn.className = card.classList.contains('collapsed') ? 'fas fa-chevron-down' : 'fas fa-chevron-up'; }
+    };
+
+    window.toggleTodosCaixaCards = function(colapsar) {
+      document.querySelectorAll('.caixa-card').forEach(function(card) {
+        var btn = card.querySelector('.cx-collapse-btn i');
+        if (colapsar) {
+          card.classList.add('collapsed');
+          if (btn) btn.className = 'fas fa-chevron-down';
+        } else {
+          card.classList.remove('collapsed');
+          if (btn) btn.className = 'fas fa-chevron-up';
+        }
+      });
     };
 
     window.abrirEditCaixa = function(uid, dt) {
@@ -914,6 +949,8 @@
     window.gerarReciboCaixa = function(uid, dt) {
       var snap=(_dados[uid]||{})[dt];
       if (!snap) { toast('Registro não encontrado','error'); return; }
+      var logoVal = sessionStorage.getItem('logoDataUrl') || '';
+      var logoHtmlCx = logoVal ? '<img src="' + logoVal + '" style="height:50px;width:auto;object-fit:contain;" alt="Logo">' : '<strong style="font-size:16px;color:#0A1F44;">Amor Saúde</strong>';
       var tf=snap.totForma||{}, pix=0,deb=0,cred=0,din=0,desp=0;
       for (var f in tf) {
         var nm=(f||'').toLowerCase();
@@ -945,8 +982,7 @@
         '.assin{display:flex;justify-content:space-between;margin-top:14mm;gap:20mm}'+
         '.assin-item{flex:1;text-align:center}.assin-item .linha{border-bottom:1px solid #000;height:14px;margin-bottom:4px}'+
         '.assin-item .lbl{font-size:10px;color:#64748b}</style></head><body>'+
-        '<div class="doc"><h2>Recibo de Fechamento de Caixa</h2>'+
-        '<div class="sub">Amor Saúde · Pirituba — Emitido em '+now.toLocaleString('pt-BR')+'</div>'+
+        '<div class="doc">'+'<div style="text-align:center;margin-bottom:6mm;">'+logoHtmlCx+'</div>'+'<h2>Recibo de Fechamento de Caixa</h2>'+'<div class="sub">Amor Saúde · Pirituba — Emitido em '+now.toLocaleString('pt-BR')+'</div>'+
         '<div class="info">'+
           '<div><strong>Colaborador:</strong><br>'+(snap.colaborador||uid)+'</div>'+
           '<div><strong>Data do caixa:</strong><br>'+dtFmt+'</div>'+
@@ -1081,9 +1117,26 @@
 
     /* ── ESTADO ── */
     let _dados = {};       // _dados[uid][YYYY-MM-DD] = snapshot
+    window._semComissao = {};  // uid -> true
     let _view  = 'dia';    // 'dia' | 'collab'
     let _rateAvista  = parseFloat(localStorage.getItem('dash_rateAvista')  || '0.5');
     let _rateCredito = parseFloat(localStorage.getItem('dash_rateCredito') || '0.1');
+
+    /* ── Sem comissão ── */
+    window._semComissao = window._semComissao || {};
+    window.toggleSemComissao = function(uid) {
+      if (!uid) return;
+      const ativo = !!(window._semComissao[uid]);
+      const novo  = !ativo;
+      if (novo) { window._semComissao[uid] = true; } else { delete window._semComissao[uid]; }
+      if (window.fbSet) {
+        window.fbSet('admin/semComissao/' + uid, novo ? true : null)
+          .then(() => { toast(novo ? 'Comissão desativada' : 'Comissão ativada', 'success'); if (typeof window.renderDashboard==='function') window.renderDashboard(); })
+          .catch(e => toast('Erro: '+e.message,'error'));
+      } else {
+        if (typeof window.renderDashboard==='function') window.renderDashboard();
+      }
+    };
 
     /* ── MESES disponíveis ── */
     function getMonthOptions(dados) {
@@ -1125,7 +1178,7 @@
     }
 
     /* ── CÁLCULO ── */
-    function calcRow(totForma) {
+    function calcRow(totForma, uid) {
       const tf = totForma || {};
       const debito   = (tf['Cartão de Débito']   ? tf['Cartão de Débito'].entrada   : 0) || 0;
       const pix      = (tf['PIX']               ? tf['PIX'].entrada                 : 0) || 0;
@@ -1135,8 +1188,9 @@
       for (const f in tf) despesas += (tf[f].saida || 0);
       const avista = debito + pix + dinheiro;
       const total  = avista + credito - despesas;
-      const comissao = avista * (_rateAvista/100) + credito * (_rateCredito/100);
-      return { debito, pix, dinheiro, credito, avista, despesas, total, comissao };
+      const semComiss = uid && window._semComissao && window._semComissao[uid];
+      const comissao = semComiss ? 0 : (avista * (_rateAvista/100) + credito * (_rateCredito/100));
+      return { debito, pix, dinheiro, credito, avista, despesas, total, comissao, semComissao: !!semComiss };
     }
 
     /* ── BADGE de forma ── */
@@ -1214,9 +1268,11 @@
 
       let rows = '';
       linhas.forEach(({uid, dt, snap}, idx) => {
-        const c = calcRow(snap.totForma);
+        const c = calcRow(snap.totForma, uid);
+        const scBadge = c.semComissao ? ' <span style="background:#fef3c7;color:#b45309;border-radius:5px;padding:1px 6px;font-size:10px;font-weight:700;vertical-align:middle;">Sem comissão</span>' : '';
+        const scBtn = `<button onclick="toggleSemComissao('${uid}')" title="${c.semComissao?'Ativar comissão':'Desativar comissão'}" style="background:none;border:1px solid var(--gray-200);border-radius:6px;padding:2px 7px;font-size:11px;cursor:pointer;color:var(--gray-500);margin-left:4px;vertical-align:middle;">${c.semComissao?'<i class="fas fa-toggle-off"></i>':'<i class="fas fa-toggle-on"></i>'}</button>`;
         rows += `<tr class="main-row" id="row-${idx}">
-          <td><span class="collab-name">${esc(primeiroNome(snap.colaborador))}</span>
+          <td><span class="collab-name">${esc(primeiroNome(snap.colaborador))}</span>${scBadge}${scBtn}
               <div style="font-size:10px;color:var(--gray-400);margin-top:2px;">${esc(snap.colaborador)}</div></td>
           <td><span class="date-chip"><i class="fas fa-calendar" style="font-size:9px;"></i> ${fmtData(dt)}</span>${snap.manualAdmin ? ' <span class="manual-badge"><i class="fas fa-pen"></i> Manual</span>' : ''}</td>
           <td class="num">${fmtBRL(c.debito)}</td>
@@ -1320,8 +1376,8 @@
           T.total+=c.total; T.comissao+=c.comissao;
         });
 
-        let daysRows = dias.sort((a,b)=>a.dt<b.dt?-1:1).map(({dt,snap}) => {
-          const c = calcRow(snap.totForma);
+        let daysRows = dias.sort((a,b)=>a.dt<b.dt?-1:1).map(({dt,snap,uid}) => {
+          const c = calcRow(snap.totForma, uid);
           return `<tr>
             <td><span class="date-chip">${fmtData(dt)}</span>${snap.manualAdmin ? ' <span class="manual-badge"><i class="fas fa-pen"></i> Manual</span>' : ''}</td>
             <td class="num">${fmtBRL(c.debito)}</td>
@@ -1536,6 +1592,12 @@
     window.fbSet    = (path, data) => set(ref(_db, path), data);
     window.fbGet    = (path)       => get(ref(_db, path));
     window.fbRemove = (path)       => remove(ref(_db, path));
+
+    // Listener sem comissão
+    onValue(ref(_db, 'admin/semComissao'), snap => {
+      window._semComissao = snap.val() || {};
+      if (typeof window.renderDashboard === 'function') window.renderDashboard();
+    });
 
     // Listener fechamentos
     onValue(ref(_db, 'fechamento/registros'), snap => {
