@@ -139,6 +139,56 @@
     .manual-badge{background:#fffbeb;color:var(--amber);border:1px solid #fde68a;border-radius:6px;font-size:9px;font-weight:800;padding:1px 6px;vertical-align:middle;}
     .btn-lancamento{background:#16a34a;color:white;border:none;border-radius:8px;padding:6px 14px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;}
     .btn-lancamento:hover{background:var(--green);}
+
+
+    /* ── ABA FECHAMENTOS ── */
+    .fech-card{background:white;border:1px solid var(--gray-200);border-radius:14px;padding:16px 18px;margin-bottom:10px;box-shadow:var(--shadow);}
+    .fech-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:12px;}
+    .fech-prof{font-size:14px;font-weight:800;color:var(--navy);}
+    .fech-doc{font-size:11px;color:var(--gray-400);margin-top:2px;}
+    .fech-meta{font-size:11px;color:var(--gray-400);text-align:right;}
+    .fech-vals{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+    .fech-val-item{background:var(--gray-50);border-radius:8px;padding:7px 10px;text-align:center;}
+    .fech-val-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400);margin-bottom:2px;}
+    .fech-val-num{font-size:13px;font-weight:800;color:var(--gray-800);}
+    .fech-val-num.green{color:var(--green);}
+    .fech-itens{margin-bottom:10px;font-size:12px;}
+    .fech-item-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--gray-100);}
+    .fech-item-row:last-child{border-bottom:none;}
+    .fech-actions{display:flex;gap:8px;justify-content:flex-end;}
+    /* Modal editar fechamento */
+    .fech-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:700;display:none;align-items:center;justify-content:center;padding:20px;}
+    .fech-modal-box{background:white;border-radius:18px;padding:28px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+    .fech-item-edit{display:grid;grid-template-columns:60px 1fr 130px 40px;gap:8px;align-items:center;margin-bottom:8px;}
+    .fech-item-edit input{padding:7px 10px;border:1.5px solid var(--gray-200);border-radius:8px;font-family:inherit;font-size:12px;outline:none;}
+    .fech-item-edit input:focus{border-color:var(--navy);}
+    /* ── ABA CAIXA ── */
+    .main-tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-200);margin-bottom:20px;}
+    .main-tab{background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;padding:10px 20px;font-family:inherit;font-size:13px;font-weight:700;color:var(--gray-500);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:7px;}
+    .main-tab:hover{color:var(--navy);background:rgba(10,31,68,.04);}
+    .main-tab.active{color:var(--navy);border-bottom-color:var(--navy);}
+    .view-panel{display:none;}.view-panel.active{display:block;}
+    /* Modal caixa editar */
+    .caixa-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:600;display:flex;align-items:center;justify-content:center;padding:20px;display:none;}
+    .caixa-modal-box{background:white;border-radius:18px;padding:28px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+    .cx-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+    /* Cards caixa */
+    .caixa-card{background:white;border:1px solid var(--gray-200);border-radius:14px;padding:16px 18px;margin-bottom:10px;box-shadow:var(--shadow);transition:box-shadow .2s;}
+    .caixa-card:hover{box-shadow:0 6px 24px rgba(10,31,68,.12);}
+    .caixa-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+    .caixa-collab{font-size:14px;font-weight:800;color:var(--navy);}
+    .caixa-date{font-size:11px;color:var(--gray-400);font-weight:600;}
+    .caixa-vals{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+    .caixa-val-item{background:var(--gray-50);border-radius:8px;padding:7px 10px;text-align:center;}
+    .caixa-val-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--gray-400);margin-bottom:2px;}
+    .caixa-val-num{font-size:13px;font-weight:800;color:var(--gray-800);}
+    .caixa-val-num.green{color:var(--green);}
+    .caixa-val-num.red{color:var(--red);}
+    .caixa-actions{display:flex;gap:8px;justify-content:flex-end;}
+    .caixa-search{display:flex;gap:10px;margin-bottom:16px;align-items:center;}
+    .caixa-search input{flex:1;padding:8px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:13px;outline:none;}
+    .caixa-search input:focus{border-color:var(--navy);}
+    .badge-manual{background:#fef3c7;color:#b45309;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;}
     @media(max-width:768px){.content{padding:14px 14px 60px;}.metrics-grid{grid-template-columns:repeat(2,1fr);}.modal-grid2{grid-template-columns:1fr;}}
 
     /* TOAST */
@@ -168,7 +218,10 @@
       </div>
     </div>
     <div class="header-right">
-      <button class="btn-lancamento" onclick="abrirLancamento()">
+      <button class="main-tab" id="tabBtnProd" onclick="switchMainTab('prod')" style="color:var(--navy);border-bottom:3px solid var(--navy);padding:8px 16px;font-size:12px;"><i class="fas fa-chart-bar"></i> Produção</button>
+      <button class="main-tab" id="tabBtnCaixa" onclick="switchMainTab('caixa')" style="padding:8px 16px;font-size:12px;"><i class="fas fa-cash-register"></i> Caixa</button>
+      <button class="main-tab" id="tabBtnFech" onclick="switchMainTab('fech')" style="padding:8px 16px;font-size:12px;"><i class="fas fa-file-invoice-dollar"></i> Fechamentos</button>
+      <button class="btn-lancamento" id="btnLancamentoHeader" onclick="abrirLancamento()">
         <i class="fas fa-plus"></i> Lançamento Manual
       </button>
       <button class="back-btn" onclick="irPara('login.html')"><i class="fas fa-home"></i> Portal</button>
@@ -256,7 +309,85 @@
     </div>
   </div>
 
+  <!-- MODAL EDITAR FECHAMENTO -->
+  <div class="fech-modal-overlay" id="fechEditModal" style="display:none;">
+    <div class="fech-modal-box">
+      <div class="modal-title" style="margin-bottom:6px;">
+        <i class="fas fa-edit" style="color:var(--purple);"></i> Editar Fechamento
+      </div>
+      <div style="font-size:12px;color:var(--gray-400);margin-bottom:18px;" id="fechEditSub">—</div>
+
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);margin-bottom:8px;">Forma de pagamento</div>
+      <select class="modal-select" id="fechEditForma" style="margin-bottom:16px;">
+        <option value="pix">PIX</option>
+        <option value="dinheiro">Dinheiro</option>
+        <option value="transferencia">Transferência</option>
+      </select>
+
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);margin-bottom:8px;">Itens</div>
+      <div id="fechEditItens"></div>
+      <button onclick="fechAdicionarItem()" style="width:100%;padding:8px;background:var(--gray-50);border:1.5px dashed var(--gray-300);border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-500);cursor:pointer;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:6px;">
+        <i class="fas fa-plus"></i> Adicionar item
+      </button>
+
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);margin-bottom:8px;">Pago hoje?</div>
+      <select class="modal-select" id="fechEditPago" style="margin-bottom:16px;">
+        <option value="nao">Não</option>
+        <option value="sim">Sim</option>
+      </select>
+
+      <div class="modal-actions">
+        <button class="btn-sec" onclick="fecharEditFech()"><i class="fas fa-times"></i> Cancelar</button>
+        <button class="btn-p" onclick="salvarEditFech()"><i class="fas fa-floppy-disk"></i> Salvar e Gerar Recibo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR CAIXA -->
+  <div class="caixa-modal-overlay" id="caixaEditModal">
+    <div class="caixa-modal-box">
+      <div class="modal-title" style="margin-bottom:16px;">
+        <i class="fas fa-edit" style="color:var(--teal);"></i> Editar Registro de Caixa
+      </div>
+      <div class="modal-row" style="margin-bottom:12px;">
+        <label class="modal-label">👤 Colaborador</label>
+        <input type="text" class="modal-input" id="cxEditCollab" readonly style="background:var(--gray-50);">
+      </div>
+      <div class="modal-row" style="margin-bottom:12px;">
+        <label class="modal-label">📅 Data</label>
+        <input type="date" class="modal-input" id="cxEditData" readonly style="background:var(--gray-50);">
+      </div>
+      <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);margin-bottom:10px;">💰 Entradas por forma</div>
+      <div class="cx-row">
+        <div class="modal-row"><label class="modal-label">PIX</label><input type="text" class="modal-input" id="cxEditPix" placeholder="0,00" oninput="mskVal(this)"></div>
+        <div class="modal-row"><label class="modal-label">Débito</label><input type="text" class="modal-input" id="cxEditDebito" placeholder="0,00" oninput="mskVal(this)"></div>
+        <div class="modal-row"><label class="modal-label">Crédito</label><input type="text" class="modal-input" id="cxEditCredito" placeholder="0,00" oninput="mskVal(this)"></div>
+        <div class="modal-row"><label class="modal-label">Dinheiro</label><input type="text" class="modal-input" id="cxEditDinheiro" placeholder="0,00" oninput="mskVal(this)"></div>
+      </div>
+      <div class="modal-row" style="margin-bottom:16px;">
+        <label class="modal-label">📤 Despesas / Saídas</label>
+        <input type="text" class="modal-input" id="cxEditDespesas" placeholder="0,00" oninput="mskVal(this)">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sec" onclick="fecharEditCaixa()"><i class="fas fa-times"></i> Cancelar</button>
+        <button class="btn-p" onclick="salvarEditCaixa()"><i class="fas fa-floppy-disk"></i> Salvar</button>
+      </div>
+    </div>
+  </div>
+
   <div class="content">
+    <!-- ABAS PRINCIPAIS -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+      <div class="main-tabs" style="margin-bottom:0;border:none;">
+        <button class="main-tab active" id="mainTabProd" onclick="switchMainTab('prod')"><i class="fas fa-chart-bar"></i> Produção</button>
+        <button class="main-tab" id="mainTabCaixa" onclick="switchMainTab('caixa')"><i class="fas fa-cash-register"></i> Caixa</button>
+        <button class="main-tab" id="mainTabFech" onclick="switchMainTab('fech')"><i class="fas fa-file-invoice-dollar"></i> Fechamentos</button>
+      </div>
+      <button class="btn-lancamento" id="btnLancProd" onclick="abrirLancamento()"><i class="fas fa-plus"></i> Lançamento Manual</button>
+    </div>
+
+    <!-- PAINEL PRODUÇÃO -->
+    <div class="view-panel active" id="viewProd">
 
     <!-- MÉTRICAS -->
     <div class="metrics-grid" id="metricsGrid">
@@ -282,7 +413,31 @@
       <div class="loading"><i class="fas fa-spinner fa-spin"></i></div>
     </div>
 
-  </div>
+  </div><!-- /viewProd -->
+
+    <!-- PAINEL CAIXA -->
+    <div class="view-panel" id="viewCaixa">
+      <div class="caixa-search">
+        <input type="text" id="cxSearchInput" placeholder="🔍 Buscar por colaborador..." oninput="renderCaixaTab()">
+        <select class="f-select" id="cxMesSelect" onchange="renderCaixaTab()" style="width:160px;"></select>
+      </div>
+      <div id="caixaTabContent">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
+      </div>
+    </div>
+
+    <!-- PAINEL FECHAMENTOS -->
+    <div class="view-panel" id="viewFech">
+      <div class="caixa-search">
+        <input type="text" id="fechSearchInput" placeholder="🔍 Buscar por profissional..." oninput="renderFechTab()">
+        <select class="f-select" id="fechMesSelect" onchange="renderFechTab()" style="width:160px;"></select>
+      </div>
+      <div id="fechTabContent">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
 
   <script>
     /* ══════════════════════════════════════
@@ -391,6 +546,422 @@
       }
     };
 
+
+
+
+
+
+    /* ══════════════════════════════════════
+       ABA FECHAMENTOS
+    ══════════════════════════════════════ */
+    var _fechDados = {};     // id -> registro
+    var _fechEditId = null;
+    var _fechEditItens = [];
+
+    function preencherMesFech() {
+      var sel = document.getElementById('fechMesSelect');
+      if (!sel || sel.options.length > 1) return;
+      var meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      var now = new Date(), opts = '<option value="">Todos os meses</option>';
+      for (var i = 0; i < 6; i++) {
+        var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        var val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+        opts += '<option value="' + val + '">' + meses[d.getMonth()] + ' ' + d.getFullYear() + '</option>';
+      }
+      sel.innerHTML = opts;
+    }
+
+    window.renderFechTab = function() {
+      var container = document.getElementById('fechTabContent');
+      if (!container) return;
+      var mes   = (document.getElementById('fechMesSelect')  || {}).value || '';
+      var busca = ((document.getElementById('fechSearchInput') || {}).value || '').toLowerCase().trim();
+
+      var lista = Object.values(_fechDados).filter(function(r) {
+        if (mes && !(r.criadoEm||'').startsWith(mes)) return false;
+        if (busca && !((r.profissional&&r.profissional.nome)||'').toLowerCase().includes(busca)) return false;
+        return true;
+      });
+      lista.sort(function(a,b){ return (b.criadoEm||'') < (a.criadoEm||'') ? -1 : 1; });
+
+      if (!lista.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray-400);"><i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:10px;"></i>Nenhum fechamento encontrado.</div>';
+        return;
+      }
+
+      var out = '';
+      lista.forEach(function(r) {
+        var p = r.profissional || {};
+        var dtCriado = r.criadoEm ? new Date(r.criadoEm).toLocaleString('pt-BR') : '—';
+        var itens = r.itens || [];
+        var initials = (p.nome||'?').split(' ').filter(Boolean).map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+        var tipoLabel = p.regime === 'funcionario' ? 'Sem Descontos' : 'PJ';
+        var fpLabel = {pix:'PIX',dinheiro:'Dinheiro',transferencia:'Transferência'}[r.formaPagamento] || r.formaPagamento || '—';
+        var itensHtml = itens.slice(0,3).map(function(it){
+          return '<div class="fech-item-row"><span>' + esc(it.descricao||'—') + ' ×' + (it.qtd||1) + '</span><span>' + fmtBRL(it.valorTotal||0) + '</span></div>';
+        }).join('');
+        if (itens.length > 3) itensHtml += '<div style="font-size:11px;color:var(--gray-400);padding-top:4px;">+' + (itens.length-3) + ' item(s)...</div>';
+
+        out += '<div class="fech-card">' +
+          '<div class="fech-card-header">' +
+            '<div style="display:flex;align-items:center;gap:10px;">' +
+              '<div style="width:38px;height:38px;border-radius:50%;background:var(--purple,#7c3aed);color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">' + esc(initials) + '</div>' +
+              '<div><div class="fech-prof">' + esc(p.nome||'—') + '</div>' +
+              '<div class="fech-doc">CPF: ' + esc(p.documento||'—') + ' · ' + tipoLabel + '</div></div>' +
+            '</div>' +
+            '<div class="fech-meta">📅 ' + dtCriado + '<br>👤 ' + esc(r.criadoPor||'—') + '<br>💳 ' + fpLabel + '</div>' +
+          '</div>' +
+          '<div class="fech-vals">' +
+            '<div class="fech-val-item"><div class="fech-val-lbl">Subtotal</div><div class="fech-val-num">' + fmtBRL(r.subtotal||0) + '</div></div>' +
+            '<div class="fech-val-item"><div class="fech-val-lbl">Descontos</div><div class="fech-val-num red" style="color:var(--red);">' + fmtBRL(r.totalDescontos||0) + '</div></div>' +
+            '<div class="fech-val-item"><div class="fech-val-lbl">Líquido</div><div class="fech-val-num green">' + fmtBRL(r.liquido||0) + '</div></div>' +
+          '</div>' +
+          (itensHtml ? '<div class="fech-itens">' + itensHtml + '</div>' : '') +
+          '<div class="fech-actions">' +
+            '<button class="btn-sec" style="font-size:12px;padding:7px 14px;" onclick="gerarReciboFech(\'' + r.id + '\')"><i class="fas fa-receipt"></i> Recibo</button>' +
+            '<button class="btn-p" style="font-size:12px;padding:7px 14px;" onclick="abrirEditFech(\'' + r.id + '\')"><i class="fas fa-edit"></i> Editar</button>' +
+          '</div></div>';
+      });
+      container.innerHTML = out;
+    };
+
+    window.abrirEditFech = function(id) {
+      var r = _fechDados[id];
+      if (!r) { toast('Registro não encontrado','error'); return; }
+      _fechEditId = id;
+      _fechEditItens = JSON.parse(JSON.stringify(r.itens||[]));
+      var p = r.profissional||{};
+      document.getElementById('fechEditSub').textContent = (p.nome||'—') + ' · CPF: ' + (p.documento||'—') + ' · ' + new Date(r.criadoEm).toLocaleString('pt-BR');
+      document.getElementById('fechEditForma').value = r.formaPagamento||'pix';
+      document.getElementById('fechEditPago').value  = r.pagoHoje ? 'sim' : 'nao';
+      renderFechItensEdit();
+      document.getElementById('fechEditModal').style.display = 'flex';
+    };
+
+    function renderFechItensEdit() {
+      var c = document.getElementById('fechEditItens');
+      var out = '';
+      _fechEditItens.forEach(function(it, i) {
+        out += '<div class="fech-item-edit">' +
+          '<input type="number" value="' + (it.qtd||1) + '" min="1" oninput="_fechEditItens[' + i + '].qtd=parseInt(this.value)||1;_recalcFechItem(' + i + ')">' +
+          '<input type="text" value="' + esc(it.descricao||'') + '" placeholder="Descrição" oninput="_fechEditItens[' + i + '].descricao=this.value.toUpperCase()">' +
+          '<input type="text" value="' + (it.valorUnitario||0).toFixed(2).replace('.',',') + '" placeholder="0,00" oninput="_mskFech(this,' + i + ')">' +
+          '<button onclick="_remFechItem(' + i + ')" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:16px;"><i class="fas fa-times"></i></button>' +
+          '</div>';
+      });
+      c.innerHTML = out;
+    }
+
+    window._mskFech = function(inp, idx) {
+      var v = inp.value.replace(/\D/g,'');
+      v = (parseInt(v||'0',10)/100).toFixed(2);
+      inp.value = v.replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+      _fechEditItens[idx].valorUnitario = parseFloat(v)||0;
+      _recalcFechItem(idx);
+    };
+
+    window._recalcFechItem = function(idx) {
+      var it = _fechEditItens[idx];
+      it.valorTotal = (it.qtd||1) * (it.valorUnitario||0);
+    };
+
+    window._remFechItem = function(idx) {
+      _fechEditItens.splice(idx,1);
+      renderFechItensEdit();
+    };
+
+    window.fechAdicionarItem = function() {
+      _fechEditItens.push({qtd:1,descricao:'',valorUnitario:0,valorTotal:0});
+      renderFechItensEdit();
+    };
+
+    window.fecharEditFech = function() {
+      document.getElementById('fechEditModal').style.display = 'none';
+      _fechEditId = null; _fechEditItens = [];
+    };
+
+    window.salvarEditFech = function() {
+      if (!_fechEditId) return;
+      var r = JSON.parse(JSON.stringify(_fechDados[_fechEditId]||{}));
+      // Recalcular totais com novos itens
+      var itens = _fechEditItens.filter(function(it){ return it.descricao && it.qtd > 0 && it.valorTotal > 0; });
+      if (!itens.length) { toast('Adicione pelo menos um item válido','error'); return; }
+      var sub = itens.reduce(function(s,it){ return s + (it.valorTotal||0); }, 0);
+      var TAXAS = {PIS:0.0065,CSLL:0.01,COFINS:0.03,IRRF:0.015,LIMITE_IRRF:666.67};
+      var pis=0,csll=0,cofins=0,irrf=0;
+      var p = r.profissional||{};
+      if (p.regime === 'pj-presumido' && sub > 215.05) {
+        pis=Math.round(sub*TAXAS.PIS*100)/100;
+        csll=Math.round(sub*TAXAS.CSLL*100)/100;
+        cofins=Math.round(sub*TAXAS.COFINS*100)/100;
+        if (sub > TAXAS.LIMITE_IRRF) irrf=Math.round(sub*TAXAS.IRRF*100)/100;
+      }
+      var td = pis+csll+cofins+irrf;
+      r.itens = itens; r.subtotal = sub; r.pis=pis; r.csll=csll; r.cofins=cofins; r.irrf=irrf;
+      r.totalDescontos=td; r.liquido=sub-td;
+      r.formaPagamento = document.getElementById('fechEditForma').value;
+      r.pagoHoje = document.getElementById('fechEditPago').value === 'sim';
+      r.editadoEm = new Date().toISOString();
+      // Salva no Firebase
+      if (window.fbSet) {
+        window.fbSet('fechamento/registros/' + _fechEditId, r)
+          .then(function(){
+            toast('Salvo! Gerando recibo...','success');
+            fecharEditFech();
+            setTimeout(function(){ gerarReciboFech(_fechEditId); }, 400);
+          }).catch(function(e){ toast('Erro: '+e.message,'error'); });
+      } else {
+        // Sem fbSet — atualiza local e gera recibo
+        _fechDados[_fechEditId] = r;
+        renderFechTab();
+        fecharEditFech();
+        gerarReciboFech(_fechEditId);
+      }
+    };
+
+    window.gerarReciboFech = function(id) {
+      var r = _fechDados[id];
+      if (!r) { toast('Registro não encontrado','error'); return; }
+      var p = r.profissional||{};
+      var itens = (r.itens||[]).filter(function(it){ return it.descricao&&it.valorTotal!==0; });
+      var TAXAS = {PIS:0.0065,CSLL:0.01,COFINS:0.03,IRRF:0.015};
+      var aliq = (p.regime==='pj-presumido'&&r.subtotal>0) ? (r.totalDescontos||0)/r.subtotal : 0;
+      function fm(v){ return 'R$ '+v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+      function esc2(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+      var fpLabel = {pix:'PIX',dinheiro:'Dinheiro',transferencia:'Transferência'}[r.formaPagamento]||r.formaPagamento||'—';
+      var pago = r.pagoHoje;
+      var now = new Date(r.editadoEm||r.criadoEm||Date.now());
+      var data = now.toLocaleDateString('pt-BR'), hora = now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+      var dia=String(now.getDate()).padStart(2,'0'), mes2=String(now.getMonth()+1).padStart(2,'0'), ano=now.getFullYear();
+      var dataPag = pago ? dia+'/'+mes2+'/'+ano : '_______/_______/_____';
+      var imp = (p.regime==='pj-presumido') ? 'Impostos: PIS: '+fm(r.pis||0)+' | CSLL: '+fm(r.csll||0)+' | COFINS: '+fm(r.cofins||0)+(r.irrf>0?' | IRRF: '+fm(r.irrf):'') : '';
+      var linhas = itens.map(function(it){
+        return '<tr><td class="col-qtd">'+it.qtd+'</td><td>'+esc2(it.descricao)+'</td><td class="col-valor">'+fm(it.valorTotal)+'</td><td class="col-valor col-liquido">'+fm(it.valorTotal*(1-aliq))+'</td></tr>';
+      }).join('');
+      linhas += '<tr class="linha-totais"><td colspan="2"></td><td class="col-valor">Total bruto: '+fm(r.subtotal||0)+'</td><td class="col-valor">TOTAL: '+fm(r.liquido||0)+'</td></tr>';
+      var w=window.open('','_blank');
+      if(!w){toast('Permita pop-ups','error');return;}
+      w.document.write('<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Repasse Consolidado</title>'+
+        '<style>@page{size:A4;margin:0}body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#000}'+
+        '.recibo{width:210mm;min-height:297mm;box-sizing:border-box;padding:8mm;margin:0 auto}'+
+        '.cabecalho{display:flex;align-items:center;justify-content:space-between;margin-bottom:8mm}'+
+        '.titulo{font-size:26px;font-weight:500;text-align:center;flex:1}'+
+        'hr{border:none;border-top:1px solid #000;margin:0 0 8mm}'+
+        '.topo{display:grid;grid-template-columns:1fr 1fr;gap:6mm;font-size:12px;margin-bottom:8mm}'+
+        '.pagoa{margin-bottom:6mm;font-size:14px}'+
+        'table{width:100%;border-collapse:collapse;font-size:12px}th,td{border:1px solid #000;padding:6px 8px}'+
+        'th{text-align:center}.col-qtd{width:10%;text-align:center}.col-valor{width:22.5%;text-align:right}'+
+        '.col-liquido{font-weight:700}.linha-totais td{font-weight:700}'+
+        '.impostos{margin-top:4mm;font-size:12px}.validacao{margin:6mm 0 4mm;text-align:center;font-size:12px;line-height:1.5}'+
+        '.rodape{margin-top:10mm;font-size:12px}.rodape-assin{display:flex;justify-content:space-between;margin-bottom:8mm;gap:30mm}'+
+        '.assin{flex:1;text-align:center}.assin .linha{border-bottom:1px solid #000;height:18px;margin-bottom:4px}.assin .lbl{font-size:12px}'+
+        '.info-pag{margin-top:2mm;font-size:12px;line-height:1.6}.quitado{margin-top:3mm;font-weight:600}</style></head><body>'+
+        '<div class="recibo"><div class="cabecalho"><div style="width:80px;font-size:12px;font-weight:700;">Amor Saúde</div>'+
+        '<div class="titulo">Repasse Consolidado</div><div style="width:80px"></div></div><hr>'+
+        '<div class="topo"><div><strong>Amor Saúde SP Pirituba</strong><br>Avenida Doutor Felipe Pinel — Pirituba / São Paulo/SP<br>Data/Hora: '+data+' '+hora+' - Pagamento: '+fpLabel+'</div>'+
+        '<div style="text-align:right;">Usuário: '+esc2(r.criadoPor||'—')+'</div></div>'+
+        '<div class="pagoa"><strong>Pago a: '+esc2(p.nome||'—')+'</strong> / CPF/CNPJ: <strong>'+esc2(p.documento||'—')+'</strong></div>'+
+        '<table><thead><tr><th>Qtd</th><th>Item</th><th>Valor Bruto</th><th>Valor Líquido</th></tr></thead><tbody>'+linhas+'</tbody></table>'+
+        (imp?'<div class="impostos">'+esc2(imp)+'</div>':'')+
+        '<div class="validacao">Declaro que conferi e validei os serviços prestados, estando de acordo com os valores apurados, ciente de que o pagamento desta agenda será realizado conforme calendário financeiro da clínica.</div>'+
+        '<div class="rodape"><div class="rodape-assin">'+
+          (r.formaPagamento==='dinheiro'?'<div class="assin"><div class="linha"></div><div class="lbl">Assinatura do Responsável</div></div>':'')+
+          '<div class="assin"><div class="linha"></div><div class="lbl">Carimbo e Assinatura</div></div>'+
+        '</div><div class="info-pag">'+
+          '<strong>INFORMAÇÕES DE PAGAMENTO</strong><br>'+
+          'Forma: ('+(r.formaPagamento==='transferencia'?'X':' ')+') Transferência &nbsp; ('+(r.formaPagamento==='dinheiro'?'X':' ')+') Dinheiro &nbsp; Data: '+dataPag+'<br>'+
+          '<span class="quitado">'+(pago?'☑':'☐')+' Quitado conforme comprovante bancário em anexo</span>'+
+        '</div></div></div>'+
+        '<scr'+'ipt>window.print();</scr'+'ipt></body></html>');
+      w.document.close();
+    };
+
+    /* ══════════════════════════════════════
+       ABA CAIXA
+    ══════════════════════════════════════ */
+    var _cxEditUID = null, _cxEditDT = null;
+
+    window.switchMainTab = function(tab) {
+      var tabs = ['prod','caixa','fech'];
+      tabs.forEach(function(t) {
+        var vp = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
+        var mt = document.getElementById('mainTab' + t.charAt(0).toUpperCase() + t.slice(1));
+        var hb = document.getElementById('tabBtn' + t.charAt(0).toUpperCase() + t.slice(1));
+        var active = t === tab;
+        if (vp) vp.classList.toggle('active', active);
+        if (mt) mt.classList.toggle('active', active);
+        if (hb) { hb.style.borderBottomColor = active ? 'var(--navy)' : 'transparent'; hb.style.color = active ? 'var(--navy)' : 'var(--gray-500)'; }
+      });
+      var bl = document.getElementById('btnLancProd');
+      if (bl) bl.style.display = tab === 'prod' ? '' : 'none';
+      if (tab === 'caixa') { preencherMesCaixa(); renderCaixaTab(); }
+      if (tab === 'fech')  { preencherMesFech();  renderFechTab(); }
+    };
+
+    function preencherMesCaixa() {
+      var sel = document.getElementById('cxMesSelect');
+      if (!sel || sel.options.length > 1) return;
+      var meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      var now = new Date(), opts = '';
+      for (var i = 0; i < 6; i++) {
+        var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        var val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+        opts += '<option value="' + val + '">' + meses[d.getMonth()] + ' ' + d.getFullYear() + '</option>';
+      }
+      sel.innerHTML = opts;
+    }
+
+    window.renderCaixaTab = function() {
+      var container = document.getElementById('caixaTabContent');
+      if (!container) return;
+      var mes = (document.getElementById('cxMesSelect') || {}).value || '';
+      var busca = ((document.getElementById('cxSearchInput') || {}).value || '').toLowerCase().trim();
+      var linhas = [];
+      for (var uid in _dados) {
+        for (var dt in _dados[uid]) {
+          if (mes && !dt.startsWith(mes)) continue;
+          var snap = _dados[uid][dt];
+          if (busca && !(snap.colaborador||'').toLowerCase().includes(busca)) continue;
+          linhas.push({uid:uid, dt:dt, snap:snap});
+        }
+      }
+      linhas.sort(function(a,b){ return b.dt < a.dt ? -1 : b.dt > a.dt ? 1 : 0; });
+      if (!linhas.length) {
+        container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray-400);"><i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:10px;"></i>Nenhum registro encontrado.</div>';
+        return;
+      }
+      var out = '';
+      linhas.forEach(function(item) {
+        var snap=item.snap, uid=item.uid, dt=item.dt, tf=snap.totForma||{};
+        var pix=0,deb=0,cred=0,din=0,desp=0;
+        for (var f in tf) {
+          var nm=(f||'').toLowerCase();
+          if (nm.includes('pix'))    pix +=(tf[f].entrada||0);
+          else if (nm.includes('éb')||nm.includes('eb')) deb+=(tf[f].entrada||0);
+          else if (nm.includes('éd')||nm.includes('ed')) cred+=(tf[f].entrada||0);
+          else if (nm.includes('din')) din+=(tf[f].entrada||0);
+          desp+=(tf[f].saida||0);
+        }
+        var total=pix+deb+din-desp;
+        var initials=(snap.colaborador||'?').split(' ').filter(Boolean).map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+        out += '<div class="caixa-card">' +
+          '<div class="caixa-card-header">' +
+            '<div style="display:flex;align-items:center;gap:10px;">' +
+              '<div style="width:38px;height:38px;border-radius:50%;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">' + esc(initials) + '</div>' +
+              '<div><div class="caixa-collab">' + esc(snap.colaborador||uid) + '</div>' +
+              '<div class="caixa-date"><i class="fas fa-calendar" style="font-size:9px;"></i> ' + fmtData(dt) + (snap.manualAdmin?' <span class="badge-manual">Manual</span>':'') + '</div></div>' +
+            '</div>' +
+            '<div style="text-align:right;"><div style="font-size:11px;color:var(--gray-400);margin-bottom:2px;">Total à vista</div>' +
+            '<div style="font-size:18px;font-weight:900;color:var(--green);">' + fmtBRL(total) + '</div></div>' +
+          '</div>' +
+          '<div class="caixa-vals">' +
+            '<div class="caixa-val-item"><div class="caixa-val-lbl">PIX</div><div class="caixa-val-num">' + fmtBRL(pix) + '</div></div>' +
+            '<div class="caixa-val-item"><div class="caixa-val-lbl">Débito</div><div class="caixa-val-num">' + fmtBRL(deb) + '</div></div>' +
+            '<div class="caixa-val-item"><div class="caixa-val-lbl">Crédito</div><div class="caixa-val-num">' + fmtBRL(cred) + '</div></div>' +
+            '<div class="caixa-val-item"><div class="caixa-val-lbl">Dinheiro</div><div class="caixa-val-num">' + fmtBRL(din) + '</div></div>' +
+          '</div>' +
+          (desp>0?'<div style="font-size:11px;color:var(--red);font-weight:700;margin-bottom:8px;"><i class="fas fa-arrow-down"></i> Despesas: '+fmtBRL(desp)+'</div>':'') +
+          '<div class="caixa-actions">' +
+            '<button class="btn-sec" style="font-size:12px;padding:7px 14px;" onclick="gerarReciboCaixa(\'' + uid + '\',\'' + dt + '\')"><i class="fas fa-receipt"></i> Recibo</button>' +
+            '<button class="btn-p" style="font-size:12px;padding:7px 14px;" onclick="abrirEditCaixa(\'' + uid + '\',\'' + dt + '\')"><i class="fas fa-edit"></i> Editar</button>' +
+          '</div></div>';
+      });
+      container.innerHTML = out;
+    };
+
+    window.abrirEditCaixa = function(uid, dt) {
+      var snap = (_dados[uid]||{})[dt];
+      if (!snap) { toast('Registro não encontrado','error'); return; }
+      _cxEditUID=uid; _cxEditDT=dt;
+      document.getElementById('cxEditCollab').value = snap.colaborador||uid;
+      document.getElementById('cxEditData').value   = dt;
+      var tf=snap.totForma||{};
+      function getVal(key){ for(var f in tf){ if((f||'').toLowerCase().includes(key)) return (tf[f].entrada||0); } return 0; }
+      function getDesp(){ var d=0; for(var f in tf) d+=(tf[f].saida||0); return d; }
+      function fmtI(v){ return v>0?v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'):''; }
+      document.getElementById('cxEditPix').value      = fmtI(getVal('pix'));
+      document.getElementById('cxEditDebito').value   = fmtI(getVal('éb')||getVal('eb'));
+      document.getElementById('cxEditCredito').value  = fmtI(getVal('éd')||getVal('ed'));
+      document.getElementById('cxEditDinheiro').value = fmtI(getVal('din'));
+      document.getElementById('cxEditDespesas').value = fmtI(getDesp());
+      document.getElementById('caixaEditModal').style.display = 'flex';
+    };
+
+    window.fecharEditCaixa = function() {
+      document.getElementById('caixaEditModal').style.display = 'none';
+      _cxEditUID=null; _cxEditDT=null;
+    };
+
+    window.salvarEditCaixa = function() {
+      if (!_cxEditUID||!_cxEditDT) return;
+      var snap = JSON.parse(JSON.stringify((_dados[_cxEditUID]||{})[_cxEditDT]||{}));
+      function pv(id){ return parseFloat((document.getElementById(id).value||'0').replace(/\./g,'').replace(',','.')) || 0; }
+      snap.totForma = {
+        'PIX':               {entrada:pv('cxEditPix'),     saida:0},
+        'Cartão de Débito':  {entrada:pv('cxEditDebito'),  saida:0},
+        'Cartão de Crédito': {entrada:pv('cxEditCredito'), saida:0},
+        'Dinheiro':          {entrada:pv('cxEditDinheiro'),saida:pv('cxEditDespesas')}
+      };
+      snap.manualAdmin = true;
+      snap.editadoEm   = new Date().toISOString();
+      if (window.fbSet) {
+        window.fbSet('relatorios/'+_cxEditUID+'/'+_cxEditDT, snap)
+          .then(function(){ toast('Registro atualizado!','success'); fecharEditCaixa(); })
+          .catch(function(e){ toast('Erro ao salvar: '+e.message,'error'); });
+      }
+    };
+
+    window.gerarReciboCaixa = function(uid, dt) {
+      var snap=(_dados[uid]||{})[dt];
+      if (!snap) { toast('Registro não encontrado','error'); return; }
+      var tf=snap.totForma||{}, pix=0,deb=0,cred=0,din=0,desp=0;
+      for (var f in tf) {
+        var nm=(f||'').toLowerCase();
+        if (nm.includes('pix'))    pix +=(tf[f].entrada||0);
+        else if (nm.includes('éb')||nm.includes('eb')) deb+=(tf[f].entrada||0);
+        else if (nm.includes('éd')||nm.includes('ed')) cred+=(tf[f].entrada||0);
+        else if (nm.includes('din')) din+=(tf[f].entrada||0);
+        desp+=(tf[f].saida||0);
+      }
+      var total=pix+deb+din-desp;
+      function fm(v){ return 'R$ '+v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+      var now=new Date(), dtFmt=dt.split('-').reverse().join('/');
+      var linhas='';
+      if(pix>0)  linhas+='<tr><td>PIX</td><td style="text-align:right;">'+fm(pix)+'</td></tr>';
+      if(deb>0)  linhas+='<tr><td>Cartão de Débito</td><td style="text-align:right;">'+fm(deb)+'</td></tr>';
+      if(cred>0) linhas+='<tr><td>Cartão de Crédito</td><td style="text-align:right;">'+fm(cred)+'</td></tr>';
+      if(din>0)  linhas+='<tr><td>Dinheiro</td><td style="text-align:right;">'+fm(din)+'</td></tr>';
+      if(desp>0) linhas+='<tr><td style="color:#C62828;">Despesas/Saídas</td><td style="text-align:right;color:#C62828;">− '+fm(desp)+'</td></tr>';
+      var w=window.open('','_blank');
+      if(!w){toast('Permita pop-ups para gerar o recibo','error');return;}
+      w.document.write('<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo de Caixa</title>'+
+        '<style>@page{size:A4;margin:0}body{font-family:Arial,sans-serif;margin:0;color:#000;background:#fff}'+
+        '.doc{width:210mm;min-height:160mm;padding:12mm;box-sizing:border-box;margin:0 auto}'+
+        'h2{text-align:center;font-size:18px;margin-bottom:2mm;color:#0A1F44}'+
+        '.sub{text-align:center;font-size:11px;color:#64748b;margin-bottom:8mm}'+
+        '.info{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-bottom:8mm;font-size:12px;border:1px solid #e2e8f0;border-radius:8px;padding:10px}'+
+        'table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid #000;padding:7px 10px}'+
+        'th{background:#0A1F44;color:white;text-align:left}.total-row td{font-weight:800;font-size:14px;background:#f0fdf4}'+
+        '.assin{display:flex;justify-content:space-between;margin-top:14mm;gap:20mm}'+
+        '.assin-item{flex:1;text-align:center}.assin-item .linha{border-bottom:1px solid #000;height:14px;margin-bottom:4px}'+
+        '.assin-item .lbl{font-size:10px;color:#64748b}</style></head><body>'+
+        '<div class="doc"><h2>Recibo de Fechamento de Caixa</h2>'+
+        '<div class="sub">Amor Saúde · Pirituba — Emitido em '+now.toLocaleString('pt-BR')+'</div>'+
+        '<div class="info">'+
+          '<div><strong>Colaborador:</strong><br>'+(snap.colaborador||uid)+'</div>'+
+          '<div><strong>Data do caixa:</strong><br>'+dtFmt+'</div>'+
+        '</div>'+
+        '<table><thead><tr><th>Forma de Pagamento</th><th style="text-align:right;">Valor</th></tr></thead><tbody>'+
+        linhas+
+        '<tr class="total-row"><td>TOTAL À VISTA (sem crédito)</td><td style="text-align:right;">'+fm(total)+'</td></tr>'+
+        '</tbody></table>'+
+        '<div class="assin">'+
+          '<div class="assin-item"><div class="linha"></div><div class="lbl">Assinatura do Responsável</div></div>'+
+          '<div class="assin-item"><div class="linha"></div><div class="lbl">Conferido por</div></div>'+
+        '</div></div>'+
+        '<scr'+'ipt>window.print();</scr'+'ipt></body></html>');
+      w.document.close();
+    };
 
     /* ── MODO AMEI ── */
     var _modoLanc = 'manual';
@@ -962,8 +1533,19 @@
     const _auth = getAuth(_app);
     const _db   = getDatabase(_app);
     window.initFirebaseUtils(_db, ref, get);
-    window.fbSet = (path, data) => set(ref(_db, path), data);
-    window.fbGet = (path)       => get(ref(_db, path));
+    window.fbSet    = (path, data) => set(ref(_db, path), data);
+    window.fbGet    = (path)       => get(ref(_db, path));
+    window.fbRemove = (path)       => remove(ref(_db, path));
+
+    // Listener fechamentos
+    onValue(ref(_db, 'fechamento/registros'), snap => {
+      const d = snap.val();
+      window._fechDados = {};
+      if (d && typeof d === 'object') {
+        Object.keys(d).forEach(id => { if (d[id]) window._fechDados[id] = d[id]; });
+      }
+      if (typeof window.renderFechTab === 'function') window.renderFechTab();
+    });
 
     // Carrega lista de colaboradores para o select do modal
     window.carregarCollabSelect = async function() {
