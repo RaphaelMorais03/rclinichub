@@ -393,10 +393,14 @@
             <div style="font-size:28px;font-weight:900;color:var(--navy);letter-spacing:-1px;" id="xlsTotalNum">0</div>
           </div>
         </div>
-        <div id="xlsImportarBtnWrap" style="display:none;">
-          <button onclick="executarImportacaoXls()" id="xlsBtnImportar" style="width:100%;justify-content:center;padding:13px;font-size:14px;background:var(--navy);color:white;border:none;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
-            <i class="fas fa-upload"></i> Importar para a Gaveta (<span id="xlsCount">0</span> exames)
+        <div id="xlsImportarBtnWrap" style="display:none;display:flex;flex-direction:column;gap:10px;">
+          <button onclick="executarImportacaoXls(false)" id="xlsBtnImportar" style="width:100%;justify-content:center;padding:13px;font-size:14px;background:var(--navy);color:white;border:none;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
+            <i class="fas fa-upload"></i> Adicionar à Gaveta (<span id="xlsCount">0</span> exames)
           </button>
+          <button onclick="executarImportacaoXls(true)" id="xlsBtnLimparImportar" style="width:100%;justify-content:center;padding:13px;font-size:14px;background:var(--red);color:white;border:none;border-radius:10px;font-family:inherit;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;">
+            <i class="fas fa-trash-arrow-up"></i> Limpar Gaveta e Reimportar (<span class="xlsCountSpan">0</span> exames)
+          </button>
+          <div style="font-size:11px;color:var(--gray-400);text-align:center;"><i class="fas fa-triangle-exclamation" style="color:#f97316;"></i> "Limpar e Reimportar" apaga todos os <strong id="totalPendentesCount">—</strong> exames pendentes atuais antes de importar</div>
         </div>
       </div>
 
@@ -821,6 +825,13 @@
       bar.style.display='block';wrap.style.display='block';
       document.getElementById('xlsTotalNum').textContent=total;
       document.getElementById('xlsCount').textContent=total;
+      document.querySelectorAll('.xlsCountSpan').forEach(el => el.textContent=total);
+      // Mostrar total de pendentes atuais
+      const tpc = document.getElementById('totalPendentesCount');
+      if (tpc) {
+        const pend = typeof examesPendentes !== 'undefined' ? Object.keys(examesPendentes).length : 0;
+        tpc.textContent = pend + ' exame(s)';
+      }
       const p=[];
       if(xlsCarregado.org)   p.push(xlsParsed.filter(x=>x.fonte==='ORG').length+' (Organizada)');
       if(xlsCarregado.eco)   p.push(xlsParsed.filter(x=>x.fonte==='ECO').length+' ECO');
@@ -842,9 +853,29 @@
       atualizarXlsResumo();
     };
 
-    window.executarImportacaoXls = async function() {
+    window.executarImportacaoXls = async function(limparAntes) {
       if(!xlsParsed.length) return;
+      if(limparAntes) {
+        const total = Object.keys(typeof examesPendentes!=='undefined'?examesPendentes:{}).length;
+        if(!confirm(`Isso vai APAGAR os ${total} exames pendentes atuais e substituir pelos ${xlsParsed.length} da planilha. Confirma?`)) return;
+      }
       document.getElementById('importLoadingOverlay').style.display='flex';
+      document.getElementById('importLoadingTxt').textContent = limparAntes ? 'Limpando gaveta...' : 'Importando exames...';
+      document.getElementById('importLoadingSub').textContent = limparAntes ? 'Removendo exames antigos' : 'Salvando no Firebase';
+
+      // Limpar pendentes atuais se solicitado
+      if(limparAntes) {
+        try {
+          await set(ref(db,'exames/pendentes'), null);
+          document.getElementById('importLoadingTxt').textContent = 'Gaveta limpa! Importando...';
+          document.getElementById('importLoadingSub').textContent = 'Salvando novos exames';
+        } catch(e) {
+          toast('Erro ao limpar: '+e.message, 'error');
+          document.getElementById('importLoadingOverlay').style.display='none';
+          return;
+        }
+      }
+
       const usuario=sessionStorage.getItem('usuario')||'Sistema';
       let ok=0,erros=0;
       const porFonte={};
