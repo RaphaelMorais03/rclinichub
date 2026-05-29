@@ -88,6 +88,21 @@
     .modal-close{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gray-500);font-size:14px;}
     .modal-close:hover{background:var(--gray-200);}
     .modal-body{padding:22px;}
+    .planilha-card{background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;padding:14px 16px;margin-bottom:12px;transition:border-color .2s;}
+    .planilha-card.connected{background:#f0fdf4;border-color:#bbf7d0;}
+    .planilha-card.connected .pc-status{color:var(--green);}
+    .planilha-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+    .pc-tipo{font-size:12px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:7px;}
+    .pc-status{font-size:11px;color:var(--gray-400);font-weight:600;}
+    .pc-input-row{display:flex;gap:8px;}
+    .pc-input{flex:1;padding:8px 12px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:12px;outline:none;background:white;transition:border .2s;}
+    .pc-input:focus{border-color:var(--navy);}
+    .pc-btn{padding:7px 14px;border:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:all .2s;}
+    .pc-btn.save{background:var(--navy);color:white;}
+    .pc-btn.save:hover{background:var(--navy-mid);}
+    .pc-btn.del{background:rgba(198,40,40,.08);color:var(--red);border:1px solid rgba(198,40,40,.15);}
+    .pc-btn.del:hover{background:var(--red);color:white;}
+    .pc-url-display{font-size:10px;color:var(--gray-400);margin-top:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
     @media(max-width:768px){.form-grid,.form-grid-3{grid-template-columns:1fr;}.tabs{gap:4px;}.tab-btn{min-width:80px;font-size:11px;}.content{padding:14px 14px 60px;}.perms-grid{grid-template-columns:1fr 1fr;}}
   </style>
 </head>
@@ -439,6 +454,25 @@
             <button class="btn-s" onclick="limparNotas()"><i class="fas fa-eraser"></i> Limpar notas de operação</button>
           </div>
         </div>
+        <!-- ── PLANILHAS DE EXAMES (GOOGLE SHEETS) ── -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">
+            <i class="fas fa-link" style="color:var(--teal,#61C1D0);"></i> Planilhas de Exames (Google Sheets)
+          </div>
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:14px;line-height:1.6;">
+            Cole o link de publicação CSV de cada planilha. No Google Sheets: <strong>Arquivo → Publicar na web → Selecionar aba → CSV → Publicar</strong>.
+            Após vincular, use o botão <strong>Importar</strong> na tela de exames.
+          </div>
+
+          <div id="pcListContainer">
+            <div style="text-align:center;padding:16px;color:var(--gray-400);font-size:12px;"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
+          </div>
+
+          <button onclick="adicionarPlanilhaCard()" style="width:100%;padding:9px;background:var(--gray-50);border:1.5px dashed var(--gray-300);border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;margin-top:4px;" onmouseover="this.style.borderColor='var(--navy)';this.style.color='var(--navy)'" onmouseout="this.style.borderColor='var(--gray-300)';this.style.color='var(--gray-500)'">
+            <i class="fas fa-plus"></i> Adicionar planilha
+          </button>
+        </div>
+
         <!-- ── GAVETA DE EXAMES ── -->
         <div style="margin-bottom:20px;">
           <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">Gaveta de Exames Pendentes</div>
@@ -491,6 +525,127 @@
   </div>
 
   <script>
+
+  // ── PLANILHAS DE EXAMES ──────────────────────────────────────────
+  const PC_TIPOS = [
+    { key:'organizada', label:'Planilha Organizada (recomendado)', icon:'fa-table',      color:'#0A1F44' },
+    { key:'eco',        label:'Ecocardiograma',                    icon:'fa-heart',      color:'#C62828' },
+    { key:'neuro',      label:'Neurológico (EEG / ENMG / PE)',     icon:'fa-brain',      color:'#7c3aed' },
+    { key:'usg',        label:'Ultrassom',                         icon:'fa-wave-square',color:'#0369a1' },
+    { key:'erg',        label:'Teste Ergométrico',                 icon:'fa-heartbeat',  color:'#f97316' },
+  ];
+
+  var _pcLinks = {};  // { key: { url, nome } }
+
+  window.renderPlanilhaCards = function() {
+    const c = document.getElementById('pcListContainer');
+    if (!c) return;
+    if (!Object.keys(_pcLinks).length) {
+      c.innerHTML = '<div style="text-align:center;padding:16px;color:var(--gray-400);font-size:12px;"><i class="fas fa-table" style="font-size:20px;opacity:.2;display:block;margin-bottom:6px;"></i>Nenhuma planilha vinculada ainda</div>';
+      return;
+    }
+    c.innerHTML = Object.entries(_pcLinks).map(([key, data]) => {
+      const tipo = PC_TIPOS.find(t => t.key === key) || { label: key, icon:'fa-file', color:'#64748b' };
+      return `<div class="planilha-card connected" id="pc-${key}">
+        <div class="planilha-card-header">
+          <div class="pc-tipo"><i class="fas ${tipo.icon}" style="color:${tipo.color};"></i>${tipo.label}</div>
+          <span class="pc-status"><i class="fas fa-check-circle"></i> Vinculada</span>
+        </div>
+        <div class="pc-url-display"><i class="fas fa-link" style="font-size:9px;"></i> ${data.url.slice(0,70)}...</div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="pc-btn save" onclick="testarPlanilha('${key}')"><i class="fas fa-rotate-right"></i> Testar</button>
+          <button class="pc-btn del" onclick="removerPlanilha('${key}')"><i class="fas fa-xmark"></i> Desvincular</button>
+        </div>
+      </div>`;
+    }).join('');
+  };
+
+  var _pcAddCount = 0;
+  window.adicionarPlanilhaCard = function() {
+    const c = document.getElementById('pcListContainer');
+    if (!c) return;
+    const tempId = 'pc-new-' + (++_pcAddCount);
+    const optsHtml = PC_TIPOS.map(t => `<option value="${t.key}">${t.label}</option>`).join('');
+    const div = document.createElement('div');
+    div.className = 'planilha-card';
+    div.id = tempId;
+    div.innerHTML = `
+      <div class="planilha-card-header" style="margin-bottom:10px;">
+        <div class="pc-tipo"><i class="fas fa-plus" style="color:var(--navy);"></i> Nova planilha</div>
+        <button onclick="document.getElementById('${tempId}').remove()" style="background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:14px;"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div style="margin-bottom:8px;">
+        <select id="${tempId}-tipo" class="pc-input" style="width:100%;margin-bottom:8px;">
+          <option value="">Selecione o tipo...</option>${optsHtml}
+        </select>
+        <div class="pc-input-row">
+          <input class="pc-input" type="url" id="${tempId}-url" placeholder="https://docs.google.com/spreadsheets/d/...">
+          <button class="pc-btn save" onclick="salvarPlanilha('${tempId}')"><i class="fas fa-save"></i> Salvar</button>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--gray-400);line-height:1.5;">
+        <i class="fas fa-info-circle"></i> Cole o link de publicação CSV. No Google Sheets: Arquivo → Publicar na web → selecionar aba → CSV → Publicar → copiar link.
+      </div>`;
+    // Limpar o placeholder vazio antes de adicionar
+    if (c.querySelector('.fa-table')) c.innerHTML = '';
+    c.appendChild(div);
+  };
+
+  window.salvarPlanilha = async function(tempId) {
+    const tipo = document.getElementById(tempId + '-tipo').value;
+    const url  = (document.getElementById(tempId + '-url').value || '').trim();
+    if (!tipo) { toast('Selecione o tipo de planilha', 'error'); return; }
+    if (!url)  { toast('Cole o link da planilha', 'error'); return; }
+    if (!url.includes('docs.google.com/spreadsheets') && !url.includes('output=csv') && !url.includes('pub?')) {
+      toast('Use o link de publicação CSV do Google Sheets', 'error'); return;
+    }
+    try {
+      await window._fbSet('admin/planilhasExames/' + tipo, { url, atualizadoEm: new Date().toISOString() });
+      _pcLinks[tipo] = { url };
+      document.getElementById(tempId).remove();
+      window.renderPlanilhaCards();
+      toast('Planilha vinculada com sucesso!', 'success');
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+  };
+
+  window.removerPlanilha = async function(key) {
+    if (!confirm('Desvincular esta planilha? Os exames já importados permanecem na gaveta.')) return;
+    try {
+      await window._fbSet('admin/planilhasExames/' + key, null);
+      delete _pcLinks[key];
+      window.renderPlanilhaCards();
+      toast('Planilha desvinculada', 'info');
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+  };
+
+  window.testarPlanilha = async function(key) {
+    const data = _pcLinks[key];
+    if (!data) return;
+    toast('Testando conexão...', 'info');
+    try {
+      const r = await fetch(data.url);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const csv = await r.text();
+      const linhas = csv.trim().split('\n').length - 1;
+      toast(`✅ Conexão OK — ${linhas} linhas encontradas`, 'success');
+    } catch(e) { toast('Erro ao acessar: ' + e.message, 'error'); }
+  };
+
+  window.carregarPlanilhasLinks = async function() {
+    try {
+      const snap = await window._fbGet('admin/planilhasExames');
+      _pcLinks = {};
+      if (snap && snap.val()) {
+        Object.entries(snap.val()).forEach(([k, v]) => { if (v && v.url) _pcLinks[k] = v; });
+      }
+      window.renderPlanilhaCards();
+    } catch(e) {
+      const c = document.getElementById('pcListContainer');
+      if (c) c.innerHTML = '<div style="font-size:12px;color:var(--red);">Erro ao carregar links</div>';
+    }
+  };
+
+
   // ── Gaveta de Exames ──
   window.atualizarContGaveta = async function() {
     const btn = document.getElementById('btnGavAtualizar');
@@ -562,8 +717,9 @@
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     // Ao abrir Config, carrega contagem da gaveta automaticamente
-    if (t === 'config' && typeof window.atualizarContGaveta === 'function') {
-      setTimeout(window.atualizarContGaveta, 200);
+    if (t === 'config') {
+      if (typeof window.atualizarContGaveta === 'function')   setTimeout(window.atualizarContGaveta, 200);
+      if (typeof window.carregarPlanilhasLinks === 'function') setTimeout(window.carregarPlanilhasLinks, 100);
     }
     const idx = ['usuarios','atendentes','clinica','profissionais','colaboradores','logs','config'].indexOf(t);
     if (idx >= 0) document.querySelectorAll('.tab-btn')[idx].classList.add('active');

@@ -101,6 +101,26 @@
     .empty-state i{font-size:40px;margin-bottom:12px;display:block;opacity:.3;}
     .empty-state p{font-size:13px;}
     @media(max-width:768px){.stats-bar{grid-template-columns:1fr 1fr;}.form-row{grid-template-columns:1fr;}.exames-grid{grid-template-columns:1fr;}.content{padding:16px 14px 60px;}}
+    /* ── SALA DE ESPERA ── */
+    .sala-toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+    .sala-toolbar .f-input{flex:1;min-width:200px;}
+    .sala-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .sala-table th{padding:10px 12px;background:var(--gray-50);color:var(--gray-500);font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-bottom:2px solid var(--gray-200);text-align:left;white-space:nowrap;}
+    .sala-table th.col-chk{width:36px;text-align:center;}
+    .sala-table td{padding:10px 12px;border-bottom:1px solid var(--gray-100);vertical-align:top;}
+    .sala-table tr:hover td{background:var(--gray-50);}
+    .sala-table tr.row-extra td{background:#f8faff;border-bottom:1px dashed var(--gray-200);}
+    .sala-table tr.row-extra:hover td{background:#eff6ff;}
+    .sala-pac{font-size:13px;font-weight:700;color:var(--navy);line-height:1.3;}
+    .sala-proc{font-size:11px;color:var(--gray-600);line-height:1.4;}
+    .sala-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;}
+    .sala-badge.atendido{background:var(--green-bg);color:var(--green);}
+    .sala-badge.aguardando{background:var(--amber-bg);color:var(--amber);}
+    .btn-expand{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;cursor:pointer;color:var(--gray-600);transition:all .15s;white-space:nowrap;}
+    .btn-expand:hover{background:var(--navy);color:white;border-color:var(--navy);}
+    .sala-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;flex-wrap:wrap;}
+    .sala-sel-info{font-size:12px;color:var(--gray-500);font-weight:600;}
+    .modal-cpf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
   </style>
 </head>
 <body>
@@ -118,13 +138,22 @@
           <div class="mi-nome" id="mNome">—</div>
           <div class="mi-sub" id="mSub">—</div>
         </div>
-        <div class="form-group" style="margin-bottom:14px;">
-          <label class="f-label">Quem retirou *</label>
-          <input class="f-input" type="text" id="mQuemRetirou" placeholder="Nome de quem está retirando">
+        <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-user-check" style="color:var(--green);"></i>
+          <div>
+            <div style="font-size:10px;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Atendente</div>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);" id="mAtendenteNome">—</div>
+          </div>
         </div>
-        <div class="form-group" style="margin-bottom:18px;">
-          <label class="f-label">Atendente que entregou *</label>
-          <select class="f-select" id="mAtendente"><option value="">Carregando...</option></select>
+        <div class="modal-cpf-row">
+          <div class="form-group">
+            <label class="f-label">Nome de quem retirou *</label>
+            <input class="f-input" type="text" id="mQuemRetirou" placeholder="Nome completo">
+          </div>
+          <div class="form-group">
+            <label class="f-label">CPF (opcional)</label>
+            <input class="f-input" type="text" id="mCpfRetirou" placeholder="000.000.000-00" maxlength="14" oninput="mskCpf(this)">
+          </div>
         </div>
         <div style="display:flex;gap:10px;">
           <button style="flex:1;padding:11px;background:var(--navy);color:white;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;" onclick="confirmarBaixa()">
@@ -162,6 +191,7 @@
     <div class="panel">
       <div class="tabs">
         <button class="tab-btn active" id="tabGaveta"    onclick="mudarTab('gaveta')"><i class="fas fa-inbox"></i> Gaveta Digital</button>
+        <button class="tab-btn"        id="tabSala"      onclick="mudarTab('sala')"><i class="fas fa-door-open"></i> Sala de Espera</button>
         <button class="tab-btn"        id="tabColar"     onclick="mudarTab('colar')"><i class="fas fa-paste"></i> Colar do AMEI</button>
         <button class="tab-btn"        id="tabCadastrar" onclick="mudarTab('cadastrar')"><i class="fas fa-plus"></i> Cadastrar</button>
         <button class="tab-btn"        id="tabImportar"  onclick="mudarTab('importar')"><i class="fas fa-file-import"></i> Importar Planilha</button>
@@ -201,6 +231,58 @@
           </div>
         </div>
         <div class="exames-grid" id="gavetaGrid"><div class="loading-state"><div class="spinner"></div>Carregando exames...</div></div>
+      </div>
+
+      <!-- SALA DE ESPERA -->
+      <div class="tab-pane" id="paneSala">
+        <div style="background:#eff6ff;border:1px solid #c7d2fe;border-radius:12px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#3730a3;line-height:1.6;">
+          <i class="fas fa-info-circle"></i> <strong>Como usar:</strong> No AMEI, acesse <strong>Atendimento médico</strong> → selecione o médico e a data → copie a tabela de pacientes (Ctrl+A → Ctrl+C) → cole abaixo.
+        </div>
+        <textarea id="salaTexto" style="width:100%;height:180px;padding:12px 14px;border:1.5px solid var(--gray-200);border-radius:12px;font-family:monospace;font-size:12px;resize:vertical;outline:none;transition:border .2s;" placeholder="Cole aqui a tabela do AMEI..." oninput="parseSala()" onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--gray-200)'"></textarea>
+
+        <div id="salaResult" style="display:none;margin-top:16px;">
+          <div class="sala-toolbar">
+            <div class="filtro-wrap" style="max-width:200px;">
+              <i class="fas fa-filter filtro-icon"></i>
+              <select class="f-select" id="salaFiltroStatus" onchange="renderSala()" style="padding-left:32px;">
+                <option value="atendido">Só Atendidos</option>
+                <option value="todos">Todos</option>
+              </select>
+            </div>
+            <div class="filtro-wrap">
+              <i class="fas fa-search filtro-icon"></i>
+              <input class="f-input" type="text" id="salaBusca" placeholder="Buscar paciente..." oninput="renderSala()" style="padding-left:32px;">
+            </div>
+            <div style="font-size:12px;color:var(--gray-500);white-space:nowrap;" id="salaInfo">— pacientes</div>
+          </div>
+
+          <div style="overflow-x:auto;border:1.5px solid var(--gray-200);border-radius:12px;overflow:hidden;">
+            <table class="sala-table">
+              <thead>
+                <tr>
+                  <th class="col-chk"><input type="checkbox" id="salaChkAll" onchange="toggleSalaAll(this.checked)" title="Selecionar todos visíveis"></th>
+                  <th>Paciente</th>
+                  <th>Exame</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="salaTbody"></tbody>
+            </table>
+          </div>
+
+          <div class="sala-footer">
+            <div class="sala-sel-info" id="salaSelInfo">Nenhum selecionado</div>
+            <button id="salaBtnAdd" onclick="adicionarSalaSelecionados()" disabled
+              style="padding:10px 20px;background:var(--navy);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;opacity:.5;transition:all .2s;">
+              <i class="fas fa-plus-circle"></i> Adicionar à Gaveta (<span id="salaSelCount">0</span>)
+            </button>
+          </div>
+        </div>
+
+        <div id="salaEmpty" style="text-align:center;padding:30px;color:var(--gray-400);display:none;">
+          <i class="fas fa-paste" style="font-size:30px;display:block;margin-bottom:8px;opacity:.3;"></i>
+          <p style="font-size:13px;">Nenhum paciente detectado. Verifique o texto colado.</p>
+        </div>
       </div>
 
       <!-- COLAR AMEI -->
@@ -288,9 +370,21 @@
 
       <!-- IMPORTAR PLANILHA -->
       <div class="tab-pane" id="paneImportar">
-        <div style="font-size:13px;color:var(--gray-500);margin-bottom:16px;line-height:1.6;">
-          Importe a planilha organizada <strong>RESULTADOS_EXAMES_ORGANIZADOS.xlsx</strong> — apenas registros com status <strong>Pendente</strong> ou <strong>Pendente retirada</strong> serão importados. Também aceita as planilhas originais (ECO, NEURO, USG, Ergométrico).
+        <!-- Google Sheets sync -->
+        <div id="gsSection" style="margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+            <i class="fab fa-google" style="color:#4285F4;"></i> Importar do Google Sheets
+          </div>
+          <div id="gsLinksContainer">
+            <div style="text-align:center;padding:16px;color:var(--gray-400);font-size:12px;"><i class="fas fa-spinner fa-spin"></i></div>
+          </div>
         </div>
+
+        <details style="margin-bottom:16px;">
+          <summary style="font-size:11px;font-weight:700;color:var(--gray-500);cursor:pointer;letter-spacing:.5px;text-transform:uppercase;padding:8px 0;">▶ Importar arquivo local (.xlsx)</summary>
+          <div style="padding-top:12px;font-size:13px;color:var(--gray-500);margin-bottom:16px;line-height:1.6;">
+            Também aceita as planilhas originais (ECO, NEURO, USG, Ergométrico) ou a planilha organizada.
+          </div>
         <!-- PLANILHA ORGANIZADA (nova) -->
         <div style="margin-bottom:20px;">
           <div style="font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);margin-bottom:8px;">📋 Planilha Organizada (recomendado)</div>
@@ -386,6 +480,7 @@
           <input type="file" id="xlsErgInput" accept=".xlsx,.xls" style="display:none;" onchange="handleXlsFile(event,'erg')">
         </div>
           </div><!-- /planilhas individuais -->
+          </div><!-- /details inner -->
         </details>
         <div id="xlsResumoBar" style="display:none;padding:14px 16px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;margin-bottom:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
@@ -558,7 +653,7 @@
       lista.sort((a,b) => (b.retiradoEm||'').localeCompare(a.retiradoEm||''));
       const el = document.getElementById('histContainer');
       if (!lista.length) { el.innerHTML = '<div class="hist-empty">Nenhum exame retirado ainda</div>'; return; }
-      el.innerHTML = `<table class="hist-table"><thead><tr><th>Paciente</th><th>Tipo de Exame</th><th>Retirado por</th><th>Data da Retirada</th></tr></thead><tbody>${lista.map(e=>`<tr><td><strong>${esc(e.paciente||'—')}</strong></td><td>${esc(e.tipo||'—')}</td><td>${esc(e.quemRetirou||'—')}</td><td>${e.retiradoEm?new Date(e.retiradoEm).toLocaleString('pt-BR'):'—'}</td></tr>`).join('')}</tbody></table>`;
+      el.innerHTML = `<table class="hist-table"><thead><tr><th>Paciente</th><th>Tipo de Exame</th><th>Retirado por</th><th>CPF</th><th>Atendente</th><th>Data da Retirada</th></tr></thead><tbody>${lista.map(e=>`<tr><td><strong>${esc(e.paciente||'—')}</strong></td><td>${esc(e.tipo||'—')}</td><td>${esc(e.quemRetirou||'—')}</td><td>${esc(e.cpfRetirou||'—')}</td><td>${esc(e.atendenteEntregou||'—')}</td><td>${e.retiradoEm?new Date(e.retiradoEm).toLocaleString('pt-BR'):'—'}</td></tr>`).join('')}</tbody></table>`;
     };
 
     window.cadastrarExame = function() {
@@ -587,20 +682,33 @@
       const dataFmt = e.dataExame ? new Date(e.dataExame+'T12:00:00').toLocaleDateString('pt-BR') : '—';
       document.getElementById('mSub').textContent = `${e.tipo||'—'} · Exame de ${dataFmt}`;
       document.getElementById('mQuemRetirou').value = '';
-      document.getElementById('mAtendente').value   = '';
+      const cpfEl = document.getElementById('mCpfRetirou');
+      if (cpfEl) cpfEl.value = '';
+      // Preenche atendente automaticamente pelo usuário logado
+      const usuario = sessionStorage.getItem('usuario') || '—';
+      const nomeEl  = document.getElementById('mAtendenteNome');
+      if (nomeEl) nomeEl.textContent = usuario.split(' ').slice(0,3).join(' ');
       document.getElementById('modalOverlay').classList.add('open');
+      setTimeout(() => { const q = document.getElementById('mQuemRetirou'); if(q) q.focus(); }, 150);
     };
 
     window.fecharModal = function() { document.getElementById('modalOverlay').classList.remove('open'); baixaId = null; };
 
     window.confirmarBaixa = function() {
-      const quem = document.getElementById('mQuemRetirou').value.trim();
-      const aten = document.getElementById('mAtendente').value;
+      const quem    = document.getElementById('mQuemRetirou').value.trim();
+      const cpfEl   = document.getElementById('mCpfRetirou');
+      const cpf     = cpfEl ? cpfEl.value.trim() : '';
+      const atenden = sessionStorage.getItem('usuario') || '—';
       if (!quem) { toast('Informe quem está retirando', 'error'); return; }
-      if (!aten) { toast('Selecione o atendente', 'error'); return; }
       if (!baixaId) return;
       const exame = examesPendentes[baixaId];
-      set(push(ref(db, 'exames/retirados')), { ...exame, quemRetirou:quem, atendenteEntregou:aten, retiradoEm:new Date().toISOString() })
+      set(push(ref(db, 'exames/retirados')), {
+        ...exame,
+        quemRetirou:      quem,
+        cpfRetirou:       cpf || '',
+        atendenteEntregou: atenden,
+        retiradoEm:       new Date().toISOString(),
+      })
         .then(() => remove(ref(db, `exames/pendentes/${baixaId}`)))
         .then(() => { toast(`Baixa registrada para ${exame.paciente}!`, 'success'); fecharModal(); })
         .catch(e => toast('Erro: ' + e.message, 'error'));
@@ -624,7 +732,7 @@
     };
 
     window.mudarTab = function(tab) {
-      ['gaveta','colar','cadastrar','importar','historico'].forEach(t => {
+      ['gaveta','sala','colar','cadastrar','importar','historico'].forEach(t => {
         const T = t.charAt(0).toUpperCase()+t.slice(1);
         var _t = document.getElementById('tab'+T);  if (_t)  _t.classList.remove('active');
         var _p = document.getElementById('pane'+T); if (_p) _p.classList.remove('active');
@@ -633,6 +741,229 @@
       var _ta = document.getElementById('tab'+T);  if (_ta)  _ta.classList.add('active');
       var _pa = document.getElementById('pane'+T); if (_pa) _pa.classList.add('active');
       if (tab==='historico') window.renderHistorico();
+      if (tab==='importar') carregarGsLinks();
+    };
+
+
+    // ── MÁSCARA CPF ──
+    window.mskCpf = function(el) {
+      let v = el.value.replace(/\D/g,'').slice(0,11);
+      v = v.replace(/(\d{3})(\d)/,'$1.$2')
+           .replace(/(\d{3})(\d)/,'$1.$2')
+           .replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+      el.value = v;
+    };
+
+    // ── PARSER SALA DE ESPERA ──
+    let _salaData = [];
+
+    function normProc(p) {
+      // Normaliza nome do procedimento para tipo da gaveta
+      const u = p.toUpperCase();
+      if (/ULTRASSOM|^US |^US\b|USG/.test(u)) {
+        // Preserva o subtipo: "US de Abdome total" → "Ultrassom - Abdome Total"
+        const sub = p.replace(/^US\s*(de\s*|–\s*|-\s*)?/i,'').replace(/\(.*?\)/g,'').trim();
+        return sub ? 'Ultrassom - ' + sub.charAt(0).toUpperCase() + sub.slice(1).toLowerCase() : 'Ultrassom';
+      }
+      if (/ECOCARD/.test(u)) return 'Ecocardiograma';
+      if (/ERGOM|ESFORÇO/.test(u)) return 'Teste Ergométrico';
+      if (/EEG|ELETROENCEFALOG/.test(u)) return 'Eletroencefalograma (EEG)';
+      if (/ENMG|ELETRONEUROMIO/.test(u)) return 'Eletroneuromiografia (ENMG)';
+      if (/POTENCIAL|EVOCADO/.test(u)) return 'Potencial Evocado';
+      if (/HOLTER/.test(u)) return 'Holter';
+      if (/MAPA/.test(u)) return 'MAPA';
+      if (/RAIO.?X|RADIOGR/.test(u)) return 'Raio-X';
+      if (/ECG|ELETROCARD/.test(u)) return 'ECG';
+      return p.trim();
+    }
+
+    window.parseSala = function() {
+      const txt = document.getElementById('salaTexto').value;
+      _salaData = [];
+
+      const linhas = txt.split('\n');
+      for (const linha of linhas) {
+        const cols = linha.split('\t').map(c => c.trim());
+        // Formato AMEI: Hora | Chegada | Idade | Nome | Profissional | Área | Procedimento | TEspera | TPausa | Status | Ação
+        if (cols.length < 7) continue;
+        const nome = cols[3] || '';
+        if (!nome || nome.length < 3) continue;
+        if (/^(hora|nome|paciente)/i.test(nome)) continue; // cabeçalho
+
+        const medico     = cols[4] || '';
+        const proc       = cols[6] || '';
+        const status     = (cols[9] || cols[cols.length-2] || '').toLowerCase();
+        const atendido   = status.includes('atendido') && !status.includes('aguard');
+
+        // Múltiplos exames separados por vírgula
+        const exames = proc.split(',').map(e => e.trim()).filter(Boolean);
+
+        _salaData.push({
+          id:      Math.random().toString(36).slice(2),
+          nome:    nome.replace(/\*+$/, '').trim(),
+          medico,
+          exames,   // array de strings cruas do AMEI
+          status:  atendido ? 'atendido' : 'aguardando',
+          expanded: false,
+          // IDs para cada exame (para checkboxes individuais)
+          exameIds: exames.map(() => Math.random().toString(36).slice(2)),
+        });
+      }
+
+      const res   = document.getElementById('salaResult');
+      const empty = document.getElementById('salaEmpty');
+      if (_salaData.length) {
+        res.style.display   = '';
+        empty.style.display = 'none';
+        renderSala();
+      } else if (txt.trim()) {
+        res.style.display   = 'none';
+        empty.style.display = '';
+      } else {
+        res.style.display   = 'none';
+        empty.style.display = 'none';
+      }
+    };
+
+    window.renderSala = function() {
+      const filtro = document.getElementById('salaFiltroStatus').value;
+      const busca  = (document.getElementById('salaBusca').value || '').toLowerCase();
+      const tbody  = document.getElementById('salaTbody');
+
+      let lista = _salaData;
+      if (filtro === 'atendido') lista = lista.filter(p => p.status === 'atendido');
+      if (busca) lista = lista.filter(p => p.nome.toLowerCase().includes(busca));
+
+      document.getElementById('salaInfo').textContent = lista.length + ' paciente(s)';
+
+      if (!lista.length) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--gray-400);">Nenhum paciente encontrado</td></tr>`;
+        atualizarSalaFooter();
+        return;
+      }
+
+      let rows = '';
+      for (const p of lista) {
+        // Primeiro exame sempre visível
+        const ex0 = p.exames[0] || '—';
+        const ex0Id = p.exameIds[0];
+        const extra = p.exames.length - 1;
+        const badgeCls = p.status === 'atendido' ? 'atendido' : 'aguardando';
+        const badgeTxt = p.status === 'atendido' ? '<i class="fas fa-check"></i> Atendido' : '<i class="fas fa-clock"></i> Aguardando';
+
+        rows += `<tr data-pid="${p.id}">
+          <td class="col-chk" style="text-align:center;">
+            <input type="checkbox" class="sala-chk" data-pid="${p.id}" data-eid="${ex0Id}" data-exame="${esc(normProc(ex0))}" data-nome="${esc(p.nome)}" onchange="atualizarSalaFooter()">
+          </td>
+          <td>
+            <div class="sala-pac">${esc(p.nome)}</div>
+            <div style="font-size:10px;color:var(--gray-400);margin-top:2px;">${esc(p.medico.split(' ').slice(0,3).join(' '))}</div>
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+              <span class="sala-proc">${esc(ex0)}</span>
+              ${extra > 0 ? `<button class="btn-expand" onclick="toggleExames('${p.id}',${extra})">+${extra} exame${extra>1?'s':''}</button>` : ''}
+            </div>
+          </td>
+          <td><span class="sala-badge ${badgeCls}">${badgeTxt}</span></td>
+        </tr>`;
+
+        // Linhas extras (ocultas inicialmente)
+        if (extra > 0) {
+          for (let i = 1; i < p.exames.length; i++) {
+            const exI = p.exames[i];
+            const exIId = p.exameIds[i];
+            rows += `<tr class="row-extra" id="extra-${p.id}-${i}" style="display:none;">
+              <td class="col-chk" style="text-align:center;">
+                <input type="checkbox" class="sala-chk" data-pid="${p.id}" data-eid="${exIId}" data-exame="${esc(normProc(exI))}" data-nome="${esc(p.nome)}" onchange="atualizarSalaFooter()">
+              </td>
+              <td style="padding-left:32px;color:var(--gray-400);font-size:12px;">↳ mesmo paciente</td>
+              <td><span class="sala-proc">${esc(exI)}</span></td>
+              <td></td>
+            </tr>`;
+          }
+        }
+      }
+      tbody.innerHTML = rows;
+      atualizarSalaFooter();
+    };
+
+    window.toggleExames = function(pid, extra) {
+      const p = _salaData.find(x => x.id === pid);
+      if (!p) return;
+      p.expanded = !p.expanded;
+      for (let i = 1; i <= extra; i++) {
+        const row = document.getElementById(`extra-${pid}-${i}`);
+        if (row) row.style.display = p.expanded ? '' : 'none';
+      }
+      // Atualiza texto do botão
+      const btn = document.querySelector(`tr[data-pid="${pid}"] .btn-expand`);
+      if (btn) btn.textContent = p.expanded ? `▲ ocultar` : `+${extra} exame${extra>1?'s':''}`;
+    };
+
+    window.toggleSalaAll = function(checked) {
+      document.querySelectorAll('.sala-chk').forEach(chk => {
+        // Só marca os visíveis
+        const row = chk.closest('tr');
+        if (row && row.style.display !== 'none') chk.checked = checked;
+      });
+      atualizarSalaFooter();
+    };
+
+    window.atualizarSalaFooter = function() {
+      const selecionados = [...document.querySelectorAll('.sala-chk:checked')];
+      const count = selecionados.length;
+      document.getElementById('salaSelInfo').textContent = count ? `${count} exame(s) selecionado(s)` : 'Nenhum selecionado';
+      const btn = document.getElementById('salaBtnAdd');
+      btn.disabled = count === 0;
+      btn.style.opacity = count ? '1' : '.5';
+      document.getElementById('salaSelCount').textContent = count;
+    };
+
+    window.adicionarSalaSelecionados = async function() {
+      const selecionados = [...document.querySelectorAll('.sala-chk:checked')];
+      if (!selecionados.length) return;
+
+      document.getElementById('importLoadingOverlay').style.display = 'flex';
+      document.getElementById('importLoadingTxt').textContent = 'Adicionando à gaveta...';
+      document.getElementById('importLoadingSub').textContent  = `0 de ${selecionados.length} exames`;
+
+      const usuario = sessionStorage.getItem('usuario') || 'Sistema';
+      const hoje    = new Date().toISOString().slice(0,10);
+      let ok = 0, erros = 0;
+      const porTipo = {};
+
+      for (const chk of selecionados) {
+        const nome   = chk.dataset.nome;
+        const tipo   = chk.dataset.exame;
+        try {
+          await set(push(ref(db, 'exames/pendentes')), {
+            paciente:     nome,
+            tipo:         tipo,
+            dataExame:    hoje,
+            obs:          'Adicionado via Sala de Espera',
+            atendenteCad: usuario,
+            cadastradoEm: new Date().toISOString(),
+          });
+          ok++;
+          porTipo[tipo] = (porTipo[tipo]||0) + 1;
+        } catch(e) { erros++; }
+        const pct = Math.round((ok+erros)/selecionados.length*100);
+        document.getElementById('importLoadingBar').style.width = pct + '%';
+        document.getElementById('importLoadingSub').textContent = `${ok+erros} de ${selecionados.length} exames`;
+      }
+
+      document.getElementById('importLoadingOverlay').style.display = 'none';
+      document.getElementById('importSuccessMsg').textContent = `${ok} exame(s) adicionado(s) por ${usuario}` + (erros?` · ${erros} com erro`:'');
+      document.getElementById('importSuccessBreakdown').innerHTML = Object.entries(porTipo).slice(0,6).map(([t,c])=>
+        `<div style="background:var(--gray-100);border-radius:10px;padding:8px 14px;text-align:center;"><div style="font-size:18px;font-weight:900;color:var(--navy);">${c}</div><div style="font-size:10px;color:var(--gray-500);">${t.length>20?t.slice(0,18)+'…':t}</div></div>`
+      ).join('');
+      document.getElementById('importSuccessModal').style.display = 'flex';
+
+      // Limpa seleção
+      document.querySelectorAll('.sala-chk').forEach(c => c.checked = false);
+      document.getElementById('salaChkAll').checked = false;
+      atualizarSalaFooter();
     };
 
     // ── COLAR AMEI ──
@@ -722,6 +1053,223 @@
     };
 
     window.fecharImportModal = function() { document.getElementById('importSuccessModal').style.display='none'; mudarTab('gaveta'); };
+
+
+    // ── GOOGLE SHEETS SYNC ──────────────────────────────────────────
+    const GS_TIPOS = {
+      organizada: { label:'Planilha Organizada', icon:'fa-table',       color:'#0A1F44' },
+      eco:        { label:'Ecocardiograma',       icon:'fa-heart',       color:'#C62828' },
+      neuro:      { label:'Neurológico',          icon:'fa-brain',       color:'#7c3aed' },
+      usg:        { label:'Ultrassom',            icon:'fa-wave-square', color:'#0369a1' },
+      erg:        { label:'Ergométrico',          icon:'fa-heartbeat',   color:'#f97316' },
+    };
+
+    var _gsLinks = {};
+
+    async function carregarGsLinks() {
+      const c = document.getElementById('gsLinksContainer');
+      if (!c) return;
+      try {
+        const snap = await get(ref(db, 'admin/planilhasExames'));
+        _gsLinks = {};
+        if (snap.val()) {
+          Object.entries(snap.val()).forEach(([k,v]) => { if(v&&v.url) _gsLinks[k]=v; });
+        }
+        renderGsLinks();
+      } catch(e) {
+        if (c) c.innerHTML = '<div style="font-size:12px;color:var(--red);">Erro ao carregar links</div>';
+      }
+    }
+
+    function renderGsLinks() {
+      const c = document.getElementById('gsLinksContainer');
+      if (!c) return;
+      if (!Object.keys(_gsLinks).length) {
+        c.innerHTML = `<div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:12px;padding:16px;text-align:center;font-size:13px;color:var(--gray-400);">
+          <i class="fas fa-link" style="font-size:20px;opacity:.3;display:block;margin-bottom:8px;"></i>
+          Nenhuma planilha vinculada. Configure em <strong>Admin → Configurações</strong>.
+        </div>`;
+        return;
+      }
+      c.innerHTML = Object.entries(_gsLinks).map(([key, data]) => {
+        const t = GS_TIPOS[key] || { label:key, icon:'fa-file', color:'#64748b' };
+        return `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;margin-bottom:8px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:9px;">
+            <i class="fas ${t.icon}" style="color:${t.color};font-size:16px;width:18px;text-align:center;"></i>
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--navy);">${t.label}</div>
+              <div style="font-size:10px;color:var(--gray-400);">Vinculada <i class="fas fa-check-circle" style="color:var(--green);"></i></div>
+            </div>
+          </div>
+          <button onclick="importarDeGoogle('${key}')" id="gsBtnImport-${key}"
+            style="padding:8px 16px;background:var(--navy);color:white;border:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;">
+            <i class="fas fa-cloud-arrow-down"></i> Importar
+          </button>
+        </div>`;
+      }).join('') +
+      `<button onclick="importarTodosGoogle()" id="gsBtnTodos"
+        style="width:100%;padding:11px;background:var(--green);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;">
+        <i class="fas fa-cloud-arrow-down"></i> Importar Todos e Atualizar Gaveta
+      </button>`;
+    }
+
+    function parseCsvGS(csvText, tipo) {
+      const linhas = csvText.trim().split('\n').map(l => l.split(',').map(c => c.replace(/^"|"$/g,'').trim()));
+      let hdr = -1;
+      for (let i=0; i<linhas.length; i++) {
+        if (linhas[i].some(v => v.toUpperCase().includes('NOME'))) { hdr=i; break; }
+      }
+      if (hdr < 0) return [];
+      const results = [];
+      const isOrg = tipo === 'organizada';
+      for (let i=hdr+1; i<linhas.length; i++) {
+        const r = linhas[i];
+        if (!r || r.length < 3) continue;
+        if (isOrg) {
+          // Colunas: Tipo(0)|Médico(1)|Data(2)|Nome(3)|Email(4)|Recepção(5)|DataRet(6)|QuemRet(7)|Colab(8)|Status(9)|Obs(10)
+          const nomePac = (r[3]||'').trim().toUpperCase();
+          const tipoEx  = (r[0]||'').trim();
+          const status  = (r[9]||'').trim().toLowerCase();
+          const dataEx  = (r[2]||'').trim();
+          if (!nomePac || nomePac.length<3 || nomePac === 'NOME DO PACIENTE') continue;
+          if (tipoEx.toUpperCase() === 'TIPO DE EXAME') continue;
+          if (status.includes('entregue')) continue;
+          // Inclui pendente retirada E pendente
+          if (status.includes('pendente') || status.includes('retirado')) {
+            let tipoNorm = tipoEx;
+            if (/eeg|eletroencefalog/i.test(tipoEx))    tipoNorm='Eletroencefalograma (EEG)';
+            else if (/enmg|eletroneuromio/i.test(tipoEx)) tipoNorm='Eletroneuromiografia (ENMG)';
+            else if (/potencial|evocado/i.test(tipoEx))   tipoNorm='Potencial Evocado';
+            else if (/ecocard/i.test(tipoEx))             tipoNorm='Ecocardiograma';
+            else if (/ergom/i.test(tipoEx))               tipoNorm='Teste Ergométrico';
+            results.push({ paciente:nomePac, tipo:tipoNorm, dataExame:dataEx, fonte:tipo.toUpperCase() });
+          }
+        } else {
+          // Planilhas individuais — col 0 = nome
+          const nome = (r[0]||'').trim().toUpperCase();
+          if (!nome || nome.length<3 || nome === 'NOME DO PACIENTE') continue;
+          if (tipo === 'eco') {
+            const ok  = (r[1]||'').toUpperCase().includes('OK');
+            const ret = r[2] && (r[2]||'').trim();
+            if (ok && !ret) results.push({ paciente:nome, tipo:'Ecocardiograma', dataExame:'', fonte:'ECO' });
+          } else if (tipo === 'neuro') {
+            const ok  = (r[2]||'').toUpperCase().includes('OK');
+            const ret = r[3] && (r[3]||'').trim();
+            if (ok && !ret) results.push({ paciente:nome, tipo:'Eletroencefalograma (EEG)', dataExame:'', fonte:'NEURO' });
+          } else if (tipo === 'usg') {
+            const exame = (r[1]||'').trim();
+            const ok    = (r[2]||'').toUpperCase().includes('OK');
+            const ret   = r[3] && (r[3]||'').trim();
+            if (ok && !ret) {
+              const tp = exame ? 'Ultrassom - '+exame.charAt(0).toUpperCase()+exame.slice(1).toLowerCase() : 'Ultrassom';
+              results.push({ paciente:nome, tipo:tp, dataExame:'', fonte:'USG' });
+            }
+          } else if (tipo === 'erg') {
+            const ok  = (r[1]||'').toUpperCase().includes('OK');
+            const ret = r[2] && (r[2]||'').trim();
+            if (ok && !ret) results.push({ paciente:nome, tipo:'Teste Ergométrico', dataExame:'', fonte:'ERG' });
+          }
+        }
+      }
+      // De-duplicar
+      const seen = new Set();
+      return results.filter(p => { const k=p.paciente+'|'+p.tipo; if(seen.has(k)) return false; seen.add(k); return true; });
+    }
+
+    window.importarDeGoogle = async function(key, silencioso) {
+      const data = _gsLinks[key];
+      if (!data) { toast('Planilha não encontrada', 'error'); return []; }
+      const btn = document.getElementById('gsBtnImport-' + key);
+      if (btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Buscando...'; }
+      try {
+        const resp = await fetch(data.url);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status + ' — verifique se o link é público');
+        const csv  = await resp.text();
+        const regs = parseCsvGS(csv, key);
+        if (!silencioso) toast(`${regs.length} registros encontrados em ${GS_TIPOS[key]?.label||key}`, 'info');
+        if (btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-cloud-arrow-down"></i> Importar'; }
+        return regs;
+      } catch(e) {
+        toast('Erro ao acessar planilha: ' + e.message, 'error');
+        if (btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-cloud-arrow-down"></i> Importar'; }
+        return [];
+      }
+    };
+
+    window.importarTodosGoogle = async function(limparAntes) {
+      const keys = Object.keys(_gsLinks);
+      if (!keys.length) { toast('Nenhuma planilha vinculada', 'error'); return; }
+
+      const btnTodos = document.getElementById('gsBtnTodos');
+      if (btnTodos) { btnTodos.disabled=true; btnTodos.innerHTML='<i class="fas fa-spinner fa-spin"></i> Importando...'; }
+
+      // Busca todos
+      let todos = [];
+      for (const key of keys) {
+        const regs = await window.importarDeGoogle(key, true);
+        todos = todos.concat(regs);
+      }
+      // De-duplicar global
+      const seen = new Set();
+      todos = todos.filter(p => { const k=p.paciente+'|'+p.tipo; if(seen.has(k)) return false; seen.add(k); return true; });
+
+      if (!todos.length) {
+        toast('Nenhum registro pendente encontrado nas planilhas', 'error');
+        if (btnTodos) { btnTodos.disabled=false; btnTodos.innerHTML='<i class="fas fa-cloud-arrow-down"></i> Importar Todos e Atualizar Gaveta'; }
+        return;
+      }
+
+      // Confirmar se tem registros na gaveta atual
+      const totalAtual = Object.keys(examesPendentes||{}).length;
+      if (totalAtual > 0) {
+        if (!confirm(`A gaveta tem ${totalAtual.toLocaleString('pt-BR')} exames. Deseja LIMPAR e substituir pelos ${todos.length.toLocaleString('pt-BR')} da(s) planilha(s)?\n\nCancelando, os novos serão ADICIONADOS sem remover os existentes.`)) {
+          limparAntes = false;
+        } else {
+          limparAntes = true;
+        }
+      }
+
+      document.getElementById('importLoadingOverlay').style.display='flex';
+      document.getElementById('importLoadingTxt').textContent = limparAntes ? 'Limpando e reimportando...' : 'Importando do Google Sheets...';
+      document.getElementById('importLoadingSub').textContent  = `${todos.length.toLocaleString('pt-BR')} exames para importar`;
+
+      if (limparAntes) {
+        try {
+          await set(ref(db,'exames/pendentes'), null);
+        } catch(e) { console.warn('Erro ao limpar:', e); }
+      }
+
+      const usuario = sessionStorage.getItem('usuario') || 'Sistema';
+      let ok=0, erros=0;
+      const porFonte={};
+      for (const p of todos) {
+        try {
+          await set(push(ref(db,'exames/pendentes')), {
+            paciente:     p.paciente,
+            tipo:         p.tipo,
+            dataExame:    p.dataExame||'',
+            obs:          'Importado via Google Sheets',
+            atendenteCad: usuario,
+            cadastradoEm: new Date().toISOString(),
+          });
+          ok++; porFonte[p.fonte]=(porFonte[p.fonte]||0)+1;
+        } catch(e) { erros++; }
+        const pct = Math.round((ok+erros)/todos.length*100);
+        document.getElementById('importLoadingBar').style.width = pct+'%';
+        document.getElementById('importLoadingSub').textContent = `${(ok+erros).toLocaleString('pt-BR')} de ${todos.length.toLocaleString('pt-BR')}`;
+      }
+
+      document.getElementById('importLoadingOverlay').style.display='none';
+      const cores={ECO:'var(--red)',NEURO:'#7c3aed',USG:'#0369a1',ERG:'#f97316',ORGANIZADA:'var(--navy)'};
+      document.getElementById('importSuccessMsg').textContent = `${ok.toLocaleString('pt-BR')} exame(s) importado(s) do Google Sheets`+(erros?` · ${erros} com erro`:'');
+      document.getElementById('importSuccessBreakdown').innerHTML = Object.entries(porFonte).map(([f,c])=>
+        `<div style="background:var(--gray-100);border-radius:10px;padding:8px 14px;text-align:center;"><div style="font-size:20px;font-weight:900;color:${cores[f]||'var(--navy)'};">${c.toLocaleString('pt-BR')}</div><div style="font-size:10px;color:var(--gray-500);">${f}</div></div>`
+      ).join('');
+      document.getElementById('importSuccessModal').style.display='flex';
+
+      if (btnTodos) { btnTodos.disabled=false; btnTodos.innerHTML='<i class="fas fa-cloud-arrow-down"></i> Importar Todos e Atualizar Gaveta'; }
+    };
+
 
     // ── IMPORTAR PLANILHA ──
     let xlsParsed=[], xlsCarregado={eco:false,neuro:false,usg:false,erg:false,org:false};
