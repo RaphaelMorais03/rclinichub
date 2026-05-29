@@ -174,10 +174,21 @@
           <div class="filtro-wrap"><i class="fas fa-search filtro-icon"></i><input class="f-input" type="text" id="filtroBusca" placeholder="Buscar por nome do paciente..." oninput="renderGaveta()"></div>
           <div class="filtro-wrap" style="max-width:200px;">
             <select class="f-select" id="filtroTipo" onchange="renderGaveta()">
+
               <option value="">Todos os tipos</option>
-              <option>Ultrassom</option><option>Raio-X</option><option>ECG</option><option>Holter</option>
-              <option>MAPA</option><option>Ecocardiograma</option><option>Ergométrico</option>
-              <option>Eletroneuromiografia</option><option>Laboratório</option><option>Outros</option>
+              <option>Ultrassom</option>
+              <option>Ecocardiograma</option>
+              <option>Teste Ergométrico</option>
+              <option>Eletroencefalograma (EEG)</option>
+              <option>Eletroneuromiografia (ENMG)</option>
+              <option>Potencial Evocado</option>
+              <option>Holter</option>
+              <option>MAPA</option>
+              <option>ECG</option>
+              <option>Raio-X</option>
+              <option>Laboratório</option>
+              <option>Outros</option>
+
             </select>
           </div>
           <div class="filtro-wrap" style="max-width:180px;">
@@ -201,10 +212,21 @@
           <div class="form-group">
             <label class="f-label">Tipo padrão (se não detectado)</label>
             <select class="f-select" id="coTipoDefault">
+
               <option value="">Detectar automaticamente...</option>
-              <option>Ecocardiograma</option><option>Eletroencefalograma (EEG)</option>
-              <option>Potencial Evocado</option><option>Eletroneuromiografia</option>
-              <option>Ultrassom</option><option>Raio-X</option><option>Outros</option>
+              <option>Ultrassom</option>
+              <option>Ecocardiograma</option>
+              <option>Teste Ergométrico</option>
+              <option>Eletroencefalograma (EEG)</option>
+              <option>Eletroneuromiografia (ENMG)</option>
+              <option>Potencial Evocado</option>
+              <option>Holter</option>
+              <option>MAPA</option>
+              <option>ECG</option>
+              <option>Raio-X</option>
+              <option>Laboratório</option>
+              <option>Outros</option>
+
             </select>
           </div>
           <div class="form-group">
@@ -232,10 +254,21 @@
           <div class="form-group">
             <label class="f-label">Tipo de exame *</label>
             <select class="f-select" id="cTipo">
+
               <option value="">Selecione...</option>
-              <option>Ultrassom</option><option>Raio-X</option><option>ECG</option><option>Holter</option>
-              <option>MAPA</option><option>Ecocardiograma</option><option>Ergométrico</option>
-              <option>Eletroneuromiografia</option><option>Laboratório</option><option>Outros</option>
+              <option>Ultrassom</option>
+              <option>Ecocardiograma</option>
+              <option>Teste Ergométrico</option>
+              <option>Eletroencefalograma (EEG)</option>
+              <option>Eletroneuromiografia (ENMG)</option>
+              <option>Potencial Evocado</option>
+              <option>Holter</option>
+              <option>MAPA</option>
+              <option>ECG</option>
+              <option>Raio-X</option>
+              <option>Laboratório</option>
+              <option>Outros</option>
+
             </select>
           </div>
         </div>
@@ -255,7 +288,31 @@
 
       <!-- IMPORTAR PLANILHA -->
       <div class="tab-pane" id="paneImportar">
-        <div style="font-size:13px;color:var(--gray-500);margin-bottom:18px;line-height:1.6;">Importe as planilhas ECO, NEURO e USG. Apenas pacientes com exame <strong>OK</strong> e <strong>sem data de retirada</strong> serão importados.</div>
+        <div style="font-size:13px;color:var(--gray-500);margin-bottom:16px;line-height:1.6;">
+          Importe a planilha organizada <strong>RESULTADOS_EXAMES_ORGANIZADOS.xlsx</strong> — apenas registros com status <strong>Pendente</strong> ou <strong>Pendente retirada</strong> serão importados. Também aceita as planilhas originais (ECO, NEURO, USG, Ergométrico).
+        </div>
+        <!-- PLANILHA ORGANIZADA (nova) -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);margin-bottom:8px;">📋 Planilha Organizada (recomendado)</div>
+          <div id="dropXlsOrg" style="border:2px dashed var(--navy);border-radius:14px;padding:22px;text-align:center;cursor:pointer;transition:all .2s;background:#f8faff;" onclick="document.getElementById('xlsOrgInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--red)'" ondragleave="this.style.borderColor='var(--navy)'" ondrop="handleXlsDrop(event,'org')">
+            <i class="fas fa-table" style="font-size:22px;color:var(--navy);margin-bottom:6px;display:block;"></i>
+            <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px;">RESULTADOS_EXAMES_ORGANIZADOS.xlsx</div>
+            <div style="font-size:11px;color:var(--gray-400);">Todos os tipos de exame em uma planilha só</div>
+          </div>
+          <div id="cardXlsOrg" style="display:none;margin-top:8px;padding:14px 16px;background:var(--green-bg);border:1.5px solid #bbf7d0;border-radius:12px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:44px;height:44px;background:#e0f2fe;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-file-excel" style="font-size:20px;color:var(--navy);"></i></div>
+              <div style="flex:1;"><div style="font-size:13px;font-weight:800;color:var(--green);" id="xlsOrgName">—</div><div style="font-size:11px;color:var(--gray-600);margin-top:2px;" id="xlsOrgInfo">—</div></div>
+              <div style="text-align:right;"><div style="font-size:22px;font-weight:900;color:var(--navy);" id="xlsOrgCount">0</div><div style="font-size:10px;color:var(--gray-400);">pendentes</div></div>
+              <button onclick="removerXls('org')" style="width:28px;height:28px;background:rgba(10,31,68,.08);border:none;border-radius:7px;cursor:pointer;color:var(--navy);font-size:12px;"><i class="fas fa-xmark"></i></button>
+            </div>
+          </div>
+          <input type="file" id="xlsOrgInput" accept=".xlsx,.xls" style="display:none;" onchange="handleXlsFile(event,'org')">
+        </div>
+        <details style="margin-bottom:16px;">
+          <summary style="font-size:11px;font-weight:700;color:var(--gray-500);cursor:pointer;letter-spacing:.5px;text-transform:uppercase;padding:8px 0;">▶ Planilhas individuais (ECO, NEURO, USG, Ergométrico)</summary>
+          <div style="padding-top:14px;">
+        <div style="font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;">Ecocardiograma</div>
         <!-- ECO -->
         <div style="margin-bottom:16px;">
           <div style="font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;">Ecocardiograma</div>
@@ -310,6 +367,26 @@
           </div>
           <input type="file" id="xlsUsgInput" accept=".xlsx,.xls" style="display:none;" onchange="handleXlsFile(event,'usg')">
         </div>
+        <!-- ERGOMÉTRICO -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;">Teste Ergométrico</div>
+          <div id="dropXlsErg" style="border:2px dashed var(--gray-300);border-radius:14px;padding:22px;text-align:center;cursor:pointer;transition:all .2s;background:white;" onclick="document.getElementById('xlsErgInput').click()" ondragover="event.preventDefault();this.style.borderColor='var(--navy)'" ondragleave="this.style.borderColor='var(--gray-300)'" ondrop="handleXlsDrop(event,'erg')">
+            <i class="fas fa-heartbeat" style="font-size:22px;color:#f97316;margin-bottom:6px;display:block;"></i>
+            <div style="font-size:13px;font-weight:700;color:var(--gray-600);margin-bottom:2px;">Clique ou arraste o arquivo</div>
+            <div style="font-size:11px;color:var(--gray-400);">TESTE_ERGOMETRICO_-_RESULTADOS.xlsx</div>
+          </div>
+          <div id="cardXlsErg" style="display:none;margin-top:8px;padding:14px 16px;background:var(--green-bg);border:1.5px solid #bbf7d0;border-radius:12px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:44px;height:44px;background:#fff7ed;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-file-excel" style="font-size:20px;color:#f97316;"></i></div>
+              <div style="flex:1;"><div style="font-size:13px;font-weight:800;color:var(--green);" id="xlsErgName">—</div><div style="font-size:11px;color:var(--gray-600);margin-top:2px;" id="xlsErgInfo">—</div></div>
+              <div style="text-align:right;"><div style="font-size:22px;font-weight:900;color:#f97316;" id="xlsErgCount">0</div><div style="font-size:10px;color:var(--gray-400);">pendentes</div></div>
+              <button onclick="removerXls('erg')" style="width:28px;height:28px;background:rgba(249,115,22,.08);border:none;border-radius:7px;cursor:pointer;color:#f97316;font-size:12px;"><i class="fas fa-xmark"></i></button>
+            </div>
+          </div>
+          <input type="file" id="xlsErgInput" accept=".xlsx,.xls" style="display:none;" onchange="handleXlsFile(event,'erg')">
+        </div>
+          </div><!-- /planilhas individuais -->
+        </details>
         <div id="xlsResumoBar" style="display:none;padding:14px 16px;background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;margin-bottom:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
             <div><div style="font-size:13px;font-weight:800;color:var(--navy);">Total de exames pendentes</div><div style="font-size:11px;color:var(--gray-500);margin-top:2px;" id="xlsResumoSub">—</div></div>
@@ -643,7 +720,7 @@
     window.fecharImportModal = function() { document.getElementById('importSuccessModal').style.display='none'; mudarTab('gaveta'); };
 
     // ── IMPORTAR PLANILHA ──
-    let xlsParsed=[], xlsCarregado={eco:false,neuro:false,usg:false};
+    let xlsParsed=[], xlsCarregado={eco:false,neuro:false,usg:false,erg:false,org:false};
     const cap=s=>s.charAt(0).toUpperCase()+s.slice(1);
 
     window.handleXlsDrop = function(e,tipo) {
@@ -666,9 +743,11 @@
           let hdr=-1;
           for(let i=0;i<rows.length;i++){if(rows[i].some(v=>String(v).toUpperCase().includes('NOME'))){hdr=i;break;}}
           if(hdr<0) continue;
+          // Para planilha organizada, nome está na col 3; para demais, col 0
+          const isOrg = tipo==='org';
           for(let i=hdr+1;i<rows.length;i++){
             const r=rows[i];
-            const nome=String(r[0]||'').trim().toUpperCase();
+            const nome=String(isOrg ? (r[3]||'') : (r[0]||'')).trim().toUpperCase();
             if(!nome||nome.length<3) continue;
             if(tipo==='eco'){
               const ok=String(r[1]||'').toUpperCase().includes('OK');
@@ -683,6 +762,33 @@
               const ok=String(r[2]||'').toUpperCase().includes('OK');
               const ret=r[3]&&String(r[3]).trim()&&String(r[3]).trim()!=='AUSENTE NA GAVETA';
               if(ok&&!ret){const tp=exame?'Ultrassom - '+exame.charAt(0).toUpperCase()+exame.slice(1).toLowerCase():'Ultrassom';xlsParsed.push({paciente:nome,tipo:tp,dataExame:'',fonte:'USG'});found++;}
+            } else if(tipo==='erg'){
+              // Formato: nome, entregue(OK), data retirada, quem retirou, colaborador
+              const ok=String(r[1]||'').toUpperCase().includes('OK');
+              const ret=r[2]&&String(r[2]).trim()&&String(r[2]).trim()!=='';
+              if(ok&&!ret){xlsParsed.push({paciente:nome,tipo:'Teste Ergométrico',dataExame:'',fonte:'ERG'});found++;}
+            } else if(tipo==='org'){
+              // Formato da planilha organizada: Tipo|Médico|Data|Nome|Email|Recepção|DataRet|QuemRet|Colab|Status|Obs
+              // hdr detecta pela coluna "Nome do Paciente" (col index 3) ou "Status" (col 9)
+              // Neste caso r[0]=Tipo, r[3]=Nome, r[9]=Status
+              const tipoExame = String(r[0]||'').trim();
+              const nomePac   = String(r[3]||'').trim().toUpperCase();
+              const dataEx    = String(r[2]||'').trim();
+              const status    = String(r[9]||'').trim().toLowerCase();
+              if(!nomePac||nomePac.length<3||nomePac==='NOME DO PACIENTE') continue;
+              if(tipoExame.toUpperCase()==='TIPO DE EXAME') continue;
+              if(status.includes('entregue')) continue; // já retirado
+              if(status.includes('pendente')){
+                // Normalizar tipo
+                let tipoNorm = tipoExame;
+                if(/eeg|eletroencefalog/i.test(tipoExame))           tipoNorm='Eletroencefalograma (EEG)';
+                else if(/enmg|eletroneuromio/i.test(tipoExame))      tipoNorm='Eletroneuromiografia (ENMG)';
+                else if(/potencial|evocado/i.test(tipoExame))        tipoNorm='Potencial Evocado';
+                else if(/ecocard/i.test(tipoExame))                  tipoNorm='Ecocardiograma';
+                else if(/ergom/i.test(tipoExame))                    tipoNorm='Teste Ergométrico';
+                else if(/ultrassom/i.test(tipoExame))                tipoNorm=tipoExame; // preserva subtipo
+                xlsParsed.push({paciente:nomePac,tipo:tipoNorm,dataExame:dataEx,fonte:'ORG'});found++;
+              }
             }
           }
         }
@@ -716,9 +822,11 @@
       document.getElementById('xlsTotalNum').textContent=total;
       document.getElementById('xlsCount').textContent=total;
       const p=[];
+      if(xlsCarregado.org)   p.push(xlsParsed.filter(x=>x.fonte==='ORG').length+' (Organizada)');
       if(xlsCarregado.eco)   p.push(xlsParsed.filter(x=>x.fonte==='ECO').length+' ECO');
       if(xlsCarregado.neuro) p.push(xlsParsed.filter(x=>x.fonte==='NEURO').length+' Neuro');
       if(xlsCarregado.usg)   p.push(xlsParsed.filter(x=>x.fonte==='USG').length+' Ultrassom');
+      if(xlsCarregado.erg)   p.push(xlsParsed.filter(x=>x.fonte==='ERG').length+' Ergométrico');
       document.getElementById('xlsResumoSub').textContent=p.join(' · ');
     }
 
@@ -748,12 +856,12 @@
         document.getElementById('importLoadingBar').style.width=Math.round((ok+erros)/xlsParsed.length*100)+'%';
       }
       document.getElementById('importLoadingOverlay').style.display='none';
-      const cores={ECO:'var(--red)',NEURO:'#7c3aed',USG:'#0369a1'};
+      const cores={ECO:'var(--red)',NEURO:'#7c3aed',USG:'#0369a1',ERG:'#f97316',ORG:'var(--navy)'};
       document.getElementById('importSuccessMsg').textContent=ok+' exame(s) adicionado(s)'+(erros?` · ${erros} com erro`:'');
       document.getElementById('importSuccessBreakdown').innerHTML=Object.entries(porFonte).map(([f,c])=>`<div style="background:var(--gray-100);border-radius:10px;padding:8px 14px;text-align:center;"><div style="font-size:20px;font-weight:900;color:${cores[f]||'var(--navy)'};">${c}</div><div style="font-size:10px;color:var(--gray-500);">${f}</div></div>`).join('');
       document.getElementById('importSuccessModal').style.display='flex';
-      xlsParsed=[]; xlsCarregado={eco:false,neuro:false,usg:false};
-      ['Eco','Neuro','Usg'].forEach(t=>{
+      xlsParsed=[]; xlsCarregado={eco:false,neuro:false,usg:false,erg:false,org:false};
+      ['Eco','Neuro','Usg','Erg','Org'].forEach(t=>{
         const d=document.getElementById('dropXls'+t);
         const c=document.getElementById('cardXls'+t);
         if(d){d.style.display='';d.style.borderColor='var(--gray-300)';}
