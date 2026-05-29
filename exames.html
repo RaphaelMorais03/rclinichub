@@ -1073,11 +1073,13 @@
         const snap = await get(ref(db, 'admin/planilhasExames'));
         _gsLinks = {};
         if (snap.val()) {
-          Object.entries(snap.val()).forEach(([k,v]) => { if(v&&v.url) _gsLinks[k]=v; });
+          Object.entries(snap.val()).forEach(([k,v]) => {
+            if (v && (v.url||v.sheetId)) _gsLinks[k] = v;
+          });
         }
         renderGsLinks();
       } catch(e) {
-        if (c) c.innerHTML = '<div style="font-size:12px;color:var(--red);">Erro ao carregar links</div>';
+        if (c) c.innerHTML = '<div style="font-size:12px;color:var(--red);">Erro ao carregar links vinculados</div>';
       }
     }
 
@@ -1113,84 +1115,141 @@
       </button>`;
     }
 
-    function parseCsvGS(csvText, tipo) {
-      const linhas = csvText.trim().split('\n').map(l => l.split(',').map(c => c.replace(/^"|"$/g,'').trim()));
+    // Extrai o Sheet ID de qualquer URL do Google Sheets
+    function extrairSheetId(url) {
+      const m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+      return m ? m[1] : null;
+    }
+
+    // Monta URL de exportação XLSX (todas as abas)
+    function xlsxExportUrl(sheetId) {
+      return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=xlsx`;
+    }
+
+    // Processa UMA aba do workbook já lido pelo XLSX.js
+    function processarAbaXls(ws, tipo) {
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false});
+      // raw:false → datas viram strings, não Date objects
       let hdr = -1;
-      for (let i=0; i<linhas.length; i++) {
-        if (linhas[i].some(v => v.toUpperCase().includes('NOME'))) { hdr=i; break; }
+      for (let i=0; i<rows.length; i++) {
+        if (rows[i].some(v => String(v).toUpperCase().includes('NOME'))) { hdr=i; break; }
       }
       if (hdr < 0) return [];
       const results = [];
       const isOrg = tipo === 'organizada';
-      for (let i=hdr+1; i<linhas.length; i++) {
-        const r = linhas[i];
+
+      for (let i=hdr+1; i<rows.length; i++) {
+        const r = rows[i];
         if (!r || r.length < 3) continue;
+
         if (isOrg) {
-          // Colunas: Tipo(0)|Médico(1)|Data(2)|Nome(3)|Email(4)|Recepção(5)|DataRet(6)|QuemRet(7)|Colab(8)|Status(9)|Obs(10)
-          const nomePac = (r[3]||'').trim().toUpperCase();
-          const tipoEx  = (r[0]||'').trim();
-          const status  = (r[9]||'').trim().toLowerCase();
-          const dataEx  = (r[2]||'').trim();
-          if (!nomePac || nomePac.length<3 || nomePac === 'NOME DO PACIENTE') continue;
+          // Colunas: Tipo(0)|Médico(1)|Data(2)|Nome(3)|...|Status(9)
+          const tipoEx  = String(r[0]||'').trim();
+          const nomePac = String(r[3]||'').trim().toUpperCase();
+          const dataEx  = String(r[2]||'').trim();
+          const status  = String(r[9]||'').trim().toLowerCase();
+          if (!nomePac || nomePac.length<3) continue;
           if (tipoEx.toUpperCase() === 'TIPO DE EXAME') continue;
           if (status.includes('entregue')) continue;
-          // Inclui pendente retirada E pendente
           if (status.includes('pendente') || status.includes('retirado')) {
             let tipoNorm = tipoEx;
-            if (/eeg|eletroencefalog/i.test(tipoEx))    tipoNorm='Eletroencefalograma (EEG)';
+            if (/eeg|eletroencefalog/i.test(tipoEx))      tipoNorm='Eletroencefalograma (EEG)';
             else if (/enmg|eletroneuromio/i.test(tipoEx)) tipoNorm='Eletroneuromiografia (ENMG)';
             else if (/potencial|evocado/i.test(tipoEx))   tipoNorm='Potencial Evocado';
             else if (/ecocard/i.test(tipoEx))             tipoNorm='Ecocardiograma';
             else if (/ergom/i.test(tipoEx))               tipoNorm='Teste Ergométrico';
-            results.push({ paciente:nomePac, tipo:tipoNorm, dataExame:dataEx, fonte:tipo.toUpperCase() });
+            results.push({ paciente:nomePac, tipo:tipoNorm, dataExame:dataEx, fonte:'ORGANIZADA' });
           }
         } else {
-          // Planilhas individuais — col 0 = nome
-          const nome = (r[0]||'').trim().toUpperCase();
-          if (!nome || nome.length<3 || nome === 'NOME DO PACIENTE') continue;
+          // Planilhas individuais — col 0 = nome paciente
+          const nome = String(r[0]||'').trim().toUpperCase().replace(/\*+$/,'');
+          if (!nome || nome.length<3) continue;
+          if (/^(nome|paciente|exame|hora|data)/i.test(nome)) continue;
+          if (/exames realizados/i.test(nome)) continue;
+
           if (tipo === 'eco') {
-            const ok  = (r[1]||'').toUpperCase().includes('OK');
-            const ret = r[2] && (r[2]||'').trim();
+            const ok  = String(r[1]||'').toUpperCase().includes('OK');
+            const ret = String(r[2]||'').trim();
             if (ok && !ret) results.push({ paciente:nome, tipo:'Ecocardiograma', dataExame:'', fonte:'ECO' });
+
           } else if (tipo === 'neuro') {
-            const ok  = (r[2]||'').toUpperCase().includes('OK');
-            const ret = r[3] && (r[3]||'').trim();
+            // email(1), recepcao(2), dtret(3)
+            const ok  = String(r[2]||'').toUpperCase().includes('OK');
+            const ret = String(r[3]||'').trim();
             if (ok && !ret) results.push({ paciente:nome, tipo:'Eletroencefalograma (EEG)', dataExame:'', fonte:'NEURO' });
+
           } else if (tipo === 'usg') {
-            const exame = (r[1]||'').trim();
-            const ok    = (r[2]||'').toUpperCase().includes('OK');
-            const ret   = r[3] && (r[3]||'').trim();
+            // exame(1), ok(2), dtret(3)
+            const exame = String(r[1]||'').trim();
+            if (/^(exame|data|tipo)/i.test(exame)) continue; // pular cabeçalho
+            const ok  = String(r[2]||'').toUpperCase().includes('OK');
+            const ret = String(r[3]||'').trim();
             if (ok && !ret) {
-              const tp = exame ? 'Ultrassom - '+exame.charAt(0).toUpperCase()+exame.slice(1).toLowerCase() : 'Ultrassom';
+              const tp = exame
+                ? 'Ultrassom - ' + exame.charAt(0).toUpperCase() + exame.slice(1).toLowerCase()
+                : 'Ultrassom';
               results.push({ paciente:nome, tipo:tp, dataExame:'', fonte:'USG' });
             }
+
           } else if (tipo === 'erg') {
-            const ok  = (r[1]||'').toUpperCase().includes('OK');
-            const ret = r[2] && (r[2]||'').trim();
+            const ok  = String(r[1]||'').toUpperCase().includes('OK');
+            const ret = String(r[2]||'').trim();
             if (ok && !ret) results.push({ paciente:nome, tipo:'Teste Ergométrico', dataExame:'', fonte:'ERG' });
           }
         }
       }
-      // De-duplicar
-      const seen = new Set();
-      return results.filter(p => { const k=p.paciente+'|'+p.tipo; if(seen.has(k)) return false; seen.add(k); return true; });
+      return results;
     }
 
     window.importarDeGoogle = async function(key, silencioso) {
       const data = _gsLinks[key];
       if (!data) { toast('Planilha não encontrada', 'error'); return []; }
       const btn = document.getElementById('gsBtnImport-' + key);
-      if (btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Buscando...'; }
+      if (btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Lendo abas...'; }
+
       try {
-        const resp = await fetch(data.url);
-        if (!resp.ok) throw new Error('HTTP ' + resp.status + ' — verifique se o link é público');
-        const csv  = await resp.text();
-        const regs = parseCsvGS(csv, key);
-        if (!silencioso) toast(`${regs.length} registros encontrados em ${GS_TIPOS[key]?.label||key}`, 'info');
+        // Extrai ID e monta URL de exportação XLSX
+        const sheetId = extrairSheetId(data.url) || extrairSheetId(data.sheetId||'');
+        if (!sheetId) throw new Error('Não foi possível identificar o ID da planilha. Use o link de compartilhamento do Google Sheets.');
+
+        const exportUrl = xlsxExportUrl(sheetId);
+        if (btn) btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Baixando...';
+
+        const resp = await fetch(exportUrl);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status} — certifique-se de que a planilha está compartilhada como "Qualquer pessoa com o link"`);
+
+        const arrBuf = await resp.arrayBuffer();
+        if (btn) btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Processando abas...';
+
+        const wb = XLSX.read(arrBuf, { type:'array', raw:false });
+        let todos = [];
+        let abasProcessadas = 0;
+
+        for (const sname of wb.SheetNames) {
+          // Pular abas de template / páginas vazias
+          if (/^p[áa]gina|^base$|c[oó]pia/i.test(sname.trim())) continue;
+          const ws = wb.Sheets[sname];
+          if (!ws) continue;
+          const regs = processarAbaXls(ws, key);
+          todos = todos.concat(regs);
+          abasProcessadas++;
+          if (btn) btn.innerHTML=`<i class="fas fa-spinner fa-spin"></i> ${abasProcessadas} aba(s)...`;
+        }
+
+        // De-duplicar
+        const seen = new Set();
+        todos = todos.filter(p => {
+          const k = p.paciente+'|'+p.tipo;
+          if (seen.has(k)) return false;
+          seen.add(k); return true;
+        });
+
+        if (!silencioso) toast(`${todos.length} pendentes em ${abasProcessadas} aba(s) de ${GS_TIPOS[key]?.label||key}`, 'success');
         if (btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-cloud-arrow-down"></i> Importar'; }
-        return regs;
+        return todos;
+
       } catch(e) {
-        toast('Erro ao acessar planilha: ' + e.message, 'error');
+        toast('Erro: ' + e.message, 'error');
         if (btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-cloud-arrow-down"></i> Importar'; }
         return [];
       }

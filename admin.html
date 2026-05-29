@@ -460,8 +460,10 @@
             <i class="fas fa-link" style="color:var(--teal,#61C1D0);"></i> Planilhas de Exames (Google Sheets)
           </div>
           <div style="font-size:11px;color:var(--gray-400);margin-bottom:14px;line-height:1.6;">
-            Cole o link de publicação CSV de cada planilha. No Google Sheets: <strong>Arquivo → Publicar na web → Selecionar aba → CSV → Publicar</strong>.
-            Após vincular, use o botão <strong>Importar</strong> na tela de exames.
+            Cole o link de <strong>compartilhamento</strong> de cada planilha do Google Sheets.
+            A planilha deve estar compartilhada como <strong>"Qualquer pessoa com o link pode ver"</strong>.
+            O sistema lê <strong>todas as abas</strong> automaticamente — não precisa publicar como CSV.
+            Após vincular, use o botão <strong>Importar</strong> na tela de Retirada de Exames.
           </div>
 
           <div id="pcListContainer">
@@ -546,14 +548,18 @@
     }
     c.innerHTML = Object.entries(_pcLinks).map(([key, data]) => {
       const tipo = PC_TIPOS.find(t => t.key === key) || { label: key, icon:'fa-file', color:'#64748b' };
+      var sheetId = data.sheetId || _extrairSheetId(data.url||'') || '—';
       return `<div class="planilha-card connected" id="pc-${key}">
         <div class="planilha-card-header">
           <div class="pc-tipo"><i class="fas ${tipo.icon}" style="color:${tipo.color};"></i>${tipo.label}</div>
           <span class="pc-status"><i class="fas fa-check-circle"></i> Vinculada</span>
         </div>
-        <div class="pc-url-display"><i class="fas fa-link" style="font-size:9px;"></i> ${data.url.slice(0,70)}...</div>
+        <div class="pc-url-display">
+          <i class="fas fa-fingerprint" style="font-size:9px;"></i> ID: ${sheetId.slice(0,20)}...
+          &nbsp;·&nbsp; <a href="https://docs.google.com/spreadsheets/d/${sheetId}" target="_blank" style="color:var(--navy);font-size:10px;">Abrir planilha ↗</a>
+        </div>
         <div style="display:flex;gap:8px;margin-top:10px;">
-          <button class="pc-btn save" onclick="testarPlanilha('${key}')"><i class="fas fa-rotate-right"></i> Testar</button>
+          <button class="pc-btn save" onclick="testarPlanilha('${key}')"><i class="fas fa-rotate-right"></i> Testar conexão</button>
           <button class="pc-btn del" onclick="removerPlanilha('${key}')"><i class="fas fa-xmark"></i> Desvincular</button>
         </div>
       </div>`;
@@ -584,28 +590,47 @@
         </div>
       </div>
       <div style="font-size:10px;color:var(--gray-400);line-height:1.5;">
-        <i class="fas fa-info-circle"></i> Cole o link de publicação CSV. No Google Sheets: Arquivo → Publicar na web → selecionar aba → CSV → Publicar → copiar link.
+        <i class="fas fa-info-circle"></i> Cole o <strong>link de compartilhamento</strong> do Google Sheets. A planilha deve estar compartilhada como <strong>"Qualquer pessoa com o link pode ver"</strong>. O sistema lê todas as abas automaticamente — não precisa publicar como CSV.
       </div>`;
     // Limpar o placeholder vazio antes de adicionar
     if (c.querySelector('.fa-table')) c.innerHTML = '';
     c.appendChild(div);
   };
 
+  function _extrairSheetId(url) {
+    var m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+    return m ? m[1] : null;
+  }
+
   window.salvarPlanilha = async function(tempId) {
-    const tipo = document.getElementById(tempId + '-tipo').value;
-    const url  = (document.getElementById(tempId + '-url').value || '').trim();
+    var tipo = document.getElementById(tempId + '-tipo').value;
+    var url  = (document.getElementById(tempId + '-url').value || '').trim();
     if (!tipo) { toast('Selecione o tipo de planilha', 'error'); return; }
     if (!url)  { toast('Cole o link da planilha', 'error'); return; }
-    if (!url.includes('docs.google.com/spreadsheets') && !url.includes('output=csv') && !url.includes('pub?')) {
-      toast('Use o link de publicação CSV do Google Sheets', 'error'); return;
+    if (!url.includes('docs.google.com/spreadsheets')) {
+      toast('Cole o link do Google Sheets (docs.google.com/spreadsheets/...)', 'error'); return;
     }
+    var sheetId = _extrairSheetId(url);
+    if (!sheetId) { toast('Não foi possível identificar o ID da planilha', 'error'); return; }
+
+    // Testar acesso antes de salvar
+    toast('Verificando acesso...', 'info');
     try {
-      await window._fbSet('admin/planilhasExames/' + tipo, { url, atualizadoEm: new Date().toISOString() });
-      _pcLinks[tipo] = { url };
+      var testUrl = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?format=xlsx';
+      var r = await fetch(testUrl, { method:'HEAD' });
+      if (!r.ok) throw new Error('A planilha precisa estar compartilhada como "Qualquer pessoa com o link pode ver"');
+    } catch(e) {
+      // HEAD pode falhar por CORS — tenta sem verificar
+    }
+
+    try {
+      var dados = { url: url, sheetId: sheetId, atualizadoEm: new Date().toISOString() };
+      await window._fbSet('admin/planilhasExames/' + tipo, dados);
+      _pcLinks[tipo] = dados;
       document.getElementById(tempId).remove();
       window.renderPlanilhaCards();
-      toast('Planilha vinculada com sucesso!', 'success');
-    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+      toast('Planilha vinculada! ID: ' + sheetId.slice(0,12) + '...', 'success');
+    } catch(e) { toast('Erro ao salvar: ' + e.message, 'error'); }
   };
 
   window.removerPlanilha = async function(key) {
@@ -619,16 +644,20 @@
   };
 
   window.testarPlanilha = async function(key) {
-    const data = _pcLinks[key];
+    var data = _pcLinks[key];
     if (!data) return;
+    var sheetId = data.sheetId || _extrairSheetId(data.url||'');
+    if (!sheetId) { toast('ID da planilha não encontrado', 'error'); return; }
     toast('Testando conexão...', 'info');
     try {
-      const r = await fetch(data.url);
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      const csv = await r.text();
-      const linhas = csv.trim().split('\n').length - 1;
-      toast(`✅ Conexão OK — ${linhas} linhas encontradas`, 'success');
-    } catch(e) { toast('Erro ao acessar: ' + e.message, 'error'); }
+      var exportUrl = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?format=xlsx';
+      var r = await fetch(exportUrl);
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' — verifique se está compartilhada como pública');
+      var buf = await r.arrayBuffer();
+      // Não temos XLSX aqui no admin — só verifica tamanho
+      var kb = (buf.byteLength / 1024).toFixed(0);
+      toast('✅ Conexão OK — arquivo de ' + kb + ' KB encontrado', 'success');
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
   };
 
   window.carregarPlanilhasLinks = async function() {
