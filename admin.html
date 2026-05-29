@@ -439,6 +439,43 @@
             <button class="btn-s" onclick="limparNotas()"><i class="fas fa-eraser"></i> Limpar notas de operação</button>
           </div>
         </div>
+        <!-- ── GAVETA DE EXAMES ── -->
+        <div style="margin-bottom:20px;">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">Gaveta de Exames Pendentes</div>
+          <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:12px;padding:16px 18px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+              <div>
+                <div style="font-size:11px;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Pendentes na gaveta</div>
+                <div style="font-size:32px;font-weight:900;color:var(--navy);letter-spacing:-1px;" id="gavTotalCount">—</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <button class="btn-s" id="btnGavAtualizar" onclick="atualizarContGaveta()">
+                  <i class="fas fa-rotate-right"></i> Atualizar contagem
+                </button>
+                <button onclick="limparGaveta()" id="btnLimparGaveta"
+                  style="padding:9px 16px;background:#C62828;color:white;border:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .2s;"
+                  onmouseover="this.style.background='#ad1f1f'" onmouseout="this.style.background='#C62828'">
+                  <i class="fas fa-trash-arrow-up"></i> Limpar gaveta inteira
+                </button>
+              </div>
+            </div>
+            <div id="gavProgressWrap" style="display:none;margin-top:14px;">
+              <div style="font-size:12px;color:var(--gray-500);margin-bottom:6px;" id="gavProgressMsg">Removendo...</div>
+              <div style="background:var(--gray-200);border-radius:8px;height:8px;overflow:hidden;">
+                <div id="gavProgressBar" style="height:100%;background:#C62828;border-radius:8px;width:0%;transition:width .2s;"></div>
+              </div>
+            </div>
+            <div id="gavDoneMsg" style="display:none;margin-top:12px;background:#dcfce7;border:1px solid #bbf7d0;border-radius:9px;padding:10px 14px;font-size:12px;font-weight:700;color:#15803d;">
+              <i class="fas fa-check"></i> <span id="gavDoneText">Gaveta limpa com sucesso!</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--gray-400);line-height:1.6;">
+            <i class="fas fa-triangle-exclamation" style="color:#f97316;"></i>
+            Após limpar, acesse <strong>Retirada de Exames → Importar Planilha</strong> para subir a nova planilha organizada.
+            O histórico de retiradas <strong>não é apagado</strong>.
+          </div>
+        </div>
+
         <div>
           <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">Informações do sistema</div>
           <div style="background:var(--gray-50);border:1px solid var(--gray-200);border-radius:12px;padding:16px;">
@@ -454,10 +491,80 @@
   </div>
 
   <script>
+  // ── Gaveta de Exames ──
+  window.atualizarContGaveta = async function() {
+    const btn = document.getElementById('btnGavAtualizar');
+    const el  = document.getElementById('gavTotalCount');
+    if (btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Contando...'; }
+    if (el) el.textContent = '...';
+    try {
+      const snap = await window._fbGet('exames/pendentes');
+      const total = snap && snap.val() ? Object.keys(snap.val()).length : 0;
+      if (el) el.textContent = total.toLocaleString('pt-BR');
+    } catch(e) {
+      if (el) el.textContent = 'Erro';
+      console.error(e);
+    } finally {
+      if (btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-rotate-right"></i> Atualizar contagem'; }
+    }
+  };
+
+  window.limparGaveta = async function() {
+    const total = parseInt((document.getElementById('gavTotalCount').textContent||'0').replace(/\D/g,'')) || 0;
+    if (!confirm(`Isso vai APAGAR ${total.toLocaleString('pt-BR')} exames pendentes da gaveta. O histórico de retiradas não será afetado. Confirma?`)) return;
+
+    const btn  = document.getElementById('btnLimparGaveta');
+    const prog = document.getElementById('gavProgressWrap');
+    const bar  = document.getElementById('gavProgressBar');
+    const msg  = document.getElementById('gavProgressMsg');
+    const done = document.getElementById('gavDoneMsg');
+    const txt  = document.getElementById('gavDoneText');
+    if (btn) { btn.disabled=true; btn.style.opacity='.5'; }
+    if (prog) prog.style.display='block';
+    if (done) done.style.display='none';
+
+    try {
+      const snap = await window._fbGet('exames/pendentes');
+      const dados = (snap && snap.val()) ? snap.val() : {};
+      const ids   = Object.keys(dados);
+      if (!ids.length) {
+        if (txt) txt.textContent = 'Gaveta já estava vazia!';
+        if (done) done.style.display='block';
+        if (prog) prog.style.display='none';
+        if (btn) { btn.disabled=false; btn.style.opacity='1'; }
+        return;
+      }
+
+      const LOTE = 100;
+      let removidos = 0;
+      for (let i = 0; i < ids.length; i += LOTE) {
+        const lote = ids.slice(i, i + LOTE);
+        await Promise.all(lote.map(id => window._fbRemoveItem('exames/pendentes/' + id)));
+        removidos += lote.length;
+        const pct = Math.round(removidos / ids.length * 100);
+        if (bar)  bar.style.width = pct + '%';
+        if (msg)  msg.textContent = `Removendo... ${removidos.toLocaleString('pt-BR')} de ${ids.length.toLocaleString('pt-BR')} (${pct}%)`;
+      }
+
+      document.getElementById('gavTotalCount').textContent = '0';
+      if (txt)  txt.textContent = `${removidos.toLocaleString('pt-BR')} exames removidos com sucesso!`;
+      if (done) done.style.display='block';
+      if (prog) prog.style.display='none';
+    } catch(e) {
+      alert('Erro ao limpar: ' + e.message);
+    } finally {
+      if (btn) { btn.disabled=false; btn.style.opacity='1'; }
+    }
+  };
+
   // ── Tabs ──
   function tab(t) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    // Ao abrir Config, carrega contagem da gaveta automaticamente
+    if (t === 'config' && typeof window.atualizarContGaveta === 'function') {
+      setTimeout(window.atualizarContGaveta, 200);
+    }
     const idx = ['usuarios','atendentes','clinica','profissionais','colaboradores','logs','config'].indexOf(t);
     if (idx >= 0) document.querySelectorAll('.tab-btn')[idx].classList.add('active');
     const pane = document.getElementById('pane' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -995,6 +1102,8 @@
     const auth = getAuth(app);
     const db   = getDatabase(app);
     window.initFirebaseUtils(db, ref, get);
+    window._fbGet        = (path)       => get(ref(db, path));
+    window._fbRemoveItem = (path)       => remove(ref(db, path));
 
     // Helpers globais para operações de escrita/remoção
     window._fbSet    = (path, data)  => set(ref(db, path), data);
