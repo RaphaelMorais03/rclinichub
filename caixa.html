@@ -543,25 +543,50 @@
         let abaInfo = '';
         if (nomeAba) {
           try {
+            // Monta variações do nome da aba: "26/05/2026", "26/05", "26.05.2026", "26-05-2026", "260526"
+            const [dd, mm, yyyy] = nomeAba.split('/');
+            const yy = yyyy ? yyyy.slice(2) : '';
+            const variacoes = new Set([
+              nomeAba,                               // 26/05/2026
+              `${dd}/${mm}`,                         // 26/05
+              `${dd}.${mm}.${yyyy||''}`,             // 26.05.2026
+              `${dd}-${mm}-${yyyy||''}`,             // 26-05-2026
+              `${dd}${mm}${yy}`,                     // 260526
+              `${dd}${mm}${yyyy||''}`,               // 26052026
+              `${parseInt(dd)}/${parseInt(mm)}`,     // 26/5 (sem zero)
+              `${parseInt(dd)}/${parseInt(mm)}/${yyyy||''}`, // 26/5/2026
+            ].filter(Boolean));
+
             const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
-            const rh = await fetchComTimeout(pubhtmlUrl, 4000);
+            const rh = await fetchComTimeout(pubhtmlUrl, 5000);
             if (rh.ok) {
-              const html = await rh.text();
-              const tabRe = /items\.push\(\{name:\s*"((?:[^"\\]|\\.)+?)",\s*pageUrl:\s*"([^"]+)"/g;
-              let m;
-              while ((m = tabRe.exec(html)) !== null) {
-                const tabName = m[1].replace(/\\\//g, '/').replace(/\\\\/g, '\\');
-                const gidM   = m[2].match(/gid=(-?\d+)/);
-                if (gidM && tabName === nomeAba) {
-                  csvUrl  = csvBase.replace(/&gid=\d+/, '') + '&gid=' + gidM[1];
-                  abaInfo = ' · aba ' + nomeAba;
-                  break;
+              const htmlTxt = await rh.text();
+              // Tenta dois formatos de regex — Google pode variar o HTML
+              const regexes = [
+                /name:"((?:[^"\\]|\\.)*)"[^}]*pageUrl:"([^"]+)"/g,
+                /name:\s*"([^"]+)"[^}]*pageUrl:\s*"([^"]+)"/g,
+              ];
+              outer:
+              for (const tabRe of regexes) {
+                let m;
+                while ((m = tabRe.exec(htmlTxt)) !== null) {
+                                    const tabName = m[1];
+                  const tabNorm = tabName.trim();
+                  const gidM   = m[2].match(/gid=(-?\d+)/);
+                  if (gidM && variacoes.has(tabNorm)) {
+                    csvUrl  = csvBase.replace(/&gid=\d+/, '') + '&gid=' + gidM[1];
+                    abaInfo = ' · aba ' + tabNorm;
+                    break outer;
+                  }
                 }
               }
             }
-          } catch(e) { /* timeout ou erro de rede — usa aba padrão */ }
+          } catch(e) { console.warn('[NF] tab detection error:', e.message); }
 
-          if (csvUrl === csvBase) abaInfo = ' · aba ' + nomeAba + ' não encontrada, usando planilha geral';
+          if (csvUrl === csvBase) {
+            abaInfo = ' · aba ' + nomeAba + ' não encontrada — usando planilha geral';
+            console.warn('[NF] aba não encontrada para:', nomeAba);
+          }
         }
 
         let r;
@@ -609,19 +634,24 @@
         const mapaTudo     = {};
         for (let i = headerIdx + 1; i < todasLinhas.length; i++) {
           const cols = todasLinhas[i];
-          const nome = normNome(cols[iNome] || '');
-          const nf   = (cols[iNf] || '').replace(/"/g,'').trim();
-          if (!nome || !nf) continue;
-          mapaTudo[nome] = nf;
+          const nomeRaw = (cols[iNome] || '').replace(/\*+$/,'').replace(/["*]/g,'').trim();
+          const nome = normNome(nomeRaw);
+          const nf   = (cols[iNf] || '').replace(/["*]/g,'').trim();
+          if (!nome || nome.length < 3 || !nf) continue;
+          // Múltiplas NFs para o mesmo paciente: concatena com " / "
+          mapaTudo[nome] = mapaTudo[nome] ? mapaTudo[nome] + ' / ' + nf : nf;
 
           if (iAtend >= 0 && fnFiltro) {
-            const nomeAtend = normNome(cols[iAtend] || '');
-            const fnAtend   = nomeAtend.split(' ')[0];
-            if (fnAtend && fnFiltro && !nomeAtend.includes(fnFiltro) && !fnFiltro.includes(fnAtend)) {
-              continue; // outro operador
-            }
+            const nomeAtend = normNome((cols[iAtend] || '').replace(/\*/g,''));
+            // Compara primeiro nome OU nome completo (planilha pode ter só primeiro nome)
+            const primeiroNomeAtend = nomeAtend.split(' ')[0];
+            const primeiroNomeFiltro = fnFiltro.split(' ')[0];
+            const bate = nomeAtend.includes(primeiroNomeFiltro) ||
+                         fnFiltro.includes(primeiroNomeAtend) ||
+                         primeiroNomeAtend === primeiroNomeFiltro;
+            if (!bate) continue; // outro operador — pula esta linha
           }
-          mapaFiltrado[nome] = nf;
+          mapaFiltrado[nome] = mapaFiltrado[nome] ? mapaFiltrado[nome] + ' / ' + nf : nf;
         }
 
         // Fallback: se o filtro zerou tudo (ex: admin testando), usa todas as NFs
@@ -669,7 +699,9 @@
 
     function buscarNf(paciente, mapa) {
       if (!paciente || paciente === '—' || !Object.keys(mapa).length) return null;
-      const np = normNome(paciente);
+      // Limpa asteriscos, parênteses e sufixos comuns do AMEI antes de normalizar
+      const pacLimpo = (paciente||'').replace(/\*+$/,'').replace(/\s*\(.*?\)\s*/g,'').trim();
+      const np = normNome(pacLimpo);
 
       // 1. Match exato
       if (mapa[np]) return mapa[np];
@@ -685,7 +717,6 @@
       }
 
       // 3. Palavras-chave em comum (ignora stopwords e palavras curtas)
-      //    Exige ≥2 palavras-chave em comum E que cubram ≥60% das chaves do paciente
       const chavesPac = _palavrasChave(np);
       if (chavesPac.length >= 1) {
         for (const [k, v] of Object.entries(mapa)) {
@@ -693,10 +724,24 @@
           if (!chavesNf.length) continue;
           const comuns = chavesPac.filter(w => chavesNf.includes(w));
           const cobertura = comuns.length / Math.min(chavesPac.length, chavesNf.length);
-          // Precisa de ≥2 palavras-chave em comum OU cobertura total (todos os termos batem)
           if (comuns.length >= 2 || (comuns.length >= 1 && cobertura === 1.0 && chavesPac.length >= 2)) {
             return v;
           }
+        }
+      }
+
+      // 4. Match por primeiro nome + pelo menos 1 palavra rara do sobrenome (≥7 chars, não stopword)
+      //    Útil quando o AMEI abrevia o nome ou tem grafia diferente
+      const palavrasLongas = (np.split(' ')).filter(w => w.length >= 7 && !_STOPWORDS.has(w));
+      if (palavrasLongas.length >= 1) {
+        const primeiroNomePac = np.split(' ')[0];
+        for (const [k, v] of Object.entries(mapa)) {
+          const kPalavras = k.split(' ');
+          const primeiroNomeNf = kPalavras[0];
+          if (primeiroNomePac !== primeiroNomeNf) continue; // primeiro nome diferente → pula
+          const palavrasLongasNf = kPalavras.filter(w => w.length >= 7 && !_STOPWORDS.has(w));
+          const comuns = palavrasLongas.filter(w => palavrasLongasNf.includes(w));
+          if (comuns.length >= 1) return v;
         }
       }
 

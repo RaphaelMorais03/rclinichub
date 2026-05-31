@@ -1151,10 +1151,20 @@
       return d + '/' + m + '/' + y;
     }
     function primeiroNome(nome) { return (nome||'').split(' ')[0]; }
+    function aplicarAlias(nome) {
+      if (!nome) return nome;
+      const nLower = nome.toLowerCase().trim();
+      for (const [from, to] of Object.entries(window._aliases || {})) {
+        if (nLower === from.toLowerCase().trim()) return to;
+        if (nLower.startsWith(from.toLowerCase().trim())) return to;
+      }
+      return nome;
+    }
 
     /* ── ESTADO ── */
     let _dados = {};       // _dados[uid][YYYY-MM-DD] = snapshot
     window._semComissao = {};  // uid -> true
+    window._aliases     = {};  // { "fernadac": "Fernanda Clara De Souza Sergio" }
     let _view  = 'dia';    // 'dia' | 'collab'
     let _rateAvista  = parseFloat(localStorage.getItem('dash_rateAvista')  || '0.5');
     let _rateCredito = parseFloat(localStorage.getItem('dash_rateCredito') || '0.1');
@@ -1322,8 +1332,9 @@
       let rows = '';
       linhas.forEach(({uid, dt, snap}, idx) => {
         const c = calcRow(snap.totForma, uid);
-        rows += `<tr class="main-row" id="row-${idx}">
-          <td><span class="collab-name">${esc(primeiroNome(snap.colaborador))}</span>
+        const nomeCollab = aplicarAlias(snap.colaborador);
+       rows += `<tr class="main-row" id="row-${idx}">
+          <td><span class="collab-name">${esc(primeiroNome(nomeCollab))}</span>
               <div style="font-size:10px;color:var(--gray-400);margin-top:2px;">${esc(snap.colaborador)}</div></td>
           <td><span class="date-chip"><i class="fas fa-calendar" style="font-size:9px;"></i> ${fmtData(dt)}</span>${snap.manualAdmin ? ' <span class="manual-badge"><i class="fas fa-pen"></i> Manual</span>' : ''}</td>
           <td class="num">${fmtBRL(c.debito)}</td>
@@ -1407,7 +1418,7 @@
       // Agrupar por colaborador
       const grupos = {};
       linhas.forEach(({uid, dt, snap}) => {
-        const nome = snap.colaborador || uid;
+        const nome = aplicarAlias(snap.colaborador || uid);
         if (!grupos[nome]) grupos[nome] = [];
         grupos[nome].push({uid, dt, snap});
       });
@@ -1655,6 +1666,12 @@
     window.fbSet    = (path, data) => set(ref(_db, path), data);
     window.fbGet    = (path)       => get(ref(_db, path));
     window.fbRemove = (path)       => remove(ref(_db, path));
+
+    // Listener aliases de colaboradores
+    onValue(ref(_db, 'admin/colaboradorAliases'), snap => {
+      window._aliases = snap.val() || {};
+      if (typeof window.renderDashboard === 'function') window.renderDashboard();
+    });
 
     // Listener sem comissão
     onValue(ref(_db, 'admin/semComissao'), snap => {

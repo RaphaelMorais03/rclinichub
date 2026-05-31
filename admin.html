@@ -89,6 +89,12 @@
     .modal-close{background:var(--gray-100);border:1px solid var(--gray-200);border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gray-500);font-size:14px;}
     .modal-close:hover{background:var(--gray-200);}
     .modal-body{padding:22px;}
+    .alias-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:9px;margin-bottom:6px;}
+    .alias-from{font-size:12px;font-weight:700;color:var(--red);min-width:100px;}
+    .alias-arrow{color:var(--gray-400);font-size:11px;}
+    .alias-to{font-size:12px;font-weight:700;color:var(--green);flex:1;}
+    .alias-del{background:none;border:none;cursor:pointer;color:var(--gray-400);font-size:13px;padding:2px 6px;border-radius:5px;transition:color .15s;}
+    .alias-del:hover{color:var(--red);}
     .planilha-card{background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:12px;padding:14px 16px;margin-bottom:12px;transition:border-color .2s;}
     .planilha-card.connected{background:#f0fdf4;border-color:#bbf7d0;}
     .planilha-card.connected .pc-status{color:var(--green);}
@@ -495,6 +501,25 @@
           </div>
         </div>
 
+        <!-- ── ALIASES DE COLABORADORES ── -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;">
+            <i class="fas fa-user-tag" style="color:var(--teal,#61C1D0);"></i> Aliases de Colaboradores
+          </div>
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:12px;line-height:1.6;">
+            Corrija nomes duplicados no dashboard. Ex: <strong>"fernadac"</strong> → <strong>"Fernanda Clara De Souza Sergio"</strong>
+          </div>
+          <div id="aliasListContainer">
+            <div style="text-align:center;padding:12px;color:var(--gray-400);font-size:12px;"><i class="fas fa-spinner fa-spin"></i></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <input id="aliasFromInput" class="f-input" type="text" placeholder="Nome errado (ex: fernadac)" style="flex:1;font-size:12px;padding:8px 10px;">
+            <span style="display:flex;align-items:center;color:var(--gray-400);font-size:13px;"><i class="fas fa-arrow-right"></i></span>
+            <input id="aliasToInput" class="f-input" type="text" placeholder="Nome correto (ex: Fernanda Clara De Souza Sergio)" style="flex:2;font-size:12px;padding:8px 10px;">
+            <button onclick="salvarAlias()" class="btn-s" style="white-space:nowrap;"><i class="fas fa-plus"></i> Adicionar</button>
+          </div>
+        </div>
+
         <!-- ── GAVETA DE EXAMES ── -->
         <div style="margin-bottom:20px;">
           <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;">Gaveta de Exames Pendentes</div>
@@ -700,6 +725,65 @@
   };
 
 
+
+
+  // ── ALIASES DE COLABORADORES ─────────────────────────────────────
+  var _aliases = {};  // { "fernadac": "Fernanda Clara De Souza Sergio" }
+
+  window.carregarAliases = async function() {
+    const c = document.getElementById('aliasListContainer');
+    try {
+      const snap = await window._fbGet('admin/colaboradorAliases');
+      _aliases = snap && snap.val() ? snap.val() : {};
+      renderAliases();
+    } catch(e) {
+      if (c) c.innerHTML = '<div style="font-size:12px;color:var(--red);">Erro ao carregar aliases</div>';
+    }
+  };
+
+  function renderAliases() {
+    const c = document.getElementById('aliasListContainer');
+    if (!c) return;
+    const entries = Object.entries(_aliases);
+    if (!entries.length) {
+      c.innerHTML = '<div style="font-size:12px;color:var(--gray-400);padding:8px 0;">Nenhum alias cadastrado ainda.</div>';
+      return;
+    }
+    c.innerHTML = entries.map(([from, to]) => `
+      <div class="alias-row">
+        <span class="alias-from">${esc(from)}</span>
+        <span class="alias-arrow"><i class="fas fa-arrow-right"></i></span>
+        <span class="alias-to">${esc(to)}</span>
+        <button class="alias-del" onclick="removerAlias('${esc(from)}')" title="Remover alias"><i class="fas fa-xmark"></i></button>
+      </div>
+    `).join('');
+  }
+
+  window.salvarAlias = async function() {
+    const from = (document.getElementById('aliasFromInput').value || '').trim();
+    const to   = (document.getElementById('aliasToInput').value   || '').trim();
+    if (!from) { toast('Informe o nome errado', 'error'); return; }
+    if (!to)   { toast('Informe o nome correto', 'error'); return; }
+    if (from === to) { toast('Os nomes são iguais', 'error'); return; }
+    try {
+      await window._fbSet('admin/colaboradorAliases/' + from.replace(/[.#$[\]]/g,'_'), to);
+      _aliases[from] = to;
+      renderAliases();
+      document.getElementById('aliasFromInput').value = '';
+      document.getElementById('aliasToInput').value   = '';
+      toast('Alias salvo! O dashboard vai corrigir automaticamente.', 'success');
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+  };
+
+  window.removerAlias = async function(from) {
+    const key = from.replace(/[.#$[\]]/g,'_');
+    try {
+      await window._fbSet('admin/colaboradorAliases/' + key, null);
+      delete _aliases[from];
+      renderAliases();
+      toast('Alias removido', 'info');
+    } catch(e) { toast('Erro: ' + e.message, 'error'); }
+  };
 
   // ── IMPORTAÇÃO GOOGLE SHEETS (ADMIN) ────────────────────────────
 
@@ -993,6 +1077,7 @@
     if (t === 'config') {
       if (typeof window.atualizarContGaveta === 'function')   setTimeout(window.atualizarContGaveta, 200);
       if (typeof window.carregarPlanilhasLinks === 'function') setTimeout(window.carregarPlanilhasLinks, 100);
+      if (typeof window.carregarAliases === 'function')        setTimeout(window.carregarAliases, 150);
     }
     const idx = ['usuarios','atendentes','clinica','profissionais','colaboradores','logs','config'].indexOf(t);
     if (idx >= 0) document.querySelectorAll('.tab-btn')[idx].classList.add('active');
