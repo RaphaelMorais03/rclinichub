@@ -7,6 +7,7 @@
   <title>Admin — Amor Saúde Pirituba</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/shared-utils.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -473,6 +474,25 @@
           <button onclick="adicionarPlanilhaCard()" style="width:100%;padding:9px;background:var(--gray-50);border:1.5px dashed var(--gray-300);border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;color:var(--gray-500);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;margin-top:4px;" onmouseover="this.style.borderColor='var(--navy)';this.style.color='var(--navy)'" onmouseout="this.style.borderColor='var(--gray-300)';this.style.color='var(--gray-500)'">
             <i class="fas fa-plus"></i> Adicionar planilha
           </button>
+
+          <!-- IMPORTAR -->
+          <div id="adminImportSection" style="display:none;margin-top:16px;border-top:1.5px solid var(--gray-200);padding-top:16px;">
+            <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;"><i class="fas fa-cloud-arrow-down" style="color:var(--green);"></i> Importar para Gaveta</div>
+            <div id="adminImportLinks" style="margin-bottom:12px;"></div>
+            <button onclick="adminImportarTodos()" id="adminBtnTodos"
+              style="width:100%;padding:11px;background:var(--green,#15803d);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
+              <i class="fas fa-cloud-arrow-down"></i> Importar Todas e Atualizar Gaveta
+            </button>
+            <div id="adminImportProgress" style="display:none;margin-top:12px;">
+              <div style="font-size:12px;color:var(--gray-500);margin-bottom:6px;" id="adminImportMsg">Processando...</div>
+              <div style="background:var(--gray-200);border-radius:8px;height:8px;overflow:hidden;">
+                <div id="adminImportBar" style="height:100%;background:var(--navy);border-radius:8px;width:0%;transition:width .3s;"></div>
+              </div>
+            </div>
+            <div id="adminImportDone" style="display:none;margin-top:10px;background:#dcfce7;border:1px solid #bbf7d0;border-radius:9px;padding:10px 14px;font-size:12px;font-weight:700;color:#15803d;">
+              <i class="fas fa-check"></i> <span id="adminImportDoneText">Importado com sucesso!</span>
+            </div>
+          </div>
         </div>
 
         <!-- ── GAVETA DE EXAMES ── -->
@@ -544,6 +564,8 @@
     if (!c) return;
     if (!Object.keys(_pcLinks).length) {
       c.innerHTML = '<div style="text-align:center;padding:16px;color:var(--gray-400);font-size:12px;"><i class="fas fa-table" style="font-size:20px;opacity:.2;display:block;margin-bottom:6px;"></i>Nenhuma planilha vinculada ainda</div>';
+      var sec = document.getElementById('adminImportSection');
+      if (sec) sec.style.display = 'none';
       return;
     }
     c.innerHTML = Object.entries(_pcLinks).map(([key, data]) => {
@@ -558,12 +580,15 @@
           <i class="fas fa-fingerprint" style="font-size:9px;"></i> ID: ${sheetId.slice(0,20)}...
           &nbsp;·&nbsp; <a href="https://docs.google.com/spreadsheets/d/${sheetId}" target="_blank" style="color:var(--navy);font-size:10px;">Abrir planilha ↗</a>
         </div>
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <button class="pc-btn save" onclick="testarPlanilha('${key}')"><i class="fas fa-rotate-right"></i> Testar conexão</button>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <button id="adminBtnLink-${key}" class="pc-btn save" onclick="adminImportarPlanilha('${key}')"><i class="fas fa-cloud-arrow-down"></i> Importar</button>
+          <button class="pc-btn save" style="background:var(--gray-100);color:var(--gray-600);border:1px solid var(--gray-200);" onclick="testarPlanilha('${key}')"><i class="fas fa-rotate-right"></i> Testar</button>
           <button class="pc-btn del" onclick="removerPlanilha('${key}')"><i class="fas fa-xmark"></i> Desvincular</button>
         </div>
       </div>`;
     }).join('');
+    var sec = document.getElementById('adminImportSection');
+    if (sec) sec.style.display = '';
   };
 
   var _pcAddCount = 0;
@@ -672,6 +697,225 @@
       const c = document.getElementById('pcListContainer');
       if (c) c.innerHTML = '<div style="font-size:12px;color:var(--red);">Erro ao carregar links</div>';
     }
+  };
+
+
+
+  // ── IMPORTAÇÃO GOOGLE SHEETS (ADMIN) ────────────────────────────
+
+  function _extrairSheetIdAdmin(url) {
+    var m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+    return m ? m[1] : null;
+  }
+
+  function processarAbaAdmin(ws, tipo) {
+    var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false});
+    var hdr = -1;
+    for (var i=0; i<rows.length; i++) {
+      if (rows[i].some(function(v){ return String(v).toUpperCase().includes('NOME'); })) { hdr=i; break; }
+    }
+    if (hdr < 0) return [];
+    var results = [];
+    var isOrg = tipo === 'organizada';
+
+    for (var i=hdr+1; i<rows.length; i++) {
+      var r = rows[i];
+      if (!r || r.length < 3) continue;
+
+      if (isOrg) {
+        var tipoEx  = String(r[0]||'').trim();
+        var nomePac = String(r[3]||'').trim().toUpperCase().replace(/\*+$/,'');
+        var dataEx  = String(r[2]||'').trim();
+        var status  = String(r[9]||'').trim().toLowerCase();
+        if (!nomePac || nomePac.length<3 || nomePac==='NOME DO PACIENTE') continue;
+        if (tipoEx.toUpperCase()==='TIPO DE EXAME') continue;
+        if (status.includes('entregue')) continue;
+        if (status.includes('pendente') || status.includes('retirado')) {
+          var tipoNorm = tipoEx;
+          if (/eeg|eletroencefalog/i.test(tipoEx))      tipoNorm='Eletroencefalograma (EEG)';
+          else if (/enmg|eletroneuromio/i.test(tipoEx)) tipoNorm='Eletroneuromiografia (ENMG)';
+          else if (/potencial|evocado/i.test(tipoEx))   tipoNorm='Potencial Evocado';
+          else if (/ecocard/i.test(tipoEx))             tipoNorm='Ecocardiograma';
+          else if (/ergom/i.test(tipoEx))               tipoNorm='Teste Ergométrico';
+          results.push({ paciente:nomePac, tipo:tipoNorm, dataExame:dataEx, fonte:'ORGANIZADA' });
+        }
+      } else {
+        var nome = String(r[0]||'').trim().toUpperCase().replace(/\*+$/,'');
+        if (!nome || nome.length<3) continue;
+        if (/^(nome|paciente|exame|hora|data)/i.test(nome)) continue;
+        if (/exames realizados/i.test(nome)) continue;
+
+        if (tipo==='eco') {
+          var ok=String(r[1]||'').toUpperCase().includes('OK'), ret=String(r[2]||'').trim();
+          if (ok&&!ret) results.push({paciente:nome,tipo:'Ecocardiograma',dataExame:'',fonte:'ECO'});
+        } else if (tipo==='neuro') {
+          var ok=String(r[2]||'').toUpperCase().includes('OK'), ret=String(r[3]||'').trim();
+          if (ok&&!ret) results.push({paciente:nome,tipo:'Eletroencefalograma (EEG)',dataExame:'',fonte:'NEURO'});
+        } else if (tipo==='usg') {
+          var exame=String(r[1]||'').trim();
+          if (/^(exame|data|tipo)/i.test(exame)) continue;
+          var ok=String(r[2]||'').toUpperCase().includes('OK'), ret=String(r[3]||'').trim();
+          if (ok&&!ret) {
+            var tp = exame
+              ? 'Ultrassom - '+exame.charAt(0).toUpperCase()+exame.slice(1).toLowerCase()
+              : 'Ultrassom';
+            results.push({paciente:nome,tipo:tp,dataExame:'',fonte:'USG'});
+          }
+        } else if (tipo==='erg') {
+          var ok=String(r[1]||'').toUpperCase().includes('OK'), ret=String(r[2]||'').trim();
+          if (ok&&!ret) results.push({paciente:nome,tipo:'Teste Ergométrico',dataExame:'',fonte:'ERG'});
+        }
+      }
+    }
+    return results;
+  }
+
+  async function baixarEProcessarPlanilha(key, data) {
+    var sheetId = data.sheetId || _extrairSheetIdAdmin(data.url||'');
+    if (!sheetId) throw new Error('ID não encontrado para ' + key);
+    var exportUrl = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/export?format=xlsx';
+    var resp = await fetch(exportUrl);
+    if (!resp.ok) throw new Error('HTTP '+resp.status+' em '+key+' — verifique compartilhamento público');
+    var buf  = await resp.arrayBuffer();
+    var wb   = XLSX.read(buf, {type:'array', raw:false});
+    var todos = [];
+    var abasOk = 0;
+    for (var j=0; j<wb.SheetNames.length; j++) {
+      var sname = wb.SheetNames[j];
+      if (/^p[áa]gina|^base$|c[oó]pia/i.test(sname.trim())) continue;
+      var ws = wb.Sheets[sname];
+      if (!ws) continue;
+      var regs = processarAbaAdmin(ws, key);
+      todos = todos.concat(regs);
+      abasOk++;
+    }
+    return { regs: todos, abas: abasOk };
+  }
+
+  window.adminImportarPlanilha = async function(key) {
+    var data = _pcLinks[key];
+    if (!data) return;
+    var btn = document.getElementById('adminBtnLink-'+key);
+    if (btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Lendo '+_pcLinks[key]&&'...'; }
+    var prog = document.getElementById('adminImportProgress');
+    var msg  = document.getElementById('adminImportMsg');
+    var done = document.getElementById('adminImportDone');
+    if (prog) prog.style.display='block';
+    if (done) done.style.display='none';
+    try {
+      var tipo = PC_TIPOS.find(function(t){return t.key===key;})||{label:key};
+      if (msg) msg.textContent = 'Baixando '+tipo.label+'...';
+      document.getElementById('adminImportBar').style.width='20%';
+      var res = await baixarEProcessarPlanilha(key, data);
+      if (msg) msg.textContent = res.regs.length+' pendentes em '+res.abas+' abas — salvando...';
+      document.getElementById('adminImportBar').style.width='60%';
+      // salvar no firebase
+      var usuario = sessionStorage.getItem('usuario')||'Admin';
+      var ok=0;
+      for (var p of res.regs) {
+        await window._fbSet('exames/pendentes/'+Date.now()+'_'+Math.random().toString(36).slice(2), {
+          paciente:p.paciente, tipo:p.tipo, dataExame:p.dataExame||'',
+          obs:'Importado pelo Admin', atendenteCad:usuario, cadastradoEm:new Date().toISOString()
+        });
+        ok++;
+      }
+      document.getElementById('adminImportBar').style.width='100%';
+      document.getElementById('adminImportDoneText').textContent = ok.toLocaleString('pt-BR')+' exames importados de '+res.abas+' abas!';
+      if (done) done.style.display='block';
+      if (prog) { setTimeout(function(){prog.style.display='none';}, 2000); }
+      toast('✅ '+ok.toLocaleString('pt-BR')+' exames importados!', 'success');
+    } catch(e) {
+      toast('Erro: '+e.message, 'error');
+      if (prog) prog.style.display='none';
+    }
+    if (btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-cloud-arrow-down"></i> Importar'; }
+  };
+
+  window.adminImportarTodos = async function() {
+    var keys = Object.keys(_pcLinks);
+    if (!keys.length) { toast('Nenhuma planilha vinculada','error'); return; }
+    var btn  = document.getElementById('adminBtnTodos');
+    var prog = document.getElementById('adminImportProgress');
+    var bar  = document.getElementById('adminImportBar');
+    var msg  = document.getElementById('adminImportMsg');
+    var done = document.getElementById('adminImportDone');
+
+    // Primeiro busca tudo para mostrar total
+    if (btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Coletando dados...'; }
+    if (prog) prog.style.display='block';
+    if (done) done.style.display='none';
+    if (bar)  bar.style.width='0%';
+
+    var todosList = [];
+    for (var ki=0; ki<keys.length; ki++) {
+      var key = keys[ki];
+      var tipo = PC_TIPOS.find(function(t){return t.key===key;})||{label:key};
+      if (msg) msg.textContent = 'Lendo '+tipo.label+' ('+(ki+1)+'/'+keys.length+')...';
+      if (bar) bar.style.width = Math.round((ki/keys.length)*40)+'%';
+      try {
+        var res = await baixarEProcessarPlanilha(key, _pcLinks[key]);
+        todosList = todosList.concat(res.regs);
+        if (msg) msg.textContent = 'Lendo '+tipo.label+' — '+res.regs.length+' pendentes em '+res.abas+' abas';
+      } catch(e) {
+        toast('Erro em '+tipo.label+': '+e.message, 'error');
+      }
+    }
+
+    // De-duplicar
+    var seen = new Set();
+    todosList = todosList.filter(function(p){ var k=p.paciente+'|'+p.tipo; if(seen.has(k)) return false; seen.add(k); return true; });
+
+    if (!todosList.length) {
+      toast('Nenhum exame pendente encontrado nas planilhas', 'error');
+      if (prog) prog.style.display='none';
+      if (btn)  { btn.disabled=false; btn.innerHTML='<i class="fas fa-cloud-arrow-down"></i> Importar Todas e Atualizar Gaveta'; }
+      return;
+    }
+
+    var totalAtual = 0;
+    try {
+      var snap = await window._fbGet('exames/pendentes');
+      totalAtual = snap&&snap.val() ? Object.keys(snap.val()).length : 0;
+    } catch(e){}
+
+    var limpar = false;
+    if (totalAtual > 0) {
+      limpar = confirm('A gaveta tem '+totalAtual.toLocaleString('pt-BR')+' exames atuais.\nOK = LIMPAR e substituir pelos '+todosList.length.toLocaleString('pt-BR')+' novos.\nCancelar = ADICIONAR sem remover os existentes.');
+    }
+
+    if (msg) msg.textContent = (limpar?'Limpando gaveta e importando...':'Importando...')+' '+todosList.length.toLocaleString('pt-BR')+' exames';
+    if (bar) bar.style.width='45%';
+
+    if (limpar) {
+      try { await window._fbSet('exames/pendentes', null); } catch(e){}
+    }
+
+    var usuario = sessionStorage.getItem('usuario')||'Admin';
+    var ok=0, erros=0;
+    for (var pi=0; pi<todosList.length; pi++) {
+      var p = todosList[pi];
+      try {
+        await window._fbSet('exames/pendentes/'+Date.now()+'_'+Math.random().toString(36).slice(2), {
+          paciente:p.paciente, tipo:p.tipo, dataExame:p.dataExame||'',
+          obs:'Importado pelo Admin', atendenteCad:usuario, cadastradoEm:new Date().toISOString()
+        });
+        ok++;
+      } catch(e){ erros++; }
+      var pct = 45 + Math.round((pi/todosList.length)*55);
+      if (bar) bar.style.width = pct+'%';
+      if (pi%100===0 && msg) msg.textContent = ok.toLocaleString('pt-BR')+' de '+todosList.length.toLocaleString('pt-BR')+' salvos...';
+    }
+
+    if (bar) bar.style.width='100%';
+    document.getElementById('adminImportDoneText').textContent =
+      ok.toLocaleString('pt-BR')+' exames importados'+(erros?' ('+erros+' erros)':'')+'!';
+    if (done) done.style.display='block';
+    setTimeout(function(){ if(prog) prog.style.display='none'; }, 2500);
+    // Atualiza contagem
+    var el = document.getElementById('gavTotalCount');
+    if (el) el.textContent = ok.toLocaleString('pt-BR');
+    if (btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-cloud-arrow-down"></i> Importar Todas e Atualizar Gaveta'; }
+    toast('✅ '+ok.toLocaleString('pt-BR')+' exames na gaveta!', 'success');
   };
 
 

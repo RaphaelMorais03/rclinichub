@@ -194,7 +194,6 @@
         <button class="tab-btn"        id="tabSala"      onclick="mudarTab('sala')"><i class="fas fa-door-open"></i> Sala de Espera</button>
         <button class="tab-btn"        id="tabColar"     onclick="mudarTab('colar')"><i class="fas fa-paste"></i> Colar do AMEI</button>
         <button class="tab-btn"        id="tabCadastrar" onclick="mudarTab('cadastrar')"><i class="fas fa-plus"></i> Cadastrar</button>
-        <button class="tab-btn"        id="tabImportar"  onclick="mudarTab('importar')"><i class="fas fa-file-import"></i> Importar Planilha</button>
         <button class="tab-btn"        id="tabHistorico" onclick="mudarTab('historico')"><i class="fas fa-clock-rotate-left"></i> Histórico</button>
       </div>
 
@@ -732,7 +731,7 @@
     };
 
     window.mudarTab = function(tab) {
-      ['gaveta','sala','colar','cadastrar','importar','historico'].forEach(t => {
+      ['gaveta','sala','colar','cadastrar','historico'].forEach(t => {
         const T = t.charAt(0).toUpperCase()+t.slice(1);
         var _t = document.getElementById('tab'+T);  if (_t)  _t.classList.remove('active');
         var _p = document.getElementById('pane'+T); if (_p) _p.classList.remove('active');
@@ -741,7 +740,6 @@
       var _ta = document.getElementById('tab'+T);  if (_ta)  _ta.classList.add('active');
       var _pa = document.getElementById('pane'+T); if (_pa) _pa.classList.add('active');
       if (tab==='historico') window.renderHistorico();
-      if (tab==='importar') carregarGsLinks();
     };
 
 
