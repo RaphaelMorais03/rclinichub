@@ -142,6 +142,13 @@
 
 
     /* ── ABA FECHAMENTOS ── */
+    /* ── Group collapse ── */
+    .group-block{transition:all .2s;}
+    .group-block.collapsed .group-body{display:none;}
+    .group-collapse-btn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.6);font-size:13px;padding:2px 8px;border-radius:6px;transition:all .15s;line-height:1;margin-left:8px;}
+    .group-collapse-btn:hover{background:rgba(255,255,255,.15);color:white;}
+    .group-header{cursor:default;}
+
     .fech-card{background:white;border:1px solid var(--gray-200);border-radius:14px;padding:16px 18px;margin-bottom:10px;box-shadow:var(--shadow);}
     .fech-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;gap:12px;}
     .fech-prof{font-size:14px;font-weight:800;color:var(--navy);}
@@ -272,6 +279,7 @@
         <label class="modal-label">📅 Data *</label>
         <input type="date" class="modal-input" id="lancData" onchange="verificarExistente()">
       </div>
+      <div id="lancCollabHint" style="display:none;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:9px;padding:8px 12px;margin-bottom:4px;font-size:12px;color:var(--gray-600);line-height:1.8;"></div>
 
       <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-400);margin-bottom:10px;margin-top:4px;">
         💰 Entradas por forma de pagamento
@@ -473,10 +481,14 @@
         document.getElementById(id).value = '';
       });
       document.getElementById('lancWarn').classList.remove('show');
+      const hint = document.getElementById('lancCollabHint');
+      if (hint) hint.style.display = 'none';
       if(window.setModoLanc) setModoLanc('manual');
       calcPreview();
-      // Carrega colaboradores
-      if (window.carregarCollabSelect) window.carregarCollabSelect();
+      // Carrega colaboradores e popula hint
+      if (window.carregarCollabSelect) {
+        window.carregarCollabSelect().then(() => verificarExistente());
+      }
       document.getElementById('lancModal').style.display = 'flex';
     };
 
@@ -499,10 +511,35 @@
       const uid  = document.getElementById('lancCollab').value;
       const data = document.getElementById('lancData').value;
       const warn = document.getElementById('lancWarn');
+
+      // Aviso de registro já existente
       if (uid && data && _dados[uid] && _dados[uid][data]) {
         warn.classList.add('show');
       } else {
         warn.classList.remove('show');
+      }
+
+      // Sugestão: ao mudar data, mostra quais colaboradores têm caixa nessa data
+      if (data) {
+        const collabsNaData = [];
+        for (const u in _dados) {
+          if (_dados[u][data]) {
+            collabsNaData.push({ uid: u, nome: _dados[u][data].colaborador || u });
+          }
+        }
+        const hint = document.getElementById('lancCollabHint');
+        if (hint) {
+          if (collabsNaData.length) {
+            hint.innerHTML = '<i class="fas fa-lightbulb" style="color:var(--teal);"></i> Caixa registrado por: ' +
+              collabsNaData.map(c =>
+                `<button onclick="document.getElementById('lancCollab').value='${c.uid}';verificarExistente();" ` +
+                `style="background:var(--teal);color:white;border:none;border-radius:6px;padding:2px 10px;font-size:11px;font-weight:700;cursor:pointer;margin:2px;">${esc(c.nome.split(' ')[0])}</button>`
+              ).join(' ');
+            hint.style.display = '';
+          } else {
+            hint.style.display = 'none';
+          }
+        }
       }
     };
 
@@ -1124,6 +1161,22 @@
 
     /* ── Sem comissão ── */
     window._semComissao = window._semComissao || {};
+    window.toggleGrupo = function(id) {
+      var grp = document.getElementById(id);
+      if (!grp) return;
+      grp.classList.toggle('collapsed');
+      var icon = document.getElementById('icon-grp-' + id);
+      if (icon) icon.className = grp.classList.contains('collapsed') ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
+    };
+
+    window.toggleTodosGrupos = function(colapsar) {
+      document.querySelectorAll('.group-block').forEach(function(grp) {
+        var icon = grp.querySelector('[id^="icon-grp-"]');
+        if (colapsar) { grp.classList.add('collapsed'); if (icon) icon.className = 'fas fa-chevron-down'; }
+        else          { grp.classList.remove('collapsed'); if (icon) icon.className = 'fas fa-chevron-up'; }
+      });
+    };
+
     window.toggleSemComissao = function(uid) {
       if (!uid) return;
       const ativo = !!(window._semComissao[uid]);
@@ -1269,10 +1322,8 @@
       let rows = '';
       linhas.forEach(({uid, dt, snap}, idx) => {
         const c = calcRow(snap.totForma, uid);
-        const scBadge = c.semComissao ? ' <span style="background:#fef3c7;color:#b45309;border-radius:5px;padding:1px 6px;font-size:10px;font-weight:700;vertical-align:middle;">Sem comissão</span>' : '';
-        const scBtn = `<button onclick="toggleSemComissao('${uid}')" title="${c.semComissao?'Ativar comissão':'Desativar comissão'}" style="background:none;border:1px solid var(--gray-200);border-radius:6px;padding:2px 7px;font-size:11px;cursor:pointer;color:var(--gray-500);margin-left:4px;vertical-align:middle;">${c.semComissao?'<i class="fas fa-toggle-off"></i>':'<i class="fas fa-toggle-on"></i>'}</button>`;
         rows += `<tr class="main-row" id="row-${idx}">
-          <td><span class="collab-name">${esc(primeiroNome(snap.colaborador))}</span>${scBadge}${scBtn}
+          <td><span class="collab-name">${esc(primeiroNome(snap.colaborador))}</span>
               <div style="font-size:10px;color:var(--gray-400);margin-top:2px;">${esc(snap.colaborador)}</div></td>
           <td><span class="date-chip"><i class="fas fa-calendar" style="font-size:9px;"></i> ${fmtData(dt)}</span>${snap.manualAdmin ? ' <span class="manual-badge"><i class="fas fa-pen"></i> Manual</span>' : ''}</td>
           <td class="num">${fmtBRL(c.debito)}</td>
@@ -1368,13 +1419,21 @@
       let html = '';
       Object.keys(grupos).sort().forEach(nome => {
         const dias = grupos[nome];
+        const uid0 = dias[0] ? dias[0].uid : null;
         let T = {debito:0,pix:0,dinheiro:0,credito:0,avista:0,despesas:0,total:0,comissao:0};
-        dias.forEach(({snap}) => {
-          const c = calcRow(snap.totForma);
+        let semComiss = false;
+        dias.forEach(({uid, snap}) => {
+          const c = calcRow(snap.totForma, uid);
           T.debito+=c.debito; T.pix+=c.pix; T.dinheiro+=c.dinheiro;
           T.credito+=c.credito; T.avista+=c.avista; T.despesas+=c.despesas;
           T.total+=c.total; T.comissao+=c.comissao;
+          if (c.semComissao) semComiss = true;
         });
+
+        const grpId = 'grp-' + (uid0||nome).replace(/[^a-z0-9]/gi,'');
+        const scBadge = semComiss ? '<span style="background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);border-radius:5px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:6px;">Sem comissão</span>' : '';
+        const scBtn = uid0 ? `<button onclick="toggleSemComissao('${uid0}')" title="${semComiss?'Ativar comissão':'Desativar comissão'}" style="background:rgba(255,255,255,.12);border:none;border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;color:white;margin-left:4px;">${semComiss?'<i class="fas fa-toggle-off"></i> Ativar comissão':'<i class="fas fa-toggle-on"></i> Desativar comissão'}</button>` : '';
+        const collapseBtn = `<button class="group-collapse-btn" onclick="toggleGrupo('${grpId}')" title="Ocultar detalhes"><i class="fas fa-chevron-up" id="icon-grp-${grpId}"></i></button>`;
 
         let daysRows = dias.sort((a,b)=>a.dt<b.dt?-1:1).map(({dt,snap,uid}) => {
           const c = calcRow(snap.totForma, uid);
@@ -1391,13 +1450,16 @@
           </tr>`;
         }).join('');
 
-        html += `<div class="group-block">
+        html += `<div class="group-block" id="${grpId}">
           <div class="group-header">
             <i class="fas fa-user" style="color:rgba(255,255,255,.5);"></i>
             <span class="group-name">${esc(nome)}</span>
             <span class="group-days">${dias.length} dia(s) · ${mesLabel}</span>
-            <span class="group-total">${fmtBRL(T.total)}</span>
+            ${scBadge}${scBtn}
+            <span class="group-total" style="margin-left:auto;">${fmtBRL(T.total)}</span>
+            ${collapseBtn}
           </div>
+          <div class="group-body">
           <div class="table-wrap">
             <table>
               <thead><tr>
@@ -1427,6 +1489,7 @@
             <div class="rate-group"><span>À vista</span><strong style="color:var(--amber);">${_rateAvista}%</strong></div>
             <div class="rate-group"><span>Crédito</span><strong style="color:var(--amber);">${_rateCredito}%</strong></div>
             <span style="margin-left:auto;font-size:11px;color:var(--amber);opacity:.7;">Altere as taxas na aba "Por dia"</span>
+          </div>
           </div>
         </div>`;
       });
