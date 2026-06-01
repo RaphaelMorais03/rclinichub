@@ -177,6 +177,18 @@
     .hist-banner{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;padding:10px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;color:var(--green);}
     .hist-banner button{margin-left:auto;padding:5px 12px;background:var(--green);color:white;border:none;border-radius:7px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;}
 
+    /* ── ABA POR ATENDENTE ── */
+    .atend-card{background:white;border:1px solid var(--gray-200);border-radius:16px;margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden;}
+    .atend-card-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;cursor:pointer;transition:background .15s;gap:12px;user-select:none;}
+    .atend-card-header:hover{background:var(--gray-50);}
+    .atend-nome{font-size:14px;font-weight:800;color:var(--navy);}
+    .atend-stats{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+    .atend-body{display:none;border-top:1px solid var(--gray-100);}
+    .atend-body.open{display:block;}
+    .id-chip{display:inline-block;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;color:var(--gray-700);font-family:monospace;cursor:pointer;transition:all .15s;margin:1px;}
+    .id-chip:hover{background:var(--navy);color:white;border-color:var(--navy);}
+    .copy-all-btn{background:var(--gray-50);border:1.5px solid var(--gray-200);border-radius:8px;padding:5px 14px;font-family:inherit;font-size:11px;font-weight:700;color:var(--gray-600);cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:5px;margin-bottom:10px;}
+    .copy-all-btn:hover{background:var(--navy);color:white;border-color:var(--navy);}
     @media(max-width:1024px){.kpi-grid{grid-template-columns:1fr 1fr 1fr;}.dash-grid{grid-template-columns:1fr;}}
     @media(max-width:640px){.kpi-grid{grid-template-columns:1fr 1fr;}.content{padding:14px 14px 60px;}.hist-card{flex-wrap:wrap;}.hist-actions{width:100%;justify-content:flex-end;}}
   </style>
@@ -205,6 +217,9 @@
       <button class="tab-btn" id="tabHistorico" onclick="setTab('historico')">
         <i class="fas fa-clock-rotate-left"></i> Histórico
         <span class="hist-badge" id="histCount">0</span>
+      </button>
+      <button class="tab-btn" id="tabAtendente" onclick="setTab('atendente')">
+        <i class="fas fa-id-card"></i> Por Atendente
       </button>
     </div>
 
@@ -257,6 +272,10 @@
         <div class="mapper-row">
           <label class="mapper-label">💬 Comentário / Feedback (opcional)</label>
           <select class="mapper-select" id="mapComentario"></select>
+        </div>
+        <div class="mapper-row">
+          <label class="mapper-label">🔢 ID do Caso / Protocolo (opcional)</label>
+          <select class="mapper-select" id="mapIdCaso"></select>
         </div>
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-400);margin-bottom:6px;">
           <i class="fas fa-eye"></i> Prévia — primeiros 3 registros
@@ -402,6 +421,28 @@
     </div>
 
     <!-- ── HISTÓRICO ── -->
+    <!-- ── POR ATENDENTE ── -->
+    <div id="atendenteSection" style="display:none;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <input class="search-input" type="text" id="searchAtend" placeholder="🔍 Buscar atendente..." oninput="renderPorAtendente()" style="flex:1;min-width:180px;">
+        <select id="filtroTipoAtend" class="search-input" onchange="renderPorAtendente()" style="width:180px;">
+          <option value="">Todos os tipos</option>
+          <option value="p">Promotores</option>
+          <option value="s">Passivos</option>
+          <option value="d">Detratores</option>
+        </select>
+        <button class="copy-all-btn" onclick="copiarTodosIds()">
+          <i class="fas fa-copy"></i> Copiar todos os IDs
+        </button>
+      </div>
+      <div id="atendCardsContainer">
+        <div style="text-align:center;padding:40px;color:var(--gray-400);">
+          <i class="fas fa-file-import" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.3;"></i>
+          Importe um arquivo para visualizar por atendente.
+        </div>
+      </div>
+    </div>
+
     <div id="historicoSection" style="display:none;">
       <div id="histList">
         <div class="empty-state">
@@ -447,7 +488,11 @@
                   'datapesquisanps','dataavaliacao','datacriacao','dataregistro'],
       comentario:['comentario','observacao','mensagem','message','feedback','comment',
                   'texto','notas','notes','justificativa','motivo','descricao','obs',
-                  'comentariocliente','textorespostaaberta','resposta_aberta']
+                  'comentariocliente','textorespostaaberta','resposta_aberta'],
+      idCaso:    ['id','caso','case','idcaso','caseid','numerocaso','protocolo','ticket',
+                  'idatendimento','codigoatendimento','numerochamado','idprotocolo',
+                  'codigocaso','numeroproto','conversationid','casekey','casenumber',
+                  'nroatendimento','numerodaocorrencia','identificador','idocorrencia']
     };
 
     function norm(s) {
@@ -456,7 +501,7 @@
     }
 
     function detectColumns(headers) {
-      const found = { atendente:null, resposta:null, data:null, comentario:null };
+      const found = { atendente:null, resposta:null, data:null, comentario:null, idCaso:null };
       headers.forEach(h => {
         const hn = norm(h);
         for (const [field, aliases] of Object.entries(ALIASES)) {
@@ -549,13 +594,14 @@
     function showMapper(detected) {
       const none = '<option value="">— não disponível —</option>';
       const opts = _headers.map(h => `<option value="${esc(h)}">${esc(h)}</option>`).join('');
-      ['mapAtendente','mapResposta'].forEach(id => {
+      ['mapAtendente','mapResposta','mapIdCaso'].forEach(id => {
         document.getElementById(id).innerHTML = opts;
       });
-      ['mapData','mapComentario'].forEach(id => {
+      ['mapData','mapComentario','mapIdCaso'].forEach(id => {
         document.getElementById(id).innerHTML = none + opts;
       });
       if (detected.atendente)  document.getElementById('mapAtendente').value  = detected.atendente;
+      if (detected.idCaso)     document.getElementById('mapIdCaso').value     = detected.idCaso;
       if (detected.resposta)   document.getElementById('mapResposta').value   = detected.resposta;
       if (detected.data)       document.getElementById('mapData').value       = detected.data;
       if (detected.comentario) document.getElementById('mapComentario').value = detected.comentario;
@@ -579,7 +625,8 @@
         atendente:  a,
         resposta:   r,
         data:       document.getElementById('mapData').value       || null,
-        comentario: document.getElementById('mapComentario').value || null
+        comentario: document.getElementById('mapComentario').value || null,
+        idCaso:     document.getElementById('mapIdCaso').value     || null
       };
       document.getElementById('mapperModal').style.display = 'none';
       processData();
@@ -608,10 +655,12 @@
         if (tipo==='p') { tP++; map[nome].p++; }
         else if (tipo==='s') { tS++; map[nome].s++; }
         else { tD++; map[nome].d++; }
+        const cI = _colMap.idCaso;
         map[nome].pesquisas.push({
           val, tipo,
           data:       cD ? (row[cD] || '') : null,
-          comentario: cC ? (row[cC] || '') : null
+          comentario: cC ? (row[cC] || '') : null,
+          idCaso:     cI ? (row[cI] || '') : null
         });
         if (cD && row[cD]) datas.push(row[cD]);
       });
@@ -638,6 +687,7 @@
       atualizarKPIs(tP, tS, tD, tT, datas);
       renderChart(_viewRanking);
       renderRanking(_viewRanking);
+      if (_activeTab === 'atendente') renderPorAtendente();
 
       // Info bar
       document.getElementById('infoFile').textContent  = _fileName;
@@ -771,21 +821,26 @@
 
     window.setTab = function(tab, preserveDash) {
       _activeTab = tab;
-      document.getElementById('tabImportar').classList.toggle('active', tab === 'importar');
-      document.getElementById('tabHistorico').classList.toggle('active', tab === 'historico');
+      document.getElementById('tabImportar').classList.toggle('active',   tab === 'importar');
+      document.getElementById('tabHistorico').classList.toggle('active',  tab === 'historico');
+      document.getElementById('tabAtendente').classList.toggle('active',  tab === 'atendente');
+
+      document.getElementById('historicoSection').style.display  = tab === 'historico'  ? 'block' : 'none';
+      document.getElementById('atendenteSection').style.display  = tab === 'atendente'  ? 'block' : 'none';
 
       if (tab === 'historico') {
-        document.getElementById('uploadSection').style.display  = 'none';
-        document.getElementById('dashSection').style.display    = 'none';
-        document.getElementById('historicoSection').style.display = 'block';
+        document.getElementById('uploadSection').style.display = 'none';
+        document.getElementById('dashSection').style.display   = 'none';
         carregarHistorico();
+      } else if (tab === 'atendente') {
+        document.getElementById('uploadSection').style.display = 'none';
+        document.getElementById('dashSection').style.display   = 'none';
+        renderPorAtendente();
       } else {
-        document.getElementById('historicoSection').style.display = 'none';
         if (!preserveDash) {
-          // Se há dados carregados (de CSV ou histórico), mostra dash; senão, upload
           const temDados = _allRanking.length > 0;
-          document.getElementById('dashSection').style.display    = temDados ? 'block' : 'none';
-          document.getElementById('uploadSection').style.display  = temDados ? 'none'  : 'block';
+          document.getElementById('dashSection').style.display   = temDados ? 'block' : 'none';
+          document.getElementById('uploadSection').style.display = temDados ? 'none'  : 'block';
         }
       }
     };
@@ -981,6 +1036,158 @@
       });
     }
 
+
+    /* ════════════════════════════════════════
+       ABA POR ATENDENTE
+    ════════════════════════════════════════ */
+    window.copiarId = function(id, e) {
+      if (!id || id === '—') return;
+      e && e.stopPropagation();
+      navigator.clipboard.writeText(id).then(() => {
+        toast('ID copiado: ' + id, 'success');
+      }).catch(() => {
+        const el = document.createElement('textarea');
+        el.value = id; document.body.appendChild(el);
+        el.select(); document.execCommand('copy');
+        document.body.removeChild(el);
+        toast('ID copiado: ' + id, 'success');
+      });
+    };
+
+    window.copiarTodosIds = function() {
+      const filtroTipo = document.getElementById('filtroTipoAtend').value;
+      const busca = (document.getElementById('searchAtend').value || '').toLowerCase();
+      let ids = [];
+      (_viewRanking || []).forEach(r => {
+        if (busca && !r.nome.toLowerCase().includes(busca)) return;
+        (r.pesquisas || []).forEach(p => {
+          if (!p.idCaso) return;
+          if (filtroTipo && p.tipo !== filtroTipo) return;
+          ids.push(p.idCaso);
+        });
+      });
+      if (!ids.length) { toast('Nenhum ID encontrado com os filtros atuais', 'error'); return; }
+      const txt = ids.join('\n');
+      navigator.clipboard.writeText(txt).then(() => {
+        toast(ids.length + ' IDs copiados!', 'success');
+      }).catch(() => {
+        const el = document.createElement('textarea');
+        el.value = txt; document.body.appendChild(el);
+        el.select(); document.execCommand('copy');
+        document.body.removeChild(el);
+        toast(ids.length + ' IDs copiados!', 'success');
+      });
+    };
+
+    window.renderPorAtendente = function() {
+      const c = document.getElementById('atendCardsContainer');
+      if (!c) return;
+      const ranking = _viewRanking || [];
+      if (!ranking.length) {
+        c.innerHTML = `<div style="text-align:center;padding:40px;color:var(--gray-400);">
+          <i class="fas fa-file-import" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.3;"></i>
+          Importe um arquivo para visualizar por atendente.</div>`;
+        return;
+      }
+
+      const busca      = (document.getElementById('searchAtend').value || '').toLowerCase();
+      const filtroTipo = document.getElementById('filtroTipoAtend').value;
+      const hasId      = ranking.some(r => (r.pesquisas||[]).some(p => p.idCaso));
+
+      let html = '';
+      let totalIds = 0;
+
+      ranking.filter(r => !busca || r.nome.toLowerCase().includes(busca)).forEach((r, i) => {
+        const pesquisasFilt = (r.pesquisas || []).filter(p => !filtroTipo || p.tipo === filtroTipo);
+        const hasData = pesquisasFilt.some(p => p.data);
+        const hasCom  = pesquisasFilt.some(p => p.comentario);
+        const idsAtend = pesquisasFilt.filter(p => p.idCaso).map(p => p.idCaso);
+        totalIds += idsAtend.length;
+
+        const npsColor = zonaInfo(r.nps).color;
+        const tipoCounts = pesquisasFilt.reduce((acc,p) => { acc[p.tipo]=(acc[p.tipo]||0)+1; return acc; }, {});
+
+        html += `<div class="atend-card" id="ac-${i}">
+          <div class="atend-card-header" onclick="toggleAtendCard(${i})">
+            <div>
+              <div class="atend-nome">${esc(r.nome)}</div>
+              <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">
+                ${pesquisasFilt.length} avaliação(ões) filtradas
+                ${idsAtend.length ? ' · ' + idsAtend.length + ' ID(s)' : ''}
+              </div>
+            </div>
+            <div class="atend-stats">
+              <span class="atend-nps-badge" style="background:${npsColor}20;color:${npsColor};">NPS ${r.nps}</span>
+              ${(tipoCounts.p||0) > 0 ? `<span style="font-size:11px;color:var(--green);font-weight:700;">▲ ${tipoCounts.p||0}</span>` : ''}
+              ${(tipoCounts.s||0) > 0 ? `<span style="font-size:11px;color:var(--blue,#3b82f6);font-weight:700;">▬ ${tipoCounts.s||0}</span>` : ''}
+              ${(tipoCounts.d||0) > 0 ? `<span style="font-size:11px;color:var(--red);font-weight:700;">▼ ${tipoCounts.d||0}</span>` : ''}
+              <i class="fas fa-chevron-down" id="aci-${i}" style="font-size:11px;color:var(--gray-400);transition:transform .2s;"></i>
+            </div>
+          </div>
+          <div class="atend-body" id="ab-${i}">
+            <div style="padding:14px 18px;">
+              ${idsAtend.length ? `
+              <div style="margin-bottom:12px;">
+                <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500);margin-bottom:6px;">
+                  <i class="fas fa-hashtag"></i> IDs dos Casos (${idsAtend.length})
+                  <button class="copy-all-btn" style="margin-left:8px;padding:3px 10px;font-size:10px;" onclick="copiarIdsAtend(${i},event)">
+                    <i class="fas fa-copy"></i> Copiar todos
+                  </button>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                  ${idsAtend.map(id => `<span class="id-chip" onclick="copiarId('${esc(id)}',event)">${esc(id)}</span>`).join('')}
+                </div>
+              </div>` : ''}
+              <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                  <thead>
+                    <tr style="background:var(--gray-50);">
+                      ${hasId   ? '<th style="padding:8px 10px;text-align:left;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;">ID Caso</th>' : ''}
+                      <th style="padding:8px 10px;text-align:center;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;">Nota</th>
+                      <th style="padding:8px 10px;text-align:left;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;">Tipo</th>
+                      ${hasData ? '<th style="padding:8px 10px;text-align:left;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;">Data</th>' : ''}
+                      ${hasCom  ? '<th style="padding:8px 10px;text-align:left;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;">Comentário</th>' : ''}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${pesquisasFilt.slice(0,300).map(p => `<tr style="border-bottom:1px solid var(--gray-100);">
+                      ${hasId   ? `<td style="padding:7px 10px;">${p.idCaso ? `<span class="id-chip" onclick="copiarId('${esc(p.idCaso)}',event)">${esc(p.idCaso)}</span>` : '<span style="color:var(--gray-300);">—</span>'}</td>` : ''}
+                      <td style="padding:7px 10px;text-align:center;"><span class="note-circle n-${p.tipo}">${p.val}</span></td>
+                      <td style="padding:7px 10px;">${p.tipo==='p'?'<span class="badge b-excel">Promotor</span>':p.tipo==='d'?'<span class="badge b-crit">Detrator</span>':'<span class="badge b-qual">Passivo</span>'}</td>
+                      ${hasData ? `<td style="padding:7px 10px;color:var(--gray-500);">${esc(p.data||'—')}</td>` : ''}
+                      ${hasCom  ? `<td style="padding:7px 10px;max-width:260px;overflow:hidden;text-overflow:ellipsis;">${esc(p.comentario||'—')}</td>` : ''}
+                    </tr>`).join('')}
+                    ${pesquisasFilt.length > 300 ? `<tr><td colspan="6" style="text-align:center;padding:8px;font-size:11px;color:var(--gray-400);">Exibindo 300 de ${pesquisasFilt.length}</td></tr>` : ''}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      });
+
+      if (!html) html = '<div style="text-align:center;padding:30px;color:var(--gray-400);">Nenhum atendente encontrado.</div>';
+      c.innerHTML = html;
+    };
+
+    window.toggleAtendCard = function(i) {
+      const body = document.getElementById('ab-' + i);
+      const icon = document.getElementById('aci-' + i);
+      const open = body.classList.toggle('open');
+      if (icon) icon.style.transform = open ? 'rotate(180deg)' : '';
+    };
+
+    window.copiarIdsAtend = function(i, e) {
+      e && e.stopPropagation();
+      const body = document.getElementById('ab-' + i);
+      const chips = body ? body.querySelectorAll('.id-chip') : [];
+      const ids = [...chips].map(c => c.textContent.trim()).filter(Boolean);
+      if (!ids.length) { toast('Nenhum ID para copiar', 'error'); return; }
+      navigator.clipboard.writeText(ids.join('\n')).then(() => {
+        toast(ids.length + ' IDs copiados!', 'success');
+      }).catch(() => {});
+    };
+
     /* ════════════════════════════════════════
        RANKING TABLE
     ════════════════════════════════════════ */
@@ -1018,12 +1225,15 @@
             </div>
           </div>`;
         } else {
+          const hasId  = r.pesquisas.some(p => p.idCaso);
           const dtHead = `<tr>
+            ${hasId   ? '<th>ID Caso</th>' : ''}
             <th>Nota</th><th>Tipo</th>
             ${hasData ? '<th>Data</th>' : ''}
             ${hasCom  ? '<th>Comentário</th>' : ''}
           </tr>`;
           const detRows = r.pesquisas.slice(0,200).map(p => `<tr>
+            ${hasId   ? `<td><span class="id-chip" onclick="copiarId('${esc(p.idCaso||'')}',event)" title="Clique para copiar">${esc(p.idCaso||'—')}</span></td>` : ''}
             <td><span class="note-circle n-${p.tipo}">${p.val}</span></td>
             <td>${p.tipo==='p'
               ? '<span class="badge b-excel">Promotor</span>'
@@ -1100,6 +1310,7 @@
         : [..._allRanking];
       renderChart(_viewRanking);
       renderRanking(_viewRanking);
+      if (_activeTab === 'atendente') renderPorAtendente();
     };
 
     window.voltarUpload = function() {
