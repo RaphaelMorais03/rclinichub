@@ -431,9 +431,7 @@
           <option value="s">Passivos</option>
           <option value="d">Detratores</option>
         </select>
-        <button class="copy-all-btn" onclick="copiarTodosIds()">
-          <i class="fas fa-copy"></i> Copiar todos os IDs
-        </button>
+
       </div>
       <div id="atendCardsContainer">
         <div style="text-align:center;padding:40px;color:var(--gray-400);">
@@ -1116,10 +1114,12 @@
       const thStyle = 'padding:8px 10px;text-align:left;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);position:sticky;top:0;';
 
       const rows = pesquisasFilt.slice(0,500).map(p => `<tr style="border-bottom:1px solid var(--gray-100);">
-        ${hasId ? `<td style="padding:7px 10px;">${p.idCaso
-          ? `<span class="id-chip" onclick="copiarId('${esc(String(p.idCaso))}',event)">${esc(String(p.idCaso))}</span>`
-          : '<span style="color:var(--gray-300);">—</span>'}</td>` : ''}
-        <td style="padding:7px 10px;text-align:center;"><span class="note-circle n-${p.tipo}">${p.val}</span></td>
+        <td style="padding:7px 10px;text-align:center;">
+          <div style="display:flex;align-items:center;gap:6px;justify-content:center;">
+            <span class="note-circle n-${p.tipo}">${p.val}</span>
+            ${p.idCaso ? `<span style="font-size:10px;font-weight:700;color:var(--gray-500);font-family:monospace;background:var(--gray-100);border:1px solid var(--gray-200);border-radius:5px;padding:1px 6px;">${esc(String(p.idCaso))}</span>` : ''}
+          </div>
+        </td>
         <td style="padding:7px 10px;">${p.tipo==='p'?'<span class="badge b-excel">Promotor</span>':p.tipo==='d'?'<span class="badge b-crit">Detrator</span>':'<span class="badge b-qual">Passivo</span>'}</td>
         ${hasData ? `<td style="padding:7px 10px;color:var(--gray-500);white-space:nowrap;">${esc(p.data||'—')}</td>` : ''}
         ${hasCom  ? `<td style="padding:7px 10px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.comentario||'—')}</td>` : ''}
@@ -1141,12 +1141,8 @@
               return `<button onclick="setFiltroAtend(${i},'tipo','${t}')" style="padding:5px 11px;border:none;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;background:${active?(colors[t]||'var(--navy)'):'white'};color:${active?'white':(colors[t]||'var(--gray-600)')};">${labels[t]}</button>`;
             }).join('')}
           </div>
-          ${hasId ? `<input type="text" placeholder="🔍 Buscar ID..." value="${esc(f.busca)}" oninput="setFiltroAtend(${i},'busca',this.value)"
-            style="padding:5px 10px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:12px;outline:none;width:160px;transition:border .2s;"
-            onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--gray-200)'">` : ''}
-          ${idsAtend.length ? `<button class="copy-all-btn" style="padding:5px 12px;font-size:11px;" onclick="copiarIdsAtend(${i},event)">
-            <i class="fas fa-copy"></i> Copiar ${idsAtend.length} ID(s)
-          </button>` : ''}
+
+
           <span style="font-size:11px;color:var(--gray-400);margin-left:auto;">${pesquisasFilt.length} resultado(s)</span>
         </div>
         <!-- Tabela -->
@@ -1154,8 +1150,7 @@
           <table style="width:100%;border-collapse:collapse;font-size:12px;">
             <thead>
               <tr>
-                ${hasId   ? `<th style="${thStyle}">ID Caso</th>` : ''}
-                <th style="${thStyle}text-align:center;">Nota</th>
+                <th style="${thStyle}text-align:center;">Nota${hasId?' · ID Caso':''}</th>
                 <th style="${thStyle}">Tipo</th>
                 ${hasData ? `<th style="${thStyle}">Data</th>` : ''}
                 ${hasCom  ? `<th style="${thStyle}">Comentário</th>` : ''}
