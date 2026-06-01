@@ -1079,6 +1079,94 @@
       });
     };
 
+    // Estado dos filtros individuais por atendente
+    const _atendFiltros = {}; // { i: { tipo:'', busca:'' } }
+
+    function getFiltroAtend(i) {
+      return _atendFiltros[i] || { tipo: '', busca: '' };
+    }
+
+    window.setFiltroAtend = function(i, campo, valor) {
+      if (!_atendFiltros[i]) _atendFiltros[i] = { tipo:'', busca:'' };
+      _atendFiltros[i][campo] = valor;
+      renderBodyAtend(i);
+    };
+
+    function renderBodyAtend(i) {
+      const r = (_viewRanking || [])[i];
+      if (!r) return;
+      const f = getFiltroAtend(i);
+      const buscaId = f.busca.toLowerCase().trim();
+
+      // Filtra pesquisas deste atendente pelos filtros locais
+      const pesquisasFilt = (r.pesquisas || []).filter(p => {
+        if (f.tipo && p.tipo !== f.tipo) return false;
+        if (buscaId && p.idCaso && !String(p.idCaso).toLowerCase().includes(buscaId)) return false;
+        return true;
+      });
+
+      const hasId   = r.pesquisas.some(p => p.idCaso);
+      const hasData = pesquisasFilt.some(p => p.data);
+      const hasCom  = pesquisasFilt.some(p => p.comentario);
+      const idsAtend = pesquisasFilt.filter(p => p.idCaso).map(p => p.idCaso);
+
+      // Contagem total (sem filtro de tipo) para os badges do header
+      const tots = (r.pesquisas||[]).reduce((acc,p)=>{ acc[p.tipo]=(acc[p.tipo]||0)+1; return acc; },{});
+
+      const thStyle = 'padding:8px 10px;text-align:left;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);position:sticky;top:0;';
+
+      const rows = pesquisasFilt.slice(0,500).map(p => `<tr style="border-bottom:1px solid var(--gray-100);">
+        ${hasId ? `<td style="padding:7px 10px;">${p.idCaso
+          ? `<span class="id-chip" onclick="copiarId('${esc(String(p.idCaso))}',event)">${esc(String(p.idCaso))}</span>`
+          : '<span style="color:var(--gray-300);">—</span>'}</td>` : ''}
+        <td style="padding:7px 10px;text-align:center;"><span class="note-circle n-${p.tipo}">${p.val}</span></td>
+        <td style="padding:7px 10px;">${p.tipo==='p'?'<span class="badge b-excel">Promotor</span>':p.tipo==='d'?'<span class="badge b-crit">Detrator</span>':'<span class="badge b-qual">Passivo</span>'}</td>
+        ${hasData ? `<td style="padding:7px 10px;color:var(--gray-500);white-space:nowrap;">${esc(p.data||'—')}</td>` : ''}
+        ${hasCom  ? `<td style="padding:7px 10px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.comentario||'—')}</td>` : ''}
+      </tr>`).join('');
+
+      const overflow = pesquisasFilt.length > 500
+        ? `<tr><td colspan="10" style="text-align:center;padding:8px;font-size:11px;color:var(--gray-400);">Exibindo 500 de ${pesquisasFilt.length}</td></tr>` : '';
+
+      const body = document.getElementById('ab-' + i);
+      if (!body) return;
+      body.innerHTML = `<div style="padding:14px 18px 6px;">
+        <!-- Filtros individuais -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;">
+          <div style="display:flex;border:1.5px solid var(--gray-200);border-radius:9px;overflow:hidden;">
+            ${['','p','s','d'].map(t => {
+              const labels = {'':`Todos (${r.total})`, p:`▲ Promotores (${tots.p||0})`, s:`▬ Passivos (${tots.s||0})`, d:`▼ Detratores (${tots.d||0})`};
+              const colors = {p:'var(--green)', s:'#3b82f6', d:'var(--red)', '':'var(--navy)'};
+              const active = f.tipo === t;
+              return `<button onclick="setFiltroAtend(${i},'tipo','${t}')" style="padding:5px 11px;border:none;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;background:${active?(colors[t]||'var(--navy)'):'white'};color:${active?'white':(colors[t]||'var(--gray-600)')};">${labels[t]}</button>`;
+            }).join('')}
+          </div>
+          ${hasId ? `<input type="text" placeholder="🔍 Buscar ID..." value="${esc(f.busca)}" oninput="setFiltroAtend(${i},'busca',this.value)"
+            style="padding:5px 10px;border:1.5px solid var(--gray-200);border-radius:9px;font-family:inherit;font-size:12px;outline:none;width:160px;transition:border .2s;"
+            onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--gray-200)'">` : ''}
+          ${idsAtend.length ? `<button class="copy-all-btn" style="padding:5px 12px;font-size:11px;" onclick="copiarIdsAtend(${i},event)">
+            <i class="fas fa-copy"></i> Copiar ${idsAtend.length} ID(s)
+          </button>` : ''}
+          <span style="font-size:11px;color:var(--gray-400);margin-left:auto;">${pesquisasFilt.length} resultado(s)</span>
+        </div>
+        <!-- Tabela -->
+        <div style="overflow:auto;max-height:400px;border:1px solid var(--gray-200);border-radius:10px;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr>
+                ${hasId   ? `<th style="${thStyle}">ID Caso</th>` : ''}
+                <th style="${thStyle}text-align:center;">Nota</th>
+                <th style="${thStyle}">Tipo</th>
+                ${hasData ? `<th style="${thStyle}">Data</th>` : ''}
+                ${hasCom  ? `<th style="${thStyle}">Comentário</th>` : ''}
+              </tr>
+            </thead>
+            <tbody>${rows}${overflow}</tbody>
+          </table>
+        </div>
+      </div>`;
+    }
+
     window.renderPorAtendente = function() {
       const c = document.getElementById('atendCardsContainer');
       if (!c) return;
@@ -1090,79 +1178,29 @@
         return;
       }
 
-      const busca      = (document.getElementById('searchAtend').value || '').toLowerCase();
-      const filtroTipo = document.getElementById('filtroTipoAtend').value;
-      const hasId      = ranking.some(r => (r.pesquisas||[]).some(p => p.idCaso));
-
+      const busca = (document.getElementById('searchAtend').value || '').toLowerCase();
       let html = '';
-      let totalIds = 0;
 
       ranking.filter(r => !busca || r.nome.toLowerCase().includes(busca)).forEach((r, i) => {
-        const pesquisasFilt = (r.pesquisas || []).filter(p => !filtroTipo || p.tipo === filtroTipo);
-        const hasData = pesquisasFilt.some(p => p.data);
-        const hasCom  = pesquisasFilt.some(p => p.comentario);
-        const idsAtend = pesquisasFilt.filter(p => p.idCaso).map(p => p.idCaso);
-        totalIds += idsAtend.length;
-
         const npsColor = zonaInfo(r.nps).color;
-        const tipoCounts = pesquisasFilt.reduce((acc,p) => { acc[p.tipo]=(acc[p.tipo]||0)+1; return acc; }, {});
+        const tots = (r.pesquisas||[]).reduce((acc,p)=>{ acc[p.tipo]=(acc[p.tipo]||0)+1; return acc; },{});
+        const hasId = (r.pesquisas||[]).some(p => p.idCaso);
 
         html += `<div class="atend-card" id="ac-${i}">
           <div class="atend-card-header" onclick="toggleAtendCard(${i})">
             <div>
               <div class="atend-nome">${esc(r.nome)}</div>
-              <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">
-                ${pesquisasFilt.length} avaliação(ões) filtradas
-                ${idsAtend.length ? ' · ' + idsAtend.length + ' ID(s)' : ''}
-              </div>
+              <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">${r.total} avaliação(ões)${hasId?' · com IDs':''}</div>
             </div>
             <div class="atend-stats">
               <span class="atend-nps-badge" style="background:${npsColor}20;color:${npsColor};">NPS ${r.nps}</span>
-              ${(tipoCounts.p||0) > 0 ? `<span style="font-size:11px;color:var(--green);font-weight:700;">▲ ${tipoCounts.p||0}</span>` : ''}
-              ${(tipoCounts.s||0) > 0 ? `<span style="font-size:11px;color:var(--blue,#3b82f6);font-weight:700;">▬ ${tipoCounts.s||0}</span>` : ''}
-              ${(tipoCounts.d||0) > 0 ? `<span style="font-size:11px;color:var(--red);font-weight:700;">▼ ${tipoCounts.d||0}</span>` : ''}
-              <i class="fas fa-chevron-down" id="aci-${i}" style="font-size:11px;color:var(--gray-400);transition:transform .2s;"></i>
+              ${(tots.p||0)>0?`<span style="font-size:11px;color:var(--green);font-weight:700;">▲ ${tots.p}</span>`:''}
+              ${(tots.s||0)>0?`<span style="font-size:11px;color:#3b82f6;font-weight:700;">▬ ${tots.s}</span>`:''}
+              ${(tots.d||0)>0?`<span style="font-size:11px;color:var(--red);font-weight:700;">▼ ${tots.d}</span>`:''}
+              <i class="fas fa-chevron-down" id="aci-${i}" style="font-size:11px;color:var(--gray-400);transition:transform .2s;margin-left:4px;"></i>
             </div>
           </div>
-          <div class="atend-body" id="ab-${i}">
-            <div style="padding:14px 18px;">
-              ${idsAtend.length ? `
-              <div style="margin-bottom:12px;">
-                <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500);margin-bottom:6px;">
-                  <i class="fas fa-hashtag"></i> IDs dos Casos (${idsAtend.length})
-                  <button class="copy-all-btn" style="margin-left:8px;padding:3px 10px;font-size:10px;" onclick="copiarIdsAtend(${i},event)">
-                    <i class="fas fa-copy"></i> Copiar todos
-                  </button>
-                </div>
-                <div style="display:flex;flex-wrap:wrap;gap:4px;">
-                  ${idsAtend.map(id => `<span class="id-chip" onclick="copiarId('${esc(id)}',event)">${esc(id)}</span>`).join('')}
-                </div>
-              </div>` : ''}
-              <div style="overflow-x:auto;">
-                <table style="width:100%;border-collapse:collapse;font-size:12px;">
-                  <thead>
-                    <tr style="background:var(--gray-50);">
-                      ${hasId   ? '<th style="padding:8px 10px;text-align:left;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;">ID Caso</th>' : ''}
-                      <th style="padding:8px 10px;text-align:center;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;">Nota</th>
-                      <th style="padding:8px 10px;text-align:left;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;">Tipo</th>
-                      ${hasData ? '<th style="padding:8px 10px;text-align:left;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;">Data</th>' : ''}
-                      ${hasCom  ? '<th style="padding:8px 10px;text-align:left;color:var(--gray-500);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;">Comentário</th>' : ''}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${pesquisasFilt.slice(0,300).map(p => `<tr style="border-bottom:1px solid var(--gray-100);">
-                      ${hasId   ? `<td style="padding:7px 10px;">${p.idCaso ? `<span class="id-chip" onclick="copiarId('${esc(p.idCaso)}',event)">${esc(p.idCaso)}</span>` : '<span style="color:var(--gray-300);">—</span>'}</td>` : ''}
-                      <td style="padding:7px 10px;text-align:center;"><span class="note-circle n-${p.tipo}">${p.val}</span></td>
-                      <td style="padding:7px 10px;">${p.tipo==='p'?'<span class="badge b-excel">Promotor</span>':p.tipo==='d'?'<span class="badge b-crit">Detrator</span>':'<span class="badge b-qual">Passivo</span>'}</td>
-                      ${hasData ? `<td style="padding:7px 10px;color:var(--gray-500);">${esc(p.data||'—')}</td>` : ''}
-                      ${hasCom  ? `<td style="padding:7px 10px;max-width:260px;overflow:hidden;text-overflow:ellipsis;">${esc(p.comentario||'—')}</td>` : ''}
-                    </tr>`).join('')}
-                    ${pesquisasFilt.length > 300 ? `<tr><td colspan="6" style="text-align:center;padding:8px;font-size:11px;color:var(--gray-400);">Exibindo 300 de ${pesquisasFilt.length}</td></tr>` : ''}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+          <div class="atend-body" id="ab-${i}"></div>
         </div>`;
       });
 
@@ -1173,19 +1211,34 @@
     window.toggleAtendCard = function(i) {
       const body = document.getElementById('ab-' + i);
       const icon = document.getElementById('aci-' + i);
-      const open = body.classList.toggle('open');
-      if (icon) icon.style.transform = open ? 'rotate(180deg)' : '';
+      const isOpen = body.classList.contains('open');
+      if (!isOpen) {
+        body.classList.add('open');
+        if (icon) icon.style.transform = 'rotate(180deg)';
+        renderBodyAtend(i); // renderiza só quando abre
+      } else {
+        body.classList.remove('open');
+        if (icon) icon.style.transform = '';
+      }
     };
 
     window.copiarIdsAtend = function(i, e) {
       e && e.stopPropagation();
-      const body = document.getElementById('ab-' + i);
-      const chips = body ? body.querySelectorAll('.id-chip') : [];
-      const ids = [...chips].map(c => c.textContent.trim()).filter(Boolean);
+      const r = (_viewRanking||[])[i];
+      if (!r) return;
+      const f = getFiltroAtend(i);
+      const ids = (r.pesquisas||[])
+        .filter(p => p.idCaso && (!f.tipo || p.tipo === f.tipo) && (!f.busca || String(p.idCaso).toLowerCase().includes(f.busca.toLowerCase())))
+        .map(p => String(p.idCaso));
       if (!ids.length) { toast('Nenhum ID para copiar', 'error'); return; }
       navigator.clipboard.writeText(ids.join('\n')).then(() => {
         toast(ids.length + ' IDs copiados!', 'success');
-      }).catch(() => {});
+      }).catch(() => {
+        const el = document.createElement('textarea');
+        el.value = ids.join('\n'); document.body.appendChild(el);
+        el.select(); document.execCommand('copy'); document.body.removeChild(el);
+        toast(ids.length + ' IDs copiados!', 'success');
+      });
     };
 
     /* ════════════════════════════════════════
