@@ -542,50 +542,73 @@
         let csvUrl = csvBase;
         let abaInfo = '';
         if (nomeAba) {
-          try {
-            // Monta variações do nome da aba: "26/05/2026", "26/05", "26.05.2026", "26-05-2026", "260526"
-            const [dd, mm, yyyy] = nomeAba.split('/');
-            const yy = yyyy ? yyyy.slice(2) : '';
-            const variacoes = new Set([
-              nomeAba,                               // 26/05/2026
-              `${dd}/${mm}`,                         // 26/05
-              `${dd}.${mm}.${yyyy||''}`,             // 26.05.2026
-              `${dd}-${mm}-${yyyy||''}`,             // 26-05-2026
-              `${dd}${mm}${yy}`,                     // 260526
-              `${dd}${mm}${yyyy||''}`,               // 26052026
-              `${parseInt(dd)}/${parseInt(mm)}`,     // 26/5 (sem zero)
-              `${parseInt(dd)}/${parseInt(mm)}/${yyyy||''}`, // 26/5/2026
-            ].filter(Boolean));
+          const _parts = nomeAba.split('/');
+          const dd = _parts[0]||'', mm = _parts[1]||'', yyyy = _parts[2]||'';
+          const yy = yyyy.slice(2);
 
-            const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
-            const rh = await fetchComTimeout(pubhtmlUrl, 5000);
-            if (rh.ok) {
-              const htmlTxt = await rh.text();
-              // Tenta dois formatos de regex — Google pode variar o HTML
-              const regexes = [
-                /name:"((?:[^"\\]|\\.)*)"[^}]*pageUrl:"([^"]+)"/g,
-                /name:\s*"([^"]+)"[^}]*pageUrl:\s*"([^"]+)"/g,
-              ];
-              outer:
-              for (const tabRe of regexes) {
-                let m;
-                while ((m = tabRe.exec(htmlTxt)) !== null) {
-                                    const tabName = m[1];
-                  const tabNorm = tabName.trim();
-                  const gidM   = m[2].match(/gid=(-?\d+)/);
-                  if (gidM && variacoes.has(tabNorm)) {
-                    csvUrl  = csvBase.replace(/&gid=\d+/, '') + '&gid=' + gidM[1];
-                    abaInfo = ' · aba ' + tabNorm;
-                    break outer;
+          // Todas as variações possíveis do nome da aba
+          const variacoes = [
+            nomeAba,
+            dd+'/'+mm,
+            parseInt(dd)+'/'+parseInt(mm),
+            parseInt(dd)+'/'+parseInt(mm)+'/'+yyyy,
+            dd+'.'+mm+'.'+yyyy,
+            dd+'-'+mm+'-'+yyyy,
+            dd+mm+yy,
+            dd+mm+yyyy,
+          ].filter(Boolean);
+
+          const baseCSV = csvBase.replace(/&gid=\d+/, '');
+
+          // MÉTODO 1: &sheet=NomeDaAba — direto, sem depender do pubhtml
+          for (let vi=0; vi<variacoes.length && csvUrl===csvBase; vi++) {
+            try {
+              const testUrl = baseCSV + '&sheet=' + encodeURIComponent(variacoes[vi]);
+              const tr = await fetchComTimeout(testUrl, 3500);
+              if (tr.ok) {
+                const txt = await tr.text();
+                if (txt.trim().split('\n').filter(function(l){return l.trim();}).length > 1) {
+                  csvUrl  = testUrl;
+                  abaInfo = ' · aba ' + variacoes[vi] + ' (via &sheet=)';
+                  console.log('[NF] Aba via &sheet=:', variacoes[vi]);
+                }
+              }
+            } catch(e) { /* timeout */ }
+          }
+
+          // MÉTODO 2: pubhtml — fallback
+          if (csvUrl === csvBase) {
+            try {
+              const varSet = new Set(variacoes);
+              const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
+              const rh = await fetchComTimeout(pubhtmlUrl, 5000);
+              if (rh.ok) {
+                const htmlTxt = await rh.text();
+                const regexes = [
+                  /name:"((?:[^"\\]|\\.)*)"[^}]*pageUrl:"([^"]+)"/g,
+                  /name:\s*"([^"]+)"[^}]*pageUrl:\s*"([^"]+)"/g,
+                ];
+                outer2:
+                for (let ri=0; ri<regexes.length; ri++) {
+                  let m;
+                  while ((m = regexes[ri].exec(htmlTxt)) !== null) {
+                    const tabNorm = m[1].trim();
+                    const gidM   = m[2].match(/gid=(-?\d+)/);
+                    if (gidM && varSet.has(tabNorm)) {
+                      csvUrl  = baseCSV + '&gid=' + gidM[1];
+                      abaInfo = ' · aba ' + tabNorm + ' (via pubhtml)';
+                      console.log('[NF] Aba via pubhtml:', tabNorm);
+                      break outer2;
+                    }
                   }
                 }
               }
-            }
-          } catch(e) { console.warn('[NF] tab detection error:', e.message); }
+            } catch(e) { console.warn('[NF] pubhtml error:', e.message); }
+          }
 
           if (csvUrl === csvBase) {
-            abaInfo = ' · aba ' + nomeAba + ' não encontrada — usando planilha geral';
-            console.warn('[NF] aba não encontrada para:', nomeAba);
+            abaInfo = ' · aba ' + nomeAba + ' não encontrada — usando planilha padrão';
+            console.warn('[NF] Aba não encontrada:', nomeAba, variacoes);
           }
         }
 
