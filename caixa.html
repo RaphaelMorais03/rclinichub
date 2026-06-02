@@ -534,19 +534,14 @@
       const vazio = (erro, detalhes) => ({ mapa:{}, erro, detalhes: detalhes||'' });
       if (!window._planilhaNfUrl) return vazio('sem_url');
 
-      // ── Normaliza URL para pub?output=csv ──
-      let url = window._planilhaNfUrl.trim();
-      if (url.includes('output=xlsx'))   url = url.replace('output=xlsx','output=csv');
-      if (url.includes('output=html'))   url = url.replace('output=html','output=csv');
-      if (url.includes('/edit') || url.includes('/sharing')) {
-        const m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
-        if (m) url = 'https://docs.google.com/spreadsheets/d/'+m[1]+'/pub?output=csv';
-      }
-      if (!url.includes('output=csv')) url += (url.includes('?')?'&':'?')+'output=csv';
-      const csvBase = url.replace(/[?&]gid=\d+/,'').replace(/[?&]sheet=[^&]*/,'');
+      // Extrai a chave anônima do link publicado
+      const anonMatch = window._planilhaNfUrl.match(/spreadsheets\/d\/e\/([^\/]+)/);
+      if (!anonMatch) return vazio('url_invalida','Não foi possível identificar o ID da planilha.');
+      const anonKey = anonMatch[1];
+      const baseUrl = 'https://docs.google.com/spreadsheets/d/e/' + anonKey;
 
       const nomeAba = caixaDataStr || null;
-      let csvUrl = csvBase, abaInfo = '';
+      let csvUrl = baseUrl + '/pub?output=csv', abaInfo = '';
 
       if (nomeAba) {
         const [dd,mm,yyyy] = nomeAba.split('/');
@@ -560,45 +555,75 @@
         ].filter(Boolean);
         const varSet = new Set(variacoes.map(v=>v.trim().toLowerCase()));
 
-        // MÉTODO 1: pubhtml → extrai GID de cada aba por nome
-        try {
-          const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/,'pubhtml');
-          const ctrl = new AbortController();
-          setTimeout(()=>ctrl.abort(), 8000);
-          const rh = await fetch(pubhtmlUrl, {signal:ctrl.signal});
-          if (rh.ok) {
-            const htxt = await rh.text();
-            // Tenta vários padrões de regex para extrair nome+gid
-            const patterns = [
-              /items\.push\(\{"name":"([^"]+)","pageUrl":"[^"]*gid=(\d+)/g,
-              /items\.push\(\{name:"([^"]+)"[^}]*pageUrl:"[^"]*gid=(\d+)/g,
-              /"name":"([^"]+)"[^}]{0,200}"pageUrl":"[^"]*gid=(\d+)/g,
-              /pageUrl:"[^"]*gid=(\d+)[^"]*"[^}]{0,200}"name":"([^"]+)"/g,
-              /gid=(\d+)[^>]{0,100}>([^<]{2,20})<\/a/g,
-            ];
-            outer:
-            for (const pat of patterns) {
-              let m;
-              while ((m = pat.exec(htxt)) !== null) {
-                // Padrão 4 e 5 têm gid antes do nome — inverter
-                const [tabName, gid] = pat.source.startsWith('gid')
-                  ? [m[2], m[1]] : [m[1], m[2]];
-                if (varSet.has(tabName.trim().toLowerCase())) {
-                  csvUrl  = csvBase + '&gid=' + gid;
-                  abaInfo = ' · aba ' + tabName + ' (gid:'+gid+')';
-                  console.log('[NF] Aba encontrada via pubhtml:', tabName, 'gid:', gid);
-                  break outer;
+        // MÉTODO 1: gviz API — suporta "/" no nome da aba nativamente
+        for (let vi=0; vi<variacoes.length && !abaInfo; vi++) {
+          try {
+            const gvizUrl = baseUrl + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(variacoes[vi]);
+            const ctrl = new AbortController();
+            setTimeout(()=>ctrl.abort(), 6000);
+            const r = await fetch(gvizUrl, {signal:ctrl.signal});
+            if (!r.ok) continue;
+            const txt = await r.text();
+            const linhas = txt.trim().split('\n').filter(l=>l.trim());
+            const hdr = (linhas[0]||'').toLowerCase().replace(/["']/g,'');
+            if (linhas.length>1 && (hdr.includes('nome') || hdr.includes('paciente'))) {
+              csvUrl  = gvizUrl;
+              abaInfo = ' · aba ' + variacoes[vi] + ' (gviz)';
+              console.log('[NF] Aba encontrada via gviz:', variacoes[vi]);
+              break;
+            }
+          } catch(e) { /* tenta próxima */ }
+        }
+
+        // MÉTODO 2: pubhtml → extrai GID (com desescapamento de \/)
+        if (!abaInfo) {
+          try {
+            const pubhtmlUrl = baseUrl + '/pubhtml';
+            const ctrl = new AbortController();
+            setTimeout(()=>ctrl.abort(), 8000);
+            const rh = await fetch(pubhtmlUrl, {signal:ctrl.signal});
+            if (rh.ok) {
+              const htxt = await rh.text();
+              console.log('[NF] pubhtml tamanho:', htxt.length, 'chars');
+              // Múltiplos padrões — Google pode variar o formato
+              const patterns = [
+                /[{"']name['"]\s*:\s*["']([^"']+)["'][^}]{0,300}gid=(\d+)/g,
+                /gid=(\d+)[^"']{0,300}[{"']name['"]\s*:\s*["']([^"']+)["']/g,
+                /items\.push[^(]*\(\s*\{[^}]*['"](name|title)['"]\s*:\s*["']([^"']+)["'][^}]*gid=(\d+)/g,
+                /gid=(\d+)[^<]{0,200}<[^>]*>([^<]{2,30})<\/[a-z]/g,
+              ];
+              outer:
+              for (const pat of patterns) {
+                let m;
+                while ((m = pat.exec(htxt)) !== null) {
+                  // Depende do padrão — pode ter gid antes ou depois do nome
+                  let tabRaw, gid;
+                  if (pat.source.startsWith('gid')) {
+                    gid=m[1]; tabRaw=m[2]||m[3]||'';
+                  } else if (m.length===4) {
+                    tabRaw=m[2]; gid=m[3];
+                  } else {
+                    tabRaw=m[1]; gid=m[2];
+                  }
+                  // Desescapar \/ que o Google usa em JSON
+                  const tabName = (tabRaw||'').replace(/\\\//g,'/').replace(/\\"/g,'"').trim();
+                  console.log('[NF] aba candidata:', tabName, 'gid:', gid);
+                  if (gid && varSet.has(tabName.toLowerCase())) {
+                    csvUrl  = baseUrl + '/pub?output=csv&gid=' + gid;
+                    abaInfo = ' · aba ' + tabName + ' (gid:'+gid+')';
+                    console.log('[NF] MATCH via pubhtml:', tabName, gid);
+                    break outer;
+                  }
                 }
               }
             }
-          }
-        } catch(e) { console.warn('[NF] pubhtml falhou:', e.message); }
+          } catch(e) { console.warn('[NF] pubhtml erro:', e.message); }
+        }
 
-        if (csvUrl === csvBase) {
-          console.warn('[NF] Aba não encontrada:', nomeAba,
-            '→ A planilha precisa ser re-publicada como CSV após criar novas abas.');
+        if (!abaInfo) {
+          console.warn('[NF] Aba não encontrada:', nomeAba, '→ Re-publique a planilha como CSV');
           return vazio('aba_nao_encontrada',
-            'Aba '+nomeAba+' não encontrada. Publique novamente: Arquivo → Publicar na web → CSV → Publicar.');
+            'Aba '+nomeAba+' não encontrada. Re-publique: Arquivo → Publicar na web → CSV → Publicar.');
         }
       }
 
@@ -614,12 +639,11 @@
         return vazio('fetch_erro','Planilha NF não respondeu. Verifique conexão.');
       }
       if (!txt||txt.trim().startsWith('<'))
-        return vazio('html_erro','URL retornou HTML. Verifique se está publicada como CSV.');
+        return vazio('html_erro','URL retornou HTML. Verifique publicação como CSV.');
 
       const todasLinhas = parseCsv(txt);
       if (todasLinhas.length<2) return vazio('vazio','Aba sem dados');
 
-      // ── Detecta cabeçalho ──
       let headerIdx=-1, rawHeader=[], header=[];
       for (let i=0;i<Math.min(15,todasLinhas.length);i++) {
         rawHeader=todasLinhas[i];
@@ -664,11 +688,8 @@
 
       const mapa=Object.keys(mapaFiltrado).length>0?mapaFiltrado:mapaTudo;
       return {mapa, erro:null, detalhes:abaInfo};
-    }
 
-
-
-        // fetch com timeout (ms) — aborta se demorar demais
+    // fetch com timeout (ms) — aborta se demorar demais
     function fetchComTimeout(url, ms) {
       const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
       return Promise.race([fetch(url), timeout]);
@@ -992,6 +1013,7 @@
       win.document.write(html);
       win.document.close();
     };
+  }
   </script>
 
   <script type="module">
