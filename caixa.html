@@ -7,7 +7,6 @@
   <title>Caixa — Amor Saúde Pirituba</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/shared-utils.js"></script>
   <style>
@@ -67,61 +66,10 @@
     .vale-item:last-child{border-bottom:none;}
     @media(max-width:900px){.caixa-nums{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:768px){.caixa-grid{grid-template-columns:1fr;}.content{padding:14px 14px 60px;}.print-doc{width:100%;}.user-banner{flex-direction:column;align-items:flex-start;gap:12px;}}
-    /* ── BARRA DE PROGRESSO NF ── */
-    .nf-progress-wrap{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;margin-bottom:10px;}
-    .nf-progress-bar-bg{flex:1;height:6px;background:#dbeafe;border-radius:4px;overflow:hidden;}
-    .nf-progress-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,#3b82f6,#61C1D0);width:0%;transition:width .4s ease;}
-    .nf-progress-bar.pulse{animation:nfPulse 1.2s ease-in-out infinite;}
-    @keyframes nfPulse{0%,100%{opacity:1}50%{opacity:.5}}
     @media print{.preview-bar{display:none!important;}.preview-wrap{padding:0!important;}.print-doc{box-shadow:none!important;margin:0!important;width:100%!important;}}
-
-    /* ── TOAST ── */
-    .toast{padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.15);animation:slideIn .25s ease;min-width:220px;}
-    .toast.success{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;}
-    .toast.error{background:#fee2e2;color:#C62828;border:1px solid #fecaca;}
-    .toast.info{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;}
-    @keyframes slideIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-
-    /* ── LOADING OVERLAY (auth) ── */
-    #loadingOverlay{position:fixed;inset:0;background:#f0f4f8;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .4s;}
-    #loadingOverlay.hide{opacity:0;pointer-events:none;}
-    .lo-logo{width:64px;height:64px;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:white;box-shadow:0 4px 20px rgba(10,31,68,.15);}
-    .lo-logo img{width:100%;height:100%;object-fit:contain;}
-    .lo-title{font-size:15px;font-weight:800;color:var(--navy);}
-    .lo-ring{position:relative;width:72px;height:72px;}
-    .lo-ring svg{transform:rotate(-90deg);}
-    .lo-ring circle.track{fill:none;stroke:#e2e8f0;stroke-width:6;}
-    .lo-ring circle.progress{fill:none;stroke:var(--red);stroke-width:6;stroke-linecap:round;stroke-dasharray:188.5;stroke-dashoffset:188.5;transition:stroke-dashoffset .5s ease;}
-    .lo-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:var(--navy);}
-    .lo-msg{font-size:12px;color:var(--gray-500);font-weight:600;letter-spacing:.3px;}
-
-    /* ── SPINNER BOTÃO com % ── */
-    .btn-spinner{display:inline-flex;align-items:center;gap:8px;}
-    .btn-ring{position:relative;width:20px;height:20px;flex-shrink:0;}
-    .btn-ring svg{transform:rotate(-90deg);}
-    .btn-ring circle.track{fill:none;stroke:rgba(255,255,255,.3);stroke-width:3;}
-    .btn-ring circle.prog{fill:none;stroke:white;stroke-width:3;stroke-linecap:round;stroke-dasharray:53.4;stroke-dashoffset:53.4;transition:stroke-dashoffset .4s ease;}
-    .btn-pct{font-size:12px;font-weight:800;}
   </style>
 </head>
 <body>
-  <!-- TOAST -->
-  <div id="toastBox" style="position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:8px;"></div>
-
-  <!-- LOADING OVERLAY (aguarda Firebase Auth) -->
-  <div id="loadingOverlay">
-    <div class="lo-logo"><img src="assets/favicon.png" alt="Logo"></div>
-    <div class="lo-title">Amor Saúde · Caixa</div>
-    <div class="lo-ring">
-      <svg width="72" height="72" viewBox="0 0 72 72">
-        <circle class="track" cx="36" cy="36" r="30"/>
-        <circle class="progress" id="loCircle" cx="36" cy="36" r="30"/>
-      </svg>
-      <div class="lo-pct" id="loPct">0%</div>
-    </div>
-    <div class="lo-msg" id="loMsg">Conectando…</div>
-  </div>
-
   <div class="red-bar"></div>
 
   <!-- TELA PRINCIPAL -->
@@ -191,7 +139,7 @@
             <label class="f-label" style="margin-bottom:6px;">Cole os dados do caixa (AMEI)</label>
             <textarea id="cxPaste" style="width:100%;height:280px;padding:14px;border:1.5px solid var(--gray-200);border-radius:12px;font-family:monospace;font-size:12px;resize:vertical;outline:none;transition:border-color .2s;" placeholder="Cole aqui os dados copiados do sistema AMEI..." onfocus="this.style.borderColor='var(--navy)'" onblur="this.style.borderColor='var(--gray-200)'"></textarea>
             <div style="margin-top:14px;">
-              <button class="btn-r" id="btnGerar" onclick="gerarRelatorio()" disabled style="width:100%;justify-content:center;padding:14px;font-size:15px;opacity:.6;cursor:not-allowed;"><i class="fas fa-spinner fa-spin"></i> Carregando…</button>
+              <button class="btn-r" id="btnGerar" onclick="gerarRelatorio()" style="width:100%;justify-content:center;padding:14px;font-size:15px;"><i class="fas fa-chart-bar"></i> Gerar Relatório</button>
             </div>
           </div>
         </div>
@@ -213,69 +161,6 @@
   </div>
 
   <script>
-    /* ── LOADING OVERLAY ── */
-    const _loCircle = () => document.getElementById('loCircle');
-    const _loPct    = () => document.getElementById('loPct');
-    const _loMsg    = () => document.getElementById('loMsg');
-    const CIRCUM_LO = 2 * Math.PI * 30; // 188.5
-
-    function setLoadingProgress(pct, msg) {
-      const offset = CIRCUM_LO - (pct / 100) * CIRCUM_LO;
-      const c = _loCircle(); if (c) c.style.strokeDashoffset = offset;
-      const p = _loPct();    if (p) p.textContent = pct + '%';
-      const m = _loMsg();    if (m) m.textContent = msg;
-    }
-
-    function hideLoadingOverlay() {
-      const ov = document.getElementById('loadingOverlay');
-      if (!ov) return;
-      ov.classList.add('hide');
-      setTimeout(() => { try { ov.remove(); } catch(e){} }, 450);
-    }
-
-    /* ── SPINNER DO BOTÃO com % ── */
-    const CIRCUM_BTN = 2 * Math.PI * 8.5; // 53.4
-    let _btnPct = 0, _btnTimer = null;
-
-    function setBtnSpinner(pct, label) {
-      const btn = document.getElementById('btnGerar');
-      if (!btn) return;
-      const offset = CIRCUM_BTN - (pct / 100) * CIRCUM_BTN;
-      btn.innerHTML =
-        '<span class="btn-spinner">' +
-        '<span class="btn-ring"><svg width="20" height="20" viewBox="0 0 20 20">' +
-        '<circle class="track" cx="10" cy="10" r="8.5"/>' +
-        '<circle class="prog" id="btnCircle" cx="10" cy="10" r="8.5" style="stroke-dashoffset:' + offset + '"/>' +
-        '</svg></span>' +
-        '<span class="btn-pct">' + pct + '%</span>' +
-        '<span>' + label + '</span>' +
-        '</span>';
-    }
-
-    function startBtnProgress(etapas) {
-      // etapas: [{pct, label, ms}]
-      const btn = document.getElementById('btnGerar');
-      if (btn) { btn.disabled = true; btn.style.opacity = '1'; btn.style.cursor = 'wait'; }
-      let i = 0;
-      function next() {
-        if (i >= etapas.length) return;
-        const e = etapas[i++];
-        setBtnSpinner(e.pct, e.label);
-        _btnTimer = setTimeout(next, e.ms);
-      }
-      next();
-    }
-
-    function resetBtn() {
-      clearTimeout(_btnTimer);
-      const btn = document.getElementById('btnGerar');
-      if (!btn) return;
-      btn.disabled = false;
-      btn.style.opacity = '1';
-      btn.style.cursor = 'pointer';
-      btn.innerHTML = '<i class="fas fa-chart-bar"></i> Gerar Relatório';
-    }
-
     /* ── HELPERS ── */
     function pv(v) { return parseFloat((v||'0').replace(/\./g,'').replace(',','.')) || 0; }
     function fm(v) { return 'R$ ' + v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
@@ -428,8 +313,7 @@
       }
       function parseBRL(s) {
         if (!s) return 0;
-        // Remove prefixo R$ e espaços antes de converter
-        return Math.abs(parseFloat((s+'').trim().replace(/R\$\s*/gi,'').replace(/\s/g,'').replace(/\./g,'').replace(',','.')) || 0);
+        return Math.abs(parseFloat((s+'').trim().replace(/\s/g,'').replace(/\./g,'').replace(',','.')) || 0);
       }
       function fmtBRL(v) { return 'R$ ' + v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
 
@@ -438,36 +322,22 @@
       const smD = txt.match(/Valor em dinheiro a entregar\s*:\s*(R\$\s*[\d.,]+)/i);
       if (smD) dinheiroEntregar = smD[1].trim();
 
-      // Pré-processa: junta linhas de continuação (sem data no início) com a linha anterior
-      const linhasRaw = txt.split('\n');
-      const linhas = [];
-      for (const l of linhasRaw) {
-        const t = l.trim();
-        if (!t) continue;
-        if (/^\d{2}\/\d{2}\/\d{4}/.test(t)) {
-          linhas.push(t); // nova linha válida
-        } else if (linhas.length > 0) {
-          linhas[linhas.length - 1] += ' ' + t; // continuação da linha anterior
-        }
-      }
-
-      for (const l of linhas) {
-        if (!l) continue;
+      for (const linha of txt.split('\n')) {
+        const l = linha.trim();
+        if (!l || !/^\d{2}\/\d{2}\/\d{4}/.test(l)) continue;
         const p = l.split(/\t/);
-        // fallback: se não houver tabs suficientes, tenta separar por 2+ espaços
-        const cols = p.length >= 5 ? p : l.split(/  +/);
-        if (cols.length < 5) continue; // mínimo: data, desc, tipo, forma, valor
+        if (p.length < 5) continue; // mínimo: data, desc, tipo, forma, valor
 
-        const dtHora   = (cols[0]||'').trim();
+        const dtHora   = (p[0]||'').trim();
         const hora     = dtHora.length > 11 ? dtHora.slice(11,16) : dtHora;
-        const tipo     = (cols[2]||'').trim().toLowerCase();
-        const formaR   = (cols[3]||'').trim();
-        const origem   = (cols[4]||'').trim().toUpperCase();
-        const paciente = (cols[7]||'').trim();
+        const tipo     = (p[2]||'').trim().toLowerCase();
+        const formaR   = (p[3]||'').trim();
+        const origem   = (p[4]||'').trim().toUpperCase();
+        const paciente = (p[7]||'').trim();
 
-        // Valor: tenta cols[8], depois última coluna que contenha número
-        let valor = parseBRL(cols[8]);
-        if (valor === 0) valor = parseBRL(cols[cols.length - 1]);
+        // Valor: tenta p[8], depois última coluna que contenha número
+        let valor = parseBRL(p[8]);
+        if (valor === 0) valor = parseBRL(p[p.length - 1]);
         if (valor === 0) continue;
 
         if (/saldo inicial/i.test(origem)) continue;
@@ -490,8 +360,8 @@
             dtHora, hora,
             tipo:       isRec ? 'Receita' : (isDesp ? 'Despesa' : tipo),
             forma,
-            descricao:  (cols[1]||'').trim(),
-            lancadoPor: (cols[6]||'').trim(),
+            descricao:  (p[1]||'').trim(),
+            lancadoPor: (p[6]||'').trim(),
             paciente:   paciente || '—',
             valor,
             fmtValor:   fmtBRL(valor),
@@ -530,165 +400,6 @@
       return d + '/' + m + '/' + y;
     }
 
-    async function carregarNotasFiscais(atendenteFiltro, caixaDataStr) {
-      const vazio = (erro, detalhes) => ({ mapa:{}, erro, detalhes: detalhes||'' });
-      if (!window._planilhaNfUrl) return vazio('sem_url');
-
-      // Extrai a chave anônima do link publicado
-      const anonMatch = window._planilhaNfUrl.match(/spreadsheets\/d\/e\/([^\/]+)/);
-      if (!anonMatch) return vazio('url_invalida','Não foi possível identificar o ID da planilha.');
-      const anonKey = anonMatch[1];
-      const baseUrl = 'https://docs.google.com/spreadsheets/d/e/' + anonKey;
-
-      const nomeAba = caixaDataStr || null;
-      let csvUrl = baseUrl + '/pub?output=csv', abaInfo = '';
-
-      if (nomeAba) {
-        const [dd,mm,yyyy] = nomeAba.split('/');
-        const yy = yyyy ? yyyy.slice(2) : '';
-        const variacoes = [
-          nomeAba, dd+'/'+mm,
-          parseInt(dd)+'/'+parseInt(mm),
-          parseInt(dd)+'/'+parseInt(mm)+'/'+yyyy,
-          dd+'.'+mm+'.'+yyyy, dd+'-'+mm+'-'+yyyy,
-          dd+mm+yy, dd+mm+yyyy,
-        ].filter(Boolean);
-        const varSet = new Set(variacoes.map(v=>v.trim().toLowerCase()));
-
-        // MÉTODO 1: gviz API — suporta "/" no nome da aba nativamente
-        for (let vi=0; vi<variacoes.length && !abaInfo; vi++) {
-          try {
-            const gvizUrl = baseUrl + '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(variacoes[vi]);
-            const ctrl = new AbortController();
-            setTimeout(()=>ctrl.abort(), 6000);
-            const r = await fetch(gvizUrl, {signal:ctrl.signal});
-            if (!r.ok) continue;
-            const txt = await r.text();
-            const linhas = txt.trim().split('\n').filter(l=>l.trim());
-            const hdr = (linhas[0]||'').toLowerCase().replace(/["']/g,'');
-            if (linhas.length>1 && (hdr.includes('nome') || hdr.includes('paciente'))) {
-              csvUrl  = gvizUrl;
-              abaInfo = ' · aba ' + variacoes[vi] + ' (gviz)';
-              console.log('[NF] Aba encontrada via gviz:', variacoes[vi]);
-              break;
-            }
-          } catch(e) { /* tenta próxima */ }
-        }
-
-        // MÉTODO 2: pubhtml → extrai GID (com desescapamento de \/)
-        if (!abaInfo) {
-          try {
-            const pubhtmlUrl = baseUrl + '/pubhtml';
-            const ctrl = new AbortController();
-            setTimeout(()=>ctrl.abort(), 8000);
-            const rh = await fetch(pubhtmlUrl, {signal:ctrl.signal});
-            if (rh.ok) {
-              const htxt = await rh.text();
-              console.log('[NF] pubhtml tamanho:', htxt.length, 'chars');
-              // Múltiplos padrões — Google pode variar o formato
-              const patterns = [
-                /[{"']name['"]\s*:\s*["']([^"']+)["'][^}]{0,300}gid=(\d+)/g,
-                /gid=(\d+)[^"']{0,300}[{"']name['"]\s*:\s*["']([^"']+)["']/g,
-                /items\.push[^(]*\(\s*\{[^}]*['"](name|title)['"]\s*:\s*["']([^"']+)["'][^}]*gid=(\d+)/g,
-                /gid=(\d+)[^<]{0,200}<[^>]*>([^<]{2,30})<\/[a-z]/g,
-              ];
-              outer:
-              for (const pat of patterns) {
-                let m;
-                while ((m = pat.exec(htxt)) !== null) {
-                  // Depende do padrão — pode ter gid antes ou depois do nome
-                  let tabRaw, gid;
-                  if (pat.source.startsWith('gid')) {
-                    gid=m[1]; tabRaw=m[2]||m[3]||'';
-                  } else if (m.length===4) {
-                    tabRaw=m[2]; gid=m[3];
-                  } else {
-                    tabRaw=m[1]; gid=m[2];
-                  }
-                  // Desescapar \/ que o Google usa em JSON
-                  const tabName = (tabRaw||'').replace(/\\\//g,'/').replace(/\\"/g,'"').trim();
-                  console.log('[NF] aba candidata:', tabName, 'gid:', gid);
-                  if (gid && varSet.has(tabName.toLowerCase())) {
-                    csvUrl  = baseUrl + '/pub?output=csv&gid=' + gid;
-                    abaInfo = ' · aba ' + tabName + ' (gid:'+gid+')';
-                    console.log('[NF] MATCH via pubhtml:', tabName, gid);
-                    break outer;
-                  }
-                }
-              }
-            }
-          } catch(e) { console.warn('[NF] pubhtml erro:', e.message); }
-        }
-
-        if (!abaInfo) {
-          console.warn('[NF] Aba não encontrada:', nomeAba, '→ Re-publique a planilha como CSV');
-          return vazio('aba_nao_encontrada',
-            'Aba '+nomeAba+' não encontrada. Re-publique: Arquivo → Publicar na web → CSV → Publicar.');
-        }
-      }
-
-      // ── Baixa o CSV do dia ──
-      let txt;
-      try {
-        const ctrl = new AbortController();
-        setTimeout(()=>ctrl.abort(), 15000);
-        const r = await fetch(csvUrl, {signal:ctrl.signal});
-        if (!r.ok) return vazio('http_erro','HTTP '+r.status);
-        txt = await r.text();
-      } catch(e) {
-        return vazio('fetch_erro','Planilha NF não respondeu. Verifique conexão.');
-      }
-      if (!txt||txt.trim().startsWith('<'))
-        return vazio('html_erro','URL retornou HTML. Verifique publicação como CSV.');
-
-      const todasLinhas = parseCsv(txt);
-      if (todasLinhas.length<2) return vazio('vazio','Aba sem dados');
-
-      let headerIdx=-1, rawHeader=[], header=[];
-      for (let i=0;i<Math.min(15,todasLinhas.length);i++) {
-        rawHeader=todasLinhas[i];
-        header=rawHeader.map(h=>normNome(String(h||'')).replace(/[\s°º]/g,''));
-        const temNome=header.some(h=>h==='nome'||h.includes('paciente'));
-        const temNf=header.some(h=>h.includes('fiscal')||h.includes('nota')||h.includes('numero')||h==='nf');
-        if (temNome&&temNf){headerIdx=i;break;}
-      }
-      if (headerIdx<0) {
-        for (let i=0;i<Math.min(15,todasLinhas.length);i++) {
-          header=todasLinhas[i].map(h=>normNome(String(h||'')).replace(/[\s°º]/g,''));
-          if (header.some(h=>h==='nome'||h.includes('paciente'))){headerIdx=i;rawHeader=todasLinhas[i];break;}
-        }
-        if (headerIdx<0) return vazio('col_header','Coluna NOME não encontrada.');
-      }
-
-      const iNome=header.findIndex(h=>h==='nome'||h.includes('paciente'));
-      const iNf=header.findIndex(h=>h.includes('fiscal')||h.includes('nota')||h.includes('numero')||h==='nf');
-      const iAtend=header.findIndex(h=>
-        h.includes('atendente')||h.includes('operador')||h.includes('colaborador')||
-        h.includes('responsavel')||h.includes('emissor')||h.includes('usuario'));
-
-      const fnFiltro=atendenteFiltro?normNome(atendenteFiltro).split(' ')[0]:null;
-      const mapaFiltrado={}, mapaTudo={};
-
-      for (let i=headerIdx+1;i<todasLinhas.length;i++) {
-        const cols=todasLinhas[i];
-        const nomeRaw=String(cols[iNome]||'').replace(/\*+$/,'').replace(/["*]/g,'').trim();
-        const nome=normNome(nomeRaw);
-        const nf=iNf>=0?String(cols[iNf]||'').replace(/["*]/g,'').trim():'';
-        if(!nome||nome.length<3||!nf)continue;
-        mapaTudo[nome]=mapaTudo[nome]?mapaTudo[nome]+' / '+nf:nf;
-        if(iAtend>=0&&fnFiltro){
-          const nomeAtend=normNome(String(cols[iAtend]||'').replace(/\*/g,''));
-          const bate=nomeAtend.includes(fnFiltro.split(' ')[0])||
-                     fnFiltro.includes(nomeAtend.split(' ')[0])||
-                     nomeAtend.split(' ')[0]===fnFiltro.split(' ')[0];
-          if(!bate)continue;
-        }
-        mapaFiltrado[nome]=mapaFiltrado[nome]?mapaFiltrado[nome]+' / '+nf:nf;
-      }
-
-      const mapa=Object.keys(mapaFiltrado).length>0?mapaFiltrado:mapaTudo;
-      return {mapa, erro:null, detalhes:abaInfo};
-
     // fetch com timeout (ms) — aborta se demorar demais
     function fetchComTimeout(url, ms) {
       const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
@@ -697,22 +408,181 @@
 
     // Retorna { mapa, erro, detalhes } para diagnóstico
     // caixaDataStr: "DD/MM/YYYY" extraída dos lançamentos do AMEI (tem precedência sobre a data de hoje)
-    
+    async function carregarNotasFiscais(atendenteFiltro, caixaDataStr) {
+      const vazio = (erro, detalhes) => ({ mapa: {}, erro, detalhes: detalhes || '' });
+      if (!window._planilhaNfUrl) return vazio('sem_url');
+      try {
+        const csvBase = normalizeSheetUrl(window._planilhaNfUrl).replace(/&sheet=[^&]*/,'');
+
+        // Usa a data dos lançamentos do AMEI; fallback para data de hoje
+        const nomeAba = caixaDataStr || tkParaNomeAba(window.TK_FB);
+        let csvUrl = csvBase;
+        let abaInfo = '';
+        if (nomeAba) {
+          // Monta variações do nome: "02/06/2026", "02/06", "2/6", etc.
+          const _p = nomeAba.split('/');
+          const _dd = _p[0]||'', _mm = _p[1]||'', _yyyy = _p[2]||'', _yy = (_p[2]||'').slice(2);
+          const variacoes = new Set([
+            nomeAba, _dd+'/'+_mm,
+            parseInt(_dd)+'/'+parseInt(_mm),
+            parseInt(_dd)+'/'+parseInt(_mm)+'/'+_yyyy,
+            _dd+'.'+_mm+'.'+_yyyy, _dd+'-'+_mm+'-'+_yyyy,
+            _dd+_mm+_yy, _dd+_mm+_yyyy,
+          ].filter(Boolean).map(v => v.toLowerCase()));
+
+          try {
+            const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
+            console.log('[NF] buscando pubhtml:', pubhtmlUrl);
+            const rh = await fetchComTimeout(pubhtmlUrl, 6000);
+            if (rh.ok) {
+              const htxt = await rh.text();
+              console.log('[NF] pubhtml ok, tamanho:', htxt.length);
+              // Tenta dois formatos de regex — Google pode variar
+              const regexes = [
+                /items\.push\(\{name:\s*"((?:[^"\\]|\\.)*)",\s*pageUrl:\s*"([^"]+)"/g,
+                /"name"\s*:\s*"([^"]+)"[^}]{0,200}"pageUrl"\s*:\s*"([^"]+)"/g,
+              ];
+              let found = false;
+              for (const tabRe of regexes) {
+                if (found) break;
+                let m;
+                while ((m = tabRe.exec(htxt)) !== null) {
+                  // Google escapa "/" como "\/" no JSON — desescapar antes de comparar
+                  const tabName = m[1].replace(/\\\//g, '/').trim();
+                  const gidM   = m[2].match(/gid=(-?\d+)/);
+                  console.log('[NF] aba encontrada no pubhtml:', tabName, '| gid:', gidM && gidM[1]);
+                  if (gidM && variacoes.has(tabName.toLowerCase())) {
+                    csvUrl  = csvBase.replace(/&gid=\d+/, '') + '&gid=' + gidM[1];
+                    abaInfo = ' · aba ' + tabName + ' (gid:' + gidM[1] + ')';
+                    console.log('[NF] MATCH:', tabName, gidM[1]);
+                    found = true;
+                    break;
+                  }
+                }
+              }
+              if (!found) console.warn('[NF] nenhuma aba do pubhtml bateu com:', nomeAba, '| variacoes:', [...variacoes]);
+            } else {
+              console.warn('[NF] pubhtml HTTP:', rh.status);
+            }
+          } catch(e) { console.warn('[NF] pubhtml erro:', e.message); }
+
+          if (csvUrl === csvBase) {
+            console.warn('[NF] Aba não encontrada — usando planilha padrão (pode trazer NFs de outra data)');
+            abaInfo = ' · aba ' + nomeAba + ' não encontrada';
+          }
+        }
+
+        let r;
+        try {
+          r = await fetchComTimeout(csvUrl, 5000);
+        } catch(e) {
+          return vazio('fetch_erro', e.message);
+        }
+        if (!r.ok) return vazio('http_erro', 'HTTP ' + r.status);
+        const txt = await r.text();
+
+        // Verifica se voltou HTML em vez de CSV (URL errada ainda)
+        if (txt.trim().startsWith('<')) return vazio('retornou_html', 'A URL retornou HTML — verifique se publicou como CSV');
+
+        // Usa parseCsv completo (RFC 4180) — suporta células com quebra de linha interna
+        const todasLinhas = parseCsv(txt);
+        if (todasLinhas.length < 2) return vazio('vazio', 'Planilha sem dados');
+
+        // Procura a linha de cabeçalho real (pode não ser a linha 0 se houver título)
+        let headerIdx = -1;
+        let rawHeader = [], header = [];
+        for (let i = 0; i < Math.min(10, todasLinhas.length); i++) {
+          rawHeader = todasLinhas[i];
+          header    = rawHeader.map(h => normNome(h).replace(/\s/g,''));
+          const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
+          const temNf   = header.some(h => h.includes('nf') || h.includes('nota') || h.includes('numero'));
+          if (temNome && temNf) { headerIdx = i; break; }
+        }
+
+        if (headerIdx < 0) return vazio('col_header', 'Cabeçalho não encontrado nas 10 primeiras linhas. Verifique se a planilha tem colunas NOME e N° NOTA FISCAL');
+
+        const iNome  = header.findIndex(h => h === 'nome' || h.includes('paciente'));
+        const iNf    = header.findIndex(h => h.includes('nf') || h.includes('nota') || h.includes('numero'));
+        const iAtend = header.findIndex(h =>
+          h.includes('atendente') || h.includes('operador') ||
+          h.includes('colaborador') || h.includes('responsavel') ||
+          h.includes('emissor') || h.includes('usuario')
+        );
+
+        // Prepara filtro por colaborador (primeiro nome)
+        const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
+
+        // Monta mapa nome→nf
+        const mapaFiltrado = {};
+        const mapaTudo     = {};
+        for (let i = headerIdx + 1; i < todasLinhas.length; i++) {
+          const cols = todasLinhas[i];
+          const nome = normNome(cols[iNome] || '');
+          const nf   = (cols[iNf] || '').replace(/"/g,'').trim();
+          if (!nome || !nf) continue;
+          mapaTudo[nome] = nf;
+
+          if (iAtend >= 0 && fnFiltro) {
+            const nomeAtend = normNome(cols[iAtend] || '');
+            const fnAtend   = nomeAtend.split(' ')[0];
+            if (fnAtend && fnFiltro && !nomeAtend.includes(fnFiltro) && !fnFiltro.includes(fnAtend)) {
+              continue; // outro operador
+            }
+          }
+          mapaFiltrado[nome] = nf;
+        }
+
+        // Fallback: se o filtro zerou tudo (ex: admin testando), usa todas as NFs
+        const usouFiltro = iAtend >= 0 && fnFiltro && Object.keys(mapaTudo).length > 0;
+        const mapa = (usouFiltro && Object.keys(mapaFiltrado).length === 0) ? mapaTudo : mapaFiltrado;
+        const obs  = usouFiltro && Object.keys(mapaFiltrado).length === 0
+          ? Object.keys(mapa).length + ' NFs (exibindo todas — operador não encontrado na planilha)' + abaInfo
+          : Object.keys(mapa).length + ' NFs' + (usouFiltro ? ' deste operador' : '') + abaInfo;
+
+        return { mapa, erro: null, detalhes: obs };
+      } catch(e) {
+        return vazio('excecao', e.message);
+      }
+    }
+    function buscarNf(paciente, mapa) {
+      if (!paciente || paciente === '—' || !Object.keys(mapa).length) return null;
+      const np = normNome(paciente);
+
+      // 1. Match exato
+      if (mapa[np]) return mapa[np];
+
+      // 2. Um contém o outro (substring)
+      for (const [k, v] of Object.entries(mapa)) {
+        if (np.length > 3 && k.length > 3 && (np.includes(k) || k.includes(np))) return v;
+      }
+
+      // 3. Palavras em comum (≥2 palavras com ≥4 letras cada)
+      const wpac = np.split(/\s+/).filter(w => w.length >= 4);
+      if (wpac.length >= 2) {
+        for (const [k, v] of Object.entries(mapa)) {
+          const wnf = k.split(/\s+/).filter(w => w.length >= 4);
+          const comuns = wpac.filter(w => wnf.includes(w));
+          if (comuns.length >= 2) return v;
+        }
+      }
+
+      // Log para diagnóstico quando há NFs no mapa mas não houve match
+      console.warn('[buscarNf] SEM MATCH — pac:', JSON.stringify(np), '| mapa:', JSON.stringify(Object.fromEntries(Object.entries(mapa).slice(0,5))));
+      return null;
+    }
+
+    /* ── GERAR RELATÓRIO ── */
     window.gerarRelatorio = function() {
       const txt = document.getElementById('cxPaste').value.trim();
       if (!txt) { toast('Cole os dados do caixa antes de gerar', 'error'); return; }
 
-      // Inicia spinner com etapas de porcentagem
-      startBtnProgress([
-        {pct: 25, label: 'Processando…',  ms: 300},
-        {pct: 50, label: 'Calculando…',   ms: 400},
-        {pct: 75, label: 'Montando…',     ms: 500}
-      ]);
-
+      const btn = document.getElementById('btnGerar');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando…'; }
+      const _restoreBtn = () => { if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-chart-bar"></i> Gerar Relatório'; } };
       try {
       const d = parseCaixa(txt);
       if (!d.lancamentos.length && !Object.keys(d.totForma).length) {
-        toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); resetBtn(); return;
+        toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); _restoreBtn(); return;
       }
 
       // Data do AMEI (dd/mm/yyyy) — usada para buscar a aba correta da planilha de NF
@@ -901,58 +771,16 @@
         '</div>';
 
       document.getElementById('telaPreview').classList.add('open');
-      setBtnSpinner(100, 'Pronto!');
-      setTimeout(() => resetBtn(), 600);
+      _restoreBtn();
 
-      // Carrega NFs em segundo plano — não bloqueia a exibição do relatório
+      // Carrega NFs em segundo plano (máx ~9s) — não bloqueia a exibição do relatório
       if (temNf) {
         const _ind = () => document.getElementById('nfIndicador');
+        // Guarda referência local para o array — closure segura
         const _lancamentos = todosLancamentos.slice();
-
-        // Mostrar barra de progresso enquanto carrega
-        const ind0 = _ind();
-        if (ind0) {
-          ind0.innerHTML =
-            '<div class="nf-progress-wrap">' +
-              '<i class="fas fa-spinner fa-spin" style="color:#3b82f6;font-size:13px;flex-shrink:0;"></i>' +
-              '<div style="flex:1;">' +
-                '<div style="font-size:11px;font-weight:700;color:#1d4ed8;margin-bottom:4px;" id="nfProgressMsg">Baixando planilha de NFs...</div>' +
-                '<div class="nf-progress-bar-bg"><div class="nf-progress-bar pulse" id="nfProgressBar"></div></div>' +
-              '</div>' +
-              '<span style="font-size:11px;color:#3b82f6;font-weight:700;" id="nfProgressPct">0%</span>' +
-            '</div>';
-        }
-
-        // Animar barra (simulada por etapas — progresso real não é mensurável no fetch)
-        const _animSteps = [
-          {pct:15, msg:'Baixando planilha de NFs...', ms:800},
-          {pct:40, msg:'Lendo arquivo...', ms:600},
-          {pct:65, msg:'Localizando aba do dia...', ms:500},
-          {pct:85, msg:'Cruzando nomes dos pacientes...', ms:400},
-        ];
-        let _animTimer = null;
-        function _runAnim(i) {
-          if (i >= _animSteps.length) return;
-          _animTimer = setTimeout(function() {
-            const bar = document.getElementById('nfProgressBar');
-            const pct = document.getElementById('nfProgressPct');
-            const msg = document.getElementById('nfProgressMsg');
-            if (bar) bar.style.width = _animSteps[i].pct + '%';
-            if (pct) pct.textContent = _animSteps[i].pct + '%';
-            if (msg) msg.textContent = _animSteps[i].msg;
-            _runAnim(i+1);
-          }, _animSteps[i].ms);
-        }
-        _runAnim(0);
 
         carregarNotasFiscais(sessionStorage.getItem('usuario'), caixaDataAmei)
           .then(nfResult => {
-            clearTimeout(_animTimer);
-            // Barra 100%
-            const bar = document.getElementById('nfProgressBar');
-            const barPct = document.getElementById('nfProgressPct');
-            if (bar) { bar.style.width='100%'; bar.classList.remove('pulse'); }
-            if (barPct) barPct.textContent='100%';
             const mapa = nfResult.mapa;
             const ind  = _ind();
             if (!Object.keys(mapa).length) {
@@ -981,7 +809,6 @@
             if (ind) ind.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> ' + encontradas + ' NF(s) encontrada(s) — ' + esc(nfResult.detalhes) + '</span>';
           })
           .catch(e => {
-            clearTimeout(_animTimer);
             const ind = _ind();
             if (ind) ind.innerHTML = '<span style="color:#b45309;">⚠️ Planilha NF não respondeu a tempo</span>';
             // Limpa ⋯
@@ -995,7 +822,7 @@
       } catch(err) {
         console.error('[gerarRelatorio] erro:', err);
         toast('Erro ao gerar relatório: ' + (err.message || err), 'error');
-        resetBtn();
+        _restoreBtn();
       }
     };
 
@@ -1013,7 +840,6 @@
       win.document.write(html);
       win.document.close();
     };
-  }
   </script>
 
   <script type="module">
@@ -1027,9 +853,6 @@
     window.initFirebaseUtils(_db, ref, get);
     window.fbSet = (path, data) => set(ref(_db, path), data);
 
-    // Inicia progresso do overlay
-    setLoadingProgress(20, 'Conectando ao Firebase…');
-
     const _unsubs = [];
     window.addEventListener('beforeunload', () => _unsubs.forEach(fn => { try { fn(); } catch(e){} }));
     const _on = (r, cb) => { const u = onValue(r, cb); _unsubs.push(u); return u; };
@@ -1037,21 +860,13 @@
     onAuthStateChanged(_auth, user => {
       if (!user) { irPara('login.html'); return; }
 
-      setLoadingProgress(40, 'Autenticado…');
-
       // Identificador único do usuário — separa dados de caixa por login
       window.USER_UID = user.uid;
-
-      // Fallback: garante nome do usuário mesmo sem sessionStorage
-      if (!sessionStorage.getItem('usuario') && user.email) {
-        sessionStorage.setItem('usuario', user.email.split('@')[0]);
-      }
 
       set(ref(_db, 'admin_logs/' + Date.now()), {
         tipo:'info', msg:(user.email||user.uid)+' acessou o Caixa', ts:new Date().toISOString()
       }).catch(()=>{});
 
-      setLoadingProgress(60, 'Carregando dados…');
       carregarLogoGlobal(['#headerLogo']);
 
       // Cabeçalho do caixa
@@ -1063,7 +878,6 @@
       // URL da planilha NF (Google Sheets publicado como CSV)
       get(ref(_db, 'admin/configCaixa/planilhaUrl')).then(snap => {
         if (snap.val()) window._planilhaNfUrl = snap.val();
-        setLoadingProgress(90, 'Quase lá…');
       }).catch(()=>{});
 
       // Dados de caixa em tempo real — separado por usuário (user.uid / data)
@@ -1079,21 +893,6 @@
         window.vales = snap.val() || [];
         if (typeof window.renderVales === 'function') window.renderVales();
       });
-
-      // Habilita o botão e oculta overlay
-      setTimeout(() => {
-        setLoadingProgress(100, 'Pronto!');
-        setTimeout(() => {
-          hideLoadingOverlay();
-          const btn = document.getElementById('btnGerar');
-          if (btn) {
-            btn.disabled = false;
-            btn.style.opacity = '1';
-            btn.style.cursor = 'pointer';
-            btn.innerHTML = '<i class="fas fa-chart-bar"></i> Gerar Relatório';
-          }
-        }, 400);
-      }, 600);
 
       init();
     });
