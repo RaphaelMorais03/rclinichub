@@ -67,6 +67,12 @@
     .vale-item:last-child{border-bottom:none;}
     @media(max-width:900px){.caixa-nums{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:768px){.caixa-grid{grid-template-columns:1fr;}.content{padding:14px 14px 60px;}.print-doc{width:100%;}.user-banner{flex-direction:column;align-items:flex-start;gap:12px;}}
+    /* ── BARRA DE PROGRESSO NF ── */
+    .nf-progress-wrap{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;margin-bottom:10px;}
+    .nf-progress-bar-bg{flex:1;height:6px;background:#dbeafe;border-radius:4px;overflow:hidden;}
+    .nf-progress-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,#3b82f6,#61C1D0);width:0%;transition:width .4s ease;}
+    .nf-progress-bar.pulse{animation:nfPulse 1.2s ease-in-out infinite;}
+    @keyframes nfPulse{0%,100%{opacity:1}50%{opacity:.5}}
     @media print{.preview-bar{display:none!important;}.preview-wrap{padding:0!important;}.print-doc{box-shadow:none!important;margin:0!important;width:100%!important;}}
 
     /* ── TOAST ── */
@@ -534,13 +540,22 @@
       else if (!xlsxUrl.includes('output=xlsx')) xlsxUrl += (xlsxUrl.includes('?')?'&':'?') + 'output=xlsx';
 
       let arraybuf;
-      try {
-        const resp = await fetchComTimeout(xlsxUrl, 10000);
-        if (!resp.ok) return vazio('http_erro', 'HTTP ' + resp.status + ' — verifique se a planilha está publicada como Microsoft Excel (.xlsx)');
-        arraybuf = await resp.arrayBuffer();
-      } catch(e) {
-        return vazio('fetch_erro', e.message);
+      // Tenta até 2 vezes com timeout de 20s cada
+      let fetchErro = null;
+      for (let tentativa = 0; tentativa < 2; tentativa++) {
+        try {
+          const resp = await fetchComTimeout(xlsxUrl, 20000);
+          if (!resp.ok) return vazio('http_erro', 'HTTP ' + resp.status + ' — verifique se a planilha está publicada como Microsoft Excel (.xlsx)');
+          arraybuf = await resp.arrayBuffer();
+          fetchErro = null;
+          break; // sucesso
+        } catch(e) {
+          fetchErro = e;
+          console.warn('[NF] Tentativa ' + (tentativa+1) + ' falhou:', e.message);
+          if (tentativa < 1) await new Promise(r => setTimeout(r, 1500)); // aguarda 1.5s antes de tentar de novo
+        }
       }
+      if (fetchErro) return vazio('fetch_erro', 'Planilha NF não respondeu após 2 tentativas. Verifique sua conexão.');
 
       let wb;
       try { wb = XLSX.read(arraybuf, { type:'array', raw:false }); }
@@ -847,14 +862,55 @@
       setBtnSpinner(100, 'Pronto!');
       setTimeout(() => resetBtn(), 600);
 
-      // Carrega NFs em segundo plano (máx ~9s) — não bloqueia a exibição do relatório
+      // Carrega NFs em segundo plano — não bloqueia a exibição do relatório
       if (temNf) {
         const _ind = () => document.getElementById('nfIndicador');
-        // Guarda referência local para o array — closure segura
         const _lancamentos = todosLancamentos.slice();
+
+        // Mostrar barra de progresso enquanto carrega
+        const ind0 = _ind();
+        if (ind0) {
+          ind0.innerHTML =
+            '<div class="nf-progress-wrap">' +
+              '<i class="fas fa-spinner fa-spin" style="color:#3b82f6;font-size:13px;flex-shrink:0;"></i>' +
+              '<div style="flex:1;">' +
+                '<div style="font-size:11px;font-weight:700;color:#1d4ed8;margin-bottom:4px;" id="nfProgressMsg">Baixando planilha de NFs...</div>' +
+                '<div class="nf-progress-bar-bg"><div class="nf-progress-bar pulse" id="nfProgressBar"></div></div>' +
+              '</div>' +
+              '<span style="font-size:11px;color:#3b82f6;font-weight:700;" id="nfProgressPct">0%</span>' +
+            '</div>';
+        }
+
+        // Animar barra (simulada por etapas — progresso real não é mensurável no fetch)
+        const _animSteps = [
+          {pct:15, msg:'Baixando planilha de NFs...', ms:800},
+          {pct:40, msg:'Lendo arquivo...', ms:600},
+          {pct:65, msg:'Localizando aba do dia...', ms:500},
+          {pct:85, msg:'Cruzando nomes dos pacientes...', ms:400},
+        ];
+        let _animTimer = null;
+        function _runAnim(i) {
+          if (i >= _animSteps.length) return;
+          _animTimer = setTimeout(function() {
+            const bar = document.getElementById('nfProgressBar');
+            const pct = document.getElementById('nfProgressPct');
+            const msg = document.getElementById('nfProgressMsg');
+            if (bar) bar.style.width = _animSteps[i].pct + '%';
+            if (pct) pct.textContent = _animSteps[i].pct + '%';
+            if (msg) msg.textContent = _animSteps[i].msg;
+            _runAnim(i+1);
+          }, _animSteps[i].ms);
+        }
+        _runAnim(0);
 
         carregarNotasFiscais(sessionStorage.getItem('usuario'), caixaDataAmei)
           .then(nfResult => {
+            clearTimeout(_animTimer);
+            // Barra 100%
+            const bar = document.getElementById('nfProgressBar');
+            const barPct = document.getElementById('nfProgressPct');
+            if (bar) { bar.style.width='100%'; bar.classList.remove('pulse'); }
+            if (barPct) barPct.textContent='100%';
             const mapa = nfResult.mapa;
             const ind  = _ind();
             if (!Object.keys(mapa).length) {
@@ -883,6 +939,7 @@
             if (ind) ind.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> ' + encontradas + ' NF(s) encontrada(s) — ' + esc(nfResult.detalhes) + '</span>';
           })
           .catch(e => {
+            clearTimeout(_animTimer);
             const ind = _ind();
             if (ind) ind.innerHTML = '<span style="color:#b45309;">⚠️ Planilha NF não respondeu a tempo</span>';
             // Limpa ⋯
