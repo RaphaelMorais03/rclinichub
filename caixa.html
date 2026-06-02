@@ -575,18 +575,25 @@
             });
           }
 
-          for (let vi=0; vi<variacoes.length && csvUrl===csvBase; vi++) {
+          // Tenta cada variação do nome da aba com e sem encoding das barras
+          // Google Sheets aceita literal "/" no parâmetro &sheet=
+          const urlVariacoes = [];
+          variacoes.forEach(function(v) {
+            urlVariacoes.push(baseCSV + '&sheet=' + v);                      // barra literal (Google aceita)
+            urlVariacoes.push(baseCSV + '&sheet=' + encodeURIComponent(v));  // barra codificada (%2F)
+          });
+
+          for (let vi=0; vi<urlVariacoes.length && csvUrl===csvBase; vi++) {
             try {
-              const testUrl = baseCSV + '&sheet=' + encodeURIComponent(variacoes[vi]);
+              const testUrl = urlVariacoes[vi];
               const tr = await fetchComTimeout(testUrl, 3500);
               if (tr.ok) {
                 const txt = await tr.text();
                 const linhasValidas = txt.trim().split('\n').filter(function(l){return l.trim();});
-                // Aceita só se tiver >1 linha E tiver colunas de NOME+NF (não é aba errada)
                 if (linhasValidas.length > 1 && _temColunasNF(txt)) {
                   csvUrl  = testUrl;
-                  abaInfo = ' · aba ' + variacoes[vi] + ' (via &sheet=)';
-                  console.log('[NF] Aba via &sheet=:', variacoes[vi]);
+                  abaInfo = ' · aba encontrada (via &sheet=)';
+                  console.log('[NF] Aba encontrada:', testUrl);
                 }
               }
             } catch(e) { /* timeout */ }
