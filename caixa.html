@@ -524,162 +524,115 @@
       return d + '/' + m + '/' + y;
     }
 
-    // fetch com timeout (ms) — aborta se demorar demais
-    function fetchComTimeout(url, ms) {
-      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
-      return Promise.race([fetch(url), timeout]);
-    }
-
-    // Retorna { mapa, erro, detalhes } para diagnóstico
-    // caixaDataStr: "DD/MM/YYYY" extraída dos lançamentos do AMEI (tem precedência sobre a data de hoje)
     async function carregarNotasFiscais(atendenteFiltro, caixaDataStr) {
       const vazio = (erro, detalhes) => ({ mapa: {}, erro, detalhes: detalhes || '' });
       if (!window._planilhaNfUrl) return vazio('sem_url');
 
-      // ── Monta URL de exportação XLSX (todas as abas de uma vez) ──
-      const idMatch = window._planilhaNfUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
-      if (!idMatch) return vazio('url_invalida', 'Não foi possível identificar o ID da planilha. Use o link de compartilhamento ou publicação do Google Sheets.');
-
-      const sheetId  = idMatch[1];
-      const xlsxUrl  = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/pub?output=xlsx';
-
-      // Nome da aba do dia (formato DD/MM/YYYY e variações)
-      const nomeAba = caixaDataStr || null;
-      let abaInfo   = '';
+      // URL já tem output=xlsx (publicado como Microsoft Excel)
+      let xlsxUrl = window._planilhaNfUrl.trim();
+      if (xlsxUrl.includes('output=csv'))       xlsxUrl = xlsxUrl.replace('output=csv','output=xlsx');
+      else if (!xlsxUrl.includes('output=xlsx')) xlsxUrl += (xlsxUrl.includes('?')?'&':'?') + 'output=xlsx';
 
       let arraybuf;
       try {
-        const resp = await fetchComTimeout(xlsxUrl, 8000);
-        if (!resp.ok) return vazio('http_erro', 'HTTP ' + resp.status + ' — verifique se a planilha está publicada (Arquivo → Publicar na web → Microsoft Excel .xlsx)');
+        const resp = await fetchComTimeout(xlsxUrl, 10000);
+        if (!resp.ok) return vazio('http_erro', 'HTTP ' + resp.status + ' — verifique se a planilha está publicada como Microsoft Excel (.xlsx)');
         arraybuf = await resp.arrayBuffer();
       } catch(e) {
         return vazio('fetch_erro', e.message);
       }
 
-      // ── Lê o XLSX com todas as abas ──
       let wb;
-      try {
-        wb = XLSX.read(arraybuf, { type: 'array', raw: false });
-      } catch(e) {
-        return vazio('xlsx_erro', 'Erro ao ler o arquivo: ' + e.message);
-      }
+      try { wb = XLSX.read(arraybuf, { type:'array', raw:false }); }
+      catch(e) { return vazio('xlsx_erro', 'Erro ao ler arquivo: ' + e.message); }
 
-      // ── Encontra a aba do dia ──
-      let ws = null;
+      // ── Encontrar aba do dia ──
+      const nomeAba = caixaDataStr || null;
+      let ws = null, abaInfo = '';
+
       if (nomeAba) {
         const [dd, mm, yyyy] = nomeAba.split('/');
         const yy = yyyy ? yyyy.slice(2) : '';
         const variacoes = [
           nomeAba,
-          dd + '/' + mm,
-          parseInt(dd) + '/' + parseInt(mm),
-          parseInt(dd) + '/' + parseInt(mm) + '/' + yyyy,
-          dd + '.' + mm + '.' + yyyy,
-          dd + '-' + mm + '-' + yyyy,
-          dd + mm + yy,
-          dd + mm + yyyy,
+          dd+'/'+mm,
+          parseInt(dd)+'/'+parseInt(mm),
+          parseInt(dd)+'/'+parseInt(mm)+'/'+yyyy,
+          dd+'.'+mm+'.'+yyyy,
+          dd+'-'+mm+'-'+yyyy,
+          dd+mm+yy,
+          dd+mm+yyyy,
         ].filter(Boolean);
 
-        // Busca insensível a espaços e maiúsculas
-        for (let vi = 0; vi < variacoes.length && !ws; vi++) {
+        for (let vi=0; vi<variacoes.length && !ws; vi++) {
           const v = variacoes[vi].trim().toLowerCase();
           const sname = wb.SheetNames.find(s => s.trim().toLowerCase() === v);
-          if (sname) {
-            ws = wb.Sheets[sname];
-            abaInfo = ' · aba ' + sname;
-          }
+          if (sname) { ws = wb.Sheets[sname]; abaInfo = ' · aba ' + sname; }
         }
 
         if (!ws) {
-          console.warn('[NF] Aba não encontrada:', nomeAba, '| Abas disponíveis:', wb.SheetNames);
-          return vazio('aba_nao_encontrada', 'Aba ' + nomeAba + ' não encontrada. Abas disponíveis: ' + wb.SheetNames.slice(0,8).join(', '));
+          console.warn('[NF] Aba não encontrada:', nomeAba, '| Disponíveis:', wb.SheetNames.slice(0,10));
+          return vazio('aba_nao_encontrada',
+            'Aba ' + nomeAba + ' não encontrada. Abas disponíveis: ' + wb.SheetNames.slice(0,8).join(', '));
         }
       } else {
-        // Sem data — usa primeira aba que não seja template
-        const sname = wb.SheetNames.find(s => !/^(troco|base|página|copia)/i.test(s.trim()));
+        const sname = wb.SheetNames.find(s => !/^(troco|base|p[áa]gina|copia)/i.test(s.trim()));
         ws = wb.Sheets[sname || wb.SheetNames[0]];
         abaInfo = ' · aba padrão';
       }
 
-      // ── Converte aba para array de linhas ──
-      const todasLinhas = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
-      if (todasLinhas.length < 2) return vazio('vazio', 'Aba ' + nomeAba + ' sem dados');
+      // ── Converter aba para linhas ──
+      const todasLinhas = XLSX.utils.sheet_to_json(ws, { header:1, defval:'', raw:false });
+      if (todasLinhas.length < 2) return vazio('vazio', 'Aba sem dados');
 
-      // ── Detecta cabeçalho ──
-      let headerIdx = -1;
-      let rawHeader = [], header = [];
-      for (let i = 0; i < Math.min(15, todasLinhas.length); i++) {
+      // ── Detectar cabeçalho ──
+      let headerIdx = -1, rawHeader = [], header = [];
+      for (let i=0; i<Math.min(15, todasLinhas.length); i++) {
         rawHeader = todasLinhas[i];
-        header    = rawHeader.map(h => normNome(String(h||'')).replace(/[\s°º]/g,''));
-        const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
-        const temNf   = header.some(h =>
-          h.includes('fiscal') || h.includes('nota') ||
-          h.includes('numero') || h === 'nf' || h.includes('notafiscal')
-        );
+        header = rawHeader.map(h => normNome(String(h||'')).replace(/[\s°º]/g,''));
+        const temNome = header.some(h => h==='nome' || h.includes('paciente'));
+        const temNf   = header.some(h => h.includes('fiscal') || h.includes('nota') || h.includes('numero') || h==='nf');
         if (temNome && temNf) { headerIdx = i; break; }
       }
-
-      // Se não achou NF mas achou NOME, avança sem NF
       if (headerIdx < 0) {
-        for (let i = 0; i < Math.min(15, todasLinhas.length); i++) {
-          rawHeader = todasLinhas[i];
-          header    = rawHeader.map(h => normNome(String(h||'')).replace(/[\s°º]/g,''));
-          const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
-          if (temNome) { headerIdx = i; break; }
+        for (let i=0; i<Math.min(15,todasLinhas.length); i++) {
+          header = todasLinhas[i].map(h => normNome(String(h||'')).replace(/[\s°º]/g,''));
+          if (header.some(h => h==='nome' || h.includes('paciente'))) { headerIdx=i; rawHeader=todasLinhas[i]; break; }
         }
-        if (headerIdx < 0) return vazio('col_header', 'Cabeçalho não encontrado na aba ' + nomeAba + '. Verifique se tem a coluna NOME.');
+        if (headerIdx < 0) return vazio('col_header', 'Coluna NOME não encontrada na aba ' + nomeAba);
       }
 
-      const iNome  = header.findIndex(h => h === 'nome' || h.includes('paciente'));
-      const iNf    = header.findIndex(h =>
-        h.includes('fiscal') || h.includes('nota') ||
-        h.includes('numero') || h === 'nf' || h.includes('notafiscal')
-      );
+      const iNome  = header.findIndex(h => h==='nome' || h.includes('paciente'));
+      const iNf    = header.findIndex(h => h.includes('fiscal') || h.includes('nota') || h.includes('numero') || h==='nf');
       const iAtend = header.findIndex(h =>
-        h.includes('atendente') || h.includes('operador') ||
-        h.includes('colaborador') || h.includes('responsavel') ||
-        h.includes('emissor') || h.includes('usuario')
-      );
+        h.includes('atendente') || h.includes('operador') || h.includes('colaborador') ||
+        h.includes('responsavel') || h.includes('emissor') || h.includes('usuario'));
 
-      // Filtro por colaborador (primeiro nome)
       const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
+      const mapaFiltrado = {}, mapaTudo = {};
 
-      const mapaFiltrado = {};
-      const mapaTudo     = {};
-
-      for (let i = headerIdx + 1; i < todasLinhas.length; i++) {
+      for (let i=headerIdx+1; i<todasLinhas.length; i++) {
         const cols = todasLinhas[i];
-        const nomeRaw = (String(cols[iNome] || '')).replace(/\*+$/,'').replace(/["*]/g,'').trim();
+        const nomeRaw = String(cols[iNome]||'').replace(/\*+$/,'').replace(/["*]/g,'').trim();
         const nome = normNome(nomeRaw);
-        const nf   = iNf >= 0 ? (String(cols[iNf] || '')).replace(/["*]/g,'').trim() : '';
-        if (!nome || nome.length < 3 || !nf) continue;
-        mapaTudo[nome] = mapaTudo[nome] ? mapaTudo[nome] + ' / ' + nf : nf;
-
-        if (iAtend >= 0 && fnFiltro) {
-          const nomeAtend = normNome((String(cols[iAtend] || '')).replace(/\*/g,''));
-          const primeiroNomeAtend  = nomeAtend.split(' ')[0];
-          const primeiroNomeFiltro = fnFiltro.split(' ')[0];
-          const bate = nomeAtend.includes(primeiroNomeFiltro) ||
-                       fnFiltro.includes(primeiroNomeAtend) ||
-                       primeiroNomeAtend === primeiroNomeFiltro;
+        const nf   = iNf>=0 ? String(cols[iNf]||'').replace(/["*]/g,'').trim() : '';
+        if (!nome || nome.length<3 || !nf) continue;
+        mapaTudo[nome] = mapaTudo[nome] ? mapaTudo[nome]+' / '+nf : nf;
+        if (iAtend>=0 && fnFiltro) {
+          const nomeAtend = normNome(String(cols[iAtend]||'').replace(/\*/g,''));
+          const bate = nomeAtend.includes(fnFiltro.split(' ')[0]) ||
+                       fnFiltro.includes(nomeAtend.split(' ')[0]) ||
+                       nomeAtend.split(' ')[0] === fnFiltro.split(' ')[0];
           if (!bate) continue;
         }
-        mapaFiltrado[nome] = mapaFiltrado[nome] ? mapaFiltrado[nome] + ' / ' + nf : nf;
+        mapaFiltrado[nome] = mapaFiltrado[nome] ? mapaFiltrado[nome]+' / '+nf : nf;
       }
 
-      const mapa = Object.keys(mapaFiltrado).length > 0 ? mapaFiltrado : mapaTudo;
-      return { mapa, erro: null, detalhes: abaInfo };
+      const mapa = Object.keys(mapaFiltrado).length>0 ? mapaFiltrado : mapaTudo;
+      return { mapa, erro:null, detalhes:abaInfo };
     }
 
-    
-    // Converte YYYY-MM-DD → DD/MM/YYYY (nome das abas da planilha)
-    function tkParaNomeAba(tkFb) {
-      if (!tkFb || tkFb.length !== 10) return null;
-      const [y, m, d] = tkFb.split('-');
-      return d + '/' + m + '/' + y;
-    }
-
-    // fetch com timeout (ms) — aborta se demorar demais
+        // fetch com timeout (ms) — aborta se demorar demais
     function fetchComTimeout(url, ms) {
       const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
       return Promise.race([fetch(url), timeout]);
@@ -687,289 +640,7 @@
 
     // Retorna { mapa, erro, detalhes } para diagnóstico
     // caixaDataStr: "DD/MM/YYYY" extraída dos lançamentos do AMEI (tem precedência sobre a data de hoje)
-    async function carregarNotasFiscais(atendenteFiltro, caixaDataStr) {
-      const vazio = (erro, detalhes) => ({ mapa: {}, erro, detalhes: detalhes || '' });
-      if (!window._planilhaNfUrl) return vazio('sem_url');
-      try {
-        const csvBase = normalizeSheetUrl(window._planilhaNfUrl).replace(/&sheet=[^&]*/,'');
-
-        // Usa a data dos lançamentos do AMEI; fallback para data de hoje
-        const nomeAba = caixaDataStr || tkParaNomeAba(window.TK_FB);
-        let csvUrl = csvBase;
-        let abaInfo = '';
-        if (nomeAba) {
-          const _parts = nomeAba.split('/');
-          const dd = _parts[0]||'', mm = _parts[1]||'', yyyy = _parts[2]||'';
-          const yy = yyyy.slice(2);
-
-          // Todas as variações possíveis do nome da aba
-          const variacoes = [
-            nomeAba,
-            dd+'/'+mm,
-            parseInt(dd)+'/'+parseInt(mm),
-            parseInt(dd)+'/'+parseInt(mm)+'/'+yyyy,
-            dd+'.'+mm+'.'+yyyy,
-            dd+'-'+mm+'-'+yyyy,
-            dd+mm+yy,
-            dd+mm+yyyy,
-          ].filter(Boolean);
-
-          const baseCSV = csvBase.replace(/&gid=\d+/, '').replace(/&sheet=[^&]*/,'');
-
-          // Extrai ID da planilha para tentar também via /export?format=csv (mais confiável)
-          const _sheetIdM = (window._planilhaNfUrl||'').match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
-          const _sheetId  = _sheetIdM ? _sheetIdM[1] : null;
-          const exportBase = _sheetId
-            ? 'https://docs.google.com/spreadsheets/d/' + _sheetId + '/export?format=csv'
-            : null;
-
-          // Monta todas as URLs para tentar: export + pub, com literal e encoded
-          const urlVariacoes = [];
-          variacoes.forEach(function(v) {
-            if (exportBase) {
-              urlVariacoes.push(exportBase + '&sheet=' + v);                     // export + literal
-              urlVariacoes.push(exportBase + '&sheet=' + encodeURIComponent(v)); // export + encoded
-            }
-            urlVariacoes.push(baseCSV + '&sheet=' + v);                          // pub + literal
-            urlVariacoes.push(baseCSV + '&sheet=' + encodeURIComponent(v));      // pub + encoded
-          });
-
-                    for (let vi=0; vi<urlVariacoes.length && csvUrl===csvBase; vi++) {
-            try {
-              const testUrl = urlVariacoes[vi];
-              const tr = await fetchComTimeout(testUrl, 3500);
-              if (tr.ok) {
-                const txt = await tr.text();
-                const linhasValidas = txt.trim().split('\n').filter(function(l){return l.trim();});
-                if (linhasValidas.length > 1 && _temColunasNF(txt)) {
-                  csvUrl  = testUrl;
-                  abaInfo = ' · aba encontrada (via &sheet=)';
-                  console.log('[NF] Aba encontrada:', testUrl);
-                }
-              }
-            } catch(e) { /* timeout */ }
-          }
-
-          // MÉTODO 2: pubhtml — fallback
-          if (csvUrl === csvBase) {
-            try {
-              const varSet = new Set(variacoes);
-              const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
-              const rh = await fetchComTimeout(pubhtmlUrl, 5000);
-              if (rh.ok) {
-                const htmlTxt = await rh.text();
-                const regexes = [
-                  /name:"((?:[^"\\]|\\.)*)"[^}]*pageUrl:"([^"]+)"/g,
-                  /name:\s*"([^"]+)"[^}]*pageUrl:\s*"([^"]+)"/g,
-                ];
-                outer2:
-                for (let ri=0; ri<regexes.length; ri++) {
-                  let m;
-                  while ((m = regexes[ri].exec(htmlTxt)) !== null) {
-                    const tabNorm = m[1].trim();
-                    const gidM   = m[2].match(/gid=(-?\d+)/);
-                    if (gidM && varSet.has(tabNorm)) {
-                      csvUrl  = baseCSV + '&gid=' + gidM[1];
-                      abaInfo = ' · aba ' + tabNorm + ' (via pubhtml)';
-                      console.log('[NF] Aba via pubhtml:', tabNorm);
-                      break outer2;
-                    }
-                  }
-                }
-              }
-            } catch(e) { console.warn('[NF] pubhtml error:', e.message); }
-          }
-
-          if (csvUrl === csvBase) {
-            // Aba do dia não encontrada → NF ainda não emitida para esta data
-            // Não usar aba padrão pois traria NFs de outro dia
-            console.warn('[NF] Aba não encontrada para:', nomeAba, '— retornando vazio');
-            return vazio('aba_nao_encontrada', 'Aba ' + nomeAba + ' não encontrada na planilha. As NFs podem ainda não ter sido emitidas para esta data.');
-          }
-        }
-
-        let r;
-        try {
-          r = await fetchComTimeout(csvUrl, 5000);
-        } catch(e) {
-          return vazio('fetch_erro', e.message);
-        }
-        if (!r.ok) return vazio('http_erro', 'HTTP ' + r.status);
-        const txt = await r.text();
-
-        // Verifica se voltou HTML em vez de CSV (URL errada ainda)
-        if (txt.trim().startsWith('<')) return vazio('retornou_html', 'A URL retornou HTML — verifique se publicou como CSV');
-
-        // Usa parseCsv completo (RFC 4180) — suporta células com quebra de linha interna
-        const todasLinhas = parseCsv(txt);
-        if (todasLinhas.length < 2) return vazio('vazio', 'Planilha sem dados');
-
-        // Procura a linha de cabeçalho real (pode não ser a linha 0 se houver título)
-        let headerIdx = -1;
-        let rawHeader = [], header = [];
-        for (let i = 0; i < Math.min(15, todasLinhas.length); i++) {
-          rawHeader = todasLinhas[i];
-          header    = rawHeader.map(h => normNome(h).replace(/[\s°º]/g,''));
-          const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
-          // Aceita qualquer variação: "Nº NOTA FISCAL", "N° NOTA FISCAL", "NF", "NOTA FISCAL"
-          const temNf   = header.some(h =>
-            h.includes('fiscal') || h.includes('nota') ||
-            h.includes('numero') || h === 'nf' || h.includes('notafiscal') ||
-            h.includes('nfiscal') || h.includes('n°nota') || h.includes('nºnota')
-          );
-          if (temNome && temNf) { headerIdx = i; break; }
-        }
-
-        // Se não achou NF mas achou NOME, avança sem NF (NFs talvez não emitidas ainda)
-        if (headerIdx < 0) {
-          for (let i = 0; i < Math.min(15, todasLinhas.length); i++) {
-            rawHeader = todasLinhas[i];
-            header    = rawHeader.map(h => normNome(h).replace(/[\s°º]/g,''));
-            const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
-            if (temNome) { headerIdx = i; break; }
-          }
-          if (headerIdx < 0) return vazio('col_header', 'Cabeçalho não encontrado. Verifique se a planilha tem a coluna NOME na aba da data correta.');
-        }
-
-        const iNome  = header.findIndex(h => h === 'nome' || h.includes('paciente'));
-        const iNf    = header.findIndex(h => h.includes('fiscal') || h.includes('nota') || h.includes('numero') || h === 'nf' || h.includes('notafiscal'));
-        const iAtend = header.findIndex(h =>
-          h.includes('atendente') || h.includes('operador') ||
-          h.includes('colaborador') || h.includes('responsavel') ||
-          h.includes('emissor') || h.includes('usuario')
-        );
-
-        // Prepara filtro por colaborador (primeiro nome)
-        const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
-
-        // Monta mapa nome→nf
-        const mapaFiltrado = {};
-        const mapaTudo     = {};
-        for (let i = headerIdx + 1; i < todasLinhas.length; i++) {
-          const cols = todasLinhas[i];
-          const nomeRaw = (cols[iNome] || '').replace(/\*+$/,'').replace(/["*]/g,'').trim();
-          const nome = normNome(nomeRaw);
-          const nf   = (cols[iNf] || '').replace(/["*]/g,'').trim();
-          if (!nome || nome.length < 3 || !nf) continue;
-          // Múltiplas NFs para o mesmo paciente: concatena com " / "
-          mapaTudo[nome] = mapaTudo[nome] ? mapaTudo[nome] + ' / ' + nf : nf;
-
-          if (iAtend >= 0 && fnFiltro) {
-            const nomeAtend = normNome((cols[iAtend] || '').replace(/\*/g,''));
-            // Compara primeiro nome OU nome completo (planilha pode ter só primeiro nome)
-            const primeiroNomeAtend = nomeAtend.split(' ')[0];
-            const primeiroNomeFiltro = fnFiltro.split(' ')[0];
-            const bate = nomeAtend.includes(primeiroNomeFiltro) ||
-                         fnFiltro.includes(primeiroNomeAtend) ||
-                         primeiroNomeAtend === primeiroNomeFiltro;
-            if (!bate) continue; // outro operador — pula esta linha
-          }
-          mapaFiltrado[nome] = mapaFiltrado[nome] ? mapaFiltrado[nome] + ' / ' + nf : nf;
-        }
-
-        // Fallback: se o filtro zerou tudo (ex: admin testando), usa todas as NFs
-        const usouFiltro = iAtend >= 0 && fnFiltro && Object.keys(mapaTudo).length > 0;
-        const mapa = (usouFiltro && Object.keys(mapaFiltrado).length === 0) ? mapaTudo : mapaFiltrado;
-        const obs  = usouFiltro && Object.keys(mapaFiltrado).length === 0
-          ? Object.keys(mapa).length + ' NFs (exibindo todas — operador não encontrado na planilha)' + abaInfo
-          : Object.keys(mapa).length + ' NFs' + (usouFiltro ? ' deste operador' : '') + abaInfo;
-
-        return { mapa, erro: null, detalhes: obs };
-      } catch(e) {
-        return vazio('excecao', e.message);
-      }
-    }
-    // Palavras comuns em nomes brasileiros que NÃO identificam uma pessoa
-    const _STOPWORDS = new Set([
-      'de','da','do','dos','das','di','e','a','o','em','com','por','para',
-      // Prenomes muito comuns
-      'maria','jose','joao','ana','luiz','luis','antonio','carlos','francisco',
-      'roberto','paulo','pedro','lucas','gabriel','marcos','rafael','jorge',
-      'anderson','alexandre','andre','bruno','diego','eduardo','fabio','felipe',
-      'fernando','gilberto','gustavo','henrique','igor','junior','leandro',
-      'marcelo','mario','mateus','mauricio','miguel','nelson','paulo','rafael',
-      'renato','ricardo','rodrigo','sergio','thiago','victor','vitor','wagner',
-      'adriana','aline','amanda','ana','beatriz','bruna','camila','cristina',
-      'daniela','elaine','fernanda','gabriela','isabela','jessica','juliana',
-      'larissa','leticia','luciana','mariana','natalia','patricia','priscila',
-      'renata','sabrina','sandra','simone','tatiana','valeria','vanessa','vera',
-      // Sobrenomes muito comuns
-      'silva','santos','oliveira','souza','sousa','pereira','ferreira','alves',
-      'lima','costa','gomes','martins','rodrigues','carvalho','araujo','melo',
-      'ribeiro','rocha','freitas','xavier','mendes','barros','lopes','campos',
-      'moreira','teixeira','moura','brito','cavalcanti','monteiro','azevedo',
-      'ramos','pinto','nunes','fernandes','vieira','barbosa','cavalcante',
-      'nascimento','andrade','cunha','medeiros','batista','machado','nogueira',
-      // Sufixos/partículas de família
-      'filho','filha','junior','neto','neta','sobrinho','segundo','terceiro',
-      'espirito','santo','santa','nossa','senhora','divino','sagrado'
-    ]);
-
-    function _palavrasChave(nome) {
-      // Retorna apenas palavras que NÃO são stopwords e têm ≥5 letras
-      return nome.split(/\s+/).filter(w => w.length >= 5 && !_STOPWORDS.has(w));
-    }
-
-    function buscarNf(paciente, mapa) {
-      if (!paciente || paciente === '—' || !Object.keys(mapa).length) return null;
-      // Limpa asteriscos, parênteses e sufixos comuns do AMEI antes de normalizar
-      const pacLimpo = (paciente||'').replace(/\*+$/,'').replace(/\s*\(.*?\)\s*/g,'').trim();
-      const np = normNome(pacLimpo);
-
-      // 1. Match exato
-      if (mapa[np]) return mapa[np];
-
-      // 2. Substring forte: o nome mais curto deve ter ≥10 chars
-      //    e representar ≥75% do nome mais longo
-      for (const [k, v] of Object.entries(mapa)) {
-        const menor = np.length <= k.length ? np : k;
-        const maior = np.length <= k.length ? k  : np;
-        if (menor.length >= 10 && maior.includes(menor) && menor.length / maior.length >= 0.75) {
-          return v;
-        }
-      }
-
-      // 3. Palavras-chave em comum (ignora stopwords e palavras curtas)
-      // Cobertura calculada em relação ao PACIENTE para evitar falsos positivos:
-      // ex: "MARIA CECILIA SOUZA" (chaves:["cecilia"]) não pode cobrir 100% de
-      // "MARIA CECILIA DE JESUS" (chaves:["cecilia","jesus"]) pois falta "jesus"
-      const chavesPac = _palavrasChave(np);
-      if (chavesPac.length >= 1) {
-        for (const [k, v] of Object.entries(mapa)) {
-          const chavesNf = _palavrasChave(k);
-          if (!chavesNf.length) continue;
-          const comuns = chavesPac.filter(w => chavesNf.includes(w));
-          // Cobertura = comuns / chaves do PACIENTE (não min)
-          const coberturaPac = comuns.length / chavesPac.length;
-          const coberturacruzada = comuns.length / chavesNf.length;
-          // Match: ≥2 em comum OU cobre 100% de AMBOS os lados (match perfeito)
-          if (comuns.length >= 2 ||
-              (comuns.length >= 1 && coberturaPac === 1.0 && coberturacruzada === 1.0)) {
-            return v;
-          }
-        }
-      }
-
-      // 4. Match por primeiro nome + pelo menos 1 palavra rara do sobrenome (≥7 chars, não stopword)
-      //    Útil quando o AMEI abrevia o nome ou tem grafia diferente
-      const palavrasLongas = (np.split(' ')).filter(w => w.length >= 7 && !_STOPWORDS.has(w));
-      if (palavrasLongas.length >= 1) {
-        const primeiroNomePac = np.split(' ')[0];
-        for (const [k, v] of Object.entries(mapa)) {
-          const kPalavras = k.split(' ');
-          const primeiroNomeNf = kPalavras[0];
-          if (primeiroNomePac !== primeiroNomeNf) continue; // primeiro nome diferente → pula
-          const palavrasLongasNf = kPalavras.filter(w => w.length >= 7 && !_STOPWORDS.has(w));
-          const comuns = palavrasLongas.filter(w => palavrasLongasNf.includes(w));
-          if (comuns.length >= 1) return v;
-        }
-      }
-
-      console.warn('[buscarNf] SEM MATCH — pac:', JSON.stringify(np), '| mapa:', JSON.stringify(Object.fromEntries(Object.entries(mapa).slice(0,5))));
-      return null;
-    }
-
-    /* ── GERAR RELATÓRIO ── */
+    
     window.gerarRelatorio = function() {
       const txt = document.getElementById('cxPaste').value.trim();
       if (!txt) { toast('Cole os dados do caixa antes de gerar', 'error'); return; }
