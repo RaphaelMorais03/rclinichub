@@ -561,13 +561,29 @@
           const baseCSV = csvBase.replace(/&gid=\d+/, '');
 
           // MÉTODO 1: &sheet=NomeDaAba — direto, sem depender do pubhtml
+          // Verifica que o CSV retornado TEM colunas de NOME e NF (não é aba padrão errada)
+          function _temColunasNF(csvTxt) {
+            const primeiras = csvTxt.trim().split('\n').slice(0,5);
+            return primeiras.some(function(linha) {
+              const l = linha.toLowerCase().replace(/[\s°º]/g,'');
+              const temNome = l.includes('nome') || l.includes('paciente');
+              const temNF   = l.includes('notafiscal') || l.includes('nfiscal') ||
+                              l.includes('nnota') || l.includes('nfnota') ||
+                              l.includes('fiscal') || l.includes('nota') ||
+                              l.includes('numero');
+              return temNome && temNF;
+            });
+          }
+
           for (let vi=0; vi<variacoes.length && csvUrl===csvBase; vi++) {
             try {
               const testUrl = baseCSV + '&sheet=' + encodeURIComponent(variacoes[vi]);
               const tr = await fetchComTimeout(testUrl, 3500);
               if (tr.ok) {
                 const txt = await tr.text();
-                if (txt.trim().split('\n').filter(function(l){return l.trim();}).length > 1) {
+                const linhasValidas = txt.trim().split('\n').filter(function(l){return l.trim();});
+                // Aceita só se tiver >1 linha E tiver colunas de NOME+NF (não é aba errada)
+                if (linhasValidas.length > 1 && _temColunasNF(txt)) {
                   csvUrl  = testUrl;
                   abaInfo = ' · aba ' + variacoes[vi] + ' (via &sheet=)';
                   console.log('[NF] Aba via &sheet=:', variacoes[vi]);
@@ -607,8 +623,10 @@
           }
 
           if (csvUrl === csvBase) {
-            abaInfo = ' · aba ' + nomeAba + ' não encontrada — usando planilha padrão';
-            console.warn('[NF] Aba não encontrada:', nomeAba, variacoes);
+            // Aba do dia não encontrada → NF ainda não emitida para esta data
+            // Não usar aba padrão pois traria NFs de outro dia
+            console.warn('[NF] Aba não encontrada para:', nomeAba, '— retornando vazio');
+            return vazio('aba_nao_encontrada', 'Aba ' + nomeAba + ' não encontrada na planilha. As NFs podem ainda não ter sido emitidas para esta data.');
           }
         }
 
@@ -631,18 +649,32 @@
         // Procura a linha de cabeçalho real (pode não ser a linha 0 se houver título)
         let headerIdx = -1;
         let rawHeader = [], header = [];
-        for (let i = 0; i < Math.min(10, todasLinhas.length); i++) {
+        for (let i = 0; i < Math.min(15, todasLinhas.length); i++) {
           rawHeader = todasLinhas[i];
-          header    = rawHeader.map(h => normNome(h).replace(/\s/g,''));
+          header    = rawHeader.map(h => normNome(h).replace(/[\s°º]/g,''));
           const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
-          const temNf   = header.some(h => h.includes('nf') || h.includes('nota') || h.includes('numero'));
+          // Aceita qualquer variação: "Nº NOTA FISCAL", "N° NOTA FISCAL", "NF", "NOTA FISCAL"
+          const temNf   = header.some(h =>
+            h.includes('fiscal') || h.includes('nota') ||
+            h.includes('numero') || h === 'nf' || h.includes('notafiscal') ||
+            h.includes('nfiscal') || h.includes('n°nota') || h.includes('nºnota')
+          );
           if (temNome && temNf) { headerIdx = i; break; }
         }
 
-        if (headerIdx < 0) return vazio('col_header', 'Cabeçalho não encontrado nas 10 primeiras linhas. Verifique se a planilha tem colunas NOME e N° NOTA FISCAL');
+        // Se não achou NF mas achou NOME, avança sem NF (NFs talvez não emitidas ainda)
+        if (headerIdx < 0) {
+          for (let i = 0; i < Math.min(15, todasLinhas.length); i++) {
+            rawHeader = todasLinhas[i];
+            header    = rawHeader.map(h => normNome(h).replace(/[\s°º]/g,''));
+            const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
+            if (temNome) { headerIdx = i; break; }
+          }
+          if (headerIdx < 0) return vazio('col_header', 'Cabeçalho não encontrado. Verifique se a planilha tem a coluna NOME na aba da data correta.');
+        }
 
         const iNome  = header.findIndex(h => h === 'nome' || h.includes('paciente'));
-        const iNf    = header.findIndex(h => h.includes('nf') || h.includes('nota') || h.includes('numero'));
+        const iNf    = header.findIndex(h => h.includes('fiscal') || h.includes('nota') || h.includes('numero') || h === 'nf' || h.includes('notafiscal'));
         const iAtend = header.findIndex(h =>
           h.includes('atendente') || h.includes('operador') ||
           h.includes('colaborador') || h.includes('responsavel') ||
@@ -740,14 +772,21 @@
       }
 
       // 3. Palavras-chave em comum (ignora stopwords e palavras curtas)
+      // Cobertura calculada em relação ao PACIENTE para evitar falsos positivos:
+      // ex: "MARIA CECILIA SOUZA" (chaves:["cecilia"]) não pode cobrir 100% de
+      // "MARIA CECILIA DE JESUS" (chaves:["cecilia","jesus"]) pois falta "jesus"
       const chavesPac = _palavrasChave(np);
       if (chavesPac.length >= 1) {
         for (const [k, v] of Object.entries(mapa)) {
           const chavesNf = _palavrasChave(k);
           if (!chavesNf.length) continue;
           const comuns = chavesPac.filter(w => chavesNf.includes(w));
-          const cobertura = comuns.length / Math.min(chavesPac.length, chavesNf.length);
-          if (comuns.length >= 2 || (comuns.length >= 1 && cobertura === 1.0 && chavesPac.length >= 2)) {
+          // Cobertura = comuns / chaves do PACIENTE (não min)
+          const coberturaPac = comuns.length / chavesPac.length;
+          const coberturacruzada = comuns.length / chavesNf.length;
+          // Match: ≥2 em comum OU cobre 100% de AMBOS os lados (match perfeito)
+          if (comuns.length >= 2 ||
+              (comuns.length >= 1 && coberturaPac === 1.0 && coberturacruzada === 1.0)) {
             return v;
           }
         }
