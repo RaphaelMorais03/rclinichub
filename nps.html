@@ -342,6 +342,9 @@
         <button class="btn-green" id="btnSalvar" style="display:none;" onclick="abrirSalvar()">
           <i class="fas fa-cloud-arrow-up"></i> Salvar período
         </button>
+        <button class="btn-s" onclick="exportarNpsExcel()" style="background:#15803d;color:white;border:none;" title="Exportar relatório Excel">
+          <i class="fas fa-file-excel"></i> Exportar Excel
+        </button>
         <button class="btn-s" onclick="voltarUpload()"><i class="fas fa-rotate-right"></i> Nova importação</button>
       </div>
 
@@ -1036,6 +1039,102 @@
       });
     }
 
+
+
+    /* ════════════════════════════════════════
+       EXPORTAR EXCEL — NPS POR COLABORADOR
+    ════════════════════════════════════════ */
+    window.exportarNpsExcel = function() {
+      const ranking = _viewRanking || [];
+      if (!ranking.length) { toast('Nenhum dado para exportar', 'error'); return; }
+
+      // ── Monta CSV com BOM para Excel reconhecer UTF-8 ──
+      const SEP = ';';
+      const BOM = '\uFEFF';
+
+      // Período (do infoPeriodTxt se disponível)
+      const periodo = document.getElementById('infoPeriodTxt')
+        ? document.getElementById('infoPeriodTxt').textContent || ''
+        : '';
+      const arquivo = document.getElementById('infoFile')
+        ? document.getElementById('infoFile').textContent || 'NPS'
+        : 'NPS';
+      const agora = new Date().toLocaleString('pt-BR');
+
+      // Cabeçalho
+      const linhas = [
+        ['Relatório NPS — Amor Saúde Pirituba'],
+        ['Gerado em: ' + agora + (periodo ? '  |  Período: ' + periodo : '')],
+        [],
+        [
+          'Colaborador',
+          'Total Avaliações',
+          'Promotores',
+          '% Promotores',
+          'Passivos',
+          '% Passivos',
+          'Detratores',
+          '% Detratores',
+          'NPS'
+        ]
+      ];
+
+      ranking.forEach(r => {
+        const pct = v => r.total > 0 ? ((v / r.total) * 100).toFixed(1).replace('.', ',') + '%' : '0%';
+        linhas.push([
+          r.nome,
+          r.total,
+          r.p,
+          pct(r.p),
+          r.s,
+          pct(r.s),
+          r.d,
+          pct(r.d),
+          r.nps
+        ]);
+      });
+
+      // Linha de totais
+      const totP = ranking.reduce((s,r) => s+r.p, 0);
+      const totS = ranking.reduce((s,r) => s+r.s, 0);
+      const totD = ranking.reduce((s,r) => s+r.d, 0);
+      const totT = ranking.reduce((s,r) => s+r.total, 0);
+      const npsGeral = totT > 0 ? Math.round(((totP - totD) / totT) * 100) : 0;
+      const pctG = v => totT > 0 ? ((v/totT)*100).toFixed(1).replace('.',',')+'%' : '0%';
+
+      linhas.push([]);
+      linhas.push([
+        'TOTAL GERAL',
+        totT,
+        totP, pctG(totP),
+        totS, pctG(totS),
+        totD, pctG(totD),
+        npsGeral
+      ]);
+
+      // Converte para CSV string
+      const csv = BOM + linhas.map(row =>
+        row.map(cell => {
+          const s = String(cell ?? '');
+          // Envolve em aspas se tiver separador, aspas ou quebra
+          return s.includes(SEP) || s.includes('"') || s.includes('\n')
+            ? '"' + s.replace(/"/g, '""') + '"'
+            : s;
+        }).join(SEP)
+      ).join('\r\n');
+
+      // Download
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'NPS_Colaboradores_' + new Date().toISOString().slice(0,10) + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast('Relatório exportado com sucesso!', 'success');
+    };
 
     /* ════════════════════════════════════════
        ABA POR ATENDENTE
