@@ -534,92 +534,98 @@
       const vazio = (erro, detalhes) => ({ mapa:{}, erro, detalhes: detalhes||'' });
       if (!window._planilhaNfUrl) return vazio('sem_url');
 
-      // Monta URL base CSV — aceita qualquer formato de link do Google Sheets
-      let baseUrl = window._planilhaNfUrl.trim();
-      // Converte qualquer formato para pub?output=csv
-      if (baseUrl.includes('/edit') || baseUrl.includes('/sharing') || baseUrl.includes('usp=')) {
-        const m = baseUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
-        if (m) baseUrl = 'https://docs.google.com/spreadsheets/d/' + m[1] + '/pub?output=csv';
-      } else if (baseUrl.includes('output=xlsx')) {
-        baseUrl = baseUrl.replace('output=xlsx','output=csv');
-      } else if (!baseUrl.includes('output=csv')) {
-        baseUrl += (baseUrl.includes('?')?'&':'?') + 'output=csv';
+      // ── Normaliza URL para pub?output=csv ──
+      let url = window._planilhaNfUrl.trim();
+      if (url.includes('output=xlsx'))   url = url.replace('output=xlsx','output=csv');
+      if (url.includes('output=html'))   url = url.replace('output=html','output=csv');
+      if (url.includes('/edit') || url.includes('/sharing')) {
+        const m = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+        if (m) url = 'https://docs.google.com/spreadsheets/d/'+m[1]+'/pub?output=csv';
       }
-      // Remove qualquer &sheet= ou &gid= anterior
-      const csvBase = baseUrl.replace(/&sheet=[^&]*/,'').replace(/&gid=\d+/,'');
+      if (!url.includes('output=csv')) url += (url.includes('?')?'&':'?')+'output=csv';
+      const csvBase = url.replace(/[?&]gid=\d+/,'').replace(/[?&]sheet=[^&]*/,'');
 
       const nomeAba = caixaDataStr || null;
       let csvUrl = csvBase, abaInfo = '';
 
       if (nomeAba) {
-        // Monta variações do nome da aba
         const [dd,mm,yyyy] = nomeAba.split('/');
         const yy = yyyy ? yyyy.slice(2) : '';
         const variacoes = [
-          nomeAba,                                        // 02/06/2026
-          dd+'/'+mm,                                      // 02/06
-          parseInt(dd)+'/'+parseInt(mm),                  // 2/6
-          parseInt(dd)+'/'+parseInt(mm)+'/'+yyyy,         // 2/6/2026
-          dd+'.'+mm+'.'+yyyy,                             // 02.06.2026
-          dd+'-'+mm+'-'+yyyy,                             // 02-06-2026
-          dd+mm+yy,                                       // 020626
-          dd+mm+yyyy,                                     // 02062026
+          nomeAba, dd+'/'+mm,
+          parseInt(dd)+'/'+parseInt(mm),
+          parseInt(dd)+'/'+parseInt(mm)+'/'+yyyy,
+          dd+'.'+mm+'.'+yyyy, dd+'-'+mm+'-'+yyyy,
+          dd+mm+yy, dd+mm+yyyy,
         ].filter(Boolean);
+        const varSet = new Set(variacoes.map(v=>v.trim().toLowerCase()));
 
-        // Tenta cada variação com barra LITERAL (Google aceita sem encode)
-        for (let vi=0; vi<variacoes.length && csvUrl===csvBase; vi++) {
-          try {
-            const testUrl = csvBase + '&sheet=' + variacoes[vi];
-            const ctrl    = new AbortController();
-            const tid     = setTimeout(()=>ctrl.abort(), 8000);
-            const r       = await fetch(testUrl, {signal:ctrl.signal});
-            clearTimeout(tid);
-            if (!r.ok) continue;
-            const txt = await r.text();
-            // Aceita se tiver mais de 1 linha e tiver coluna NOME
-            const linhas = txt.trim().split('\n').filter(l=>l.trim());
-            const hdr = (linhas[0]||'').toLowerCase();
-            if (linhas.length>1 && (hdr.includes('nome') || hdr.includes('paciente'))) {
-              csvUrl  = testUrl;
-              abaInfo = ' · aba ' + variacoes[vi];
-              break;
+        // MÉTODO 1: pubhtml → extrai GID de cada aba por nome
+        try {
+          const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/,'pubhtml');
+          const ctrl = new AbortController();
+          setTimeout(()=>ctrl.abort(), 8000);
+          const rh = await fetch(pubhtmlUrl, {signal:ctrl.signal});
+          if (rh.ok) {
+            const htxt = await rh.text();
+            // Tenta vários padrões de regex para extrair nome+gid
+            const patterns = [
+              /items\.push\(\{"name":"([^"]+)","pageUrl":"[^"]*gid=(\d+)/g,
+              /items\.push\(\{name:"([^"]+)"[^}]*pageUrl:"[^"]*gid=(\d+)/g,
+              /"name":"([^"]+)"[^}]{0,200}"pageUrl":"[^"]*gid=(\d+)/g,
+              /pageUrl:"[^"]*gid=(\d+)[^"]*"[^}]{0,200}"name":"([^"]+)"/g,
+              /gid=(\d+)[^>]{0,100}>([^<]{2,20})<\/a/g,
+            ];
+            outer:
+            for (const pat of patterns) {
+              let m;
+              while ((m = pat.exec(htxt)) !== null) {
+                // Padrão 4 e 5 têm gid antes do nome — inverter
+                const [tabName, gid] = pat.source.startsWith('gid')
+                  ? [m[2], m[1]] : [m[1], m[2]];
+                if (varSet.has(tabName.trim().toLowerCase())) {
+                  csvUrl  = csvBase + '&gid=' + gid;
+                  abaInfo = ' · aba ' + tabName + ' (gid:'+gid+')';
+                  console.log('[NF] Aba encontrada via pubhtml:', tabName, 'gid:', gid);
+                  break outer;
+                }
+              }
             }
-          } catch(e) { /* timeout ou erro — tenta próxima */ }
-        }
+          }
+        } catch(e) { console.warn('[NF] pubhtml falhou:', e.message); }
 
         if (csvUrl === csvBase) {
-          console.warn('[NF] Aba não encontrada:', nomeAba);
+          console.warn('[NF] Aba não encontrada:', nomeAba,
+            '→ A planilha precisa ser re-publicada como CSV após criar novas abas.');
           return vazio('aba_nao_encontrada',
-            'Aba ' + nomeAba + ' não encontrada. Verifique se a planilha está publicada na web.');
+            'Aba '+nomeAba+' não encontrada. Publique novamente: Arquivo → Publicar na web → CSV → Publicar.');
         }
       }
 
-      // Busca o CSV do dia
+      // ── Baixa o CSV do dia ──
       let txt;
       try {
         const ctrl = new AbortController();
-        const tid  = setTimeout(()=>ctrl.abort(), 15000);
-        const r    = await fetch(csvUrl, {signal:ctrl.signal});
-        clearTimeout(tid);
+        setTimeout(()=>ctrl.abort(), 15000);
+        const r = await fetch(csvUrl, {signal:ctrl.signal});
         if (!r.ok) return vazio('http_erro','HTTP '+r.status);
         txt = await r.text();
       } catch(e) {
-        return vazio('fetch_erro','Planilha NF não respondeu. Verifique sua conexão.');
+        return vazio('fetch_erro','Planilha NF não respondeu. Verifique conexão.');
       }
-
-      if (!txt || txt.trim().startsWith('<'))
-        return vazio('html_erro','A URL retornou HTML — verifique se a planilha está publicada como CSV.');
+      if (!txt||txt.trim().startsWith('<'))
+        return vazio('html_erro','URL retornou HTML. Verifique se está publicada como CSV.');
 
       const todasLinhas = parseCsv(txt);
-      if (todasLinhas.length < 2) return vazio('vazio','Planilha sem dados');
+      if (todasLinhas.length<2) return vazio('vazio','Aba sem dados');
 
-      // Detectar cabeçalho
+      // ── Detecta cabeçalho ──
       let headerIdx=-1, rawHeader=[], header=[];
       for (let i=0;i<Math.min(15,todasLinhas.length);i++) {
-        rawHeader = todasLinhas[i];
-        header    = rawHeader.map(h=>normNome(String(h||'')).replace(/[\s°º]/g,''));
-        const temNome = header.some(h=>h==='nome'||h.includes('paciente'));
-        const temNf   = header.some(h=>h.includes('fiscal')||h.includes('nota')||h.includes('numero')||h==='nf');
+        rawHeader=todasLinhas[i];
+        header=rawHeader.map(h=>normNome(String(h||'')).replace(/[\s°º]/g,''));
+        const temNome=header.some(h=>h==='nome'||h.includes('paciente'));
+        const temNf=header.some(h=>h.includes('fiscal')||h.includes('nota')||h.includes('numero')||h==='nf');
         if (temNome&&temNf){headerIdx=i;break;}
       }
       if (headerIdx<0) {
@@ -627,16 +633,16 @@
           header=todasLinhas[i].map(h=>normNome(String(h||'')).replace(/[\s°º]/g,''));
           if (header.some(h=>h==='nome'||h.includes('paciente'))){headerIdx=i;rawHeader=todasLinhas[i];break;}
         }
-        if (headerIdx<0) return vazio('col_header','Cabeçalho não encontrado. Verifique a coluna NOME.');
+        if (headerIdx<0) return vazio('col_header','Coluna NOME não encontrada.');
       }
 
-      const iNome  = header.findIndex(h=>h==='nome'||h.includes('paciente'));
-      const iNf    = header.findIndex(h=>h.includes('fiscal')||h.includes('nota')||h.includes('numero')||h==='nf');
-      const iAtend = header.findIndex(h=>
+      const iNome=header.findIndex(h=>h==='nome'||h.includes('paciente'));
+      const iNf=header.findIndex(h=>h.includes('fiscal')||h.includes('nota')||h.includes('numero')||h==='nf');
+      const iAtend=header.findIndex(h=>
         h.includes('atendente')||h.includes('operador')||h.includes('colaborador')||
         h.includes('responsavel')||h.includes('emissor')||h.includes('usuario'));
 
-      const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
+      const fnFiltro=atendenteFiltro?normNome(atendenteFiltro).split(' ')[0]:null;
       const mapaFiltrado={}, mapaTudo={};
 
       for (let i=headerIdx+1;i<todasLinhas.length;i++) {
@@ -659,6 +665,7 @@
       const mapa=Object.keys(mapaFiltrado).length>0?mapaFiltrado:mapaTudo;
       return {mapa, erro:null, detalhes:abaInfo};
     }
+
 
 
         // fetch com timeout (ms) — aborta se demorar demais
