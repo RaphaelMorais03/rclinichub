@@ -7,6 +7,7 @@
   <title>Caixa — Amor Saúde Pirituba</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="js/firebase-config.js"></script>
   <script src="js/shared-utils.js"></script>
   <style>
@@ -534,6 +535,161 @@
     async function carregarNotasFiscais(atendenteFiltro, caixaDataStr) {
       const vazio = (erro, detalhes) => ({ mapa: {}, erro, detalhes: detalhes || '' });
       if (!window._planilhaNfUrl) return vazio('sem_url');
+
+      // ── Monta URL de exportação XLSX (todas as abas de uma vez) ──
+      const idMatch = window._planilhaNfUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+      if (!idMatch) return vazio('url_invalida', 'Não foi possível identificar o ID da planilha. Use o link de compartilhamento ou publicação do Google Sheets.');
+
+      const sheetId  = idMatch[1];
+      const xlsxUrl  = 'https://docs.google.com/spreadsheets/d/' + sheetId + '/pub?output=xlsx';
+
+      // Nome da aba do dia (formato DD/MM/YYYY e variações)
+      const nomeAba = caixaDataStr || null;
+      let abaInfo   = '';
+
+      let arraybuf;
+      try {
+        const resp = await fetchComTimeout(xlsxUrl, 8000);
+        if (!resp.ok) return vazio('http_erro', 'HTTP ' + resp.status + ' — verifique se a planilha está publicada (Arquivo → Publicar na web → Microsoft Excel .xlsx)');
+        arraybuf = await resp.arrayBuffer();
+      } catch(e) {
+        return vazio('fetch_erro', e.message);
+      }
+
+      // ── Lê o XLSX com todas as abas ──
+      let wb;
+      try {
+        wb = XLSX.read(arraybuf, { type: 'array', raw: false });
+      } catch(e) {
+        return vazio('xlsx_erro', 'Erro ao ler o arquivo: ' + e.message);
+      }
+
+      // ── Encontra a aba do dia ──
+      let ws = null;
+      if (nomeAba) {
+        const [dd, mm, yyyy] = nomeAba.split('/');
+        const yy = yyyy ? yyyy.slice(2) : '';
+        const variacoes = [
+          nomeAba,
+          dd + '/' + mm,
+          parseInt(dd) + '/' + parseInt(mm),
+          parseInt(dd) + '/' + parseInt(mm) + '/' + yyyy,
+          dd + '.' + mm + '.' + yyyy,
+          dd + '-' + mm + '-' + yyyy,
+          dd + mm + yy,
+          dd + mm + yyyy,
+        ].filter(Boolean);
+
+        // Busca insensível a espaços e maiúsculas
+        for (let vi = 0; vi < variacoes.length && !ws; vi++) {
+          const v = variacoes[vi].trim().toLowerCase();
+          const sname = wb.SheetNames.find(s => s.trim().toLowerCase() === v);
+          if (sname) {
+            ws = wb.Sheets[sname];
+            abaInfo = ' · aba ' + sname;
+          }
+        }
+
+        if (!ws) {
+          console.warn('[NF] Aba não encontrada:', nomeAba, '| Abas disponíveis:', wb.SheetNames);
+          return vazio('aba_nao_encontrada', 'Aba ' + nomeAba + ' não encontrada. Abas disponíveis: ' + wb.SheetNames.slice(0,8).join(', '));
+        }
+      } else {
+        // Sem data — usa primeira aba que não seja template
+        const sname = wb.SheetNames.find(s => !/^(troco|base|página|copia)/i.test(s.trim()));
+        ws = wb.Sheets[sname || wb.SheetNames[0]];
+        abaInfo = ' · aba padrão';
+      }
+
+      // ── Converte aba para array de linhas ──
+      const todasLinhas = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
+      if (todasLinhas.length < 2) return vazio('vazio', 'Aba ' + nomeAba + ' sem dados');
+
+      // ── Detecta cabeçalho ──
+      let headerIdx = -1;
+      let rawHeader = [], header = [];
+      for (let i = 0; i < Math.min(15, todasLinhas.length); i++) {
+        rawHeader = todasLinhas[i];
+        header    = rawHeader.map(h => normNome(String(h||'')).replace(/[\s°º]/g,''));
+        const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
+        const temNf   = header.some(h =>
+          h.includes('fiscal') || h.includes('nota') ||
+          h.includes('numero') || h === 'nf' || h.includes('notafiscal')
+        );
+        if (temNome && temNf) { headerIdx = i; break; }
+      }
+
+      // Se não achou NF mas achou NOME, avança sem NF
+      if (headerIdx < 0) {
+        for (let i = 0; i < Math.min(15, todasLinhas.length); i++) {
+          rawHeader = todasLinhas[i];
+          header    = rawHeader.map(h => normNome(String(h||'')).replace(/[\s°º]/g,''));
+          const temNome = header.some(h => h === 'nome' || h.includes('paciente'));
+          if (temNome) { headerIdx = i; break; }
+        }
+        if (headerIdx < 0) return vazio('col_header', 'Cabeçalho não encontrado na aba ' + nomeAba + '. Verifique se tem a coluna NOME.');
+      }
+
+      const iNome  = header.findIndex(h => h === 'nome' || h.includes('paciente'));
+      const iNf    = header.findIndex(h =>
+        h.includes('fiscal') || h.includes('nota') ||
+        h.includes('numero') || h === 'nf' || h.includes('notafiscal')
+      );
+      const iAtend = header.findIndex(h =>
+        h.includes('atendente') || h.includes('operador') ||
+        h.includes('colaborador') || h.includes('responsavel') ||
+        h.includes('emissor') || h.includes('usuario')
+      );
+
+      // Filtro por colaborador (primeiro nome)
+      const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
+
+      const mapaFiltrado = {};
+      const mapaTudo     = {};
+
+      for (let i = headerIdx + 1; i < todasLinhas.length; i++) {
+        const cols = todasLinhas[i];
+        const nomeRaw = (String(cols[iNome] || '')).replace(/\*+$/,'').replace(/["*]/g,'').trim();
+        const nome = normNome(nomeRaw);
+        const nf   = iNf >= 0 ? (String(cols[iNf] || '')).replace(/["*]/g,'').trim() : '';
+        if (!nome || nome.length < 3 || !nf) continue;
+        mapaTudo[nome] = mapaTudo[nome] ? mapaTudo[nome] + ' / ' + nf : nf;
+
+        if (iAtend >= 0 && fnFiltro) {
+          const nomeAtend = normNome((String(cols[iAtend] || '')).replace(/\*/g,''));
+          const primeiroNomeAtend  = nomeAtend.split(' ')[0];
+          const primeiroNomeFiltro = fnFiltro.split(' ')[0];
+          const bate = nomeAtend.includes(primeiroNomeFiltro) ||
+                       fnFiltro.includes(primeiroNomeAtend) ||
+                       primeiroNomeAtend === primeiroNomeFiltro;
+          if (!bate) continue;
+        }
+        mapaFiltrado[nome] = mapaFiltrado[nome] ? mapaFiltrado[nome] + ' / ' + nf : nf;
+      }
+
+      const mapa = Object.keys(mapaFiltrado).length > 0 ? mapaFiltrado : mapaTudo;
+      return { mapa, erro: null, detalhes: abaInfo };
+    }
+
+    
+    // Converte YYYY-MM-DD → DD/MM/YYYY (nome das abas da planilha)
+    function tkParaNomeAba(tkFb) {
+      if (!tkFb || tkFb.length !== 10) return null;
+      const [y, m, d] = tkFb.split('-');
+      return d + '/' + m + '/' + y;
+    }
+
+    // fetch com timeout (ms) — aborta se demorar demais
+    function fetchComTimeout(url, ms) {
+      const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
+      return Promise.race([fetch(url), timeout]);
+    }
+
+    // Retorna { mapa, erro, detalhes } para diagnóstico
+    // caixaDataStr: "DD/MM/YYYY" extraída dos lançamentos do AMEI (tem precedência sobre a data de hoje)
+    async function carregarNotasFiscais(atendenteFiltro, caixaDataStr) {
+      const vazio = (erro, detalhes) => ({ mapa: {}, erro, detalhes: detalhes || '' });
+      if (!window._planilhaNfUrl) return vazio('sem_url');
       try {
         const csvBase = normalizeSheetUrl(window._planilhaNfUrl).replace(/&sheet=[^&]*/,'');
 
@@ -558,32 +714,27 @@
             dd+mm+yyyy,
           ].filter(Boolean);
 
-          const baseCSV = csvBase.replace(/&gid=\d+/, '');
+          const baseCSV = csvBase.replace(/&gid=\d+/, '').replace(/&sheet=[^&]*/,'');
 
-          // MÉTODO 1: &sheet=NomeDaAba — direto, sem depender do pubhtml
-          // Verifica que o CSV retornado TEM colunas de NOME e NF (não é aba padrão errada)
-          function _temColunasNF(csvTxt) {
-            const primeiras = csvTxt.trim().split('\n').slice(0,5);
-            return primeiras.some(function(linha) {
-              const l = linha.toLowerCase().replace(/[\s°º]/g,'');
-              const temNome = l.includes('nome') || l.includes('paciente');
-              const temNF   = l.includes('notafiscal') || l.includes('nfiscal') ||
-                              l.includes('nnota') || l.includes('nfnota') ||
-                              l.includes('fiscal') || l.includes('nota') ||
-                              l.includes('numero');
-              return temNome && temNF;
-            });
-          }
+          // Extrai ID da planilha para tentar também via /export?format=csv (mais confiável)
+          const _sheetIdM = (window._planilhaNfUrl||'').match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+          const _sheetId  = _sheetIdM ? _sheetIdM[1] : null;
+          const exportBase = _sheetId
+            ? 'https://docs.google.com/spreadsheets/d/' + _sheetId + '/export?format=csv'
+            : null;
 
-          // Tenta cada variação do nome da aba com e sem encoding das barras
-          // Google Sheets aceita literal "/" no parâmetro &sheet=
+          // Monta todas as URLs para tentar: export + pub, com literal e encoded
           const urlVariacoes = [];
           variacoes.forEach(function(v) {
-            urlVariacoes.push(baseCSV + '&sheet=' + v);                      // barra literal (Google aceita)
-            urlVariacoes.push(baseCSV + '&sheet=' + encodeURIComponent(v));  // barra codificada (%2F)
+            if (exportBase) {
+              urlVariacoes.push(exportBase + '&sheet=' + v);                     // export + literal
+              urlVariacoes.push(exportBase + '&sheet=' + encodeURIComponent(v)); // export + encoded
+            }
+            urlVariacoes.push(baseCSV + '&sheet=' + v);                          // pub + literal
+            urlVariacoes.push(baseCSV + '&sheet=' + encodeURIComponent(v));      // pub + encoded
           });
 
-          for (let vi=0; vi<urlVariacoes.length && csvUrl===csvBase; vi++) {
+                    for (let vi=0; vi<urlVariacoes.length && csvUrl===csvBase; vi++) {
             try {
               const testUrl = urlVariacoes[vi];
               const tr = await fetchComTimeout(testUrl, 3500);
