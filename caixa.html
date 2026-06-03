@@ -313,7 +313,9 @@
       }
       function parseBRL(s) {
         if (!s) return 0;
-        return Math.abs(parseFloat((s+'').trim().replace(/\s/g,'').replace(/\./g,'').replace(',','.')) || 0);
+        // Remove prefixo R$, espaços, pontos de milhar → converte vírgula decimal
+        const clean = (s+'').trim().replace(/R\$\s*/gi,'').replace(/\s/g,'').replace(/\./g,'').replace(',','.');
+        return Math.abs(parseFloat(clean) || 0);
       }
       function fmtBRL(v) { return 'R$ ' + v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
 
@@ -322,10 +324,19 @@
       const smD = txt.match(/Valor em dinheiro a entregar\s*:\s*(R\$\s*[\d.,]+)/i);
       if (smD) dinheiroEntregar = smD[1].trim();
 
-      for (const linha of txt.split('\n')) {
+      // Junta linhas de continuação do TE_CAIXA
+      const _linhasRaw = txt.split('\n');
+      const _linhas = [];
+      for (let _li = 0; _li < _linhasRaw.length; _li++) {
+        const _l = _linhasRaw[_li].trim();
+        if (!_l) continue;
+        if (/^\d{2}\/\d{2}\/\d{4}/.test(_l)) _linhas.push(_l);
+        else if (_linhas.length > 0) _linhas[_linhas.length-1] += ' ' + _l;
+      }
+      for (const linha of _linhas) {
         const l = linha.trim();
         if (!l || !/^\d{2}\/\d{2}\/\d{4}/.test(l)) continue;
-        const p = l.split(/\t/);
+        const p = l.split(/\t|(?:  {2,})/); // tab OU 2+ espaços (caixinha)
         if (p.length < 5) continue; // mínimo: data, desc, tipo, forma, valor
 
         const dtHora   = (p[0]||'').trim();
@@ -517,10 +528,11 @@
         const mapaTudo     = {};
         for (let i = headerIdx + 1; i < todasLinhas.length; i++) {
           const cols = todasLinhas[i];
-          const nome = normNome(cols[iNome] || '');
+          const nomeRaw = (cols[iNome] || '').replace(/\*+$/,'').replace(/["*]/g,'').trim();
+          const nome = normNome(nomeRaw);
           const nf   = (cols[iNf] || '').replace(/"/g,'').trim();
           if (!nome || !nf) continue;
-          mapaTudo[nome] = nf;
+          mapaTudo[nome] = mapaTudo[nome] ? mapaTudo[nome] + ' / ' + nf : nf;
 
           if (iAtend >= 0 && fnFiltro) {
             const nomeAtend = normNome(cols[iAtend] || '');
@@ -529,7 +541,7 @@
               continue; // outro operador
             }
           }
-          mapaFiltrado[nome] = nf;
+          mapaFiltrado[nome] = mapaFiltrado[nome] ? mapaFiltrado[nome] + ' / ' + nf : nf;
         }
 
         // Fallback: se o filtro zerou tudo (ex: admin testando), usa todas as NFs
@@ -544,30 +556,49 @@
         return vazio('excecao', e.message);
       }
     }
+    const _STOPWORDS = new Set([
+      'de','da','do','dos','das','di','e','a','o','em','com','por','para',
+      'terceiro','espirito','santo','santa','nossa','senhora','divino','sagrado',
+      'silva','santos','oliveira','souza','sousa','pereira','ferreira','alves',
+      'lima','costa','gomes','martins','rodrigues','carvalho','araujo','melo',
+      'ribeiro','rocha','freitas','filho','filha','junior','neto','neta',
+      'nascimento','andrade','cunha','medeiros','batista','machado','nogueira',
+      'xavier','mendes','barros','lopes','campos','moreira','teixeira','moura',
+      'brito','monteiro','azevedo','ramos','pinto','nunes','fernandes','vieira',
+      'barbosa','cavalcante',
+    ]);
+    function _palavrasChave(nome) {
+      return nome.split(' ').filter(w => w.length >= 5 && !_STOPWORDS.has(w));
+    }
+
     function buscarNf(paciente, mapa) {
       if (!paciente || paciente === '—' || !Object.keys(mapa).length) return null;
-      const np = normNome(paciente);
+      const np = normNome((paciente||'').replace(/\*+$/,'').replace(/["*]/g,'').trim());
 
       // 1. Match exato
       if (mapa[np]) return mapa[np];
 
-      // 2. Um contém o outro (substring)
+      // 2. Substring — menor contido no maior (mín. 75% de cobertura e 10 chars)
       for (const [k, v] of Object.entries(mapa)) {
-        if (np.length > 3 && k.length > 3 && (np.includes(k) || k.includes(np))) return v;
+        const menor = np.length <= k.length ? np : k;
+        const maior = np.length <= k.length ? k  : np;
+        if (menor.length >= 10 && maior.includes(menor) && menor.length / maior.length >= 0.75) return v;
       }
 
-      // 3. Palavras em comum (≥2 palavras com ≥4 letras cada)
-      const wpac = np.split(/\s+/).filter(w => w.length >= 4);
-      if (wpac.length >= 2) {
+      // 3. Palavras-chave em comum — cobertura relativa ao PACIENTE (evita falsos positivos)
+      const chavesPac = _palavrasChave(np);
+      if (chavesPac.length >= 1) {
         for (const [k, v] of Object.entries(mapa)) {
-          const wnf = k.split(/\s+/).filter(w => w.length >= 4);
-          const comuns = wpac.filter(w => wnf.includes(w));
-          if (comuns.length >= 2) return v;
+          const chavesNf = _palavrasChave(k);
+          if (!chavesNf.length) continue;
+          const comuns      = chavesPac.filter(w => chavesNf.includes(w));
+          const cobPac      = comuns.length / chavesPac.length;
+          const cobCruz     = comuns.length / chavesNf.length;
+          if (comuns.length >= 2 || (comuns.length >= 1 && cobPac === 1.0 && cobCruz === 1.0)) return v;
         }
       }
 
-      // Log para diagnóstico quando há NFs no mapa mas não houve match
-      console.warn('[buscarNf] SEM MATCH — pac:', JSON.stringify(np), '| mapa:', JSON.stringify(Object.fromEntries(Object.entries(mapa).slice(0,5))));
+      console.warn('[buscarNf] SEM MATCH — pac:', np, '| chaves:', _palavrasChave(np));
       return null;
     }
 
