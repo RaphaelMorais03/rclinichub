@@ -449,12 +449,11 @@
             _dd+_mm+_yy, _dd+_mm+_yyyy,
           ].filter(Boolean).map(v => v.toLowerCase()));
 
+          let htxt = null; // declarado fora do try para ser acessível depois
           try {
             const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
-            // Cache em memória 30min — evita buscar pubhtml toda vez (1ª chamada costuma dar timeout)
-            const _cacheKey = 'nf_ph_' + anonKey;
+            const _cacheKey = 'nf_ph_' + pubhtmlUrl.slice(-20);
             const _cached   = window[_cacheKey];
-            let htxt = null;
             if (_cached && (Date.now() - _cached.ts) < 30 * 60 * 1000) {
               htxt = _cached.html;
               console.info('[NF:INFO] pubhtml do cache (' + Math.round((Date.now()-_cached.ts)/1000) + 's atrás)');
