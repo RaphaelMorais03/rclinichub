@@ -382,6 +382,14 @@
         }
       }
       function fmtBRL2(v) { return 'R$ ' + v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+      if (!lancamentos.length) {
+        console.error('[parseCaixa:ERROR] Nenhum lancamento extraido. Verifique o formato colado.',
+          '| linhas processadas:', _linhas.length,
+          '| exemplo linha 1:', JSON.stringify(_linhas[0] || ''));
+      } else {
+        console.info('[parseCaixa:INFO] OK |', lancamentos.length, 'lancamentos |',
+          Object.keys(totForma).length, 'formas de pagamento');
+      }
       return {lancamentos, transferencias, totForma, dinheiroEntregar, fmtBRL:fmtBRL2};
     }
 
@@ -443,12 +451,38 @@
 
           try {
             const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
-            console.log('[NF] buscando pubhtml:', pubhtmlUrl);
-            const rh = await fetchComTimeout(pubhtmlUrl, 6000);
-            if (rh.ok) {
-              const htxt = await rh.text();
-              console.log('[NF] pubhtml ok, tamanho:', htxt.length);
-              // Tenta dois formatos de regex — Google pode variar
+            // Cache em memória 30min — evita buscar pubhtml toda vez (1ª chamada costuma dar timeout)
+            const _cacheKey = 'nf_ph_' + anonKey;
+            const _cached   = window[_cacheKey];
+            let htxt = null;
+            if (_cached && (Date.now() - _cached.ts) < 30 * 60 * 1000) {
+              htxt = _cached.html;
+              console.info('[NF:INFO] pubhtml do cache (' + Math.round((Date.now()-_cached.ts)/1000) + 's atrás)');
+            } else {
+              let rh = null;
+              for (let _t = 0; _t < 2 && !rh; _t++) {
+                try {
+                  const _r = await fetchComTimeout(pubhtmlUrl, 15000);
+                  if (_r && _r.ok) rh = _r;
+                  else console.warn('[NF:WARN] pubhtml HTTP', _r && _r.status, 'tentativa', _t+1);
+                } catch(e) {
+                  if (_t === 0) {
+                    console.warn('[NF:WARN] pubhtml timeout tentativa 1 — aguardando 500ms');
+                    await new Promise(r => setTimeout(r, 500));
+                  } else {
+                    console.error('[NF:ERROR] pubhtml falhou nas 2 tentativas:', e.message);
+                  }
+                }
+              }
+              if (rh) {
+                htxt = await rh.text();
+                window[_cacheKey] = { html: htxt, ts: Date.now() };
+                console.info('[NF:INFO] pubhtml carregado (' + htxt.length + ' chars) — cacheado');
+              } else {
+                console.error('[NF:ERROR] pubhtml indisponível | URL:', pubhtmlUrl);
+              }
+            }
+            if (htxt) {
               const regexes = [
                 /items\.push\(\{name:\s*"((?:[^"\\]|\\.)*)",\s*pageUrl:\s*"([^"]+)"/g,
                 /"name"\s*:\s*"([^"]+)"[^}]{0,200}"pageUrl"\s*:\s*"([^"]+)"/g,
@@ -458,28 +492,34 @@
                 if (found) break;
                 let m;
                 while ((m = tabRe.exec(htxt)) !== null) {
-                  // Google escapa "/" como "\/" no JSON — desescapar antes de comparar
                   const tabName = m[1].replace(/\\\//g, '/').trim();
                   const gidM   = m[2].match(/gid=(-?\d+)/);
-                  console.log('[NF] aba encontrada no pubhtml:', tabName, '| gid:', gidM && gidM[1]);
                   if (gidM && variacoes.has(tabName.toLowerCase())) {
                     csvUrl  = csvBase.replace(/&gid=\d+/, '') + '&gid=' + gidM[1];
                     abaInfo = ' · aba ' + tabName + ' (gid:' + gidM[1] + ')';
-                    console.log('[NF] MATCH:', tabName, gidM[1]);
-                    found = true;
-                    break;
+                    console.info('[NF:INFO] aba encontrada: ' + tabName + ' gid:' + gidM[1]);
+                    found = true; break;
                   }
                 }
               }
-              if (!found) console.warn('[NF] nenhuma aba do pubhtml bateu com:', nomeAba, '| variacoes:', [...variacoes]);
-            } else {
-              console.warn('[NF] pubhtml HTTP:', rh.status);
+              if (!found) {
+                const abasDisp = [];
+                const _lr = /items\.push\(\{name:\s*"((?:[^"\\]|\\.)*?)"/g; let _lm;
+                while ((_lm = _lr.exec(htxt)) !== null) abasDisp.push(_lm[1].replace(/\\\//g,'/'));
+                console.error('[NF:ERROR] aba nao encontrada | buscando:', nomeAba,
+                  '| abas no pubhtml:', JSON.stringify(abasDisp),
+                  '| variacoes testadas:', JSON.stringify([...variacoes]));
+              }
             }
-          } catch(e) { console.warn('[NF] pubhtml erro:', e.message); }
+          } catch(e) {
+            console.error('[NF:ERROR] excecao pubhtml:', e.message);
+          }
 
           if (csvUrl === csvBase) {
-            console.warn('[NF] Aba não encontrada — usando planilha padrão (pode trazer NFs de outra data)');
-            abaInfo = ' · aba ' + nomeAba + ' não encontrada';
+            console.error('[NF:ERROR] aba nao encontrada no pubhtml',
+              '| data buscada:', nomeAba,
+              '| pubhtml respondeu:', htxt ? 'sim (' + htxt.length + ' chars)' : 'nao');
+            abaInfo = ' · aba ' + nomeAba + ' nao encontrada';
           }
         }
 
@@ -598,7 +638,14 @@
         }
       }
 
-      console.warn('[buscarNf] SEM MATCH — pac:', np, '| chaves:', _palavrasChave(np));
+      // Sem match — log detalhado para diagnóstico
+      if (Object.keys(mapa).length > 0) {
+        console.warn('[buscarNf:WARN] sem match',
+          '| paciente normalizado:', np,
+          '| chaves extraidas:', _palavrasChave(np),
+          '| total no mapa:', Object.keys(mapa).length,
+          '| primeiros do mapa:', JSON.stringify(Object.keys(mapa).slice(0,3)));
+      }
       return null;
     }
 
