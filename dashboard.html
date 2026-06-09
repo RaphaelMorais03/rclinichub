@@ -419,6 +419,11 @@
         <button class="toggle-btn active" id="btnViewDia" onclick="setView('dia')"><i class="fas fa-calendar-day"></i> Por dia</button>
         <button class="toggle-btn" id="btnViewCollab" onclick="setView('collab')"><i class="fas fa-users"></i> Por colaborador</button>
       </div>
+      <button id="btnExportComissoes" onclick="exportarComissoes()"
+        style="display:none;padding:7px 14px;background:#15803d;color:white;border:none;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:none;align-items:center;gap:6px;white-space:nowrap;"
+        title="Exportar comissões para Excel">
+        <i class="fas fa-file-excel"></i> Exportar comissões
+      </button>
     </div>
 
     <!-- TABELA / GRUPOS -->
@@ -1410,6 +1415,95 @@
     }
 
     /* ── RENDER VIEW POR COLABORADOR ── */
+    /* ── EXPORTAR COMISSÕES ── */
+    window.exportarComissoes = function() {
+      const mes   = document.getElementById('mesSelect').value;
+      const colab = document.getElementById('colaboradorSelect').value;
+      if (!mes) { return; }
+
+      const linhas = getLinhas(mes, colab);
+      if (!linhas.length) { alert('Sem dados para exportar.'); return; }
+
+      const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                     'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      const [y,m] = mes.split('-');
+      const mesLabel = MESES[parseInt(m)-1] + '/' + y;
+      const agora   = new Date().toLocaleString('pt-BR');
+
+      // Agrupar por colaborador
+      const grupos = {};
+      linhas.forEach(({uid, dt, snap}) => {
+        const nome = aplicarAlias(snap.colaborador || uid);
+        if (!grupos[nome]) grupos[nome] = { uid, dias: [] };
+        grupos[nome].dias.push({uid, dt, snap});
+      });
+
+      const SEP = ';';
+      const BOM = '\uFEFF';
+
+      const rows = [
+        ['Relatório de Comissões — Amor Saúde Pirituba'],
+        ['Período: ' + mesLabel + '   |   Gerado em: ' + agora],
+        ['Taxas aplicadas: À Vista ' + _rateAvista + '% | Crédito ' + _rateCredito + '%'],
+        [],
+        ['Colaborador','Dias','Débito','PIX','Dinheiro',
+         'Total À Vista','Crédito','Despesas','Total Geral','Comissão'],
+      ];
+
+      let totT = {debito:0,pix:0,dinheiro:0,credito:0,avista:0,despesas:0,total:0,comissao:0};
+
+      Object.keys(grupos).sort().forEach(nome => {
+        const { uid, dias } = grupos[nome];
+        let T = {debito:0,pix:0,dinheiro:0,credito:0,avista:0,despesas:0,total:0,comissao:0};
+        dias.forEach(({uid: u, snap}) => {
+          const c = calcRow(snap.totForma, u);
+          T.debito+=c.debito; T.pix+=c.pix; T.dinheiro+=c.dinheiro;
+          T.credito+=c.credito; T.avista+=c.avista; T.despesas+=c.despesas;
+          T.total+=c.total; T.comissao+=c.comissao;
+        });
+
+        const fmt = v => v.toFixed(2).replace('.',',');
+        rows.push([
+          nome, dias.length,
+          fmt(T.debito), fmt(T.pix), fmt(T.dinheiro),
+          fmt(T.avista), fmt(T.credito),
+          T.despesas > 0 ? '-'+fmt(T.despesas) : '0,00',
+          fmt(T.total), fmt(T.comissao)
+        ]);
+
+        totT.debito+=T.debito; totT.pix+=T.pix; totT.dinheiro+=T.dinheiro;
+        totT.credito+=T.credito; totT.avista+=T.avista; totT.despesas+=T.despesas;
+        totT.total+=T.total; totT.comissao+=T.comissao;
+      });
+
+      // Linha de totais
+      const fmt = v => v.toFixed(2).replace('.',',');
+      rows.push([]);
+      rows.push([
+        'TOTAL GERAL', '',
+        fmt(totT.debito), fmt(totT.pix), fmt(totT.dinheiro),
+        fmt(totT.avista), fmt(totT.credito),
+        totT.despesas > 0 ? '-'+fmt(totT.despesas) : '0,00',
+        fmt(totT.total), fmt(totT.comissao)
+      ]);
+
+      const csv = BOM + rows.map(r =>
+        r.map(c => {
+          const s = String(c ?? '');
+          return s.includes(SEP) || s.includes('"') ? '"' + s.replace(/"/g,'""') + '"' : s;
+        }).join(SEP)
+      ).join('\r\n');
+
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'Comissoes_' + mesLabel.replace('/','_') + '.csv';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
     function renderViewCollab(linhas) {
       if (!linhas.length) {
         return '<div class="table-card"><div class="empty">' +
@@ -1598,6 +1692,8 @@
       _view = v;
       document.getElementById('btnViewDia').classList.toggle('active',   v==='dia');
       document.getElementById('btnViewCollab').classList.toggle('active', v==='collab');
+      const btnExp = document.getElementById('btnExportComissoes');
+      if (btnExp) btnExp.style.display = v === 'collab' ? 'flex' : 'none';
       renderDashboard();
     };
 
