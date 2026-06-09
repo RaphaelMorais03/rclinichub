@@ -790,7 +790,8 @@
 
       let ok = 0;
       for (const item of todos) {
-        await window._fbPush('exames/pendentes', {
+        const _pushKey = Date.now() + '_' + Math.random().toString(36).slice(2);
+        await window._fbSet('exames/pendentes/' + _pushKey, {
           paciente:     item.paciente,
           tipo:         item.tipo,
           dataExame:    item.dataExame || '',
