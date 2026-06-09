@@ -551,7 +551,9 @@
               <div>
                 <div style="font-size:11px;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Pendentes na gaveta</div>
                 <div style="font-size:32px;font-weight:900;color:var(--navy);letter-spacing:-1px;" id="gavTotalCount">—</div>
+              <div style="font-size:10px;color:var(--gray-400);font-weight:600;margin-top:2px;">exames pendentes</div>
               </div>
+            <div id="gavCatBreakdown" style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:160px;"></div>
               <div style="display:flex;flex-direction:column;gap:8px;">
                 <button class="btn-s" id="btnGavAtualizar" onclick="atualizarContGaveta()">
                   <i class="fas fa-rotate-right"></i> Atualizar contagem
@@ -734,15 +736,14 @@
   };
 
   // ── IMPORTAR ARQUIVO LOCAL (.xlsx) ─────────────────────────────
+  const IMPORT_CUTOFF = new Date(2026, 0, 1); // jan/2026
+
   window.importarArquivoLocal = async function(input, tipo) {
     const file = input.files && input.files[0];
     if (!file) return;
-    input.value = ''; // limpa para permitir re-upload do mesmo arquivo
+    input.value = '';
 
     const tipoLabels = {usg:'Ultrassom', eco:'Ecocardiograma', neuro:'Neurológico', erg:'Ergométrico'};
-    toast('Lendo ' + (tipoLabels[tipo]||tipo) + '...', 'info');
-
-    // Mostrar progresso
     const progEl = document.getElementById('adminImportProgress');
     const barEl  = document.getElementById('adminImportBar');
     const msgEl  = document.getElementById('adminImportMsg');
@@ -752,7 +753,6 @@
     if (doneEl) doneEl.style.display='none';
 
     try {
-      // Ler arquivo local via FileReader
       const buf = await new Promise((res, rej) => {
         const reader = new FileReader();
         reader.onload  = e => res(e.target.result);
@@ -760,59 +760,79 @@
         reader.readAsArrayBuffer(file);
       });
 
-      if (msgEl) msgEl.textContent = 'Processando abas...';
-      if (barEl) barEl.style.width = '30%';
+      if (msgEl) msgEl.textContent = 'Processando abas (a partir de jan/2026)...';
+      if (barEl) barEl.style.width = '10%';
 
-      const wb   = XLSX.read(buf, {type:'array', raw:false});
-      let todos  = [];
-      let abasOk = 0;
+      const wb = XLSX.read(buf, {type:'array', raw:true, cellDates:true});
+      let pendentes = [], historico = [], abasOk = 0;
 
       for (let j=0; j<wb.SheetNames.length; j++) {
         const sname = wb.SheetNames[j];
-        if (/^p[áa]gina|^base$|c[oó]pia/i.test(sname.trim())) continue;
+        if (/base|cóp|copi|pág|pag/i.test(sname.trim())) continue;
+
+        // Filtro jan/2026
+        const abaDate = _parseAbaDate(sname);
+        if (!abaDate || abaDate < IMPORT_CUTOFF) continue;
+
         const ws  = wb.Sheets[sname];
-        const res = processarAbaAdmin(ws, tipo);
-        todos = todos.concat(res);
+        const res = processarAbaAdmin(ws, tipo, abaDate);
+        pendentes = pendentes.concat(res.pendentes);
+        historico = historico.concat(res.historico);
         abasOk++;
-        if (barEl) barEl.style.width = Math.round(30 + (j/wb.SheetNames.length)*40) + '%';
+        if (barEl) barEl.style.width = Math.round(10 + (j/wb.SheetNames.length)*55) + '%';
       }
 
       // Deduplicar por paciente+tipo
-      const vistos = new Set();
-      todos = todos.filter(r => {
-        const key = r.paciente + '|' + r.tipo;
-        if (vistos.has(key)) return false;
-        vistos.add(key); return true;
-      });
+      const vP = new Set(), vH = new Set();
+      pendentes = pendentes.filter(r => { const k=r.paciente+'|'+r.tipo; if(vP.has(k)) return false; vP.add(k); return true; });
+      historico = historico.filter(r => { const k=r.paciente+'|'+r.tipo; if(vH.has(k)) return false; vH.add(k); return true; });
 
-      if (msgEl) msgEl.textContent = 'Salvando ' + todos.length + ' exame(s) na gaveta...';
-      if (barEl) barEl.style.width = '70%';
+      const total = pendentes.length + historico.length;
+      if (msgEl) msgEl.textContent = `Salvando ${pendentes.length} pendentes + ${historico.length} histórico...`;
+      if (barEl) barEl.style.width = '65%';
 
       let ok = 0;
-      for (const item of todos) {
-        const _pushKey = Date.now() + '_' + Math.random().toString(36).slice(2);
-        await window._fbSet('exames/pendentes/' + _pushKey, {
-          paciente:     item.paciente,
-          tipo:         item.tipo,
-          dataExame:    item.dataExame || '',
-          dataPrazo:    item.dataPrazo || null,
-          obs:          'Importado de ' + file.name,
-          atendenteCad: 'Admin',
-          cadastradoEm: new Date().toISOString(),
-          fonte:        item.fonte || tipo.toUpperCase(),
+      const now = new Date().toISOString();
+
+      // Salvar pendentes em exames/pendentes
+      for (const item of pendentes) {
+        const key = Date.now() + '_' + Math.random().toString(36).slice(2);
+        await window._fbSet('exames/pendentes/' + key, {
+          paciente: item.paciente, tipo: item.tipo,
+          dataExame: item.dataExame || '',
+          obs: 'Importado de ' + file.name,
+          atendenteCad: 'Admin', cadastradoEm: now,
+          fonte: tipo.toUpperCase(),
         });
         ok++;
-        if (barEl) barEl.style.width = Math.round(70 + (ok/todos.length)*30) + '%';
+        if (barEl) barEl.style.width = Math.round(65 + (ok/total)*30) + '%';
+      }
+
+      // Salvar histórico em exames/historico
+      for (const item of historico) {
+        const key = Date.now() + '_' + Math.random().toString(36).slice(2);
+        await window._fbSet('exames/historico/' + key, {
+          paciente: item.paciente, tipo: item.tipo,
+          dataExame: item.dataExame || '',
+          dataRetirada: item.retiradoEm || '',
+          obs: 'Importado de ' + file.name,
+          atendenteCad: 'Admin', cadastradoEm: now,
+          fonte: tipo.toUpperCase(),
+        });
+        ok++;
+        if (barEl) barEl.style.width = Math.round(65 + (ok/total)*30) + '%';
       }
 
       if (barEl) barEl.style.width = '100%';
-      if (progEl) setTimeout(()=>{ if(progEl) progEl.style.display='none'; }, 1200);
+      setTimeout(() => { if (progEl) progEl.style.display='none'; }, 1500);
       if (doneEl) {
         doneEl.style.display='block';
-        if (doneTx) doneTx.textContent = ok + ' exame(s) importado(s) de ' + abasOk
-          + ' aba(s) — arquivo: ' + file.name;
+        if (doneTx) doneTx.textContent =
+          `${pendentes.length} pendentes + ${historico.length} histórico importados de ${abasOk} aba(s) — ${file.name}`;
       }
-      toast('✅ ' + ok + ' exame(s) importado(s) para a gaveta!', 'success');
+      toast(`✅ ${pendentes.length} pendentes + ${historico.length} histórico importados!`, 'success');
+      // Atualizar contagem por categoria
+      atualizarContGaveta();
 
     } catch(e) {
       console.error('[importarArquivoLocal]', e.message);
@@ -903,66 +923,100 @@
     return m ? m[1] : null;
   }
 
-  function processarAbaAdmin(ws, tipo) {
-    var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false});
-    var hdr = -1;
-    for (var i=0; i<rows.length; i++) {
-      if (rows[i].some(function(v){ return String(v).toUpperCase().includes('NOME'); })) { hdr=i; break; }
+  // Helpers de detecção
+  function _isOkAdmin(v) {
+    if (v === null || v === undefined) return false;
+    var s = String(v).trim();
+    if (!s || s.toLowerCase() === 'none') return false;
+    // "OK" texto OU valor não-vazio (data na célula = exame entregue)
+    return /ok/i.test(s) || /\d/.test(s);
+  }
+  function _isRetiradoAdmin(v) {
+    if (v === null || v === undefined) return false;
+    if (v instanceof Date && !isNaN(v)) return true;
+    var s = String(v).trim().toLowerCase();
+    if (!s || s === 'none') return false;
+    if (s.includes('retirado e não anotado')) return true;
+    if (/retirou|retirada/.test(s) && s.length < 30) return true;
+    // Data real — tem ano 20XX ou formato DD/MM/AAAA
+    if (/202\d/.test(s)) return true;
+    if (/\d{2}[\/\-]\d{2}[\/\-]\d{2,4}/.test(s)) return true;
+    // Datetime string do openpyxl: "2026-01-24 00:00:00"
+    if (/^\d{4}-\d{2}-\d{2}/.test(s)) return true;
+    return false;
+  }
+  function _parseAbaDate(sname) {
+    var digits = sname.replace(/[^0-9]/g, '');
+    var d, m, y;
+    if (digits.length >= 8) {
+      d=parseInt(digits.slice(0,2)); m=parseInt(digits.slice(2,4)); y=parseInt(digits.slice(4,8));
+      var dt = new Date(y, m-1, d);
+      if (dt.getFullYear()===y && dt.getMonth()===m-1) return dt;
     }
-    if (hdr < 0) return [];
-    var results = [];
-    var isOrg = tipo === 'organizada';
+    if (digits.length === 6) {
+      d=parseInt(digits.slice(0,2)); m=parseInt(digits.slice(2,4)); y=2000+parseInt(digits.slice(4,6));
+      var dt2 = new Date(y, m-1, d);
+      if (dt2.getFullYear()===y && dt2.getMonth()===m-1) return dt2;
+    }
+    return null;
+  }
+
+  // Configuração de colunas por tipo
+  var _colsCfg = {
+    erg:   { nome:0, ok:1, ret:2, exame:null, tipo:'Teste Ergométrico' },
+    eco:   { nome:0, ok:1, ret:2, exame:null, tipo:'Ecocardiograma' },
+    usg:   { nome:0, exame:1, ok:2, ret:3,    tipo:'Ultrassom' },
+    neuro: { nome:0, ok:2, ret:3, exame:null, tipo:'EEG' },
+  };
+
+  function processarAbaAdmin(ws, tipo, abaDate) {
+    var cfg = _colsCfg[tipo] || _colsCfg.erg;
+    var rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null, raw:true});
+    // Encontrar linha de cabeçalho
+    var hdr = -1;
+    for (var i=0; i<Math.min(5,rows.length); i++) {
+      if (rows[i] && rows[i].some(function(v){ return v && /nome/i.test(String(v)); })) {
+        hdr=i; break;
+      }
+    }
+    if (hdr < 0) return { pendentes:[], historico:[] };
+    var pendentes=[], historico=[];
 
     for (var i=hdr+1; i<rows.length; i++) {
       var r = rows[i];
-      if (!r || r.length < 3) continue;
+      if (!r || r.length <= cfg.nome) continue;
+      var nome = String(r[cfg.nome]||'').trim().replace(/\*+$/,'').trim().toUpperCase();
+      if (!nome || nome.length < 3) continue;
+      if (/^(nome|paciente|exame|hora|\s)/.test(nome.toLowerCase())) continue;
 
-      if (isOrg) {
-        var tipoEx  = String(r[0]||'').trim();
-        var nomePac = String(r[3]||'').trim().toUpperCase().replace(/\*+$/,'');
-        var dataEx  = String(r[2]||'').trim();
-        var status  = String(r[9]||'').trim().toLowerCase();
-        if (!nomePac || nomePac.length<3 || nomePac==='NOME DO PACIENTE') continue;
-        if (tipoEx.toUpperCase()==='TIPO DE EXAME') continue;
-        if (status.includes('entregue')) continue;
-        if (status.includes('pendente') || status.includes('retirado')) {
-          var tipoNorm = tipoEx;
-          if (/eeg|eletroencefalog/i.test(tipoEx))      tipoNorm='EEG';
-          else if (/enmg|eletroneuromio/i.test(tipoEx)) tipoNorm='ENMG';
-          else if (/potencial|evocado/i.test(tipoEx))   tipoNorm='Potencial Evocado';
-          else if (/ecocard/i.test(tipoEx))             tipoNorm='Ecocardiograma';
-          else if (/ergom/i.test(tipoEx))               tipoNorm='Teste Ergométrico';
-          results.push({ paciente:nomePac, tipo:tipoNorm, dataExame:dataEx, fonte:'ORGANIZADA' });
-        }
-      } else {
-        var nome = String(r[0]||'').trim().toUpperCase().replace(/\*+$/,'');
-        if (!nome || nome.length<3) continue;
-        if (/^(nome|paciente|exame|hora|data)/i.test(nome)) continue;
-        if (/exames realizados/i.test(nome)) continue;
+      var okVal  = r.length > cfg.ok  ? r[cfg.ok]  : null;
+      var retVal = r.length > cfg.ret ? r[cfg.ret] : null;
+      if (!_isOkAdmin(okVal)) continue;
 
-        if (tipo==='eco') {
-          var ok=String(r[1]||'').toUpperCase().includes('OK'), ret=String(r[2]||'').trim();
-          if (ok&&!ret) results.push({paciente:nome,tipo:'Ecocardiograma',dataExame:'',fonte:'ECO'});
-        } else if (tipo==='neuro') {
-          var ok=String(r[2]||'').toUpperCase().includes('OK'), ret=String(r[3]||'').trim();
-          if (ok&&!ret) results.push({paciente:nome,tipo:'EEG',dataExame:'',fonte:'NEURO'});
-        } else if (tipo==='usg') {
-          var exame=String(r[1]||'').trim();
-          if (/^(exame|data|tipo)/i.test(exame)) continue;
-          var ok=String(r[2]||'').toUpperCase().includes('OK'), ret=String(r[3]||'').trim();
-          if (ok&&!ret) {
-            var tp = exame
-              ? 'Ultrassom - '+exame.charAt(0).toUpperCase()+exame.slice(1).toLowerCase()
-              : 'Ultrassom';
-            results.push({paciente:nome,tipo:tp,dataExame:'',fonte:'USG'});
-          }
-        } else if (tipo==='erg') {
-          var ok=String(r[1]||'').toUpperCase().includes('OK'), ret=String(r[2]||'').trim();
-          if (ok&&!ret) results.push({paciente:nome,tipo:'Teste Ergométrico',dataExame:'',fonte:'ERG'});
+      var exTipo = cfg.tipo;
+      if (cfg.exame !== null && r.length > cfg.exame) {
+        var sub = String(r[cfg.exame]||'').trim();
+        if (sub && !/^(exame|tipo|nome)/i.test(sub)) {
+          exTipo = 'Ultrassom - ' + sub.charAt(0).toUpperCase() + sub.slice(1).toLowerCase();
         }
       }
+
+      var dataExStr = abaDate ? abaDate.toISOString().slice(0,10) : '';
+      var entry = { paciente:nome, tipo:exTipo, dataExame:dataExStr };
+
+      if (_isRetiradoAdmin(retVal)) {
+        // Tenta pegar a data de retirada real
+        var retStr = '';
+        if (retVal instanceof Date && !isNaN(retVal)) retStr = retVal.toISOString().slice(0,10);
+        else { var m2=/(\d{2})[\/\-](\d{2})[\/\-](\d{2,4})/.exec(String(retVal||'')); if(m2) retStr=m2[0]; }
+        entry.dataRetirada = retStr;
+        entry.retiradoEm   = retStr || new Date().toISOString().slice(0,10);
+        historico.push(entry);
+      } else {
+        pendentes.push(entry);
+      }
     }
-    return results;
+    return { pendentes, historico };
   }
 
   async function baixarEProcessarPlanilha(key, data) {
@@ -1117,19 +1171,35 @@
   // ── Gaveta de Exames ──
   window.atualizarContGaveta = async function() {
     const btn = document.getElementById('btnGavAtualizar');
-    const el  = document.getElementById('gavTotalCount');
-    if (btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Contando...'; }
-    if (el) el.textContent = '...';
+    if (btn) { btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>'; }
     try {
       const snap = await window._fbGet('exames/pendentes');
-      const total = snap && snap.val() ? Object.keys(snap.val()).length : 0;
-      if (el) el.textContent = total.toLocaleString('pt-BR');
+      const data = snap && snap.val() ? snap.val() : {};
+      const itens = Object.values(data);
+      const tot = itens.length;
+      const el = document.getElementById('gavTotalCount');
+      if (el) el.textContent = tot;
+
+      const cats = {'Ecocardiograma':0,'EEG':0,'ENMG':0,'Potencial Evocado':0,
+                    'Teste Ergométrico':0,'Ultrassom':0,'Outros':0};
+      itens.forEach(function(item) {
+        const t = String(item.tipo||'');
+        if (t.startsWith('Ultrassom')) cats['Ultrassom']++;
+        else if (cats[t] !== undefined) cats[t]++;
+        else cats['Outros']++;
+      });
+      const catEl = document.getElementById('gavCatBreakdown');
+      if (catEl) {
+        catEl.innerHTML = Object.entries(cats).filter(function(e){ return e[1]>0; }).map(function(e){
+          return '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px;background:var(--gray-50);border-radius:8px;font-size:12px;">'
+            + '<span style="color:var(--gray-600);font-weight:600;">'+e[0]+'</span>'
+            + '<span style="font-weight:900;color:var(--navy);font-size:14px;">'+e[1]+'</span></div>';
+        }).join('');
+      }
     } catch(e) {
-      if (el) el.textContent = 'Erro';
-      console.error(e);
-    } finally {
-      if (btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-rotate-right"></i> Atualizar contagem'; }
+      const el = document.getElementById('gavTotalCount'); if (el) el.textContent = '—';
     }
+    if (btn) { btn.disabled=false; btn.innerHTML='<i class="fas fa-rotate-right"></i> Atualizar contagem'; }
   };
 
   window.limparGaveta = async function() {
