@@ -482,13 +482,36 @@
           </button>
 
           <!-- IMPORTAR -->
-          <div id="adminImportSection" style="display:none;margin-top:16px;border-top:1.5px solid var(--gray-200);padding-top:16px;">
-            <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;"><i class="fas fa-cloud-arrow-down" style="color:var(--green);"></i> Importar para Gaveta</div>
+          <div style="margin-top:16px;border-top:1.5px solid var(--gray-200);padding-top:16px;">
+            <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px;">
+              <i class="fas fa-file-arrow-up" style="color:var(--green);"></i> Importar Arquivo Local (.xlsx)
+            </div>
+            <div style="font-size:11px;color:var(--gray-400);margin-bottom:12px;line-height:1.6;">
+              Baixe o arquivo diretamente do Google Drive (<strong>Arquivo → Baixar → Microsoft Excel</strong>)
+              e selecione abaixo. Não é necessário publicar nem compartilhar.
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+              <button onclick="document.getElementById('uploadUsg').click()" style="padding:10px;background:var(--gray-50);border:1.5px solid #0369a1;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;color:#0369a1;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;" onmouseover="this.style.background='#eff6ff'" onmouseout="this.style.background='var(--gray-50)'">
+                <i class="fas fa-wave-square"></i> Ultrassom
+              </button>
+              <button onclick="document.getElementById('uploadEco').click()" style="padding:10px;background:var(--gray-50);border:1.5px solid #C62828;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;color:#C62828;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;" onmouseover="this.style.background='#fff1f1'" onmouseout="this.style.background='var(--gray-50)'">
+                <i class="fas fa-heart"></i> Ecocardiograma
+              </button>
+              <button onclick="document.getElementById('uploadNeuro').click()" style="padding:10px;background:var(--gray-50);border:1.5px solid #7c3aed;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;color:#7c3aed;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;" onmouseover="this.style.background='#f5f3ff'" onmouseout="this.style.background='var(--gray-50)'">
+                <i class="fas fa-brain"></i> Neurológico
+              </button>
+              <button onclick="document.getElementById('uploadErg').click()" style="padding:10px;background:var(--gray-50);border:1.5px solid #f97316;border-radius:10px;font-family:inherit;font-size:12px;font-weight:700;color:#f97316;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .2s;" onmouseover="this.style.background='#fff7ed'" onmouseout="this.style.background='var(--gray-50)'">
+                <i class="fas fa-heartbeat"></i> Ergométrico
+              </button>
+            </div>
+            <!-- Inputs file ocultos -->
+            <input type="file" id="uploadUsg"   accept=".xlsx" style="display:none;" onchange="importarArquivoLocal(this,'usg')">
+            <input type="file" id="uploadEco"   accept=".xlsx" style="display:none;" onchange="importarArquivoLocal(this,'eco')">
+            <input type="file" id="uploadNeuro" accept=".xlsx" style="display:none;" onchange="importarArquivoLocal(this,'neuro')">
+            <input type="file" id="uploadErg"   accept=".xlsx" style="display:none;" onchange="importarArquivoLocal(this,'erg')">
+
+          <div id="adminImportSection" style="margin-top:4px;">
             <div id="adminImportLinks" style="margin-bottom:12px;"></div>
-            <button onclick="adminImportarTodos()" id="adminBtnTodos"
-              style="width:100%;padding:11px;background:var(--green,#15803d);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">
-              <i class="fas fa-cloud-arrow-down"></i> Importar Todas e Atualizar Gaveta
-            </button>
             <div id="adminImportProgress" style="display:none;margin-top:12px;">
               <div style="font-size:12px;color:var(--gray-500);margin-bottom:6px;" id="adminImportMsg">Processando...</div>
               <div style="background:var(--gray-200);border-radius:8px;height:8px;overflow:hidden;">
@@ -708,6 +731,93 @@
       var kb = (buf.byteLength / 1024).toFixed(0);
       toast('✅ Conexão OK — arquivo de ' + kb + ' KB encontrado', 'success');
     } catch(e) { toast('Erro: ' + e.message, 'error'); }
+  };
+
+  // ── IMPORTAR ARQUIVO LOCAL (.xlsx) ─────────────────────────────
+  window.importarArquivoLocal = async function(input, tipo) {
+    const file = input.files && input.files[0];
+    if (!file) return;
+    input.value = ''; // limpa para permitir re-upload do mesmo arquivo
+
+    const tipoLabels = {usg:'Ultrassom', eco:'Ecocardiograma', neuro:'Neurológico', erg:'Ergométrico'};
+    toast('Lendo ' + (tipoLabels[tipo]||tipo) + '...', 'info');
+
+    // Mostrar progresso
+    const progEl = document.getElementById('adminImportProgress');
+    const barEl  = document.getElementById('adminImportBar');
+    const msgEl  = document.getElementById('adminImportMsg');
+    const doneEl = document.getElementById('adminImportDone');
+    const doneTx = document.getElementById('adminImportDoneText');
+    if (progEl) { progEl.style.display='block'; if (barEl) barEl.style.width='0%'; }
+    if (doneEl) doneEl.style.display='none';
+
+    try {
+      // Ler arquivo local via FileReader
+      const buf = await new Promise((res, rej) => {
+        const reader = new FileReader();
+        reader.onload  = e => res(e.target.result);
+        reader.onerror = () => rej(new Error('Erro ao ler arquivo'));
+        reader.readAsArrayBuffer(file);
+      });
+
+      if (msgEl) msgEl.textContent = 'Processando abas...';
+      if (barEl) barEl.style.width = '30%';
+
+      const wb   = XLSX.read(buf, {type:'array', raw:false});
+      let todos  = [];
+      let abasOk = 0;
+
+      for (let j=0; j<wb.SheetNames.length; j++) {
+        const sname = wb.SheetNames[j];
+        if (/^p[áa]gina|^base$|c[oó]pia/i.test(sname.trim())) continue;
+        const ws  = wb.Sheets[sname];
+        const res = processarAbaAdmin(ws, tipo);
+        todos = todos.concat(res);
+        abasOk++;
+        if (barEl) barEl.style.width = Math.round(30 + (j/wb.SheetNames.length)*40) + '%';
+      }
+
+      // Deduplicar por paciente+tipo
+      const vistos = new Set();
+      todos = todos.filter(r => {
+        const key = r.paciente + '|' + r.tipo;
+        if (vistos.has(key)) return false;
+        vistos.add(key); return true;
+      });
+
+      if (msgEl) msgEl.textContent = 'Salvando ' + todos.length + ' exame(s) na gaveta...';
+      if (barEl) barEl.style.width = '70%';
+
+      let ok = 0;
+      for (const item of todos) {
+        await window._fbPush('exames/pendentes', {
+          paciente:     item.paciente,
+          tipo:         item.tipo,
+          dataExame:    item.dataExame || '',
+          dataPrazo:    item.dataPrazo || null,
+          obs:          'Importado de ' + file.name,
+          atendenteCad: 'Admin',
+          cadastradoEm: new Date().toISOString(),
+          fonte:        item.fonte || tipo.toUpperCase(),
+        });
+        ok++;
+        if (barEl) barEl.style.width = Math.round(70 + (ok/todos.length)*30) + '%';
+      }
+
+      if (barEl) barEl.style.width = '100%';
+      if (progEl) setTimeout(()=>{ if(progEl) progEl.style.display='none'; }, 1200);
+      if (doneEl) {
+        doneEl.style.display='block';
+        if (doneTx) doneTx.textContent = ok + ' exame(s) importado(s) de ' + abasOk
+          + ' aba(s) — arquivo: ' + file.name;
+      }
+      toast('✅ ' + ok + ' exame(s) importado(s) para a gaveta!', 'success');
+
+    } catch(e) {
+      console.error('[importarArquivoLocal]', e.message);
+      if (progEl) progEl.style.display='none';
+      toast('Erro: ' + e.message, 'error');
+    }
   };
 
   window.carregarPlanilhasLinks = async function() {
