@@ -187,13 +187,13 @@
           <div class="filtro-wrap" style="max-width:200px;">
             <select class="f-select" id="filtroTipo" onchange="renderGaveta()">
               <option value="">Todos os tipos</option>
-              <option>Ecocardiograma</option>
-              <option>EEG</option>
-              <option>ENMG</option>
-              <option>Potencial Evocado</option>
-              <option>Teste Ergométrico</option>
-              <option>Ultrassom</option>
-              <option>Outros</option>
+              <option value="Ecocardiograma">Ecocardiograma</option>
+              <option value="EEG">EEG</option>
+              <option value="ENMG">ENMG</option>
+              <option value="Potencial Evocado">Potencial Evocado</option>
+              <option value="Teste Ergométrico">Teste Ergométrico</option>
+              <option value="Ultrassom">Ultrassom (todos)</option>
+              <option value="Outros">Outros</option>
             </select>
           </div>
           <div class="filtro-wrap" style="max-width:180px;">
@@ -357,7 +357,10 @@
 
       let lista = Object.entries(examesPendentes).map(([id, e]) => ({ id, ...e }));
       if (busca)  lista = lista.filter(e => e.paciente ? e.paciente.toLowerCase().includes(busca) : false);
-      if (tipo)   lista = lista.filter(e => e.tipo === tipo);
+      if (tipo)   lista = lista.filter(e => {
+        if (tipo === 'Ultrassom') return (e.tipo||'').startsWith('Ultrassom');
+        return e.tipo === tipo;
+      });
       if (status === 'hoje')      lista = lista.filter(e => (e.cadastradoEm ? e.cadastradoEm.slice(0,10) : null) === hoje);
       if (status === 'semana')    lista = lista.filter(e => diasParado(e) <= 7);
       if (status === 'atrasados') lista = lista.filter(e => diasParado(e) >= 7);
@@ -717,11 +720,131 @@
           </div>`).join('');
       document.getElementById('importSuccessModal').style.display = 'flex';
 
+      // Imprime relatório automaticamente após cadastro
+      if (ok > 0) imprimirRelatorioExames(selecionados, dataExame, usuario);
+
       // Limpa só os selecionados
       _cadItems = _cadItems.filter(i => !i.checked);
       renderCadastrar();
       document.getElementById('cadChkAll').checked = false;
     };
+
+    // ── IMPRIMIR RELATÓRIO DE EXAMES ──
+    function imprimirRelatorioExames(itens, dataExame, usuario) {
+      const win = window.open('', '_blank');
+      if (!win) { toast('Permita pop-ups para imprimir', 'error'); return; }
+
+      const agora   = new Date();
+      const ds      = agora.toLocaleDateString('pt-BR');
+      const hr      = agora.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' });
+      const logoUrl = sessionStorage.getItem('logoDataUrl') || '';
+      const logoHtml = logoUrl
+        ? `<img src="${logoUrl}" alt="Logo" style="height:50px;width:auto;object-fit:contain;">`
+        : '<div style="font-size:18px;font-weight:900;color:#0A1F44;">Amor Saúde</div>';
+      const dataFmt = dataExame
+        ? new Date(dataExame + 'T12:00:00').toLocaleDateString('pt-BR')
+        : ds;
+
+      // Monta linhas da tabela
+      const linhasHtml = itens.flatMap(item =>
+        item.exames.map(ex => {
+          const prazo = calcularDataPrazo(ex.tipo, dataExame);
+          const prazoFmt = prazo
+            ? new Date(prazo + 'T12:00:00').toLocaleDateString('pt-BR')
+            : '—';
+          const badgePrazo = prazo
+            ? `<span style="background:#eff6ff;color:#1d4ed8;border-radius:6px;padding:2px 7px;font-size:9px;font-weight:700;">${prazoFmt}</span>`
+            : '<span style="color:#9ca3af;font-size:9px;">—</span>';
+          return `<tr>
+            <td style="border:1px solid #e5e7eb;padding:6px 8px;font-size:11px;font-weight:700;color:#0A1F44;">${esc(item.paciente.toUpperCase())}</td>
+            <td style="border:1px solid #e5e7eb;padding:6px 8px;font-size:11px;text-align:center;">
+              <span style="background:#f1f5f9;border-radius:6px;padding:2px 8px;font-weight:700;color:#374151;">${esc(ex.tipo)}</span>
+            </td>
+            <td style="border:1px solid #e5e7eb;padding:6px 8px;font-size:11px;text-align:center;color:#374151;">${dataFmt}</td>
+            <td style="border:1px solid #e5e7eb;padding:6px 8px;text-align:center;">${badgePrazo}</td>
+          </tr>`;
+        })
+      ).join('');
+
+      const total = itens.reduce((s, i) => s + i.exames.length, 0);
+      const comPrazo = itens.flatMap(i => i.exames).filter(e => PRAZO_DIAS[e.tipo]).length;
+
+      const docHtml = `<!DOCTYPE html>
+<html><head><meta charset="UTF-8">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  @page{size:A4;margin:1.5cm;}
+  body{font-family:system-ui,-apple-system,sans-serif;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  table{width:100%;border-collapse:collapse;}
+</style>
+</head><body>
+<div style="padding:0;">
+  <!-- Cabeçalho -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+    <div style="flex:1;">${logoHtml}<div style="font-size:11px;color:#555;margin-top:4px;">Pirituba · São Paulo</div></div>
+    <div style="flex:1;text-align:center;">
+      <div style="font-size:10px;color:#888;">Relatório de Exames</div>
+    </div>
+    <div style="flex:1;text-align:right;">
+      <div style="font-size:10px;color:#888;">Emitido em</div>
+      <div style="font-size:12px;font-weight:700;color:#374151;">${ds} às ${hr}</div>
+    </div>
+  </div>
+
+  <!-- Título -->
+  <div style="text-align:center;margin-bottom:1.5rem;">
+    <div style="font-size:1.8rem;font-weight:900;color:#0A1F44;margin-bottom:.8rem;">RELATÓRIO DE EXAMES</div>
+    <div style="display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.5rem;background:#61C1D0;border-radius:12px;border:3px solid #980000;color:white;font-size:.9rem;font-weight:800;">
+      👤 ${esc((usuario||'—').toUpperCase())}
+    </div>
+  </div>
+
+  <!-- Resumo -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.3rem;">
+    <div style="border:1.5px solid #e5e7eb;border-radius:12px;padding:14px 16px;text-align:center;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;margin-bottom:4px;">Total de exames</div>
+      <div style="font-size:2rem;font-weight:900;color:#0A1F44;">${total}</div>
+    </div>
+    <div style="border:1.5px solid #e5e7eb;border-radius:12px;padding:14px 16px;text-align:center;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#9ca3af;margin-bottom:4px;">Pacientes</div>
+      <div style="font-size:2rem;font-weight:900;color:#0A1F44;">${itens.length}</div>
+    </div>
+    <div style="border:1.5px solid #dbeafe;border-radius:12px;padding:14px 16px;text-align:center;background:#eff6ff;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#1d4ed8;margin-bottom:4px;">Com prazo</div>
+      <div style="font-size:2rem;font-weight:900;color:#1d4ed8;">${comPrazo}</div>
+    </div>
+  </div>
+
+  <!-- Tabela -->
+  <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:8px;">Exames cadastrados</div>
+  <table>
+    <thead>
+      <tr style="background:#0A1F44;">
+        <th style="border:1px solid #374151;padding:8px;text-align:left;font-size:9px;color:rgba(255,255,255,.7);text-transform:uppercase;">Paciente</th>
+        <th style="border:1px solid #374151;padding:8px;text-align:center;font-size:9px;color:rgba(255,255,255,.7);text-transform:uppercase;">Tipo de Exame</th>
+        <th style="border:1px solid #374151;padding:8px;text-align:center;font-size:9px;color:rgba(255,255,255,.7);text-transform:uppercase;">Data do Exame</th>
+        <th style="border:1px solid #374151;padding:8px;text-align:center;font-size:9px;color:rgba(255,255,255,.7);text-transform:uppercase;">Resultado Previsto</th>
+      </tr>
+    </thead>
+    <tbody>${linhasHtml}</tbody>
+  </table>
+
+  <!-- Assinatura -->
+  <div style="margin-top:2.5rem;display:flex;justify-content:space-between;align-items:flex-end;">
+    <div style="font-size:10px;color:#9ca3af;">Cadastrado em ${ds} às ${hr}</div>
+    <div style="text-align:center;">
+      <div style="border-top:1.5px solid #374151;width:200px;margin-bottom:6px;"></div>
+      <div style="font-size:11px;font-weight:700;color:#374151;">${esc((usuario||'').toUpperCase())}</div>
+      <div style="font-size:10px;color:#9ca3af;">Responsável pelo cadastro</div>
+    </div>
+  </div>
+</div>
+<scr` + `ipt>window.onload=function(){setTimeout(function(){window.print();},300);}</scr` + `ipt>
+</body></html>`;
+
+      win.document.write(docHtml);
+      win.document.close();
+    }
 
     // Data padrão
     const _cadDataEl = document.getElementById('cadData');

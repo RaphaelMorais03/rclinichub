@@ -927,8 +927,8 @@
         if (status.includes('entregue')) continue;
         if (status.includes('pendente') || status.includes('retirado')) {
           var tipoNorm = tipoEx;
-          if (/eeg|eletroencefalog/i.test(tipoEx))      tipoNorm='Eletroencefalograma (EEG)';
-          else if (/enmg|eletroneuromio/i.test(tipoEx)) tipoNorm='Eletroneuromiografia (ENMG)';
+          if (/eeg|eletroencefalog/i.test(tipoEx))      tipoNorm='EEG';
+          else if (/enmg|eletroneuromio/i.test(tipoEx)) tipoNorm='ENMG';
           else if (/potencial|evocado/i.test(tipoEx))   tipoNorm='Potencial Evocado';
           else if (/ecocard/i.test(tipoEx))             tipoNorm='Ecocardiograma';
           else if (/ergom/i.test(tipoEx))               tipoNorm='Teste Ergométrico';
@@ -945,7 +945,7 @@
           if (ok&&!ret) results.push({paciente:nome,tipo:'Ecocardiograma',dataExame:'',fonte:'ECO'});
         } else if (tipo==='neuro') {
           var ok=String(r[2]||'').toUpperCase().includes('OK'), ret=String(r[3]||'').trim();
-          if (ok&&!ret) results.push({paciente:nome,tipo:'Eletroencefalograma (EEG)',dataExame:'',fonte:'NEURO'});
+          if (ok&&!ret) results.push({paciente:nome,tipo:'EEG',dataExame:'',fonte:'NEURO'});
         } else if (tipo==='usg') {
           var exame=String(r[1]||'').trim();
           if (/^(exame|data|tipo)/i.test(exame)) continue;
