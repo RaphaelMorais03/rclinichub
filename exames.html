@@ -138,7 +138,8 @@
         </div>
         <div class="form-group" style="margin-bottom:18px;">
           <label class="f-label">Atendente que entregou *</label>
-          <select class="f-select" id="mAtendente"><option value="">Carregando...</option></select>
+          <input class="f-input" id="mAtendente" type="text" placeholder="Nome do atendente"
+            style="background:#f8fafc;">
         </div>
         <div style="display:flex;gap:10px;">
           <button style="flex:1;padding:11px;background:var(--navy);color:white;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;" onclick="confirmarBaixa()">
@@ -363,9 +364,12 @@
         return;
       }
 
-      // Popula selects de atendentes
-
-      populateAtendentesSelect('mAtendente');
+      // Preenche atendente com usuário logado (via sessionStorage)
+      const _atenInput = document.getElementById('mAtendente');
+      if (_atenInput) {
+        const _atenNome = sessionStorage.getItem('usuario') || '';
+        _atenInput.value = _atenNome;
+      }
 
       // Logo
       carregarLogoGlobal(['#headerLogo']);
@@ -493,17 +497,11 @@
       const dataFmt = e.dataExame ? new Date(e.dataExame+'T12:00:00').toLocaleDateString('pt-BR') : '—';
       document.getElementById('mSub').textContent = `${e.tipo||'—'} · Exame de ${dataFmt}`;
       document.getElementById('mQuemRetirou').value = '';
-      // Auto-preenche com o atendente logado
-      const _userLogado = sessionStorage.getItem('usuario') || '';
+      // Auto-preenche com o atendente logado — editável se precisar corrigir
       const _atenEl = document.getElementById('mAtendente');
-      if (_atenEl && _userLogado) {
-        // Tenta selecionar pelo valor; fallback: primeira opção que contém o nome
-        const opts = Array.from(_atenEl.options);
-        const match = opts.find(o => o.value === _userLogado || o.text === _userLogado ||
-          o.text.toLowerCase().includes(_userLogado.toLowerCase().split(' ')[0]));
-        _atenEl.value = match ? match.value : '';
-      } else if (_atenEl) {
-        _atenEl.value = '';
+      if (_atenEl) {
+        _atenEl.value = sessionStorage.getItem('usuario') || '';
+        _atenEl.removeAttribute('readonly'); // permite editar se necessário
       }
       document.getElementById('modalOverlay').classList.add('open');
     };
@@ -512,9 +510,9 @@
 
     window.confirmarBaixa = function() {
       const quem = document.getElementById('mQuemRetirou').value.trim();
-      const aten = document.getElementById('mAtendente').value;
+      const aten = document.getElementById('mAtendente').value.trim();
       if (!quem) { toast('Informe quem está retirando', 'error'); return; }
-      if (!aten) { toast('Selecione o atendente', 'error'); return; }
+      if (!aten) { toast('Informe o atendente que entregou', 'error'); return; }
       if (!baixaId) return;
       const exame = examesPendentes[baixaId];
       set(push(ref(db, 'exames/retirados')), { ...exame, quemRetirou:quem, atendenteEntregou:aten, retiradoEm:new Date().toISOString() })
