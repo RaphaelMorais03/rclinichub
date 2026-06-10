@@ -178,6 +178,7 @@
         <button class="tab-btn active" id="tabGaveta"    onclick="mudarTab('gaveta')"><i class="fas fa-inbox"></i> Gaveta Digital</button>
         <button class="tab-btn"        id="tabCadastrar" onclick="mudarTab('cadastrar')"><i class="fas fa-paste"></i> Cadastrar Exame</button>
         <button class="tab-btn"        id="tabHistorico" onclick="mudarTab('historico')"><i class="fas fa-clock-rotate-left"></i> Histórico</button>
+        <button class="tab-btn"        id="tabRelatorios" onclick="mudarTab('relatorios')"><i class="fas fa-file-lines"></i> Relatórios</button>
       </div>
 
       <!-- GAVETA -->
@@ -288,7 +289,20 @@
         </div>
       </div>
 
-            <!-- HISTÓRICO -->
+            <!-- RELATÓRIOS GERADOS -->
+      <div class="tab-pane" id="paneRelatorios">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:13px;font-weight:700;color:var(--navy);">Relatórios gerados no Cadastrar</div>
+          <button onclick="renderRelatorios()" style="padding:6px 12px;background:var(--gray-100);border:1.5px solid var(--gray-200);border-radius:8px;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
+            <i class="fas fa-rotate-right"></i> Atualizar
+          </button>
+        </div>
+        <div id="relatoriosLista">
+          <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO -->
       <div class="tab-pane" id="paneHistorico">
         <div class="filtros" style="margin-bottom:14px;">
           <div class="filtro-wrap"><i class="fas fa-search filtro-icon"></i><input class="f-input" type="text" id="filtroHist" placeholder="Buscar no histórico..." oninput="renderHistorico()"></div>
@@ -479,7 +493,18 @@
       const dataFmt = e.dataExame ? new Date(e.dataExame+'T12:00:00').toLocaleDateString('pt-BR') : '—';
       document.getElementById('mSub').textContent = `${e.tipo||'—'} · Exame de ${dataFmt}`;
       document.getElementById('mQuemRetirou').value = '';
-      document.getElementById('mAtendente').value   = '';
+      // Auto-preenche com o atendente logado
+      const _userLogado = sessionStorage.getItem('usuario') || '';
+      const _atenEl = document.getElementById('mAtendente');
+      if (_atenEl && _userLogado) {
+        // Tenta selecionar pelo valor; fallback: primeira opção que contém o nome
+        const opts = Array.from(_atenEl.options);
+        const match = opts.find(o => o.value === _userLogado || o.text === _userLogado ||
+          o.text.toLowerCase().includes(_userLogado.toLowerCase().split(' ')[0]));
+        _atenEl.value = match ? match.value : '';
+      } else if (_atenEl) {
+        _atenEl.value = '';
+      }
       document.getElementById('modalOverlay').classList.add('open');
     };
 
@@ -516,7 +541,7 @@
     };
 
     window.mudarTab = function(tab) {
-      ['gaveta','cadastrar','historico'].forEach(t => {
+      ['gaveta','cadastrar','historico','relatorios'].forEach(t => {
         const T = t.charAt(0).toUpperCase()+t.slice(1);
         var _t = document.getElementById('tab'+T);  if (_t)  _t.classList.remove('active');
         var _p = document.getElementById('pane'+T); if (_p) _p.classList.remove('active');
@@ -524,11 +549,82 @@
       const T = tab.charAt(0).toUpperCase()+tab.slice(1);
       var _ta = document.getElementById('tab'+T);  if (_ta)  _ta.classList.add('active');
       var _pa = document.getElementById('pane'+T); if (_pa) _pa.classList.add('active');
-      if (tab==='historico') window.renderHistorico();
+      if (tab==='historico')  window.renderHistorico();
+      if (tab==='relatorios') window.renderRelatorios();
       if (tab==='cadastrar') {
         const d = document.getElementById('cadData');
         if (d && !d.value) d.valueAsDate = new Date();
       }
+    };
+
+    // ── RELATÓRIOS GERADOS ──
+    window.renderRelatorios = async function() {
+      const el = document.getElementById('relatoriosLista');
+      if (!el) return;
+      el.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
+      try {
+        const snap = await get(ref(db, 'exames/relatorios'));
+        const data = snap.val() || {};
+        const lista = Object.entries(data)
+          .map(([k,v]) => ({key:k,...v}))
+          .sort((a,b) => b.dataGeracao.localeCompare(a.dataGeracao));
+
+        if (!lista.length) {
+          el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--gray-400);">' +
+            '<i class="fas fa-file-lines" style="font-size:28px;display:block;margin-bottom:8px;opacity:.3;"></i>' +
+            'Nenhum relatório gerado ainda.</div>';
+          return;
+        }
+
+        el.innerHTML = lista.map(r => {
+          const dtGer = new Date(r.dataGeracao).toLocaleString('pt-BR');
+          const dtEx  = r.dataExame
+            ? new Date(r.dataExame+'T12:00:00').toLocaleDateString('pt-BR') : '—';
+          const itensHtml = (r.itens||[]).map(item =>
+            '<div style="padding:4px 8px;font-size:11px;color:var(--navy);">' +
+              '<strong>' + esc(item.paciente||'') + '</strong> — ' +
+              (item.exames||[]).map(e =>
+                '<span style="background:var(--gray-100);border-radius:5px;padding:1px 6px;margin:0 2px;font-size:10px;">' +
+                esc(e.tipo||'') + (e.dataPrazo?(' · '+new Date(e.dataPrazo+'T12:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})):'') +
+                '</span>'
+              ).join('') +
+            '</div>'
+          ).join('');
+
+          return `<div style="border:1.5px solid var(--gray-200);border-radius:12px;overflow:hidden;margin-bottom:10px;">
+            <div style="background:var(--navy);padding:10px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <i class="fas fa-file-lines" style="color:rgba(255,255,255,.5);"></i>
+              <span style="color:white;font-weight:700;font-size:13px;">Exame de ${dtEx}</span>
+              <span style="color:rgba(255,255,255,.6);font-size:11px;">${esc(r.usuario||'')}</span>
+              <span style="color:rgba(255,255,255,.5);font-size:10px;margin-left:auto;">${dtGer}</span>
+              <span style="background:rgba(255,255,255,.15);color:white;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;">
+                ${r.totalPacientes||0} pac · ${r.totalExames||0} exames
+              </span>
+              <button onclick="reimprimirRelatorio('${r.key}')"
+                style="padding:3px 10px;background:#15803d;color:white;border:none;border-radius:6px;font-family:inherit;font-size:10px;font-weight:700;cursor:pointer;">
+                <i class="fas fa-print"></i> Reimprimir
+              </button>
+            </div>
+            <div style="padding:8px 0;max-height:200px;overflow-y:auto;">${itensHtml}</div>
+          </div>`;
+        }).join('');
+      } catch(e) {
+        el.innerHTML = '<div style="color:var(--red);padding:16px;">Erro: ' + e.message + '</div>';
+      }
+    };
+
+    window.reimprimirRelatorio = async function(key) {
+      try {
+        const snap = await get(ref(db, 'exames/relatorios/' + key));
+        const r = snap.val();
+        if (!r) { toast('Relatório não encontrado', 'error'); return; }
+        // Reconstituir formato compatível com imprimirRelatorioExames
+        const itens = (r.itens||[]).map(item => ({
+          paciente: item.paciente,
+          exames:   (item.exames||[]).map(ex => ({id:'x', tipo:ex.tipo}))
+        }));
+        imprimirRelatorioExames(itens, r.dataExame, r.usuario);
+      } catch(e) { toast('Erro: ' + e.message, 'error'); }
     };
 
     // ── CADASTRAR VIA AMEI ──
@@ -641,6 +737,8 @@
         }
       });
 
+      // Ordenar alfabeticamente
+      _cadItems.sort((a,b) => a.paciente.localeCompare(b.paciente, 'pt-BR'));
       renderCadastrar();
     };
 
@@ -714,6 +812,7 @@
         toast(nome + ' adicionado à lista', 'success');
       }
       nomeEl.value = '';
+      _cadItems.sort((a,b) => a.paciente.localeCompare(b.paciente, 'pt-BR'));
       renderCadastrar();
       // Mostrar a lista se estava oculta
       const res = document.getElementById('cadResult');
@@ -794,8 +893,28 @@
           </div>`).join('');
       document.getElementById('importSuccessModal').style.display = 'flex';
 
-      // Imprime relatório automaticamente após cadastro
-      if (ok > 0) imprimirRelatorioExames(selecionados, dataExame, usuario);
+      // Salvar relatório no Firebase + imprimir
+      if (ok > 0) {
+        const relKey = Date.now() + '_' + Math.random().toString(36).slice(2);
+        const relData = {
+          dataExame:    dataExame,
+          dataGeracao:  new Date().toISOString(),
+          usuario:      usuario,
+          totalPacientes: selecionados.length,
+          totalExames:  selecionados.reduce((s,i)=>s+i.exames.length,0),
+          itens: selecionados.map(item => ({
+            paciente: item.paciente.toUpperCase(),
+            exames:   item.exames.map(ex => ({
+              tipo:      ex.tipo,
+              dataPrazo: calcularDataPrazo(ex.tipo, dataExame) || null,
+            }))
+          }))
+        };
+        try {
+          await set(ref(db, 'exames/relatorios/' + relKey), relData);
+        } catch(e) { console.error('[Relatorio]', e.message); }
+        imprimirRelatorioExames(selecionados, dataExame, usuario);
+      }
 
       // Limpa só os selecionados
       _cadItems = _cadItems.filter(i => !i.checked);
