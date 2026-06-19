@@ -90,6 +90,7 @@
     .partner-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;background:#fef3c7;color:var(--amber);font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0;}
     .card-name{font-size:14px;font-weight:700;color:var(--navy);line-height:1.35;}
     .card-forn{font-size:11px;color:var(--gray-400);}
+    .card-prof{font-size:11px;color:var(--teal);margin-top:2px;}
     .card-prices{display:flex;gap:10px;margin-top:auto;padding-top:10px;border-top:1px solid var(--gray-100);}
     .price-box{flex:1;text-align:center;padding:7px 6px;border-radius:8px;}
     .price-box.ct{background:#eff6ff;}
@@ -237,11 +238,26 @@
     .popt-obs{margin-top:8px;background:#fff7ed;border-radius:6px;padding:7px 10px;font-size:11px;color:#92400e;line-height:1.5;}
     .price-min-label{font-size:9px;color:var(--amber);font-weight:700;text-transform:uppercase;letter-spacing:.3px;}
 
-    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:opacity .2s;z-index:2000;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25);}
+    .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--navy);color:white;padding:10px 22px;border-radius:10px;font-size:13px;font-weight:600;opacity:0;transition:opacity .2s;z-index:2000;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25);text-align:center;max-width:88vw;line-height:1.4;}
     .toast.show{opacity:1;}
     .toast.success{background:var(--green);}
     .toast.error{background:var(--red);}
+    .toast.warn{background:var(--amber);}
     .file-input{display:none;}
+    /* Botão Preparo no carrinho */
+    .btn-preparo{background:#f0fdf4;color:var(--green);border:1.5px solid #bbf7d0;}
+    .btn-preparo:hover:not(:disabled){background:#dcfce7;border-color:var(--green);}
+    /* Modal de Preparo dos Exames */
+    .prep-overlay{position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:700;padding:20px;}
+    .prep-overlay.show{display:flex;}
+    .prep-box{background:white;border-radius:20px;max-width:580px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,.3);}
+    .prep-head{padding:16px 22px 12px;border-bottom:2px solid var(--gray-100);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:white;z-index:5;}
+    .prep-head-title{font-size:15px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;}
+    .prep-item{padding:14px 22px;border-bottom:1px solid var(--gray-100);}
+    .prep-item:last-child{border-bottom:none;}
+    .prep-item-name{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:7px;display:flex;align-items:center;gap:6px;}
+    .prep-item-text{font-size:12px;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 13px;line-height:1.75;white-space:pre-wrap;}
+    .prep-item-text.no-prep{background:var(--gray-50);border-color:var(--gray-200);color:var(--gray-400);}
 
     @media(max-width:900px){
       .layout{grid-template-columns:1fr;}
@@ -323,6 +339,7 @@
           <span class="cart-total-val" id="cartTotal">R$ 0,00</span>
         </div>
         <button class="cart-btn btn-copy" id="btnWpp" disabled><i class="fas fa-copy"></i> Copiar Mensagem</button>
+        <button class="cart-btn btn-preparo" id="btnPreparo" disabled><i class="fas fa-notes-medical"></i> Ver Preparo dos Exames</button>
         <button class="cart-btn btn-pdf" id="btnPdf" disabled><i class="fas fa-file-pdf"></i> Exportar PDF</button>
       </div>
     </aside>
@@ -342,6 +359,21 @@
   </div>
 
   <div class="toast" id="toast"></div>
+
+  <!-- ── MODAL PREPARO DOS EXAMES ── -->
+  <div class="prep-overlay" id="prepOverlay">
+    <div class="prep-box">
+      <div class="prep-head">
+        <div class="prep-head-title">
+          <i class="fas fa-notes-medical" style="color:var(--teal);font-size:15px;"></i>
+          Preparo dos Exames
+          <span id="prepCount" style="background:var(--gray-100);color:var(--gray-500);font-size:11px;padding:2px 8px;border-radius:10px;font-weight:700;"></span>
+        </div>
+        <button class="modal-close" id="prepCloseBtn"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div id="prepBody"></div>
+    </div>
+  </div>
 
   <!-- ═══ DADOS DOS PARCEIROS ═══ -->
   <script>
@@ -397,9 +429,9 @@
       ]
     },
     imadi: {
-      nome: 'IMADI Imagem',
+      nome: 'IMADI - IMAGEM & DIAGNOSTICO LTDA',
       tel:  '',
-      obs:  'Atendimento: todos os dias das 8h às 13h (Ultrassom: seg, qui, sex e sáb).',
+      obs:  'Endereço: Rua Nossa Senhora da Lapa, 423. Atendimento: todos os dias das 8h às 13h (Ultrassom: seg, qui, sex e sáb).',
       exames: [
         { nome: 'Mamografia',                      total: 120, guia: 45, resta:  75 },
         { nome: 'Ultrassom Morfológico',           total: 180, guia: 55, resta: 125 },
@@ -473,9 +505,9 @@
       ]
     },
     prezecor: {
-      nome: 'Prezecor 2.0',
+      nome: 'PREZECOR DIAGNOSTICOS EM MEDICINA LTDA - EPP',
       tel:  'Confirmar a unidade com o paciente',
-      obs:  'Unidades: Santana, Guarulhos Centro, Tatuapé e Freguesia. Raio-X a partir de 6 anos.',
+      obs:  'Unidades: Santana, Guarulhos Centro, Tatuapé e Freguesia do Ó. Raio-X a partir de 6 anos.',
       exames: [
         ...[
           'Raio-X — Crânio','Raio-X — Mastóides / Rochedos','Raio-X — Órbitas',
@@ -515,9 +547,9 @@
       ]
     },
     scoppeta: {
-      nome: 'Scoppeta',
+      nome: 'SCOPP Diagnósticos',
       tel:  '',
-      obs:  '⚠️ Não agendar em aparelho aberto: exame com contraste, HD Parkinson, Mastóides, Face, Crânio. Peso máx. TC: 140 kg. Laudo: 7–10 dias úteis.',
+      obs:  'Endereço: Av. Pompéia, 1137 — Pompeia. ⚠️ Não agendar em aparelho aberto: exame com contraste, HD Parkinson, Mastóides, Face, Crânio. Peso máx. TC: 140 kg. Laudo: 7–10 dias úteis.',
       exames: [
         ...[
           'RM Abdome Superior','RM Antebraço (cada)','RM Articulação (cada)',
@@ -876,6 +908,7 @@
             <span class="cat-tag">${escapeHtml(e.categoria)}</span>
             <div class="card-name">${escapeHtml(e.nome)}</div>
             ${e.fornecedor?`<div class="card-forn"><i class="fas fa-building" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.fornecedor)}</div>`:''}
+            ${e.fornecedor==='USG (Equipe Interna)'&&e.observacao?`<div class="card-prof"><i class="fas fa-stethoscope" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.observacao.split('(')[0].trim())}</div>`:''}
             <div class="card-prices">
               <div class="price-box ct"><div class="price-lbl">Cartão</div><div class="price-val">${e.preco_ct!=null?fmtBRL(e.preco_ct):'<span class="price-null">—</span>'}</div></div>
               <div class="price-box pt"><div class="price-lbl">Particular</div><div class="price-val">${e.preco_pt!=null?fmtBRL(e.preco_pt):'<span class="price-null">—</span>'}</div></div>
@@ -1070,7 +1103,7 @@
             <div class="modal-section-lbl" style="display:flex;align-items:center;gap:5px;"><i class="fas fa-notes-medical" style="color:var(--teal);font-size:11px;"></i> Preparo</div>
             <div class="preparo-box">${escapeHtml(prepTxt)}</div>
           </div>
-          ${e.observacao?`<div class="modal-section"><div class="modal-section-lbl">Observação interna</div><div style="font-size:13px;color:var(--gray-600);padding:8px 10px;background:var(--gray-50);border-radius:8px;line-height:1.5;">${escapeHtml(e.observacao)}</div></div>`:''}
+          ${e.observacao?`<div class="modal-section"><div class="modal-section-lbl" style="display:flex;align-items:center;gap:5px;">${e.fornecedor==='USG (Equipe Interna)'?'<i class="fas fa-stethoscope" style="color:var(--teal);font-size:11px;"></i> Profissional':'<i class="fas fa-circle-info" style="color:var(--gray-400);font-size:11px;"></i> Observação interna'}</div><div style="font-size:13px;color:${e.fornecedor==='USG (Equipe Interna)'?'var(--teal)':'var(--gray-600)'};padding:8px 10px;background:${e.fornecedor==='USG (Equipe Interna)'?'#f0fdfa;border:1px solid #99f6e4':'var(--gray-50)'};border-radius:8px;line-height:1.5;font-weight:${e.fornecedor==='USG (Equipe Interna)'?'600':'400'};">${escapeHtml(e.observacao)}</div></div>`:''}
           <div class="modal-actions">
             <button class="btn-add-ct" id="addCtBtn" ${e.preco_ct==null?'disabled':''}><i class="fas fa-plus"></i> Cartão${e.preco_ct!=null?' — '+fmtBRL(e.preco_ct):''}</button>
             <button class="btn-add-pt" id="addPtBtn" ${e.preco_pt==null?'disabled':''}><i class="fas fa-plus"></i> Particular${e.preco_pt!=null?' — '+fmtBRL(e.preco_pt):''}</button>
@@ -1102,12 +1135,39 @@
       if (n.includes('ressonancia')||/\brm\b/.test(n)||n.includes('angio-rm')||n.includes('colangio-rm')||n.includes('hidro-rm')||n.includes('uroressonancia')) return 'Sem preparo especial.\nRetirar objetos metálicos (brincos, piercing, relógio, cinto).\nInformar ao técnico sobre próteses, marca-passo, implantes cocleares, clipes cirúrgicos ou DIU.';
       if ((n.includes('tomografia')||/\btc\b/.test(n)||n.includes('angio-tc')||n.includes('urotomografia'))&&(n.includes('angio')||n.includes('abdome')||n.includes('abdominal')||n.includes('torax')||n.includes('tórax')||n.includes('pelve')||n.includes('total'))) return 'Jejum de 4 horas (para exames com contraste).\nTrazer resultado de creatinina recente.\nTrazer pedido médico e exames anteriores.\nInformar alergias, especialmente a contraste iodado.';
       if (n.includes('tomografia')||/\btc\b/.test(n)||n.includes('angio-tc')||n.includes('urotomografia')) return 'Sem preparo especial.\nTrazer pedido médico e exames anteriores.\nRetirar objetos metálicos da região a ser examinada.';
-      if ((n.includes('ultrassom')||n.includes('usg')||n.includes('ecografia'))&&(n.includes('abdome')||n.includes('hepat')||n.includes('figado')||n.includes('bilio')||n.includes('pancre')||n.includes('baco')||n.includes('renal')||n.includes('rim')||n.includes('vias urin'))) return 'Jejum de 4 horas antes.\nPara visualização de rim e bexiga: manter bexiga cheia (beber 1 litro de água 1h antes e não urinar).';
-      if ((n.includes('ultrassom')||n.includes('usg')||n.includes('ecografia'))&&(n.includes('pelv')||n.includes('utero')||n.includes('útero')||n.includes('ovario')||n.includes('vesical')||n.includes('bexiga'))) return 'Bexiga cheia: beber 1 litro de água 1 hora antes e não urinar.';
-      if (n.includes('transvaginal')) return 'Bexiga vazia: urinar antes de entrar no consultório.';
-      if ((n.includes('ultrassom')||n.includes('usg')||n.includes('ecografia'))&&(n.includes('obstet')||n.includes('morfolog')||n.includes('fetal')||n.includes('gestac')||n.includes('doppler')||n.includes('translucenc'))) return 'Bexiga semi-cheia: beber meio litro de água 30 minutos antes.\nTrajar roupas confortáveis.\nTrazer carteirinha de pré-natal.';
-      if ((n.includes('ultrassom')||n.includes('usg')||n.includes('ecografia'))&&(n.includes('mama')||n.includes('tireoide')||n.includes('tireóide')||n.includes('prostata')||n.includes('próstata')||n.includes('escrotal')||n.includes('bolsa')||n.includes('partes moles'))) return 'Sem preparo especial.\nTrajar roupas confortáveis.';
-      if (n.includes('ultrassom')||n.includes('usg')||n.includes('ecografia')) return 'Sem preparo especial.\nEm caso de dúvida sobre o tipo de ultrassom, verificar com a recepção.';
+      // ── USG / Ultrassom — preparos completos ──
+      // Transvaginal com preparo especial (endometriose / miomas)
+      if (n.includes('transvaginal')&&n.includes('preparo')) return '⚠️ Preparo especial (24h antes):\n• Alimentação: evitar legumes, verduras e frutas; consumir apenas arroz, carnes e líquidos claros.\n• Na noite anterior: tomar 2 comprimidos de Dulcolax.\n• No dia do exame: chegar com a bexiga VAZIA (urinar antes de entrar).';
+      // Transvaginal padrão (inclui c/ Doppler)
+      if (n.includes('transvaginal')) return 'Bexiga VAZIA: urinar antes de entrar no consultório.\nUsar saia ou vestido para facilitar o exame.';
+      // Próstata transretal
+      if (n.includes('transretal')) return 'Aplicar enema (Fleet) retal na manhã do exame, pelo menos 2 horas antes.\nBexiga moderadamente cheia: beber 2 copos de água 1h antes.\nTrazer pedido médico.';
+      // Doppler de vasos abdominais (aorta, renais, portal — preparo 24h com Luftal + Dulcolax)
+      if (n.includes('doppler')&&(n.includes('abdome')||n.includes('arteria')||n.includes('portal'))&&!n.includes('urinario')&&!n.includes('inferior')&&!n.includes('mama')&&!n.includes('tireoide')&&!n.includes('transvaginal')&&!n.includes('escroto')&&!n.includes('bolsa')&&!n.includes('penis')&&!n.includes('carotida')&&!n.includes('mmii')) return '⚠️ Preparo especial (adultos — véspera e manhã do exame):\n• Na véspera: tomar Luftal 40 gotas, 3× ao dia às refeições + 2 comprimidos de Dulcolax ao dormir.\n• No dia do exame: JEJUM DE 6 HORAS. Beber 5 copos de água (200 ml cada) 1 hora antes e NÃO urinar até o término do exame.';
+      // Abdome total (sem doppler vascular — jejum 6h)
+      if ((n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia'))&&(n.includes('abdome total')||n.includes('abdominal total'))) return 'JEJUM DE 6 HORAS antes do exame.\nBeber 5 copos de água (200 ml cada) 1 hora antes e NÃO urinar até o término do exame.';
+      // Abdome superior, hipocôndrio, vias biliares, retroperitônio (jejum 6h)
+      if ((n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia'))&&(n.includes('abdome superior')||n.includes('hipcondrio')||n.includes('hipocondrio')||n.includes('vias biliare')||n.includes('retroperiton'))) return 'JEJUM DE 6 HORAS antes do exame.\nBeber 5 copos de água (200 ml cada) 1 hora antes e NÃO urinar até o término do exame.';
+      // Aparelho urinário, abdome inferior, pélvico, útero, ovários (bexiga cheia)
+      if ((n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia')||n.includes('doppler'))&&(n.includes('aparelho urinario')||n.includes('abdome inferior')||n.includes('pelv')||n.includes('utero')||n.includes('ovario')||n.includes('bexiga')||n.includes('vesical')||(n.includes('prostata')&&!n.includes('transretal')))) return 'Bexiga CHEIA: beber 5 copos de água (200 ml cada) 1 hora antes e NÃO urinar até o término do exame.';
+      // Obstétrico morfológico (1° trimestre)
+      if ((n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia'))&&n.includes('morfolog')) return 'Sem preparo especial.\nVir acompanhada.\nTrazer carteirinha de pré-natal e pedido médico.';
+      // Obstétrico padrão / fetal
+      if ((n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia'))&&(n.includes('obstet')||n.includes('fetal')||n.includes('gestac')||n.includes('translucenc'))) return 'Sem preparo especial.\nVir acompanhada.\nTrazer carteirinha de pré-natal e pedido médico.';
+      // Doppler carótidas / vertebrais / região cervical
+      if ((n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia')||n.includes('doppler'))&&(n.includes('carotida')||n.includes('vertebr')||n.includes('regiao cervical'))) return 'Usar blusa de gola ampla ou decotada (sem correntes ou bijuterias no pescoço).\nHomens: fazer a barba ou aparar bem antes de vir.\nSem preparo alimentar necessário.';
+      // Doppler venoso / arterial de membros inferiores ou superiores
+      if ((n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia')||n.includes('doppler'))&&(n.includes('mmii')||n.includes('membro inf')||((n.includes('venoso')||n.includes('arterial'))&&!n.includes('abdome')&&!n.includes('arteria e ')&&!n.includes('portal')))) return 'Usar traje de banho, shorts ou bermuda (facilita o acesso às pernas).\nNão usar meia-calça ou meia compressão no dia do exame.\nSem preparo alimentar necessário.';
+      // Mamas (inclui c/ Doppler)
+      if ((n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia')||n.includes('doppler'))&&n.includes('mama')) return 'Sem preparo especial.\nDe preferência, realizar nos primeiros 10 dias após a menstruação (até o 10° dia do ciclo).\nTrazer mamografias ou exames anteriores, se houver.';
+      // Tireoide (inclui c/ Doppler)
+      if ((n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia')||n.includes('doppler'))&&(n.includes('tireoide')||n.includes('tireóide'))) return 'Sem preparo especial.\nRetirar correntes, colares e bijuterias do pescoço antes do exame.';
+      // Escroto / bolsa escrotal / pênis (inclui c/ Doppler)
+      if ((n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia')||n.includes('doppler'))&&(n.includes('escroto')||n.includes('bolsa escrotal')||n.includes('penis')||n.includes('pênis'))) return 'Sem preparo especial.\nTrajar roupa confortável e de fácil acesso.';
+      // Globo ocular
+      if ((n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia'))&&n.includes('globo ocular')) return 'Sem preparo especial.\nTrazer pedido médico e exames anteriores.';
+      // Generic USG (partes moles, articulações, musculoesquelético, parede, axilas, face etc.)
+      if (n.includes('usg')||n.includes('ultrassom')||n.includes('ecografia')) return 'Sem preparo especial.\nTrajar roupa confortável que permita fácil acesso à região examinada.';
       if (n.includes('mamografia')) return 'Não usar desodorante, talco ou cremes na axila e região mamária no dia do exame.\nPreferir usar blusa e calça separadas.\nTrazer mamografias anteriores se disponíveis.';
       if ((n.includes('raio')||n.includes('radiografia'))&&(n.includes('abdome')||n.includes('bario')||n.includes('contraste'))) return 'Jejum de 4 horas.\nTrajar peças sem botões ou zíperes metálicos na região examinada.';
       if (n.includes('raio')||n.includes('radiografia')) return 'Sem preparo especial.\nRetirar adornos metálicos (brincos, colar, piercing) na região a ser examinada.';
@@ -1169,7 +1229,11 @@
       document.getElementById('cartBadge').textContent=cart.length;
       if(!cart.length){
         list.innerHTML='<div class="cart-empty"><i class="fas fa-clipboard"></i>Nenhum exame adicionado.<br>Clique nos cards para adicionar.</div>';
-        footer.style.display='none'; document.getElementById('btnWpp').disabled=true; document.getElementById('btnPdf').disabled=true; return;
+        footer.style.display='none';
+        document.getElementById('btnWpp').disabled=true;
+        document.getElementById('btnPdf').disabled=true;
+        document.getElementById('btnPreparo').disabled=true;
+        return;
       }
       list.innerHTML=cart.map((it,i)=>`
         <div class="cart-item">
@@ -1183,7 +1247,10 @@
       list.querySelectorAll('.cart-rm').forEach(b=>b.addEventListener('click',()=>removeFromCart(+b.dataset.i)));
       const total=cart.reduce((s,it)=>s+(it.preco||0),0);
       document.getElementById('cartTotal').textContent=fmtBRL(total);
-      footer.style.display='block'; document.getElementById('btnWpp').disabled=false; document.getElementById('btnPdf').disabled=false;
+      footer.style.display='block';
+      document.getElementById('btnWpp').disabled=false;
+      document.getElementById('btnPdf').disabled=false;
+      document.getElementById('btnPreparo').disabled=false;
     }
 
     document.getElementById('btnClear').addEventListener('click',()=>{
@@ -1199,14 +1266,31 @@
       if(ct.length){msg+=`💳 *Cartão de Todos*\n`;ct.forEach(it=>{msg+=`• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`;});msg+=`\n`;}
       if(pt.length){msg+=`👛 *Particular*\n`;pt.forEach(it=>{msg+=`• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`;});msg+=`\n`;}
       msg+=`💰 *Total estimado: ${fmtBRL(total)}*\n\nEstamos aqui para cuidar de você com atenção e qualidade! 😊\n_Orçamento gerado em ${new Date().toLocaleDateString('pt-BR')} — ${_clin}_`;
-      navigator.clipboard.writeText(msg).then(()=>{
+      // Verifica se algum exame tem preparo específico (além do genérico)
+      const temPreparo = cart.some(it => {
+        const p = getPreparo(it.exam);
+        return p && !p.startsWith('Sem preparo especial') && !p.startsWith('Sem preparo especial necessário');
+      });
+      const onCopiado = () => {
         const btn=document.getElementById('btnWpp'),orig=btn.innerHTML;
         btn.innerHTML='<i class="fas fa-check"></i> Copiado!'; btn.style.background='#15803d';
-        setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';},2000);
-      }).catch(()=>{
+        setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';},2200);
+        if (temPreparo) {
+          // Toast âmbar de aviso com delay para não sobrepor
+          setTimeout(()=>{
+            const el=document.getElementById('toast');
+            el.innerHTML='📋 Lembre de <strong>orientar o preparo</strong> ao paciente antes de despedir!';
+            el.className='toast show warn';
+            setTimeout(()=>el.classList.remove('show'),4500);
+          },400);
+        } else {
+          toast('Mensagem copiada!','success');
+        }
+      };
+      navigator.clipboard.writeText(msg).then(onCopiado).catch(()=>{
         const ta=document.createElement('textarea');ta.value=msg;ta.style.position='fixed';ta.style.opacity='0';
         document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
-        toast('Mensagem copiada!','success');
+        onCopiado();
       });
     });
 
@@ -1230,6 +1314,33 @@
       });
       if(y>260){pdf.addPage();y=20;}pdf.line(20,y,190,y);y+=8;pdf.setFontSize(14);pdf.setFont('helvetica','bold');pdf.text('TOTAL:',20,y);pdf.text(fmtBRL(total),190,y,{align:'right'});
       pdf.save(`orcamento-${Date.now()}.pdf`);
+    });
+
+    // ── Modal Preparo dos Exames ──
+    document.getElementById('btnPreparo').addEventListener('click', () => {
+      if (!cart.length) return;
+      const body = document.getElementById('prepBody');
+      document.getElementById('prepCount').textContent = cart.length + ' exame' + (cart.length===1?'':'s');
+      body.innerHTML = cart.map((it, i) => {
+        const prep = getPreparo(it.exam);
+        const semPrep = prep.startsWith('Sem preparo especial') || prep.startsWith('Sem preparo especial necessário');
+        const tipoLabel = it.tipo==='ct' ? 'Cartão de Todos' : 'Particular';
+        return `<div class="prep-item">
+          <div class="prep-item-name">
+            <span style="background:var(--navy);color:white;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;min-width:22px;text-align:center;">${i+1}</span>
+            ${escapeHtml(it.exam.nome)}
+            <span style="font-size:9px;font-weight:600;color:var(--gray-400);background:var(--gray-100);padding:2px 6px;border-radius:8px;">${tipoLabel}</span>
+          </div>
+          <div class="prep-item-text ${semPrep?'no-prep':''}">${escapeHtml(prep)}</div>
+        </div>`;
+      }).join('');
+      document.getElementById('prepOverlay').classList.add('show');
+    });
+    document.getElementById('prepCloseBtn').addEventListener('click', () => {
+      document.getElementById('prepOverlay').classList.remove('show');
+    });
+    document.getElementById('prepOverlay').addEventListener('click', e => {
+      if (e.target.id === 'prepOverlay') document.getElementById('prepOverlay').classList.remove('show');
     });
 
     // ── Import / Seed ──
@@ -1257,15 +1368,15 @@
     function cleanStr(v){return v==null?'':String(v).trim().replace(/\n/g,' ').replace(/\\n/g,' ');}
     function looksLikeExamName(s){if(!s||s.length<3)return false;const u=s.toUpperCase();const bad=['NOME DO EXAME','CARTÃO DE TODOS','PARTICULAR','VALOR TOTAL','VALOR GUIA','AGENDAMENTO','OBSERVAÇÃO','PROCEDIMENTO ','PRESTADOR','OBS:','WHATSAPP','CONTRASTE','ENDEREÇO','CNPJ','NÃO AGENDAR','TODOS OS EXAMES','COBRADO','COD ','PROCEDIMENTO P'];for(const b of bad)if(u.startsWith(b))return false;if(['NAN','-','.'].includes(u))return false;return true;}
     function parseWorkbook(wb){
-      const result=[],skipNames=new Set(['amor cirugias','amor cirugias ']);
-      const fornMap={'EXAMES  AMOR SAUDE ':'Amor Saúde','USG ':'USG (Equipe Interna)','IMADI-IMAGEM':'IMADI Imagem','OFTALMO':'Oftalmologia','TC PREZECOR':'Prezecor (TC)','SCOPPETA':'Scoppeta','PREZECOR 2.0':'Prezecor 2.0','DERMATOLOGIA':'Dermatologia','EXAMES LABORATORIAIS ':'Laboratorial','MEDICOM 2.0':'Medicom 2.0','FARAGE - OCULTO':'Farage','MARCUS (UROLOGISTA)':'Marcus (Urologia)','PREZECOR':'Prezecor','MEDICOM':'Medicom','CERGOLI - LAPA':'Cergoli (Lapa)','AURI MEDICINA':'Auri Medicina','VF':'VF Oftalmologia'};
+      const result=[],skipNames=new Set(['amor cirugias','amor cirugias ','exames laboratoriais ','farage - oculto']);
+      const fornMap={'EXAMES  AMOR SAUDE ':'Amor Saúde','USG ':'USG (Equipe Interna)','IMADI-IMAGEM':'IMADI Imagem','OFTALMO':'Oftalmologia','TC PREZECOR':'Prezecor (TC)','SCOPPETA':'Scoppeta','PREZECOR 2.0':'Prezecor 2.0','DERMATOLOGIA':'Dermatologia','MEDICOM 2.0':'Medicom 2.0','MARCUS (UROLOGISTA)':'Marcus (Urologia)','PREZECOR':'Prezecor','MEDICOM':'Medicom','CERGOLI - LAPA':'Cergoli (Lapa)','AURI MEDICINA':'Auri Medicina','VF':'VF Oftalmologia'};
       for(const sheetName of wb.SheetNames){
         const lower=sheetName.toLowerCase();if(skipNames.has(lower)||lower.includes('desativada'))continue;
         const ws=wb.Sheets[sheetName],rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:null});if(!rows||rows.length===0)continue;
-        const isAmor=sheetName.toUpperCase().includes('AMOR SAUDE');let currentCat=sheetName.trim();const fornecedor=fornMap[sheetName]||sheetName.trim();if(isAmor)currentCat='Geral';
+        const isAmor=sheetName.toUpperCase().includes('AMOR SAUDE');let currentCat=sheetName.trim();const fornecedor=fornMap[sheetName]||sheetName.trim();if(isAmor)currentCat='Geral';const isUSG=(fornecedor==='USG (Equipe Interna)');let currentProfissional='';
         for(const row of rows){if(!row||row.length===0)continue;const nome=cleanStr(row[0]);if(!nome)continue;
           if(isAmor){const ct=parsePrice(row[2]),pt=parsePrice(row[3]);if(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/u.test(nome)&&ct==null&&pt==null){currentCat=nome.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu,'').trim();continue;}if(!looksLikeExamName(nome)||(ct==null&&pt==null))continue;result.push({nome,categoria:currentCat,fornecedor,preco_ct:ct,preco_pt:pt,observacao:cleanStr(row[1]),preparo:'',caracteristica:'',beneficio:''});}
-          else{const nums=row.map(parsePrice);const allNull=nums.slice(1).every(n=>n==null);if(allNull&&looksLikeExamName(nome)&&nome.length<50){if(/RAIO|DIAGN|EXAMES |PROCEDIMENT|RESSON|TOMOG|GINECO|BIOPSIA|GASTRO/i.test(nome)){currentCat=nome;continue;}}if(!looksLikeExamName(nome))continue;const prices=nums.slice(1).filter(n=>n!=null&&n>0);if(prices.length===0)continue;const preco_ct=prices[0],preco_pt=prices.length>=2?Math.max(...prices):null;let obs='';for(const c of row.slice(1).map(cleanStr)){if(c&&parsePrice(c)==null&&c.length>5){obs=c;break;}}result.push({nome,categoria:currentCat,fornecedor,preco_ct,preco_pt,observacao:obs,preparo:'',caracteristica:'',beneficio:''});}
+          else{const nums=row.map(parsePrice);const allNull=nums.slice(1).every(n=>n==null);if(allNull&&looksLikeExamName(nome)&&nome.length<50){if(/RAIO|DIAGN|EXAMES |PROCEDIMENT|RESSON|TOMOG|GINECO|BIOPSIA|GASTRO/i.test(nome)){currentCat=nome;continue;}if(isUSG&&/^Dr[a]?\./i.test(nome)){currentProfissional=nome;continue;}}if(!looksLikeExamName(nome))continue;const prices=nums.slice(1).filter(n=>n!=null&&n>0);if(prices.length===0)continue;const preco_ct=prices[0],preco_pt=prices.length>=2?Math.max(...prices):null;let obs='';for(const c of row.slice(1).map(cleanStr)){if(c&&parsePrice(c)==null&&c.length>5){obs=c;break;}}result.push({nome,categoria:currentCat,fornecedor,preco_ct,preco_pt,observacao:(isUSG&&currentProfissional&&!obs)?currentProfissional:obs,preparo:'',caracteristica:'',beneficio:''});}
         }
       }
       result.forEach((e,i)=>e.id=`exam_${String(i+1).padStart(4,'0')}`);return result;
