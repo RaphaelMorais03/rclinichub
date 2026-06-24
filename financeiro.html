@@ -541,11 +541,12 @@
       <div class="pagamento">
         <span class="campo-label">Forma de pagamento:</span> ${fOpts}
       </div>
-      <hr class="divider">
       <div class="assinatura">
         <div class="assin-bloco">
-          <div class="assin-linha"></div>
-          <div class="assin-nome">${esc((c.nome||'').toUpperCase())}</div>
+          <div class="assin-inner">
+            <div class="assin-linha"></div>
+            <div class="assin-nome">${esc((c.nome||'').toUpperCase())}</div>
+          </div>
         </div>
         <div class="data-bloco">${dataAuto}</div>
       </div>
@@ -571,9 +572,10 @@
     .recibo-print .referente{font-size:11px;margin:5px 0;line-height:1.5;}
     .recibo-print .pagamento{font-size:11px;margin:5px 0;}
     .recibo-print .assinatura{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:20px;}
-    .recibo-print .assin-bloco{flex:1;text-align:center;}
-    .recibo-print .assin-linha{border-top:1px solid #000;margin-bottom:3px;padding-top:30px;}
-    .recibo-print .assin-nome{font-size:10px;}
+    .recibo-print .assin-bloco{text-align:center;}
+    .recibo-print .assin-inner{display:inline-block;min-width:3cm;text-align:center;vertical-align:bottom;}
+    .recibo-print .assin-linha{height:30px;border-bottom:1px solid #000;margin-bottom:3px;}
+    .recibo-print .assin-nome{font-size:10px;white-space:nowrap;text-align:center;}
     .recibo-print .data-bloco{font-size:11px;text-align:right;white-space:nowrap;}
     .corte{border:none;border-top:1.5px dashed #999;margin:0.1cm 0 0.25cm;}
   `;
