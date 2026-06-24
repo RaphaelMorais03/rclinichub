@@ -124,10 +124,7 @@
         <button class="modal-close" onclick="fecharModalLote()"><i class="fas fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <div style="margin-bottom:14px;">
-          <label class="f-label">Descrição (aplicada a todos)</label>
-          <input class="f-input" id="loteDesc" placeholder="Ex: Salário referente a Abril/2026">
-        </div>
+
         <div class="form-grid" style="margin-bottom:16px;">
           <div>
             <label class="f-label">Categoria</label>
@@ -147,6 +144,16 @@
               <label class="f-label">Período fim</label>
               <input class="f-input" id="loteFim" type="date">
             </div>
+          </div>
+        </div>
+        <div class="form-grid" style="margin-bottom:14px;">
+          <div>
+            <label class="f-label">Forma de pagamento</label>
+            <select class="f-select" id="loteForma">
+              <option value="pix">PIX</option>
+              <option value="dinheiro">Dinheiro</option>
+              <option value="transferencia">Transferência</option>
+            </select>
           </div>
         </div>
         <div style="margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
@@ -173,35 +180,60 @@
         <button class="modal-close" onclick="fecharModalRecibo()"><i class="fas fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <div class="form-grid" style="margin-bottom:14px;">
-          <div>
-            <label class="f-label">Categoria</label>
-            <select class="f-select" id="rCat">
-              <option value="Salário">Salário</option>
-              <option value="Vale-Transporte">Vale-Transporte</option>
-              <option value="Bonificação">Bonificação</option>
-              <option value="Adiantamento">Adiantamento</option>
-            </select>
+        <!-- Tipo de recibo: Padrão ou Manual -->
+        <div style="display:flex;gap:6px;margin-bottom:16px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:5px;">
+          <button id="btnReciboPadrao" onclick="setTipoRecibo('padrao')"
+            style="flex:1;padding:8px 10px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--navy);color:white;transition:all .2s;">
+            <i class="fas fa-file-invoice"></i> Padrão
+          </button>
+          <button id="btnReciboManual" onclick="setTipoRecibo('manual')"
+            style="flex:1;padding:8px 10px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:none;color:var(--gray-500);transition:all .2s;">
+            <i class="fas fa-pen"></i> Manual
+          </button>
+        </div>
+
+        <!-- PADRÃO -->
+        <div id="reciboPadraoFields">
+          <div class="form-grid" style="margin-bottom:14px;">
+            <div>
+              <label class="f-label">Categoria</label>
+              <select class="f-select" id="rCat">
+                <option value="Salário">Salário</option>
+                <option value="Vale-Transporte">Vale-Transporte</option>
+                <option value="Bonificação">Bonificação</option>
+                <option value="Adiantamento">Adiantamento</option>
+              </select>
+            </div>
+            <div>
+              <label class="f-label">Valor (R$)</label>
+              <input class="f-input" id="rValor" placeholder="0,00" oninput="mascaraMoeda(this)">
+            </div>
           </div>
-          <div>
-            <label class="f-label">Valor bruto (R$)</label>
-            <input class="f-input" id="rValor" placeholder="0,00" oninput="mascaraMoeda(this)">
+          <div class="form-grid" style="margin-bottom:14px;">
+            <div>
+              <label class="f-label">Período início</label>
+              <input class="f-input" id="rInicio" type="date">
+            </div>
+            <div>
+              <label class="f-label">Período fim</label>
+              <input class="f-input" id="rFim" type="date">
+            </div>
           </div>
         </div>
-        <div style="margin-bottom:14px;">
-          <label class="f-label">Descrição do serviço</label>
-          <input class="f-input" id="rDesc" placeholder="Ex: Salário referente ao mês de abril/2026">
-        </div>
-        <div class="form-grid" style="margin-bottom:14px;">
-          <div>
-            <label class="f-label">Período início (opcional)</label>
-            <input class="f-input" id="rInicio" type="date">
+
+        <!-- MANUAL -->
+        <div id="reciboManualFields" style="display:none;">
+          <div style="margin-bottom:14px;">
+            <label class="f-label">Descrição do recibo</label>
+            <input class="f-input" id="rDesc" placeholder="Ex: Reembolso de despesas — Maio/2026">
           </div>
-          <div>
-            <label class="f-label">Período fim (opcional)</label>
-            <input class="f-input" id="rFim" type="date">
+          <div style="margin-bottom:14px;">
+            <label class="f-label">Valor (R$)</label>
+            <input class="f-input" id="rValorManual" placeholder="0,00" oninput="mascaraMoeda(this)">
           </div>
         </div>
+
+        <!-- CAMPOS COMUNS -->
         <div class="form-grid" style="margin-bottom:14px;">
           <div>
             <label class="f-label">Forma de pagamento</label>
@@ -215,10 +247,6 @@
             <label class="f-label">Observação (opcional)</label>
             <input class="f-input" id="rObs" placeholder="Ex: Inclui benefícios">
           </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:10px 14px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;">
-          <input type="checkbox" id="rPago" style="width:18px;height:18px;cursor:pointer;">
-          <label for="rPago" style="font-size:13px;font-weight:700;color:var(--gray-700);cursor:pointer;">Marcar como quitado</label>
         </div>
         <div style="display:flex;gap:10px;">
           <button class="btn-s" onclick="fecharModalRecibo()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
@@ -403,16 +431,30 @@
     catch(e) { toast('Erro: ' + e.message, 'error'); }
   }
 
+  // ── Tipo de recibo ──
+  let _tipoRecibo = 'padrao';
+  function setTipoRecibo(tipo) {
+    _tipoRecibo = tipo;
+    const isPadrao = tipo === 'padrao';
+    document.getElementById('reciboPadraoFields').style.display = isPadrao ? '' : 'none';
+    document.getElementById('reciboManualFields').style.display  = isPadrao ? 'none' : '';
+    document.getElementById('btnReciboPadrao').style.background  = isPadrao ? 'var(--navy)' : 'none';
+    document.getElementById('btnReciboPadrao').style.color       = isPadrao ? 'white' : 'var(--gray-500)';
+    document.getElementById('btnReciboManual').style.background  = isPadrao ? 'none' : 'var(--navy)';
+    document.getElementById('btnReciboManual').style.color       = isPadrao ? 'var(--gray-500)' : 'white';
+  }
+
   // ── Modal Recibo ──
   function abrirModalRecibo(key) {
     colabAtualKey = key;
     const c = colaboradores[key] || {};
     document.getElementById('reciboNomeColab').textContent = c.nome || '—';
-    document.getElementById('rDesc').value = '';
     document.getElementById('rValor').value = '';
+    document.getElementById('rValorManual').value = '';
+    document.getElementById('rDesc').value = '';
     document.getElementById('rObs').value = '';
     document.getElementById('rForma').value = 'pix';
-    document.getElementById('rPago').checked = false;
+    setTipoRecibo('padrao');
     document.getElementById('modalRecibo').classList.add('open');
   }
   function fecharModalRecibo() { document.getElementById('modalRecibo').classList.remove('open'); }
@@ -462,13 +504,10 @@
     }
     if (dados.descricao) referente += ` — ${esc(dados.descricao)}`;
 
-    // Forma de pagamento
-    const formas = ['PIX','Dinheiro','Transferência'];
+    // Forma de pagamento — só mostra a selecionada
     const formaMap = {pix:'PIX', dinheiro:'Dinheiro', transferencia:'Transferência'};
     const formaSel = formaMap[dados.forma] || dados.forma || '';
-    const fOpts = formas.map(f =>
-      `(${f === formaSel ? 'X' : '&nbsp;'}) ${f}`
-    ).join('&nbsp;&nbsp;');
+    const fOpts = formaSel ? formaSel : '—';
 
     const logoHtml = logoSrc
       ? `<img src="${logoSrc}" alt="Logo">`
@@ -500,15 +539,13 @@
       </div>
       <div class="referente">${referente}</div>
       <div class="pagamento">
-        <span class="campo-label">Forma de pagamento:</span>
-        <div class="pagamento-opts">${fOpts}</div>
+        <span class="campo-label">Forma de pagamento:</span> ${fOpts}
       </div>
       <hr class="divider">
       <div class="assinatura">
         <div class="assin-bloco">
           <div class="assin-linha"></div>
           <div class="assin-nome">${esc((c.nome||'').toUpperCase())}</div>
-          <div class="assin-nome" style="color:#555;">Assinatura do Colaborador</div>
         </div>
         <div class="data-bloco">${dataAuto}</div>
       </div>
@@ -533,10 +570,9 @@
     .recibo-print .valor-extenso{font-size:10px;color:#333;margin-top:2px;font-style:italic;}
     .recibo-print .referente{font-size:11px;margin:5px 0;line-height:1.5;}
     .recibo-print .pagamento{font-size:11px;margin:5px 0;}
-    .recibo-print .pagamento-opts{display:flex;gap:14px;font-size:11px;margin-top:3px;}
-    .recibo-print .assinatura{display:flex;justify-content:space-between;align-items:flex-end;margin-top:8px;gap:20px;}
+    .recibo-print .assinatura{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:20px;}
     .recibo-print .assin-bloco{flex:1;text-align:center;}
-    .recibo-print .assin-linha{border-top:1px solid #000;margin-bottom:3px;}
+    .recibo-print .assin-linha{border-top:1px solid #000;margin-bottom:3px;padding-top:30px;}
     .recibo-print .assin-nome{font-size:10px;}
     .recibo-print .data-bloco{font-size:11px;text-align:right;white-space:nowrap;}
     .corte{border:none;border-top:1.5px dashed #999;margin:0.1cm 0 0.25cm;}
@@ -603,12 +639,11 @@
   }
 
   function imprimirLote() {
-    const desc    = document.getElementById('loteDesc').value.trim();
     const cat     = document.getElementById('loteCat').value;
     const inicio  = document.getElementById('loteInicio').value;
     const fim     = document.getElementById('loteFim').value;
+    const desc    = ''; // categoria + período auto-preenche no recibo
     const usuario = sessionStorage.getItem('usuario') || 'Financeiro';
-    if (!desc) { toast('Informe a descrição', 'error'); return; }
 
     const itens = [];
     document.querySelectorAll('.lote-check:checked').forEach(cb => {
@@ -636,8 +671,9 @@
     const logo = LOGO_FIN || sessionStorage.getItem('logoDataUrl') || '';
 
     const blocos = itens.map((it, i) => {
+      const loteFrm = document.getElementById('loteForma') ? document.getElementById('loteForma').value : 'pix';
       const bloco = buildReciboBlock(it.colab,
-        { descricao: desc, valor: it.valor, categoria: cat, inicio, fim, usuario },
+        { descricao: desc, valor: it.valor, categoria: cat, inicio, fim, usuario, forma: loteFrm },
         logo, clinicaNome, clinicaCnpj);
       // quebra de página a cada 4 recibos
       const quebra = ((i + 1) % 3 === 0 && i + 1 < itens.length)
@@ -658,23 +694,24 @@
   }
 
   function coletarDadosRecibo() {
-    const descricao = document.getElementById('rDesc').value.trim();
-    const valorStr  = document.getElementById('rValor').value.replace(/\./g,'').replace(',','.');
+    const isPadrao  = _tipoRecibo === 'padrao';
+    const categoria = isPadrao ? document.getElementById('rCat').value : '';
+    const descricao = isPadrao ? '' : document.getElementById('rDesc').value.trim();
+    const valEl     = isPadrao ? document.getElementById('rValor') : document.getElementById('rValorManual');
+    const valorStr  = (valEl ? valEl.value : '').replace(/\./g,'').replace(',','.');
     const valor     = parseFloat(valorStr) || 0;
-    const categoria = document.getElementById('rCat').value;
-    const inicio    = document.getElementById('rInicio').value;
-    const fim       = document.getElementById('rFim').value;
+    const inicio    = isPadrao ? document.getElementById('rInicio').value : '';
+    const fim       = isPadrao ? document.getElementById('rFim').value : '';
     const forma     = document.getElementById('rForma').value;
     const obs       = document.getElementById('rObs').value.trim();
-    const pago      = document.getElementById('rPago').checked;
-    return { descricao, valor, categoria, inicio, fim, forma, obs, pago };
+    return { descricao, valor, categoria, inicio, fim, forma, obs, isPadrao };
   }
 
   function gerarEImprimirRecibo() {
     const c = colaboradores[colabAtualKey] || {};
     const dados = coletarDadosRecibo();
-    if (!dados.descricao) { toast('Informe a descrição', 'error'); return; }
-    if (!dados.valor)     { toast('Informe o valor', 'error'); return; }
+    if (!dados.isPadrao && !dados.descricao) { toast('Informe a descrição', 'error'); return; }
+    if (!dados.valor) { toast('Informe o valor', 'error'); return; }
     const usuario = sessionStorage.getItem('usuario') || 'Financeiro';
     const w = window.open('', '_blank');
     if (!w) { toast('Pop-up bloqueado — permita pop-ups', 'error'); return; }
@@ -685,8 +722,8 @@
   async function salvarRecibo() {
     const c = colaboradores[colabAtualKey] || {};
     const dados = coletarDadosRecibo();
-    if (!dados.descricao) { toast('Informe a descrição', 'error'); return; }
-    if (!dados.valor)     { toast('Informe o valor', 'error'); return; }
+    if (!dados.isPadrao && !dados.descricao) { toast('Informe a descrição', 'error'); return; }
+    if (!dados.valor) { toast('Informe o valor', 'error'); return; }
     const usuario = sessionStorage.getItem('usuario') || 'Financeiro';
     try {
       await window._fbSet('financeiro/recibos/' + Date.now(), {
