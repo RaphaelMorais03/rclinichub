@@ -107,16 +107,7 @@
             <input class="f-input" id="cCpf" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14">
           </div>
         </div>
-        <div class="form-grid" style="margin-bottom:14px;">
-          <div>
-            <label class="f-label">Banco</label>
-            <input class="f-input" id="cBanco" placeholder="Ex: Nubank / Bradesco">
-          </div>
-          <div>
-            <label class="f-label">Chave PIX</label>
-            <input class="f-input" id="cPix" placeholder="CPF / e-mail / celular">
-          </div>
-        </div>
+
         <div style="display:flex;gap:10px;">
           <button class="btn-s" onclick="fecharModalColab()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
           <button class="btn-p" onclick="salvarColab()" style="flex:2;justify-content:center;"><i class="fas fa-floppy-disk"></i> Salvar</button>
@@ -353,14 +344,12 @@
   function abrirModalColab(key) {
     editandoColabKey = key || null;
     document.getElementById('modalColabTitle').textContent = key ? 'Editar Colaborador' : 'Novo Colaborador';
-    ['cNome','cCargo','cCpf','cBanco','cPix'].forEach(id => document.getElementById(id).value = '');
+    ['cNome','cCargo','cCpf'].forEach(id => document.getElementById(id).value = '');
     if (key && colaboradores[key]) {
       const c = colaboradores[key];
       document.getElementById('cNome').value  = c.nome || '';
       document.getElementById('cCargo').value = c.cargo || '';
       document.getElementById('cCpf').value   = c.cpf || '';
-      document.getElementById('cBanco').value = c.banco || '';
-      document.getElementById('cPix').value   = c.pix || '';
     }
     document.getElementById('modalColab').classList.add('open');
   }
@@ -375,8 +364,7 @@
         nome,
         cargo: document.getElementById('cCargo').value.trim(),
         cpf:   document.getElementById('cCpf').value.trim(),
-        banco: document.getElementById('cBanco').value.trim(),
-        pix:   document.getElementById('cPix').value.trim(),
+
         atualizadoEm: new Date().toISOString()
       });
       toast('Colaborador salvo!', 'success');
@@ -397,7 +385,7 @@
           '<div class="colab-info">' +
             '<div class="colab-nome">' + esc(c.nome || '—') + '</div>' +
             '<div class="colab-cargo">' + esc(c.cargo || '') + (c.cpf ? ' · ' + esc(c.cpf) : '') + '</div>' +
-            (c.pix ? '<div style="font-size:10px;color:var(--gray-400);margin-top:2px;">PIX: ' + esc(c.pix) + '</div>' : '') +
+
           '</div>' +
           '<div class="colab-actions">' +
             '<button class="btn-g" style="font-size:11px;padding:6px 12px;" onclick="abrirModalRecibo(\'' + k + '\')"><i class="fas fa-receipt"></i> Recibo</button>' +
@@ -454,53 +442,104 @@
   // ── Bloco de recibo clássico ──
   function buildReciboBlock(c, dados, logoSrc, clinicaNome, clinicaCnpj) {
     const now    = new Date();
-    const data   = `São Paulo, ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
-    const valorF = fmtMoeda(dados.valor);
+    const dia    = String(now.getDate()).padStart(2,'0');
+    const mes    = String(now.getMonth()+1).padStart(2,'0');
+    const ano    = now.getFullYear();
+    const dataAuto = `São Paulo, ${dia} de ${['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'][now.getMonth()]} de ${ano}`;
+    const valorF  = fmtMoeda(dados.valor);
     const extenso = valorExtenso(dados.valor);
-    const isTrans = dados.categoria === 'Vale-Transporte';
-    const titulo  = isTrans
-      ? 'RECIBO DE ENTREGA DE VALE-TRANSPORTE'
-      : `RECIBO DE ${(dados.categoria || 'PAGAMENTO').toUpperCase()}`;
-    let periodoTxt = '';
+    const cpfFmt  = formatCPF((c.cpf || '').replace(/\D/g, '')) || (c.cpf || '—');
+    const cat     = dados.categoria || 'Pagamento';
+
+    // Período / referência
+    let referente = `Referente a: <strong>${esc(cat)}</strong>`;
     if (dados.inicio && dados.fim) {
       const di = dados.inicio.split('-').reverse().join('/');
       const df = dados.fim.split('-').reverse().join('/');
-      periodoTxt = ` para utilização no período de <strong>${di} a ${df}</strong>`;
+      referente += ` — período de <strong>${di}</strong> a <strong>${df}</strong>`;
+    } else if (dados.inicio) {
+      referente += ` — <strong>${dados.inicio.split('-').reverse().join('/')}</strong>`;
     }
-    const cpfFmt = formatCPF((c.cpf || '').replace(/\D/g, '')) || (c.cpf || '—');
-    const descExtra = dados.descricao ? ' ' + esc(dados.descricao) : '';
-    const logoHtml  = logoSrc
-      ? `<div class="recibo-logo"><img src="${logoSrc}" alt="Logo"></div>`
-      : '';
+    if (dados.descricao) referente += ` — ${esc(dados.descricao)}`;
+
+    // Forma de pagamento
+    const formas = ['PIX','Dinheiro','Transferência'];
+    const formaMap = {pix:'PIX', dinheiro:'Dinheiro', transferencia:'Transferência'};
+    const formaSel = formaMap[dados.forma] || dados.forma || '';
+    const fOpts = formas.map(f =>
+      `(${f === formaSel ? 'X' : '&nbsp;'}) ${f}`
+    ).join('&nbsp;&nbsp;');
+
+    const logoHtml = logoSrc
+      ? `<img src="${logoSrc}" alt="Logo">`
+      : `<span style="font-size:11px;font-weight:bold;">${esc(clinicaNome)}</span>`;
+    const clinicaEnd = sessionStorage ? (sessionStorage.getItem('clinicaEnd') || 'Avenida Doutor Felipe Pinel, 367 — Pirituba/SP') : 'Avenida Doutor Felipe Pinel, 367 — Pirituba/SP';
+
     return `<div class="recibo-print">
-      ${logoHtml}
-      <div class="titulo">${titulo}</div>
-      <div class="empresa"><span>${esc(clinicaNome)}</span><span>CNPJ: ${esc(clinicaCnpj || '')}</span></div>
-      <div class="empregado">Nome do Empregado: ${esc(c.nome || '—')} &nbsp;—&nbsp; CPF: ${esc(cpfFmt)}</div>
-      <div class="texto">Recebi da empresa <strong>${esc(clinicaNome)}</strong> o equivalente a <strong>R$ ${valorF} (${extenso})</strong> de ${esc((dados.categoria || 'pagamento').toLowerCase())}${periodoTxt}.${descExtra}</div>
-      <div class="data-local">${data}</div>
+      <div class="rh">
+        <div class="recibo-logo">${logoHtml}</div>
+        <div class="titulo">RECIBO</div>
+        <div class="empresa-info">
+          <strong>${esc(clinicaNome)}</strong><br>
+          CNPJ: ${esc(clinicaCnpj || '')}<br>
+          ${esc(clinicaEnd)}
+        </div>
+      </div>
+      <hr class="divider">
+      <div class="recibo-campos">
+        <div><span class="campo-label">Colaborador:</span> ${esc(c.nome || '—')}</div>
+        <div><span class="campo-label">CPF:</span> ${esc(cpfFmt)}</div>
+        ${c.cargo ? `<div style="grid-column:span 2;"><span class="campo-label">Cargo:</span> ${esc(c.cargo)}</div>` : ''}
+      </div>
+      <div class="valor-box">
+        <span class="valor-rs">R$</span>
+        <div>
+          <div class="valor-num">${valorF}</div>
+          <div class="valor-extenso">${extenso.charAt(0).toUpperCase()+extenso.slice(1)}</div>
+        </div>
+      </div>
+      <div class="referente">${referente}</div>
+      <div class="pagamento">
+        <span class="campo-label">Forma de pagamento:</span>
+        <div class="pagamento-opts">${fOpts}</div>
+      </div>
+      <hr class="divider">
       <div class="assinatura">
-        <div class="linha-assinatura"></div>
-        <div class="nome-assinatura">${esc(c.nome || '')}</div>
+        <div class="assin-bloco">
+          <div class="assin-linha"></div>
+          <div class="assin-nome">${esc((c.nome||'').toUpperCase())}</div>
+          <div class="assin-nome" style="color:#555;">Assinatura do Colaborador</div>
+        </div>
+        <div class="data-bloco">${dataAuto}</div>
       </div>
     </div>`;
   }
 
   // ── CSS compartilhado dos recibos ──
   const RECIBO_CSS = `
-    @page{size:A4;margin:0.8cm}
+    @page{size:A4;margin:0.6cm 1cm}
     body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#000}
-    .recibo-print{border:2px solid #000;padding:0.6cm;margin-bottom:0.7cm;page-break-inside:avoid;}
-    .recibo-print .recibo-logo{text-align:center;margin-bottom:8px;}
-    .recibo-print .recibo-logo img{height:50px;width:auto;object-fit:contain;}
-    .recibo-print .titulo{font-size:18px;font-weight:bold;text-align:center;margin-bottom:10px;}
-    .recibo-print .empresa{font-size:12px;font-weight:bold;display:flex;justify-content:space-between;margin-bottom:12px;}
-    .recibo-print .empregado{font-size:12px;font-weight:bold;margin-bottom:12px;}
-    .recibo-print .texto{font-size:12px;line-height:1.5;margin-bottom:15px;}
-    .recibo-print .data-local{text-align:center;font-size:12px;margin-bottom:15px;}
-    .recibo-print .assinatura{text-align:center;margin-top:5px;}
-    .recibo-print .linha-assinatura{width:70%;margin:0 auto 4px;border-top:1px solid #000;}
-    .recibo-print .nome-assinatura{font-size:11px;text-transform:uppercase;}
+    .recibo-print{border:1.5px solid #000;padding:0.45cm 0.6cm;margin-bottom:0.35cm;page-break-inside:avoid;break-inside:avoid;}
+    .recibo-print .rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+    .recibo-print .recibo-logo img{height:36px;width:auto;object-fit:contain;}
+    .recibo-print .titulo{font-size:13px;font-weight:bold;text-align:center;letter-spacing:.5px;flex:1;}
+    .recibo-print .empresa-info{font-size:10px;text-align:right;line-height:1.4;}
+    .recibo-print .divider{border:none;border-top:1px solid #000;margin:5px 0;}
+    .recibo-print .recibo-campos{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:11px;margin-bottom:8px;line-height:1.6;}
+    .recibo-print .campo-label{font-weight:bold;color:#333;}
+    .recibo-print .valor-box{border:2px solid #000;padding:5px 10px;margin:7px 0;display:flex;align-items:center;gap:10px;}
+    .recibo-print .valor-rs{font-size:16px;font-weight:bold;background:#1a1a1a;color:#fff;padding:3px 8px;}
+    .recibo-print .valor-num{font-size:18px;font-weight:bold;letter-spacing:.5px;}
+    .recibo-print .valor-extenso{font-size:10px;color:#333;margin-top:2px;font-style:italic;}
+    .recibo-print .referente{font-size:11px;margin:5px 0;line-height:1.5;}
+    .recibo-print .pagamento{font-size:11px;margin:5px 0;}
+    .recibo-print .pagamento-opts{display:flex;gap:14px;font-size:11px;margin-top:3px;}
+    .recibo-print .assinatura{display:flex;justify-content:space-between;align-items:flex-end;margin-top:8px;gap:20px;}
+    .recibo-print .assin-bloco{flex:1;text-align:center;}
+    .recibo-print .assin-linha{border-top:1px solid #000;margin-bottom:3px;}
+    .recibo-print .assin-nome{font-size:10px;}
+    .recibo-print .data-bloco{font-size:11px;text-align:right;white-space:nowrap;}
+    .corte{border:none;border-top:1.5px dashed #999;margin:0.1cm 0 0.25cm;}
   `;
 
   function montarHtmlRecibo(c, dados, usuario) {
@@ -601,10 +640,10 @@
         { descricao: desc, valor: it.valor, categoria: cat, inicio, fim, usuario },
         logo, clinicaNome, clinicaCnpj);
       // quebra de página a cada 4 recibos
-      const quebra = ((i + 1) % 4 === 0 && i + 1 < itens.length)
+      const quebra = ((i + 1) % 3 === 0 && i + 1 < itens.length)
         ? '<div style="page-break-after:always;"></div>' : '';
       return bloco + quebra;
-    }).join('');
+    }).join('<hr class="corte">');
 
     const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Lote de Recibos</title>
       <style>${RECIBO_CSS}</style></head><body>
