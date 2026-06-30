@@ -1,4 +1,4 @@
-<!-- VERSION: v1.5 | orcamentos.html | 30/06/2026 | fix: preparos de ultrassom revisados contra PDF oficial (48 itens conferidos) — Doppler agora distingue exames com/sem protocolo Luftal, corrigido bug de "cores" confundido com biopsia core, "vertebral" não reconhecia plural "vertebrais", adicionado Doppler MMSS/Retroperitônio/Perfil Biofísico/Transvaginal p/ ovulação e folículos -->
+<!-- VERSION: v1.6 | orcamentos.html | 30/06/2026 | fix: Medicom 2.0 → Medicom com endereços (Nova Cantareira 2398 e Inglesa 143), TC Prezecor → PREZECOR DIAGNOSTICOS EM MEDICINA LTDA - EPP com obs de unidade (Freguesia e Guarulhos Centro) -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -458,9 +458,9 @@
       ]
     },
     medicom: {
-      nome: 'Medicom 2.0',
+      nome: 'Medicom',
       tel:  '(11) 97104-9868 (WhatsApp ADECLIN)',
-      obs:  'Contraste RM: R$ 150,00 (pago na clínica). Sedação: R$ 280,00. Particular: dobrar o valor da guia.',
+      obs:  'Unidades: Av. Nova Cantareira, 2.398 e R. Inglesa, 143. A unidade que realiza o exame é confirmada no ato do agendamento. Contraste RM: R$ 150,00 (pago na clínica). Sedação: R$ 280,00. Particular: dobrar o valor da guia.',
       exames: [
         { nome: 'RM Abdome Total (cobrado 2 exames)',        total: 700, guia: 200, resta: 500 },
         { nome: 'RM com Fluxo Liquórico (cobrado 2 exames)', total: 700, guia: 200, resta: 500 },
@@ -617,9 +617,9 @@
       ]
     },
     tc_prezecor: {
-      nome: 'TC Prezecor (Freguesia / Guarulhos)',
+      nome: 'PREZECOR DIAGNOSTICOS EM MEDICINA LTDA - EPP',
       tel:  'Confirmar a unidade com o paciente',
-      obs:  'Contraste: R$ 150,00 pago diretamente na Prezecor.',
+      obs:  'Tomografia disponível somente nas unidades Freguesia do Ó e Guarulhos Centro. Contraste: R$ 150,00 pago diretamente na Prezecor.',
       exames: [
         { nome: 'TC Abdome Total', total: 290, guia: 50, resta: 240 },
         ...[
@@ -1617,6 +1617,6 @@
       cur=writeBatch(db);cnt=0;const ins=[];for(const e of list){const ref=doc(db,'orcamentos_exames',e.id);const{id,...data}=e;cur.set(ref,{...data,createdAt:new Date().toISOString(),createdBy:currentUser.email});if(++cnt>=400){ins.push(cur);cur=writeBatch(db);cnt=0;}}if(cnt>0)ins.push(cur);for(const b of ins)await b.commit();
     }
   </script>
-<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.5 · 30/06/2026</span>
+<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.6 · 30/06/2026</span>
 </body>
 </html>
