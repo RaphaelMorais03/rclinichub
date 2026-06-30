@@ -1,4 +1,4 @@
-<!-- VERSION: v1.4 | orcamentos.html | 30/06/2026 | feat: pop-up de preparo agora tem botão Copiar Orçamento + Copiar Preparo, X vermelho para fechar manualmente, fecha sozinho só quando os dois forem copiados -->
+<!-- VERSION: v1.5 | orcamentos.html | 30/06/2026 | fix: preparos de ultrassom revisados contra PDF oficial (48 itens conferidos) — Doppler agora distingue exames com/sem protocolo Luftal, corrigido bug de "cores" confundido com biopsia core, "vertebral" não reconhecia plural "vertebrais", adicionado Doppler MMSS/Retroperitônio/Perfil Biofísico/Transvaginal p/ ovulação e folículos -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1250,51 +1250,123 @@
       if (n.includes('endoscopia')||n.includes('esofagoscopia')) return 'Jejum rigoroso de 8 horas de sólidos e 4 horas de líquidos claros.\nInformar ao médico sobre uso de anticoagulantes com antecedência.';
       if (n.includes('colonoscopia')||n.includes('retossigmoidoscopia')||n.includes('anuscopia')||n.includes('polipectomia')) return 'Preparo intestinal completo: seguir rigorosamente o protocolo indicado pelo médico (dieta líquida + laxante).\nSuspender ferro e aspirina conforme orientação.\nJejum de 6 horas antes.';
       if (n.includes('colposcopia')||n.includes('vulvoscopia')) return 'Não realizar o exame durante o período menstrual.\nAbstinência sexual 48 horas antes.\nNão usar cremes, óvulos ou medicamentos vaginais nos 2 dias anteriores.';
-      if (n.includes('biopsia')||n.includes('paaf')||n.includes('core')) return 'Conforme orientação médica específica.\nInformar ao médico sobre uso de anticoagulantes com pelo menos 7 dias de antecedência.';
+      if (n.includes('biopsia')||n.includes('paaf')||/\bcore\b/.test(n)) return 'Conforme orientação médica específica.\nInformar ao médico sobre uso de anticoagulantes com pelo menos 7 dias de antecedência.';
       if (cat.includes('laborat')||n.includes('hemograma')||n.includes('glicemia')||n.includes('colesterol')||n.includes('trigliceri')||n.includes('tsh')||n.includes('hormonio')||n.includes('coleta')) return 'Jejum de 8 a 12 horas (apenas água é permitida).\nInformar todos os medicamentos em uso ao médico.';
       if (n.includes('fundo de olho')||n.includes('mapeamento de retina')||(n.includes('angiografia')&&cat.includes('oftalmo'))) return 'Os olhos serão dilatados com colírio — não dirigir após o exame.\nTrazer acompanhante se necessário.\nTrazer óculos e receitas anteriores.';
       if (cat.includes('oftalmo')||n.includes('campo visual')||n.includes('topografia')||n.includes('biometria')||n.includes('tonometria')) return 'Sem preparo especial.\nTrazer óculos e receitas anteriores se houver.';
 
-      // ── ULTRASSOM — preparos por região do corpo (guia oficial, jejum 6h) ──
+      // ── ULTRASSOM — preparos por região do corpo (baseado no guia oficial) ──
       // Detectado por PALAVRA-CHAVE DE REGIÃO, não pela palavra "Ultrassom" no
-      // nome — muitos exames vêm da planilha "USG" sem esse prefixo (ex:
-      // "Abdome Total", "Mamas", "Tireoide"). Como já filtramos acima todas as
-      // outras modalidades (RM, TC, Raio-X, Mamografia...), o que sobrar e
-      // bater com região do corpo é tratado como ultrassom.
-      if (n.includes('abdome total')||n.includes('abdomen total'))
-        return 'Jejum de 6 horas.\nBeber 5 copos de água 1 hora antes do exame (bexiga cheia).\nNão urinar antes do exame.';
-      if (n.includes('abdome superior')||n.includes('abdomen superior')||n.includes('hipocon')||n.includes('hipocondrio'))
-        return 'Jejum de 6 horas.\nNão é necessário encher a bexiga.';
-      if (n.includes('urinario')||n.includes('rins e bexiga')||n.includes('aparelho urinario'))
-        return 'Bexiga cheia: beber 5 copos de água 1 hora antes do exame e não urinar.';
-      if ((n.includes('pelvic')||n.includes('abdom')||n.includes('abdome inferior'))&&(n.includes('femin')||n.includes('utero')||n.includes('ovario')||n.includes('pelv')))
-        return 'Bexiga cheia: beber 5 copos de água 1 hora antes do exame e não urinar.';
-      if (n.includes('prostata'))
-        return 'Bexiga cheia: beber 5 copos de água 1 hora antes do exame e não urinar.';
+      // nome — muitos exames vêm da planilha "USG" sem esse prefixo. Como já
+      // filtramos acima todas as outras modalidades (RM, TC, Raio-X,
+      // Mamografia...), o que sobrar e bater com região do corpo é tratado
+      // como ultrassom. Jejum padronizado em 6h (política da clínica).
+      const isDoppler = n.includes('doppler');
+      const LUFTAL = 'Preparo inicia 24h antes:\n• Tomar 40 gotas de Luftal de 6 em 6 horas.\n• Beber somente água; evitar sucos, refrigerantes, café.\n• Evitar: alho, cebola, carne vermelha e alimentos que produzem gases.\n• Almoço: arroz branco com frango grelhado.\n• Às 15h: 2 comprimidos de Dulcolax.\n• Jantar: sopa de legumes.\n• Às 22h: chá com torradas.\n• Jejum até o exame.\n• 1h30 antes: 50 gotas de Luftal.';
+      const PHOSFOENEMA = 'Preparo inicia 24h antes:\n• Tomar 2 comprimidos de Gutalax ou Dulcolax às 14h.\n• Não comer aveia, frutas, verduras e legumes — ingerir só líquidos no dia do exame (jejum ou café da manhã leve, sem leite).\n• Beber 5 copos de água 1 hora antes do exame.\n• 1 hora antes do exame, aplicar via retal uma bisnaga de Phosfoenema.';
+
+      // Exames de Doppler sem nenhum preparo especial
+      if (n.includes('transfontanela'))
+        return 'Sem preparo especial. Exame realizado somente em crianças de até 1 ano de idade.';
+      if (n.includes('dermatolog'))
+        return 'Sem preparo especial.';
+      if (n.includes('veia porta')||n.includes('porta tributaria'))
+        return 'Sem preparo especial.';
+      if (n.includes('arteria temporal')||n.includes('arterias temporais'))
+        return 'Sem preparo especial.';
+      if (n.includes('hemangioma'))
+        return 'Sem preparo especial.';
+
+      // Perfil Biofísico do Feto
+      if (n.includes('perfil biofisico')||n.includes('biofisico do feto'))
+        return 'Comer chocolate 30 minutos antes do exame.\nVir acompanhada.';
+
+      // Transvaginal — casos especiais checados antes da regra geral
+      if (n.includes('ovulacao'))
+        return 'Agendamento deve ser feito entre o 7º e o 10º dia da menstruação.';
+      if (n.includes('foliculo'))
+        return 'Agendamento deve ser feito entre o 3º e o 5º dia da menstruação.';
+      if (n.includes('transvaginal')&&isDoppler)
+        return 'Bexiga vazia — urinar antes de entrar no consultório.\nDependendo do médico, não realizar o exame durante o período menstrual.\nSe a suspeita for endometriose, pode ser necessário preparo intestinal específico — confirme com a recepção ou com o médico solicitante.';
       if (n.includes('transvaginal'))
         return 'Bexiga vazia — urinar antes de entrar no consultório.\nDependendo do médico, não realizar o exame durante o período menstrual.';
-      if (n.includes('obstet')||n.includes('morfolog')||n.includes('fetal')||n.includes('gestac')||n.includes('transluc')||n.includes('nucal'))
-        return 'Sem preparo especial. Vir acompanhada.\nTrazer carteirinha de pré-natal.';
-      if (n.includes('mama'))
-        return 'Sem preparo especial.\nNão usar desodorante, talco ou creme na região das mamas no dia do exame.';
-      if (n.includes('tireoide'))
-        return 'Sem preparo especial.\nUsar roupa com decote para facilitar o acesso à região do pescoço.';
-      if (n.includes('carotida')||n.includes('vertebral')||n.includes('cervical'))
-        return 'Usar blusa de gola ampla, sem correntes ou colares no pescoço.\nHomens: vir com a barba feita.';
+
+      // Retroperitônio (Grandes Vasos / Adrenais)
+      if (n.includes('retroperito')&&isDoppler)
+        return LUFTAL;
+      if (n.includes('retroperito'))
+        return 'Jejum de 6 horas.';
+
+      // Abdome Total
+      if ((n.includes('abdome total')||n.includes('abdomen total'))&&isDoppler)
+        return LUFTAL;
+      if (n.includes('abdome total')||n.includes('abdomen total'))
+        return 'Jejum de 6 horas.\nBeber 5 copos de água 1 hora antes do exame (bexiga cheia).\nNão urinar antes do exame.';
+
+      // Abdome Superior / Hipocôndrio Direito
+      if ((n.includes('abdome superior')||n.includes('abdomen superior')||n.includes('hipocon')||n.includes('hipocondrio'))&&isDoppler)
+        return LUFTAL;
+      if (n.includes('abdome superior')||n.includes('abdomen superior')||n.includes('hipocon')||n.includes('hipocondrio'))
+        return 'Jejum de 6 horas.\nNão é necessário encher a bexiga.';
+
+      // Aparelho Urinário
+      if ((n.includes('urinario')||n.includes('rins e bexiga')||n.includes('aparelho urinario'))&&isDoppler)
+        return LUFTAL;
+      if (n.includes('urinario')||n.includes('rins e bexiga')||n.includes('aparelho urinario'))
+        return 'Bexiga cheia: beber 5 copos de água 1 hora antes do exame e não urinar.';
+
+      // Pélvico / Abdome Inferior Feminino
+      if ((n.includes('pelvic')||n.includes('abdom')||n.includes('abdome inferior'))&&(n.includes('femin')||n.includes('utero')||n.includes('ovario')||n.includes('pelv'))&&isDoppler)
+        return 'Sem preparo especial.';
+      if ((n.includes('pelvic')||n.includes('abdom')||n.includes('abdome inferior'))&&(n.includes('femin')||n.includes('utero')||n.includes('ovario')||n.includes('pelv')))
+        return 'Bexiga cheia: beber 5 copos de água 1 hora antes do exame e não urinar.';
+
+      // Próstata / Abdome Inferior Masculino
+      if (n.includes('prostata'))
+        return 'Bexiga cheia: beber 5 copos de água 1 hora antes do exame e não urinar.';
+
+      // Aorta, Ilíacas, Renal e Veia Cava — só existem com Doppler no catálogo
+      if (n.includes('aorta')||n.includes('iliaca')||n.includes('veia cava')||(n.includes('renal')&&(n.includes('arteri')||isDoppler)))
+        return LUFTAL;
+
+      // Artérias Viscerais Superiores e Inferiores
+      if (n.includes('visceral')||n.includes('viscerais'))
+        return PHOSFOENEMA;
+
+      // Carótidas / Vertebrais / Vasos Cervicais (Subclávia, Jugular)
+      if (n.includes('carotida')||n.includes('vertebr')||n.includes('cervic'))
+        return 'Usar blusa de gola ampla, sem correntes ou colares no pescoço.\nHomens: barba e pelos do pescoço feitos.';
+
+      // Doppler de Membro Inferior (Arterial/Venoso) — traje de banho
       if ((n.includes('venoso')||n.includes('arterial'))&&(n.includes('mmii')||n.includes('inferior')))
-        return 'Vestir traje de banho (bermuda ou biquíni) para a realização do exame.';
+        return 'Vestir traje de banho (bermuda ou biquíni) para a realização do exame.\nNão passar nenhum produto (creme, óleo, loção) na região a ser analisada.';
+
+      // Doppler de Membro Superior (Arterial/Venoso) — sem traje de banho
+      if ((n.includes('venoso')||n.includes('arterial'))&&(n.includes('mmss')||n.includes('superior')))
+        return 'Não passar nenhum produto (creme, óleo, loção) na região a ser analisada.\nNão é necessário traje de banho.';
+
       if (n.includes('globo')||n.includes('ocular'))
         return 'Sem preparo especial.';
+      if (n.includes('tireoide'))
+        return 'Sem preparo especial.\nUsar roupa com decote para facilitar o acesso à região do pescoço.';
+      if (n.includes('mama'))
+        return 'Sem preparo especial.\nNão usar desodorante, talco ou creme na região das mamas no dia do exame.';
+      if (n.includes('obstet')||n.includes('morfolog')||n.includes('fetal')||n.includes('gestac')||n.includes('transluc')||n.includes('nucal')||n.includes('gemelar'))
+        return 'Sem preparo especial. Vir acompanhada.\nTrazer carteirinha de pré-natal.';
       if (n.includes('articulac')||n.includes('partes moles')||n.includes('escrotal')||n.includes('bolsa testicular')||
           n.includes('joelho')||n.includes('ombro')||n.includes('cotovelo')||n.includes('punho')||
           n.includes('quadril')||n.includes('tornozelo')||n.includes('calcanhar')||n.includes('coxa')||
           n.includes('panturrilha')||n.includes('braco')||n.includes('antebraco'))
         return 'Sem preparo especial. Usar roupas confortáveis que permitam acesso à região a ser examinada.';
-      if (n.includes('doppler')||n.includes('aorta')||(n.includes('renal')&&n.includes('arteri')))
-        return 'Preparo inicia 24h antes:\n• Tomar 40 gotas de Luftal de 6 em 6 horas.\n• Beber somente água; evitar sucos, refrigerantes, café.\n• Evitar: alho, cebola, carne vermelha e alimentos que produzem gases.\n• Almoço: arroz branco com frango grelhado.\n• Às 15h: 2 comprimidos de Dulcolax.\n• Jantar: sopa de legumes.\n• Às 22h: chá com torradas.\n• Jejum até o exame.\n• 1h30 antes: 50 gotas de Luftal.';
+
+      // Qualquer outro exame com Doppler não mapeado explicitamente acima —
+      // não assume o protocolo Luftal por padrão (risco de orientar errado).
+      if (isDoppler)
+        return 'Este exame com Doppler pode exigir preparo específico.\nConfirme com a recepção ou com o médico solicitante antes de orientar o paciente.';
 
       return 'Sem preparo especial necessário.\nEm caso de dúvida, confirme com a recepção antes de vir ao exame.';
     }
+
 
     function examNeedsPrompt(e) {
       const n = normalize(e.nome);
@@ -1545,6 +1617,6 @@
       cur=writeBatch(db);cnt=0;const ins=[];for(const e of list){const ref=doc(db,'orcamentos_exames',e.id);const{id,...data}=e;cur.set(ref,{...data,createdAt:new Date().toISOString(),createdBy:currentUser.email});if(++cnt>=400){ins.push(cur);cur=writeBatch(db);cnt=0;}}if(cnt>0)ins.push(cur);for(const b of ins)await b.commit();
     }
   </script>
-<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.4 · 30/06/2026</span>
+<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.5 · 30/06/2026</span>
 </body>
 </html>
