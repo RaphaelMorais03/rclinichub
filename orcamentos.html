@@ -1,4 +1,4 @@
-<!-- VERSION: v1.3 | orcamento.html | 30/06/2026 | fix: fusão de exames internos com nomes equivalentes (ex: ABDOME TOTAL / US ABDOME TOTAL / USG ABDOME TOTAL viram 1 card), resolve divergência de preço por maioria -->
+<!-- VERSION: v1.4 | orcamentos.html | 30/06/2026 | feat: pop-up de preparo agora tem botão Copiar Orçamento + Copiar Preparo, X vermelho para fechar manualmente, fecha sozinho só quando os dois forem copiados -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -211,8 +211,10 @@
     /* ── PREPARO OVERLAY (pop-up obrigatório pós-cópia) ── */
     .prep-overlay{position:fixed;inset:0;background:rgba(10,31,68,.7);backdrop-filter:blur(5px);z-index:700;display:none;align-items:center;justify-content:center;padding:20px;}
     .prep-overlay.show{display:flex;}
-    .prep-box{background:white;border-radius:18px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 25px 70px rgba(0,0,0,.4);}
-    .prep-head{padding:22px 24px 14px;border-bottom:2px solid var(--gray-100);}
+    .prep-box{background:white;border-radius:18px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 25px 70px rgba(0,0,0,.4);position:relative;}
+    .prep-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:none;background:#fee2e2;color:var(--red);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;z-index:2;}
+    .prep-close:hover{background:var(--red);color:white;}
+    .prep-head{padding:22px 50px 14px 24px;border-bottom:2px solid var(--gray-100);}
     .prep-head-icon{width:44px;height:44px;border-radius:50%;background:#fef3c7;color:var(--amber);display:flex;align-items:center;justify-content:center;font-size:19px;margin-bottom:10px;}
     .prep-title{font-size:17px;font-weight:900;color:var(--navy);margin-bottom:4px;}
     .prep-sub{font-size:12px;color:var(--gray-500);line-height:1.5;}
@@ -221,11 +223,15 @@
     .prep-exame-block:last-child{margin-bottom:0;}
     .prep-exame-nome{font-size:12px;font-weight:800;color:var(--navy);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
     .prep-exame-texto{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:9px;padding:10px 13px;font-size:12px;color:#166534;line-height:1.7;white-space:pre-wrap;}
-    .prep-footer{padding:16px 24px 22px;}
-    .prep-btn-copy{width:100%;padding:13px;border-radius:11px;border:none;background:var(--green);color:white;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;}
-    .prep-btn-copy:hover{background:#166534;}
-    .prep-btn-copy.copied{background:var(--navy);}
-    .prep-hint{text-align:center;font-size:10px;color:var(--gray-400);margin-top:8px;}
+    .prep-footer{display:flex;flex-direction:column;gap:8px;padding:16px 24px 22px;}
+    .prep-btn{width:100%;padding:13px;border-radius:11px;border:none;font-family:inherit;font-size:13px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;color:white;}
+    .prep-btn-orc{background:var(--navy);}
+    .prep-btn-orc:hover{background:var(--navy-mid);}
+    .prep-btn-orc.copied{background:#15803d;}
+    .prep-btn-prep{background:var(--green);}
+    .prep-btn-prep:hover{background:#166534;}
+    .prep-btn-prep.copied{background:var(--navy);}
+    .prep-hint{text-align:center;font-size:10px;color:var(--gray-400);margin-top:4px;}
 
     .ptag-sm{display:inline-block;font-size:9px;background:rgba(10,31,68,.08);color:var(--navy);border:1px solid rgba(10,31,68,.15);padding:1px 5px;border-radius:3px;font-weight:600;}
     .partner-tags-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;}
@@ -352,18 +358,20 @@
     </div>
   </div>
 
-  <!-- Pop-up obrigatório de preparo, exibido após copiar a mensagem do orçamento -->
+  <!-- Pop-up obrigatório de preparo, exibido junto com a cópia do orçamento -->
   <div class="prep-overlay" id="prepOverlay">
     <div class="prep-box">
+      <button class="prep-close" id="prepClose" title="Fechar"><i class="fas fa-xmark"></i></button>
       <div class="prep-head">
         <div class="prep-head-icon"><i class="fas fa-notes-medical"></i></div>
         <div class="prep-title">Atenção ao preparo dos exames</div>
-        <div class="prep-sub">Os exames abaixo exigem preparo. Copie e envie esta orientação ao paciente antes de finalizar o atendimento.</div>
+        <div class="prep-sub">Copie o orçamento e o preparo para enviar ao paciente antes de finalizar o atendimento.</div>
       </div>
       <div class="prep-body" id="prepBody"></div>
       <div class="prep-footer">
-        <button class="prep-btn-copy" id="prepBtnCopy"><i class="fas fa-copy"></i> Copiar Preparo</button>
-        <div class="prep-hint">Esta janela fecha automaticamente após copiar</div>
+        <button class="prep-btn prep-btn-orc" id="prepBtnOrcamento"><i class="fas fa-clipboard-list"></i> Copiar Orçamento</button>
+        <button class="prep-btn prep-btn-prep" id="prepBtnPreparo"><i class="fas fa-copy"></i> Copiar Preparo</button>
+        <div class="prep-hint">A janela fecha automaticamente após copiar os dois</div>
       </div>
     </div>
   </div>
@@ -1378,7 +1386,21 @@
       return resultado;
     }
 
-    function abrirPopupPreparo(itens) {
+    // Estado de cópia do pop-up — controla quando pode fechar sozinho
+    let _prepState = { orc: false, prep: false };
+
+    function _prepTentarFechar() {
+      if (_prepState.orc && _prepState.prep) {
+        setTimeout(() => {
+          document.getElementById('prepOverlay').classList.remove('show');
+          toast('Orçamento e preparo copiados!', 'success');
+        }, 700);
+      }
+    }
+
+    function abrirPopupPreparo(itens, msgOrcamento) {
+      _prepState = { orc: false, prep: false };
+
       const body = document.getElementById('prepBody');
       body.innerHTML = itens.map(it => `
         <div class="prep-exame-block">
@@ -1386,27 +1408,42 @@
           <div class="prep-exame-texto">${escapeHtml(it.preparo)}</div>
         </div>`).join('');
 
-      const btn = document.getElementById('prepBtnCopy');
-      btn.classList.remove('copied');
-      btn.innerHTML = '<i class="fas fa-copy"></i> Copiar Preparo';
-
       const textoPreparo = '📋 *Orientações de preparo para o seu exame*\n\n' +
         itens.map(it => `🔹 *${it.nome}*\n${it.preparo}`).join('\n\n') +
         '\n\nQualquer dúvida, estamos à disposição! 💙';
 
-      btn.onclick = () => {
+      const btnOrc  = document.getElementById('prepBtnOrcamento');
+      const btnPrep = document.getElementById('prepBtnPreparo');
+
+      btnOrc.classList.remove('copied');
+      btnOrc.innerHTML = '<i class="fas fa-clipboard-list"></i> Copiar Orçamento';
+      btnPrep.classList.remove('copied');
+      btnPrep.innerHTML = '<i class="fas fa-copy"></i> Copiar Preparo';
+
+      btnOrc.onclick = () => {
+        copiarTexto(msgOrcamento).then(() => {
+          _prepState.orc = true;
+          btnOrc.classList.add('copied');
+          btnOrc.innerHTML = '<i class="fas fa-check"></i> Orçamento copiado!';
+          _prepTentarFechar();
+        });
+      };
+
+      btnPrep.onclick = () => {
         copiarTexto(textoPreparo).then(() => {
-          btn.classList.add('copied');
-          btn.innerHTML = '<i class="fas fa-check"></i> Copiado!';
-          toast('Preparo copiado!', 'success');
-          setTimeout(() => {
-            document.getElementById('prepOverlay').classList.remove('show');
-          }, 700);
+          _prepState.prep = true;
+          btnPrep.classList.add('copied');
+          btnPrep.innerHTML = '<i class="fas fa-check"></i> Preparo copiado!';
+          _prepTentarFechar();
         });
       };
 
       document.getElementById('prepOverlay').classList.add('show');
     }
+
+    document.getElementById('prepClose').addEventListener('click', () => {
+      document.getElementById('prepOverlay').classList.remove('show');
+    });
 
     document.getElementById('btnWpp').addEventListener('click',()=>{
       if(!cart.length)return;
@@ -1417,15 +1454,21 @@
       if(ct.length){msg+=`💳 *Cartão de Todos*\n`;ct.forEach(it=>{msg+=`• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`;});msg+=`\n`;}
       if(pt.length){msg+=`👛 *Particular*\n`;pt.forEach(it=>{msg+=`• *${it.exam.nome}* — ${fmtBRL(it.preco)}\n`;});msg+=`\n`;}
       msg+=`💰 *Total estimado: ${fmtBRL(total)}*\n\nEstamos aqui para cuidar de você com atenção e qualidade! 😊\n_Orçamento gerado em ${new Date().toLocaleDateString('pt-BR')} — ${_clin}_`;
-      copiarTexto(msg).then(()=>{
-        const btn=document.getElementById('btnWpp'),orig=btn.innerHTML;
-        btn.innerHTML='<i class="fas fa-check"></i> Copiado!'; btn.style.background='#15803d';
-        setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';},2000);
 
-        const itensPreparo = getItensComPreparo();
-        if (itensPreparo.length) abrirPopupPreparo(itensPreparo);
-        else toast('Mensagem copiada!','success');
-      });
+      const itensPreparo = getItensComPreparo();
+
+      if (itensPreparo.length) {
+        // Exames com preparo: abre o pop-up com os dois botões de cópia
+        abrirPopupPreparo(itensPreparo, msg);
+      } else {
+        // Sem preparo: copia direto, como antes
+        copiarTexto(msg).then(()=>{
+          const btn=document.getElementById('btnWpp'),orig=btn.innerHTML;
+          btn.innerHTML='<i class="fas fa-check"></i> Copiado!'; btn.style.background='#15803d';
+          setTimeout(()=>{btn.innerHTML=orig;btn.style.background='';},2000);
+          toast('Mensagem copiada!','success');
+        });
+      }
     });
 
     document.getElementById('btnPdf').addEventListener('click',()=>{
@@ -1502,6 +1545,6 @@
       cur=writeBatch(db);cnt=0;const ins=[];for(const e of list){const ref=doc(db,'orcamentos_exames',e.id);const{id,...data}=e;cur.set(ref,{...data,createdAt:new Date().toISOString(),createdBy:currentUser.email});if(++cnt>=400){ins.push(cur);cur=writeBatch(db);cnt=0;}}if(cnt>0)ins.push(cur);for(const b of ins)await b.commit();
     }
   </script>
-<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.3 · 30/06/2026</span>
+<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.4 · 30/06/2026</span>
 </body>
 </html>
