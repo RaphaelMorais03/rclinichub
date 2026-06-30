@@ -1,4 +1,4 @@
-<!-- VERSION: v1.1 | orcamento.html | 24/06/2026 -->
+<!-- VERSION: v1.3 | orcamento.html | 30/06/2026 | fix: fusão de exames internos com nomes equivalentes (ex: ABDOME TOTAL / US ABDOME TOTAL / USG ABDOME TOTAL viram 1 card), resolve divergência de preço por maioria -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -742,6 +742,70 @@
       return 'Parceiro';
     }
 
+    // ── Fusão de exames internos (Firestore) com nomes equivalentes ──
+    // Diferentes médicos cadastram o mesmo exame de jeitos diferentes
+    // (ex: "ABDOME TOTAL", "US ABDOME TOTAL", "USG ABDOME TOTAL"). Esta função
+    // agrupa essas variações em um único card, preservando exames que são
+    // de fato diferentes (ex: Doppler Arterial x Doppler Total x Doppler
+    // Superior continuam separados, pois "doppler"/"arterial"/"superior" são
+    // palavras significativas, não prefixos).
+    const STOP_WORDS_INTERNO = new Set(['us','usg','de','da','do','das','dos','ecografia','ultrassom','ultrassonografia']);
+
+    function chaveExameInterno(nome) {
+      const limpo = normalize(nome).replace(/[()]/g, ' ').replace(/[^a-z0-9 ]/g, ' ');
+      const tokens = limpo.split(/\s+/).filter(Boolean).filter(t => !STOP_WORDS_INTERNO.has(t));
+      return tokens.sort().join(' ');
+    }
+
+    function valorMaisFrequente(valores) {
+      const freq = new Map();
+      valores.forEach(v => { if (v == null) return; freq.set(v, (freq.get(v) || 0) + 1); });
+      let melhor = null, max = 0;
+      for (const [v, c] of freq) if (c > max) { max = c; melhor = v; }
+      return melhor;
+    }
+
+    function mesclarExamesInternos(lista) {
+      const grupos = new Map();
+      lista.forEach(e => {
+        const key = normalize(e.categoria || '') + '|' + chaveExameInterno(e.nome);
+        if (!grupos.has(key)) grupos.set(key, []);
+        grupos.get(key).push(e);
+      });
+
+      const resultado = [];
+      grupos.forEach(itens => {
+        if (itens.length === 1) { resultado.push(itens[0]); return; }
+
+        // Prefere como nome de exibição uma variação que não comece com US/USG
+        const limpos = itens.filter(i => !/^\s*(us|usg)\b/i.test(i.nome.trim()));
+        const candidatos = limpos.length ? limpos : itens;
+        const nomeCanon = candidatos.map(i => i.nome).sort((a, b) => a.length - b.length)[0];
+
+        const cts = itens.map(i => i.preco_ct).filter(v => v != null);
+        const pts = itens.map(i => i.preco_pt).filter(v => v != null);
+        const ctFinal = valorMaisFrequente(cts);
+        const ptFinal = valorMaisFrequente(pts);
+        const divergiu = new Set(cts).size > 1 || new Set(pts).size > 1;
+
+        if (divergiu) {
+          console.warn(`[orcamento] Preço divergente ao mesclar "${nomeCanon}":`,
+            { ct: cts, pt: pts, escolhido: { ct: ctFinal, pt: ptFinal } });
+        }
+
+        resultado.push({
+          ...itens[0],
+          nome: nomeCanon,
+          preco_ct: ctFinal,
+          preco_pt: ptFinal,
+          _mesclado: true,
+          _qtdMesclados: itens.length,
+          _precoDivergente: divergiu,
+        });
+      });
+      return resultado;
+    }
+
     function loadPartnerExams() {
       const byKey = new Map();
       for (const [parcKey, parc] of Object.entries(window._PARC || {})) {
@@ -799,7 +863,8 @@
           ];
           return [e];
         });
-        exams = [...fsExams.filter(e => !FORN_PARCEIROS.has(e.fornecedor)),
+        const internos = fsExams.filter(e => !FORN_PARCEIROS.has(e.fornecedor));
+        exams = [...mesclarExamesInternos(internos),
                  ...loadPartnerExams()];
         if (exams.length === 0) {
           document.getElementById('results').innerHTML = `<div class="empty"><i class="fas fa-database"></i><h3>Nenhum exame na base ainda</h3><p>Clique em <strong>Base inicial</strong> para importar os exames pré-cadastrados,<br>ou em <strong>Importar</strong> para carregar sua planilha.</p></div>`;
@@ -929,7 +994,10 @@
         }
         return `
           <div class="card" data-id="${e.id}">
-            <span class="cat-tag">${escapeHtml(e.categoria)}</span>
+            <div class="card-header-row">
+              <span class="cat-tag">${escapeHtml(e.categoria)}</span>
+              ${e._precoDivergente?`<span class="partner-badge" title="Havia preços diferentes cadastrados para este exame — foi usado o valor mais frequente. Revisar." style="background:#fef3c7;color:var(--amber);"><i class="fas fa-triangle-exclamation" style="font-size:9px;"></i> revisar preço</span>`:''}
+            </div>
             <div class="card-name">${escapeHtml(e.nome)}</div>
             ${e.fornecedor?`<div class="card-forn"><i class="fas fa-building" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.fornecedor)}</div>`:''}
             <div class="card-prices">
@@ -1434,6 +1502,6 @@
       cur=writeBatch(db);cnt=0;const ins=[];for(const e of list){const ref=doc(db,'orcamentos_exames',e.id);const{id,...data}=e;cur.set(ref,{...data,createdAt:new Date().toISOString(),createdBy:currentUser.email});if(++cnt>=400){ins.push(cur);cur=writeBatch(db);cnt=0;}}if(cnt>0)ins.push(cur);for(const b of ins)await b.commit();
     }
   </script>
-<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.1 · 24/06/2026</span>
+<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.3 · 30/06/2026</span>
 </body>
 </html>
