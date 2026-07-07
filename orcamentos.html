@@ -1,4 +1,4 @@
-<!-- VERSION: v1.6 | orcamentos.html | 30/06/2026 | fix: Medicom 2.0 → Medicom com endereços (Nova Cantareira 2398 e Inglesa 143), TC Prezecor → PREZECOR DIAGNOSTICOS EM MEDICINA LTDA - EPP com obs de unidade (Freguesia e Guarulhos Centro) -->
+<!-- VERSION: v1.9 | orcamentos.html | 07/07/2026 | fix: Auri Medicina - telefone liberado para paciente, removida restrição de aviso -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -384,7 +384,7 @@
     auri: {
       nome: 'Auri Medicina',
       tel:  '(11) 4517-4907',
-      obs:  '⚠️ Somente funcionários podem ligar para agendar — não informar o número ao paciente. Sedação: R$ 400,00 (PIX, à vista).',
+      obs:  'Sedação: R$ 400,00 (PIX, à vista).',
       exames: [
         ...[
           'RM Crânio','RM Sela Túrcica','RM Base do Crânio','RM Órbitas Bilateral',
@@ -433,7 +433,7 @@
     },
     imadi: {
       nome: 'IMADI - IMAGEM & DIAGNOSTICO LTDA',
-      tel:  '',
+      tel:  '(11) 96640-8998',
       obs:  'Endereço: Rua Nossa Senhora da Lapa, 423. Atendimento: todos os dias das 8h às 13h (Ultrassom: seg, qui, sex e sáb).',
       exames: [
         { nome: 'Mamografia',                      total: 120, guia: 45, resta:  75 },
@@ -509,7 +509,7 @@
     },
     prezecor: {
       nome: 'PREZECOR DIAGNOSTICOS EM MEDICINA LTDA - EPP',
-      tel:  'Confirmar a unidade com o paciente',
+      tel:  '(11) 3934-4100',
       obs:  'Unidades: Santana, Guarulhos Centro, Tatuapé e Freguesia do Ó. Raio-X a partir de 6 anos.',
       unidades_obs: {
         'gastro':    'Disponível em: Santana, Freguesia do Ó e Guarulhos Centro.',
@@ -557,7 +557,7 @@
     },
     scoppeta: {
       nome: 'Scoppeta',
-      tel:  '',
+      tel:  'agendamento_clinica',
       obs:  '⚠️ Não agendar em aparelho aberto: exame com contraste, HD Parkinson, Mastóides, Face, Crânio. Peso máx. TC: 140 kg. Laudo: 7–10 dias úteis.',
       exames: [
         ...[
@@ -618,11 +618,11 @@
     },
     tc_prezecor: {
       nome: 'PREZECOR DIAGNOSTICOS EM MEDICINA LTDA - EPP',
-      tel:  'Confirmar a unidade com o paciente',
+      tel:  '(11) 3934-4100',
       obs:  'Tomografia disponível somente nas unidades Freguesia do Ó e Guarulhos Centro. Contraste: R$ 150,00 pago diretamente na Prezecor.',
       exames: [
-        { nome: 'TC Abdome Total', total: 290, guia: 50, resta: 240 },
-        ...[
+        { nome: 'TC Abdome Total', total: 350, guia: 50, resta: 300 },
+        ...([
           'TC Abdome Superior','TC Antebraço Direito','TC Antebraço Esquerdo',
           'TC Arcos Costais','TC Quadril Direito','TC Quadril Esquerdo',
           'TC ATM','TC Bacia','TC Braço Direito','TC Braço Esquerdo',
@@ -639,7 +639,20 @@
           'TC Mão/Punho Direito','TC Mão/Punho Esquerdo',
           'TC Sacro-Ilíacas','TC Seios da Face','TC Seios Paranasais',
           'TC Tórax','TC Tornozelo Direito','TC Tornozelo Esquerdo'
-        ].map(n => ({ nome: n, total: 170, guia: 50, resta: 120 }))
+        ].map(n => ({ nome: n, total: 200, guia: 50, resta: 150 }))),
+        ...([
+          'Angiotomografia da Aorta Torácica','Angiotomografia da Aorta Abdominal',
+          'Angiotomografia Coronariana',
+          'Angiotomografia Arterial de Crânio','Angiotomografia Venosa de Crânio',
+          'Angiotomografia Arterial de Pescoço','Angiotomografia Venosa de Pescoço',
+          'Angiotomografia Arterial de Tórax','Angiotomografia Venosa de Tórax',
+          'Angiotomografia Arterial de Abdome Superior','Angiotomografia Venosa de Abdome Superior',
+          'Angiotomografia Arterial de Pelve','Angiotomografia Venosa de Pelve',
+          'Angiotomografia Arterial de Membro Inferior','Angiotomografia Venosa de Membro Inferior',
+          'Angiotomografia Arterial de Membro Superior','Angiotomografia Venosa de Membro Superior',
+          'Angiotomografia Arterial Pulmonar','Angiotomografia Venosa Pulmonar'
+        ].map(n => ({ nome: n, total: 450, guia: 50, resta: 400,
+          _unidadeObs: 'Disponível somente nas unidades Freguesia do Ó e Guarulhos Centro.' })))
       ]
     }
   };
@@ -1046,7 +1059,9 @@
         m += `🏥 *Restante (pagar na ${nomeParceiro}):* ${fResta}\n`;
         m += `\n*Como funciona:*\n\n`;
         m += `1️⃣ Após o pagamento de *${fGuia}* aqui na ${clinica}, emitimos a guia de encaminhamento (válida por 30 dias).\n\n`;
-        if (tel && !tel.toLowerCase().includes('confirmar')) {
+        if (tel === 'agendamento_clinica') {
+          m += `2️⃣ O agendamento é realizado diretamente pela nossa clínica — não é necessário ligar.\n\n`;
+        } else if (tel && !tel.toLowerCase().includes('confirmar')) {
           m += `2️⃣ Com a guia em mãos, ligue para *${tel}* para agendar o melhor horário.\n\n`;
         } else {
           m += `2️⃣ Com a guia em mãos, entre em contato com a *${nomeParceiro}* para agendar.\n\n`;
@@ -1055,7 +1070,9 @@
       } else {
         m += `🏥 *Valor (pagar na ${nomeParceiro}):* ${fResta}\n`;
         m += `\n*Como funciona:*\n\n`;
-        if (tel && !tel.toLowerCase().includes('confirmar')) {
+        if (tel === 'agendamento_clinica') {
+          m += `1️⃣ O agendamento é realizado diretamente pela nossa clínica.\n\n`;
+        } else if (tel && !tel.toLowerCase().includes('confirmar')) {
           m += `1️⃣ Ligue para *${tel}* (${nomeParceiro}) para agendar o melhor horário.\n\n`;
         } else {
           m += `1️⃣ Entre em contato com a *${nomeParceiro}* para agendar.\n\n`;
@@ -1091,7 +1108,8 @@
       return `
         ${(tel || obs || obsUnidade) ? `
         <div class="partner-info-box">
-          ${tel && !tel.toLowerCase().includes('confirmar') ? `<div>📞 <strong>${escapeHtml(tel)}</strong></div>` : ''}
+          ${tel && tel !== 'agendamento_clinica' && !tel.toLowerCase().includes('confirmar') ? `<div>📞 <strong>${escapeHtml(tel)}</strong></div>` : ''}
+          ${tel === 'agendamento_clinica' ? `<div>📅 <strong>Agendamento realizado pela clínica</strong></div>` : ''}
           ${nome.includes('IMADI') ? `<div>📍 <strong>Rua Nossa Senhora da Lapa, 423</strong></div>` : ''}
           ${obsUnidade ? `<div style="margin-top:5px;background:#eff6ff;border-radius:5px;padding:5px 8px;font-size:11px;color:#1e40af;">📍 ${escapeHtml(obsUnidade)}</div>` : ''}
           ${obs ? `<div class="partner-obs">${escapeHtml(obs)}</div>` : ''}
@@ -1140,7 +1158,8 @@
                       <div class="popt-name">${escapeHtml(opt.nome)}</div>
                       ${opt.nome.includes('IMADI') ? `<div class="popt-meta">📍 Rua Nossa Senhora da Lapa, 423</div>` : ''}
                       ${opt.obsUnidade ? `<div class="popt-meta" style="color:#1e40af;">📍 ${escapeHtml(opt.obsUnidade)}</div>` : ''}
-                      ${opt.tel && !opt.tel.toLowerCase().includes('confirmar') ?`<div class="popt-meta">📞 ${escapeHtml(opt.tel)}</div>`:''}
+                      ${opt.tel && opt.tel !== 'agendamento_clinica' && !opt.tel.toLowerCase().includes('confirmar') ?`<div class="popt-meta">📞 ${escapeHtml(opt.tel)}</div>`:''}
+                      ${opt.tel === 'agendamento_clinica' ?`<div class="popt-meta">📅 Agendamento pela clínica</div>`:''}
                     </div>
                     <button class="popt-sel-btn" data-popt="${i}">Selecionar</button>
                   </div>
@@ -1617,6 +1636,6 @@
       cur=writeBatch(db);cnt=0;const ins=[];for(const e of list){const ref=doc(db,'orcamentos_exames',e.id);const{id,...data}=e;cur.set(ref,{...data,createdAt:new Date().toISOString(),createdBy:currentUser.email});if(++cnt>=400){ins.push(cur);cur=writeBatch(db);cnt=0;}}if(cnt>0)ins.push(cur);for(const b of ins)await b.commit();
     }
   </script>
-<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.6 · 30/06/2026</span>
+<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.9 · 07/07/2026</span>
 </body>
 </html>
