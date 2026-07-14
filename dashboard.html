@@ -1,4 +1,4 @@
-<!-- VERSION: v1.4 | dashboard.html | 07/07/2026 | feat: nova aba Visão Geral com cards de caixa, NPS, gaveta de exames e comissões com barras visuais -->
+<!-- VERSION: v1.5 | dashboard.html | 14/07/2026 | feat: aba contratos com lista mensal e resumo para repasse Dra. Lauriana -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -401,6 +401,7 @@
         <button class="main-tab" id="mainTabCaixa" onclick="switchMainTab('caixa')"><i class="fas fa-cash-register"></i> Caixa</button>
         <button class="main-tab" id="mainTabFech" onclick="switchMainTab('fech')"><i class="fas fa-file-invoice-dollar"></i> Fechamentos</button>
         <button class="main-tab" id="mainTabVisao" onclick="switchMainTab('visao')"><i class="fas fa-gauge-high"></i> Visão Geral</button>
+        <button class="main-tab" id="mainTabContratos" onclick="switchMainTab('contratos')"><i class="fas fa-file-contract"></i> Contratos</button>
       </div>
       <button class="btn-lancamento" id="btnLancProd" onclick="abrirLancamento()"><i class="fas fa-plus"></i> Lançamento Manual</button>
     </div>
@@ -496,6 +497,20 @@
       </div>
 
     </div><!-- /viewVisao -->
+
+    <!-- PAINEL CONTRATOS -->
+    <div class="view-panel" id="viewContratos">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:16px;font-weight:800;color:var(--navy);">Contratos gerados</div>
+          <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Controle de repasse — Dra. Lauriana Garcia Pinto</div>
+        </div>
+        <select class="f-select" id="contratosMesSelect" onchange="renderContratos()" style="width:180px;"></select>
+      </div>
+      <div id="contratosArea">
+        <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
+      </div>
+    </div><!-- /viewContratos -->
 
   </div><!-- /content -->
 
@@ -861,7 +876,7 @@
           'Forma: ('+(r.formaPagamento==='transferencia'?'X':' ')+') Transferência &nbsp; ('+(r.formaPagamento==='dinheiro'?'X':' ')+') Dinheiro &nbsp; Data: '+dataPag+'<br>'+
           '<span class="quitado">'+(pago?'☑':'☐')+' Quitado conforme comprovante bancário em anexo</span>'+
         '</div></div></div>'+
-        '<scr'+'ipt>window.print();</scr'+'ipt><span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.4 · 07/07/2026</span>\n</body></html>');
+        '<scr'+'ipt>window.print();</scr'+'ipt><span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.5 · 14/07/2026</span>\n</body></html>');
       w.document.close();
     };
 
@@ -871,7 +886,7 @@
     var _cxEditUID = null, _cxEditDT = null;
 
     window.switchMainTab = function(tab) {
-      var tabs = ['prod','caixa','fech','visao'];
+      var tabs = ['prod','caixa','fech','visao','contratos'];
       tabs.forEach(function(t) {
         var vp = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
         var mt = document.getElementById('mainTab' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -886,6 +901,95 @@
       if (tab === 'caixa') { preencherMesCaixa(); renderCaixaTab(); }
       if (tab === 'fech')  { preencherMesFech();  renderFechTab(); }
       if (tab === 'visao') { preencherMesVisao(); renderVisao(); }
+      if (tab === 'contratos') { preencherMesContratos(); renderContratos(); }
+    };
+
+
+    // ── Preencher select de meses dos Contratos ──
+    function preencherMesContratos() {
+      var sel = document.getElementById('contratosMesSelect');
+      if (!sel || sel.options.length > 1) return;
+      var meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      var now = new Date(), opts = '';
+      for (var i = 0; i < 12; i++) {
+        var d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        var val = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+        opts += '<option value="' + val + '">' + meses[d.getMonth()] + ' ' + d.getFullYear() + '</option>';
+      }
+      sel.innerHTML = opts;
+    }
+
+    // ── Renderizar aba Contratos ──
+    window.renderContratos = async function() {
+      var mes = (document.getElementById('contratosMesSelect') || {}).value || '';
+      if (!mes) return;
+      var area = document.getElementById('contratosArea');
+      if (!area) return;
+      area.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>';
+
+      try {
+        var snap = await window.fbGet('contratos');
+        var dados = snap.val() || {};
+        var itens = Object.entries(dados)
+          .map(function(e) { return Object.assign({ _key: e[0] }, e[1]); })
+          .filter(function(c) { return c.criadoEm && c.criadoEm.startsWith(mes); })
+          .sort(function(a, b) { return (b.criadoEm || '').localeCompare(a.criadoEm || ''); });
+
+        if (!itens.length) {
+          area.innerHTML = '<div class="loading" style="padding:40px;"><i class="fas fa-file-contract" style="font-size:36px;opacity:.2;display:block;margin-bottom:12px;"></i><span>Nenhum contrato gerado neste período</span></div>';
+          return;
+        }
+
+        var totalNeuro = itens.filter(function(c) { return c.tipo === 'neuropsicologia'; }).length;
+
+        area.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:20px;">' +
+          '<div style="background:#eff6ff;border-radius:12px;padding:14px 16px;">' +
+            '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1d4ed8;margin-bottom:6px;"><i class="fas fa-file-contract" style="margin-right:4px;"></i>Total</div>' +
+            '<div style="font-size:26px;font-weight:900;color:#1d4ed8;">' + itens.length + '</div>' +
+          '</div>' +
+          '<div style="background:#f5f3ff;border-radius:12px;padding:14px 16px;">' +
+            '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#7c3aed;margin-bottom:6px;"><i class="fas fa-brain" style="margin-right:4px;"></i>Neuropsicologia</div>' +
+            '<div style="font-size:26px;font-weight:900;color:#7c3aed;">' + totalNeuro + '</div>' +
+          '</div>' +
+          '<div style="background:#fef3c7;border-radius:12px;padding:14px 16px;">' +
+            '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--amber);margin-bottom:6px;"><i class="fas fa-coins" style="margin-right:4px;"></i>Repasse estimado</div>' +
+            '<div style="font-size:22px;font-weight:900;color:var(--amber);">' + (totalNeuro > 0 ? 'Ver contratos' : '—') + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="table-wrap">' +
+          '<table>' +
+            '<thead><tr>' +
+              '<th>Tipo</th>' +
+              '<th>Paciente</th>' +
+              '<th>Contratante</th>' +
+              '<th>Data</th>' +
+              '<th>Profissional</th>' +
+              '<th>Gerado por</th>' +
+              '<th>Gerado em</th>' +
+            '</tr></thead>' +
+            '<tbody>' +
+              itens.map(function(c) {
+                var dt = c.criadoEm ? new Date(c.criadoEm).toLocaleString('pt-BR', {dateStyle:'short', timeStyle:'short'}) : '—';
+                var tipo = c.tipo === 'neuropsicologia'
+                  ? '<span style="background:#f5f3ff;color:#7c3aed;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;">Neuropsicologia</span>'
+                  : '<span style="background:var(--gray-100);color:var(--gray-600);font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px;">' + (c.tipo || '—') + '</span>';
+                return '<tr>' +
+                  '<td>' + tipo + '</td>' +
+                  '<td><strong>' + (c.paciente || '—') + '</strong></td>' +
+                  '<td>' + (c.contratante || '—') + '</td>' +
+                  '<td>' + (c.data || '—') + '</td>' +
+                  '<td style="font-size:11px;color:var(--gray-400);">' + (c.profissional || '—') + '</td>' +
+                  '<td>' + (c.usuario || '—') + '</td>' +
+                  '<td style="font-size:11px;color:var(--gray-400);">' + dt + '</td>' +
+                '</tr>';
+              }).join('') +
+            '</tbody>' +
+          '</table>' +
+        '</div>';
+      } catch(e) {
+        area.innerHTML = '<div class="loading">Erro ao carregar contratos.</div>';
+        console.error('[contratos]', e);
+      }
     };
 
     // ── Preencher select de meses da Visão Geral ──
