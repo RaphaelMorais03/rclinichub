@@ -81,8 +81,6 @@
       </div>
       <div class="header-right">
         <div class="date-badge" id="dateBadge">—</div>
-        <button class="back-btn" onclick="abrirRessarc()" style="background:#7c3aed;border:none;"><i class="fas fa-file-circle-xmark"></i> Ressarcimento</button>
-        <button class="back-btn" onclick="abrirErroSistema()" style="background:#b45309;border:none;"><i class="fas fa-triangle-exclamation"></i> Erro de Sistema</button>
         <button class="back-btn" onclick="irPara('login.html')"><i class="fas fa-home"></i> Portal</button>
       </div>
     </div>
@@ -162,86 +160,6 @@
     </div>
   </div>
 
-  <!-- MODAL ERRO DE SISTEMA -->
-  <div id="modalErroSistema" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:20px;">
-    <div style="background:white;border-radius:16px;max-width:480px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.3);overflow:hidden;">
-      <div style="padding:18px 22px 14px;border-bottom:2px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:16px;font-weight:800;color:#0A1F44;display:flex;align-items:center;gap:8px;"><i class="fas fa-triangle-exclamation" style="color:#b45309;"></i>Recibo de Erro de Sistema</div>
-        <button onclick="fecharErroSistema()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:#64748b;">✕</button>
-      </div>
-      <div style="background:#fef3c7;border-left:4px solid #b45309;padding:10px 16px;font-size:12px;color:#92400e;line-height:1.5;">
-        <strong>Quando usar:</strong> Valor recebido em dinheiro superior ao registrado no sistema. O excedente é encaminhado ao caixa do líder.
-      </div>
-      <div style="padding:18px 22px;">
-        <div class="field">
-          <label class="f-label">Atendente responsável</label>
-          <input class="f-input" id="es-atendente" type="text" placeholder="Nome do atendente" style="margin-top:5px;">
-        </div>
-        <div class="field">
-          <label class="f-label">Nome do paciente</label>
-          <input class="f-input" id="es-paciente" type="text" placeholder="Nome completo do paciente" style="margin-top:5px;">
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="field">
-            <label class="f-label">Valor recebido (R$)</label>
-            <input class="f-input" id="es-recebido" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()" style="margin-top:5px;">
-          </div>
-          <div class="field">
-            <label class="f-label">Valor no sistema (R$)</label>
-            <input class="f-input" id="es-sistema" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()" style="margin-top:5px;">
-          </div>
-        </div>
-        <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-size:12px;font-weight:700;color:#15803d;">Diferença (a encaminhar ao líder):</span>
-          <span style="font-size:18px;font-weight:900;color:#15803d;" id="es-dif">R$ 0,00</span>
-        </div>
-        <div class="field">
-          <label class="f-label">Descrição / Observação</label>
-          <textarea class="f-input" id="es-obs" rows="2" placeholder="Descreva o que ocorreu no sistema..." style="margin-top:5px;resize:vertical;"></textarea>
-        </div>
-      </div>
-      <div style="padding:12px 22px 18px;display:flex;gap:10px;">
-        <button onclick="fecharErroSistema()" style="flex:1;padding:10px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;font-family:inherit;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Cancelar</button>
-        <button onclick="imprimirErroSistema()" style="flex:2;padding:10px;border-radius:9px;border:none;background:#b45309;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;"><i class="fas fa-print"></i> Gerar Recibo</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL RESSARCIMENTO -->
-  <div class="modal-overlay" id="modalRessarc" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:20px;">
-    <div class="modal" style="background:white;border-radius:16px;max-width:460px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.3);overflow:hidden;">
-      <div style="padding:18px 22px 14px;border-bottom:2px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-size:16px;font-weight:800;color:#0A1F44;display:flex;align-items:center;gap:8px;"><i class="fas fa-file-circle-xmark" style="color:#C62828;"></i>Recibo de Ressarcimento</div>
-        <button onclick="fecharRessarc()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:#64748b;">✕</button>
-      </div>
-      <div style="padding:18px 22px;">
-        <div class="field">
-          <label class="f-label">Nome do paciente</label>
-          <input class="f-input" id="rss-nome" type="text" placeholder="Nome completo do paciente" style="margin-top:5px;">
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div class="field">
-            <label class="f-label">CPF</label>
-            <input class="f-input" id="rss-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14" style="margin-top:5px;">
-          </div>
-          <div class="field">
-            <label class="f-label">Valor (R$)</label>
-            <input class="f-input" id="rss-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)" style="margin-top:5px;">
-          </div>
-        </div>
-        <div class="field">
-          <label class="f-label">Motivo / Descrição detalhada</label>
-          <textarea class="f-input" id="rss-motivo" rows="3" placeholder="Descreva o motivo do ressarcimento em detalhes..." style="margin-top:5px;resize:vertical;"></textarea>
-        </div>
-      </div>
-      <div style="padding:12px 22px 18px;display:flex;gap:10px;">
-        <button onclick="fecharRessarc()" style="flex:1;padding:10px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;font-family:inherit;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Cancelar</button>
-        <button onclick="imprimirRessarc()" style="flex:2;padding:10px;border-radius:9px;border:none;background:#C62828;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;"><i class="fas fa-print"></i> Gerar Recibo</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SCRIPTS -->
   <script>
     /* ── HELPERS ── */
     function pv(v) { return parseFloat((v||'0').replace(/\./g,'').replace(',','.')) || 0; }
@@ -250,6 +168,7 @@
       return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/\s+/g,' ').trim();
     }
     function parseCsvLine(line) {
+      // Usado para dados tab-separados do AMEI — mantido separado
       const result = [];
       let i = 0, field = '';
       while (i <= line.length) {
@@ -272,7 +191,7 @@
       return result;
     }
 
-    // Parser de CSV completo (RFC 4180)
+    // Parser de CSV completo (RFC 4180) — respeita campos multi-linha entre aspas
     function parseCsv(txt) {
       const rows = [];
       let i = 0, field = '', row = [], inQ = false;
@@ -286,9 +205,9 @@
         const ch = txt[i];
         if (inQ) {
           if (ch === '"') {
-            if (txt[i+1] === '"') { field += '"'; i += 2; }
-            else { inQ = false; i++; }
-          } else { field += ch; i++; }
+            if (txt[i+1] === '"') { field += '"'; i += 2; } // "" → "
+            else { inQ = false; i++; }                       // fecha aspas
+          } else { field += ch; i++; }                       // newline dentro de aspas = parte do campo
         } else {
           if      (ch === '"')  { inQ = true; i++; }
           else if (ch === ',')  { row.push(field.trim()); field = ''; i++; }
@@ -382,6 +301,7 @@
 
     /* ── PARSE CAIXA ── */
     function parseCaixa(txt) {
+      // Normaliza forma de pagamento via regex — captura qualquer variante
       function normForma(raw) {
         if (!raw) return 'Outros';
         const r = raw.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
@@ -393,6 +313,7 @@
       }
       function parseBRL(s) {
         if (!s) return 0;
+        // Remove prefixo R$, espaços, pontos de milhar → converte vírgula decimal
         const clean = (s+'').trim().replace(/R\$\s*/gi,'').replace(/\s/g,'').replace(/\./g,'').replace(',','.');
         return Math.abs(parseFloat(clean) || 0);
       }
@@ -403,6 +324,7 @@
       const smD = txt.match(/Valor em dinheiro a entregar\s*:\s*(R\$\s*[\d.,]+)/i);
       if (smD) dinheiroEntregar = smD[1].trim();
 
+      // Junta linhas de continuação do TE_CAIXA
       const _linhasRaw = txt.split('\n');
       const _linhas = [];
       for (let _li = 0; _li < _linhasRaw.length; _li++) {
@@ -414,8 +336,8 @@
       for (const linha of _linhas) {
         const l = linha.trim();
         if (!l || !/^\d{2}\/\d{2}\/\d{4}/.test(l)) continue;
-        const p = l.split(/\t|(?:  {2,})/);
-        if (p.length < 5) continue;
+        const p = l.split(/\t|(?:  {2,})/); // tab OU 2+ espaços (caixinha)
+        if (p.length < 5) continue; // mínimo: data, desc, tipo, forma, valor
 
         const dtHora   = (p[0]||'').trim();
         const hora     = dtHora.length > 11 ? dtHora.slice(11,16) : dtHora;
@@ -424,6 +346,7 @@
         const origem   = (p[4]||'').trim().toUpperCase();
         const paciente = (p[7]||'').trim();
 
+        // Valor: tenta p[8], depois última coluna que contenha número
         let valor = parseBRL(p[8]);
         if (valor === 0) valor = parseBRL(p[p.length - 1]);
         if (valor === 0) continue;
@@ -432,10 +355,12 @@
 
         const forma  = normForma(formaR);
         const isRec  = tipo.startsWith('receit');
+        // Despesa: captura Despesa, Saída, Saida, Sangria, Retirada e similares
         const isDesp = /^desp|^saíd|^said|^saida|^sangr|^retir/.test(tipo);
         const isTE   = origem.includes('TE_CAIXA');
         const isTS   = origem.includes('TS_CAIXA');
 
+        // Transferências internas de caixa (apenas se NÃO forem receita/despesa)
         if ((isTE || isTS) && !isRec && !isDesp) {
           transferencias.push({hora, tipo:isTE?'Entrada':'Saída', forma, valor, fmtValor:fmtBRL(valor)});
         } else {
@@ -457,45 +382,63 @@
         }
       }
       function fmtBRL2(v) { return 'R$ ' + v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.'); }
+      if (!lancamentos.length) {
+        console.error('[parseCaixa:ERROR] Nenhum lancamento extraido. Verifique o formato colado.',
+          '| linhas processadas:', _linhas.length,
+          '| exemplo linha 1:', JSON.stringify(_linhas[0] || ''));
+      } else {
+        console.info('[parseCaixa:INFO] OK |', lancamentos.length, 'lancamentos |',
+          Object.keys(totForma).length, 'formas de pagamento');
+      }
       return {lancamentos, transferencias, totForma, dinheiroEntregar, fmtBRL:fmtBRL2};
     }
 
-    /* ── PLANILHA NF ── */
+    /* ── PLANILHA NF (Google Sheets CSV) ── */
+    // Converte qualquer URL do Sheets publicado para versão CSV
     function normalizeSheetUrl(url) {
       if (!url) return url;
       url = url.trim();
-      if (url.includes('output=csv')) return url;
+      if (url.includes('output=csv')) return url;          // já está correto
+      // pubhtml → pub?output=csv  (preserva ?gid= se houver)
       if (url.includes('pubhtml')) {
         const gid = (url.match(/[?&]gid=(\d+)/) || [])[1];
         const base = url.replace(/pubhtml.*$/, 'pub?output=csv');
         return gid ? base + '&gid=' + gid : base;
       }
+      // /pub sem output=csv
       if (/\/pub(\?|$)/.test(url)) {
         return url + (url.includes('?') ? '&' : '?') + 'output=csv';
       }
       return url;
     }
 
+    // Converte YYYY-MM-DD → DD/MM/YYYY (nome das abas da planilha)
     function tkParaNomeAba(tkFb) {
       if (!tkFb || tkFb.length !== 10) return null;
       const [y, m, d] = tkFb.split('-');
       return d + '/' + m + '/' + y;
     }
 
+    // fetch com timeout (ms) — aborta se demorar demais
     function fetchComTimeout(url, ms) {
       const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms));
       return Promise.race([fetch(url), timeout]);
     }
 
+    // Retorna { mapa, erro, detalhes } para diagnóstico
+    // caixaDataStr: "DD/MM/YYYY" extraída dos lançamentos do AMEI (tem precedência sobre a data de hoje)
     async function carregarNotasFiscais(atendenteFiltro, caixaDataStr) {
       const vazio = (erro, detalhes) => ({ mapa: {}, erro, detalhes: detalhes || '' });
       if (!window._planilhaNfUrl) return vazio('sem_url');
       try {
         const csvBase = normalizeSheetUrl(window._planilhaNfUrl).replace(/&sheet=[^&]*/,'');
+
+        // Usa a data dos lançamentos do AMEI; fallback para data de hoje
         const nomeAba = caixaDataStr || tkParaNomeAba(window.TK_FB);
         let csvUrl = csvBase;
         let abaInfo = '';
         if (nomeAba) {
+          // Monta variações do nome: "02/06/2026", "02/06", "2/6", etc.
           const _p = nomeAba.split('/');
           const _dd = _p[0]||'', _mm = _p[1]||'', _yyyy = _p[2]||'', _yy = (_p[2]||'').slice(2);
           const variacoes = new Set([
@@ -506,24 +449,36 @@
             _dd+_mm+_yy, _dd+_mm+_yyyy,
           ].filter(Boolean).map(v => v.toLowerCase()));
 
-          let htxt = null;
+          let htxt = null; // declarado fora do try para ser acessível depois
           try {
             const pubhtmlUrl = csvBase.replace(/pub\?output=csv.*$/, 'pubhtml');
             const _cacheKey = 'nf_ph_' + pubhtmlUrl.slice(-20);
             const _cached   = window[_cacheKey];
             if (_cached && (Date.now() - _cached.ts) < 30 * 60 * 1000) {
               htxt = _cached.html;
+              console.info('[NF:INFO] pubhtml do cache (' + Math.round((Date.now()-_cached.ts)/1000) + 's atrás)');
             } else {
               let rh = null;
               for (let _t = 0; _t < 2 && !rh; _t++) {
                 try {
                   const _r = await fetchComTimeout(pubhtmlUrl, 15000);
                   if (_r && _r.ok) rh = _r;
-                } catch(e) {}
+                  else console.warn('[NF:WARN] pubhtml HTTP', _r && _r.status, 'tentativa', _t+1);
+                } catch(e) {
+                  if (_t === 0) {
+                    console.warn('[NF:WARN] pubhtml timeout tentativa 1 — aguardando 500ms');
+                    await new Promise(r => setTimeout(r, 500));
+                  } else {
+                    console.error('[NF:ERROR] pubhtml falhou nas 2 tentativas:', e.message);
+                  }
+                }
               }
               if (rh) {
                 htxt = await rh.text();
                 window[_cacheKey] = { html: htxt, ts: Date.now() };
+                console.info('[NF:INFO] pubhtml carregado (' + htxt.length + ' chars) — cacheado');
+              } else {
+                console.error('[NF:ERROR] pubhtml indisponível | URL:', pubhtmlUrl);
               }
             }
             if (htxt) {
@@ -541,12 +496,30 @@
                   if (gidM && variacoes.has(tabName.toLowerCase())) {
                     csvUrl  = csvBase.replace(/&gid=\d+/, '') + '&gid=' + gidM[1];
                     abaInfo = ' · aba ' + tabName + ' (gid:' + gidM[1] + ')';
+                    console.info('[NF:INFO] aba encontrada: ' + tabName + ' gid:' + gidM[1]);
                     found = true; break;
                   }
                 }
               }
+              if (!found) {
+                const abasDisp = [];
+                const _lr = /items\.push\(\{name:\s*"((?:[^"\\]|\\.)*?)"/g; let _lm;
+                while ((_lm = _lr.exec(htxt)) !== null) abasDisp.push(_lm[1].replace(/\\\//g,'/'));
+                console.error('[NF:ERROR] aba nao encontrada | buscando:', nomeAba,
+                  '| abas no pubhtml:', JSON.stringify(abasDisp),
+                  '| variacoes testadas:', JSON.stringify([...variacoes]));
+              }
             }
-          } catch(e) {}
+          } catch(e) {
+            console.error('[NF:ERROR] excecao pubhtml:', e.message);
+          }
+
+          if (csvUrl === csvBase) {
+            console.error('[NF:ERROR] aba nao encontrada no pubhtml',
+              '| data buscada:', nomeAba,
+              '| pubhtml respondeu:', htxt ? 'sim (' + htxt.length + ' chars)' : 'nao');
+            abaInfo = ' · aba ' + nomeAba + ' nao encontrada';
+          }
         }
 
         let r;
@@ -558,11 +531,14 @@
         if (!r.ok) return vazio('http_erro', 'HTTP ' + r.status);
         const txt = await r.text();
 
+        // Verifica se voltou HTML em vez de CSV (URL errada ainda)
         if (txt.trim().startsWith('<')) return vazio('retornou_html', 'A URL retornou HTML — verifique se publicou como CSV');
 
+        // Usa parseCsv completo (RFC 4180) — suporta células com quebra de linha interna
         const todasLinhas = parseCsv(txt);
         if (todasLinhas.length < 2) return vazio('vazio', 'Planilha sem dados');
 
+        // Procura a linha de cabeçalho real (pode não ser a linha 0 se houver título)
         let headerIdx = -1;
         let rawHeader = [], header = [];
         for (let i = 0; i < Math.min(10, todasLinhas.length); i++) {
@@ -573,7 +549,7 @@
           if (temNome && temNf) { headerIdx = i; break; }
         }
 
-        if (headerIdx < 0) return vazio('col_header', 'Cabeçalho não encontrado nas 10 primeiras linhas');
+        if (headerIdx < 0) return vazio('col_header', 'Cabeçalho não encontrado nas 10 primeiras linhas. Verifique se a planilha tem colunas NOME e N° NOTA FISCAL');
 
         const iNome  = header.findIndex(h => h === 'nome' || h.includes('paciente'));
         const iNf    = header.findIndex(h => h.includes('nf') || h.includes('nota') || h.includes('numero'));
@@ -583,8 +559,10 @@
           h.includes('emissor') || h.includes('usuario')
         );
 
+        // Prepara filtro por colaborador (primeiro nome)
         const fnFiltro = atendenteFiltro ? normNome(atendenteFiltro).split(' ')[0] : null;
 
+        // Monta mapa nome→nf
         const mapaFiltrado = {};
         const mapaTudo     = {};
         for (let i = headerIdx + 1; i < todasLinhas.length; i++) {
@@ -599,12 +577,13 @@
             const nomeAtend = normNome(cols[iAtend] || '');
             const fnAtend   = nomeAtend.split(' ')[0];
             if (fnAtend && fnFiltro && !nomeAtend.includes(fnFiltro) && !fnFiltro.includes(fnAtend)) {
-              continue;
+              continue; // outro operador
             }
           }
           mapaFiltrado[nome] = mapaFiltrado[nome] ? mapaFiltrado[nome] + ' / ' + nf : nf;
         }
 
+        // Fallback: se o filtro zerou tudo (ex: admin testando), usa todas as NFs
         const usouFiltro = iAtend >= 0 && fnFiltro && Object.keys(mapaTudo).length > 0;
         const mapa = (usouFiltro && Object.keys(mapaFiltrado).length === 0) ? mapaTudo : mapaFiltrado;
         const obs  = usouFiltro && Object.keys(mapaFiltrado).length === 0
@@ -616,7 +595,6 @@
         return vazio('excecao', e.message);
       }
     }
-
     const _STOPWORDS = new Set([
       'de','da','do','dos','das','di','e','a','o','em','com','por','para',
       'terceiro','espirito','santo','santa','nossa','senhora','divino','sagrado',
@@ -636,14 +614,17 @@
       if (!paciente || paciente === '—' || !Object.keys(mapa).length) return null;
       const np = normNome((paciente||'').replace(/\*+$/,'').replace(/["*]/g,'').trim());
 
+      // 1. Match exato
       if (mapa[np]) return mapa[np];
 
+      // 2. Substring — menor contido no maior (mín. 75% de cobertura e 10 chars)
       for (const [k, v] of Object.entries(mapa)) {
         const menor = np.length <= k.length ? np : k;
         const maior = np.length <= k.length ? k  : np;
         if (menor.length >= 10 && maior.includes(menor) && menor.length / maior.length >= 0.75) return v;
       }
 
+      // 3. Palavras-chave em comum — cobertura relativa ao PACIENTE (evita falsos positivos)
       const chavesPac = _palavrasChave(np);
       if (chavesPac.length >= 1) {
         for (const [k, v] of Object.entries(mapa)) {
@@ -654,6 +635,15 @@
           const cobCruz     = comuns.length / chavesNf.length;
           if (comuns.length >= 2 || (comuns.length >= 1 && cobPac === 1.0 && cobCruz === 1.0)) return v;
         }
+      }
+
+      // Sem match — log detalhado para diagnóstico
+      if (Object.keys(mapa).length > 0) {
+        console.warn('[buscarNf:WARN] sem match',
+          '| paciente normalizado:', np,
+          '| chaves extraidas:', _palavrasChave(np),
+          '| total no mapa:', Object.keys(mapa).length,
+          '| primeiros do mapa:', JSON.stringify(Object.keys(mapa).slice(0,3)));
       }
       return null;
     }
@@ -672,9 +662,13 @@
         toast('Nenhum lançamento encontrado. Verifique os dados colados.', 'error'); _restoreBtn(); return;
       }
 
-      const caixaDataAmei = (d.lancamentos[0] && d.lancamentos[0].dtHora) ? d.lancamentos[0].dtHora.slice(0,10) : null;
+      // Data do AMEI (dd/mm/yyyy) — usada para buscar a aba correta da planilha de NF
+      const caixaDataAmei = (d.lancamentos[0] && d.lancamentos[0].dtHora) ? d.lancamentos[0].dtHora.slice(0,10) : null; // "dd/mm/yyyy"
+
+      // Salvar snapshot para o dashboard admin
+      // Usa a data do AMEI como chave (não a data de hoje), para relatórios retroativos
       const snapData = caixaDataAmei
-        ? caixaDataAmei.split('/').reverse().join('-')
+        ? caixaDataAmei.split('/').reverse().join('-')   // dd/mm/yyyy → yyyy-mm-dd
         : window.TK_FB;
       if (window.fbSet && window.USER_UID) {
         const snap = {
@@ -696,8 +690,11 @@
             console.error('[Firebase] Erro ao salvar relatório:', e);
             toast('Relatório gerado, mas não foi salvo no dashboard — verifique as permissões do Firebase', 'error');
           });
+      } else {
+        console.warn('[Firebase] fbSet ou USER_UID não disponível — snapshot não salvo');
       }
 
+      // Coluna NF mostrada imediatamente se URL configurada; dados carregam em segundo plano
       const temNf = !!window._planilhaNfUrl;
 
       const aten       = sessionStorage.getItem('usuario') || 'Responsável';
@@ -710,6 +707,7 @@
       const clinicaNome = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
       const sobra      = (window.caixa && window.caixa.sobra) ? window.caixa.sobra : 0;
 
+      /* Cards de forma de pagamento — ordem fixa */
       const CORES = {
         'PIX':             {bg:'#f0fdf4',bord:'#bbf7d0',cor:'#15803d',icon:'⚡'},
         'Cartão de Crédito':{bg:'#fff1f2',bord:'#fecaca',cor:'#991b1b',icon:'💳'},
@@ -718,6 +716,7 @@
       };
       const ORDEM = ['PIX','Cartão de Crédito','Cartão de Débito','Dinheiro'];
 
+      // Totais ordenados — inclui formas fora da lista ORDEM ao final
       const formasSorted = [
         ...ORDEM.filter(f => d.totForma[f]),
         ...Object.keys(d.totForma).filter(f => !ORDEM.includes(f))
@@ -737,6 +736,7 @@
           '</div>';
       }).join('');
 
+      // Card de sobra/troco em aberto (âmbar)
       const sobraCard = sobra > 0
         ? '<div style="border:2px solid #fde68a;background:#fffbeb;border-radius:14px;padding:14px 16px;">' +
           '<div style="font-size:18px;margin-bottom:6px;">💸</div>' +
@@ -746,6 +746,7 @@
           '</div>'
         : '';
 
+      /* Total a entregar em dinheiro */
       let totalEntregarStr = '';
       if (d.dinheiroEntregar) {
         totalEntregarStr = d.dinheiroEntregar;
@@ -758,6 +759,7 @@
         ? '<div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;">− ' + d.fmtBRL(sobra) + ' troco em aberto</div>'
         : '';
 
+      /* Trocos/Vales → adicionar como linhas na tabela */
       const valesLancamentos = window.vales.map(v => ({
         dtHora:    v.hora, hora: v.hora, tipo: 'Troco',
         forma:     'Dinheiro', descricao: 'Troco — ' + (v.esp || ''),
@@ -766,12 +768,15 @@
       }));
       const todosLancamentos = [...d.lancamentos, ...valesLancamentos];
 
+      /* Indicador NF — atualizado depois pelo loader assíncrono */
       const nfIndicador = temNf
         ? '<div id="nfIndicador" style="font-size:11px;color:#94a3b8;margin-top:6px;"><i class="fas fa-spinner fa-spin"></i> Carregando NFs…</div>'
         : '';
 
+      /* Coluna NF no cabeçalho */
       const thNf = temNf ? '<th style="border:1px solid #374151;padding:7px 8px;font-size:9px;color:rgba(255,255,255,.7);text-align:center;">N° NF</th>' : '';
 
+      /* Linhas da tabela */
       const rows = todosLancamentos.map((l, i) => {
         const bg  = i%2===0?'#f9fafb':'#ffffff';
         const cor = l.isDespesa ? '#C62828' : (l.isTroco ? '#b45309' : '#15803d');
@@ -797,18 +802,22 @@
       }).join('');
 
       document.getElementById('relatorioDoc').innerHTML =
+        /* Cabeçalho */
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">' +
           '<div style="flex:1;">' + logoEsq + '<div style="font-size:11px;color:#555;margin-top:4px;">Pirituba · São Paulo</div></div>' +
           '<div style="flex:1;text-align:center;">' + imgCentro + '</div>' +
           '<div style="flex:1;text-align:right;"><div style="font-size:10px;color:#888;">Emitido em</div><div style="font-size:12px;font-weight:700;color:#374151;">' + ds + ' às ' + hr + '</div></div>' +
         '</div>' +
+        /* Título + responsável */
         '<div style="text-align:center;margin-bottom:1.5rem;">' +
           '<div style="font-size:1.8rem;font-weight:900;color:#0A1F44;margin-bottom:.8rem;">RELATÓRIO DE CAIXA</div>' +
           '<div style="display:inline-flex;align-items:center;gap:.5rem;padding:.6rem 1.5rem;background:#61C1D0;border-radius:12px;border:3px solid #980000;color:white;font-size:.9rem;font-weight:800;">👤 ' + esc(aten.toUpperCase()) + '</div>' +
           nfIndicador +
         '</div>' +
+        /* Cards de totais */
         '<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:10px;">Total por forma de pagamento</div>' +
         '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.3rem;">' + cardsHtml + sobraCard + '</div>' +
+        /* Card navy — Total a Entregar em Dinheiro */
         '<div style="background:#0A1F44;border-radius:12px;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.3rem;flex-wrap:wrap;gap:8px;">' +
           '<div>' +
             '<div style="font-size:12px;font-weight:700;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.5px;">💵 Total a Entregar em Dinheiro</div>' +
@@ -816,6 +825,7 @@
           '</div>' +
           '<div style="font-size:1.6rem;font-weight:900;color:white;">' + totalEntregarStr + '</div>' +
         '</div>' +
+        /* Tabela de lançamentos */
         '<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:8px;">Lançamentos individuais</div>' +
         '<table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;">' +
           '<thead><tr style="background:#0A1F44;">' +
@@ -830,6 +840,7 @@
           '</tr></thead>' +
           '<tbody>' + rows + '</tbody>' +
         '</table>' +
+        /* Rodapé */
         '<div style="padding-top:.8rem;border-top:2px solid #61C1D0;display:flex;justify-content:space-between;align-items:center;">' +
           '<div style="font-size:10px;color:#888;">' + ds + ' às ' + hr + '</div>' +
           '<div style="font-size:10px;font-weight:800;color:#374151;text-align:center;">RESPONSÁVEL: ' + esc(aten.toUpperCase()) + '</div>' +
@@ -839,8 +850,10 @@
       document.getElementById('telaPreview').classList.add('open');
       _restoreBtn();
 
+      // Carrega NFs em segundo plano (máx ~9s) — não bloqueia a exibição do relatório
       if (temNf) {
         const _ind = () => document.getElementById('nfIndicador');
+        // Guarda referência local para o array — closure segura
         const _lancamentos = todosLancamentos.slice();
 
         carregarNotasFiscais(sessionStorage.getItem('usuario'), caixaDataAmei)
@@ -851,12 +864,14 @@
               if (ind) ind.innerHTML = nfResult.erro && nfResult.erro !== 'sem_url'
                 ? '<span style="color:#b45309;">⚠️ ' + esc(nfResult.detalhes || nfResult.erro) + '</span>'
                 : '<span style="color:#94a3b8;font-size:11px;">NF não disponível para esta data</span>';
+              // Limpa ⋯ das células
               _lancamentos.forEach((_, i) => {
                 const c = document.getElementById('nfc' + i);
                 if (c) c.innerHTML = '<span style="color:#9ca3af;font-size:10px;">—</span>';
               });
               return;
             }
+            // Preenche cada célula NF
             let encontradas = 0;
             _lancamentos.forEach((l, i) => {
               const cell = document.getElementById('nfc' + i);
@@ -867,11 +882,13 @@
                 ? '<span style="background:#dcfce7;color:#15803d;padding:2px 6px;border-radius:5px;font-size:9px;font-weight:800;">' + esc(nf) + '</span>'
                 : '<span style="color:#9ca3af;font-size:10px;">—</span>';
             });
+            // Atualiza indicador
             if (ind) ind.innerHTML = '<span style="color:#15803d;"><i class="fas fa-check-circle"></i> ' + encontradas + ' NF(s) encontrada(s) — ' + esc(nfResult.detalhes) + '</span>';
           })
           .catch(e => {
             const ind = _ind();
             if (ind) ind.innerHTML = '<span style="color:#b45309;">⚠️ Planilha NF não respondeu a tempo</span>';
+            // Limpa ⋯
             todosLancamentos.forEach((_, i) => {
               const c = document.getElementById('nfc' + i);
               if (c) c.innerHTML = '<span style="color:#9ca3af;font-size:10px;">—</span>';
@@ -896,206 +913,10 @@
     window.imprimirRelatorio = function() {
       const win = window.open('', '_blank');
       if (!win) { toast('Permita pop-ups para imprimir', 'error'); return; }
-      const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}@page{size:A4;margin:1.5cm;}body{font-family:system-ui,-apple-system,sans-serif;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #d1d5db;padding:5px 7px;}</style></head><body><div style="padding:0;">' + document.getElementById('relatorioDoc').innerHTML + '</div><script>window.onload=function(){setTimeout(function(){window.print();},300);}</script></body></html>';
+      const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}@page{size:A4;margin:1.5cm;}body{font-family:system-ui,-apple-system,sans-serif;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #d1d5db;padding:5px 7px;}</style></head><body><div style="padding:0;">' + document.getElementById('relatorioDoc').innerHTML + '</div><sc' + 'ript>window.onload=function(){setTimeout(function(){window.print();},300);}<' + '/script></body></html>';
       win.document.write(html);
       win.document.close();
     };
-
-    /* ── RESSARCIMENTO ── */
-    window.abrirRessarc = function() {
-      ['rss-nome','rss-cpf','rss-valor','rss-motivo'].forEach(id => {
-        var el = document.getElementById(id);
-        if (el) el.value = '';
-      });
-      var m = document.getElementById('modalRessarc');
-      if (m) { m.style.display = 'flex'; }
-      setTimeout(() => { document.getElementById('rss-nome')?.focus(); }, 100);
-    };
-    window.fecharRessarc = function() {
-      var m = document.getElementById('modalRessarc');
-      if (m) m.style.display = 'none';
-    };
-    document.getElementById('modalRessarc')?.addEventListener('click', function(e) {
-      if (e.target === this) fecharRessarc();
-    });
-
-    function rssExtenso(v) {
-      var n = parseFloat(v.replace(/\./g,'').replace(',','.')) || 0;
-      var i = Math.floor(n), c = Math.round((n-i)*100);
-      var U=['','um','dois','três','quatro','cinco','seis','sete','oito','nove'];
-      var E=['dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
-      var D=['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
-      var C=['','cem','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
-      function cv(x){
-        if(!x)return'';if(x===100)return'cem';if(x<10)return U[x];if(x<20)return E[x-10];
-        if(x<100){var d=Math.floor(x/10),u=x%10;return u?D[d]+' e '+U[u]:D[d];}
-        if(x<1000){var cc=Math.floor(x/100),r=x%100;if(cc===1&&r)return'cento e '+cv(r);return r?C[cc]+' e '+cv(r):C[cc];}
-        if(x<1000000){var m=Math.floor(x/1000),r=x%1000;var mil=m===1?'mil':cv(m)+' mil';return r?mil+' e '+cv(r):mil;}
-        return String(x);
-      }
-      var pt = i===0?'zero reais':cv(i)+(i===1?' real':' reais');
-      if(!c)return pt;
-      return pt+' e '+cv(c)+(c===1?' centavo':' centavos');
-    }
-
-    window.imprimirRessarc = function() {
-      var nome   = (document.getElementById('rss-nome')?.value||'').trim();
-      var cpf    = (document.getElementById('rss-cpf')?.value||'').trim();
-      var valor  = (document.getElementById('rss-valor')?.value||'').trim();
-      var motivo = (document.getElementById('rss-motivo')?.value||'').trim();
-      if (!nome)   { toast('Informe o nome do paciente', 'error'); return; }
-      if (!valor)  { toast('Informe o valor', 'error'); return; }
-      if (!motivo) { toast('Informe o motivo', 'error'); return; }
-      var agora = new Date();
-      var dtFmt = agora.toLocaleDateString('pt-BR');
-      var ext = rssExtenso(valor);
-      var win = window.open('','_blank');
-      if (!win) { toast('Pop-up bloqueado', 'error'); return; }
-      var _logoUrl = sessionStorage.getItem('logoDataUrl') || '';
-      var logoHtml = _logoUrl
-        ? '<div style="text-align:center;margin-bottom:12pt;"><img src="' + _logoUrl + '" alt="Logo" style="height:60px;width:auto;object-fit:contain;"></div>'
-        : '<div style="text-align:center;margin-bottom:12pt;font-family:Inter,Arial,sans-serif;font-size:20pt;font-weight:900;color:#C0392B;">amor<span style=color:#1A5276>sa\u00fade</span></div>';
-      win.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo de Ressarcimento</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-@page{size:A4;margin:1.2cm 2cm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Inter,Arial,sans-serif;font-size:11pt;color:#1a1a1a;background:#fff;}
-.recibo{border:2pt solid #222;border-radius:8pt;padding:22pt 26pt;}
-.cab{display:flex;align-items:center;justify-content:space-between;padding-bottom:14pt;border-bottom:1.5pt solid #ccc;margin-bottom:16pt;}
-.logo-sq{width:40pt;height:40pt;border-radius:8pt;background:#C0392B;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20pt;font-weight:900;}
-.logo-nm{font-size:14pt;font-weight:800;color:#C0392B;line-height:1.1;}
-.logo-sub{font-size:8pt;color:#888;}
-.titulo{font-size:17pt;font-weight:800;text-align:center;margin-bottom:4pt;}
-.subtitulo{font-size:9pt;color:#888;text-align:center;margin-bottom:18pt;text-transform:uppercase;letter-spacing:.1em;}
-.corpo{font-size:11pt;line-height:1.8;margin-bottom:14pt;}
-.valor-box{border:2pt solid #222;border-radius:5pt;padding:10pt 16pt;display:flex;align-items:center;gap:14pt;margin:12pt 0;}
-.rs-tag{background:#1a1a1a;color:#fff;font-size:15pt;font-weight:800;padding:4pt 12pt;border-radius:4pt;}
-.valor-num{font-size:22pt;font-weight:900;letter-spacing:-1pt;}
-.valor-ext{font-size:9.5pt;color:#555;font-style:italic;margin-top:2pt;}
-.assin-bloco{display:flex;justify-content:space-between;align-items:flex-end;margin-top:26pt;gap:20pt;}
-.assin-linha{border-top:1pt solid #222;padding-top:26pt;margin-bottom:3pt;}
-.assin-lbl{font-size:8.5pt;color:#555;}.assin-nm{font-size:9.5pt;font-weight:700;}
-.campo-linha{border-top:1pt solid #222;padding-top:24pt;margin-bottom:3pt;margin-top:14pt;}
-@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
-</style></head><body><div class="recibo">` + logoHtml +
-`<div class="cab-info" style="text-align:right;font-size:8pt;color:#555;line-height:1.7;padding-bottom:10pt;margin-bottom:12pt;border-bottom:1.5pt solid #ccc;"><strong>SIM CLÍNICA MEDICA E ODONTOLOGICA LTDA</strong><br>CNPJ: 25.154.224/0001-89</div>
-<div class="titulo">RECIBO ( RESSARCIMENTO)</div>
-<div class="subtitulo">Documento de devolução de valores</div>
-<div class="corpo">Eu <strong>` + nome.toUpperCase() + `</strong>` + (cpf ? ' portador do <strong>CPF: ' + cpf + '</strong>' : '') + `, afirmo ter solicitado à clínica <strong>SIM CLÍNICA MEDICA E ODONTOLOGICA LTDA – CNPJ: 25.154.224/001 - 89</strong> o ressarcimento no valor de:</div>
-<div class="valor-box"><div class="rs-tag">R$</div><div><div class="valor-num">` + valor + `</div><div class="valor-ext">` + ext.charAt(0).toUpperCase()+ext.slice(1) + `</div></div></div>
-<div style="font-size:11pt;margin:10pt 0 16pt;line-height:1.6;"><strong>Referente:</strong> ` + motivo + `</div>
-<div class="assin-bloco"><div style="flex:1;"><div class="assin-linha"></div><div class="assin-nm">` + nome.toUpperCase() + `</div><div class="assin-lbl">Assinatura do paciente (Nome Completo)</div></div>
-<div style="font-size:10pt;white-space:nowrap;">` + dtFmt + `</div></div>
-<div><div class="campo-linha"></div><div class="assin-lbl">Assinatura do funcionário</div></div>
-<div><div class="campo-linha"></div><div class="assin-lbl">Assinatura do supervisor / coordenador</div></div>
-</div><script>window.onload=()=>{setTimeout(()=>window.print(),400);}</script></body></html>`);
-      win.document.close();
-      fecharRessarc();
-    };
-
-    /* ── ERRO DE SISTEMA ── */
-    window.abrirErroSistema = function() {
-      ['es-atendente','es-paciente','es-recebido','es-sistema','es-obs'].forEach(function(id){
-        var el = document.getElementById(id); if(el) el.value = '';
-      });
-      var d = document.getElementById('es-dif'); if(d) d.textContent = 'R$ 0,00';
-      var m = document.getElementById('modalErroSistema');
-      if(m) m.style.display = 'flex';
-      setTimeout(function(){ document.getElementById('es-atendente')?.focus(); }, 100);
-    };
-    window.fecharErroSistema = function() {
-      var m = document.getElementById('modalErroSistema');
-      if(m) m.style.display = 'none';
-    };
-    document.getElementById('modalErroSistema')?.addEventListener('click', function(e){
-      if(e.target === this) fecharErroSistema();
-    });
-
-    window.parseMoedaSimples = function(v) {
-      return parseFloat((v||'0').replace(/\./g,'').replace(',','.')) || 0;
-    };
-    window.fmtMoedaSimples = function(n) {
-      return 'R$ ' + n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-    };
-    window.calcularDif = function() {
-      var rec = window.parseMoedaSimples(document.getElementById('es-recebido')?.value||'');
-      var sis = window.parseMoedaSimples(document.getElementById('es-sistema')?.value||'');
-      var dif = Math.max(0, rec - sis);
-      var el = document.getElementById('es-dif');
-      if(el) {
-        el.textContent = window.fmtMoedaSimples(dif);
-        el.style.color = dif > 0 ? '#15803d' : '#64748b';
-      }
-    };
-
-    window.imprimirErroSistema = function() {
-      var atend   = (document.getElementById('es-atendente')?.value||'').trim();
-      var pac     = (document.getElementById('es-paciente')?.value||'').trim();
-      var recVal  = (document.getElementById('es-recebido')?.value||'').trim();
-      var sisVal  = (document.getElementById('es-sistema')?.value||'').trim();
-      var obs     = (document.getElementById('es-obs')?.value||'').trim();
-      if(!atend)  { toast('Informe o atendente responsável', 'error'); return; }
-      if(!recVal) { toast('Informe o valor recebido', 'error'); return; }
-      if(!sisVal) { toast('Informe o valor no sistema', 'error'); return; }
-      var recN = window.parseMoedaSimples(recVal);
-      var sisN = window.parseMoedaSimples(sisVal);
-      var difN = Math.max(0, recN - sisN);
-      var difFmt = window.fmtMoedaSimples(difN);
-      var extDif = rssExtenso(difN.toFixed(2).replace('.',','));
-      var agora = new Date();
-      var dtFmt = agora.toLocaleDateString('pt-BR');
-      var hrFmt = agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
-      var win = window.open('','_blank');
-      if(!win) { toast('Pop-up bloqueado', 'error'); return; }
-      var _logoUrl = sessionStorage.getItem('logoDataUrl') || '';
-      var logoHtml = _logoUrl
-        ? '<div style="text-align:center;margin-bottom:12pt;"><img src="' + _logoUrl + '" alt="Logo" style="height:60px;width:auto;object-fit:contain;"></div>'
-        : '<div style="text-align:center;margin-bottom:12pt;font-family:Inter,Arial,sans-serif;font-size:20pt;font-weight:900;color:#C0392B;">amor<span style=color:#1A5276>sa\u00fade</span></div>';
-      win.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo de Erro de Sistema</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-@page{size:A4;margin:1.2cm 2cm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Inter,Arial,sans-serif;font-size:11pt;color:#1a1a1a;background:#fff;}
-.recibo{border:2pt solid #222;border-radius:8pt;padding:22pt 26pt;}
-.cab{display:flex;align-items:center;justify-content:space-between;padding-bottom:12pt;border-bottom:1.5pt solid #ccc;margin-bottom:14pt;}
-.logo-sq{width:40pt;height:40pt;border-radius:8pt;background:#C0392B;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20pt;font-weight:900;}
-.logo-nm{font-size:14pt;font-weight:800;color:#C0392B;line-height:1.1;}
-.logo-sub{font-size:8pt;color:#888;}
-.titulo{font-size:16pt;font-weight:800;text-align:center;margin-bottom:3pt;}
-.subtitulo{font-size:9pt;color:#888;text-align:center;margin-bottom:16pt;text-transform:uppercase;letter-spacing:.1em;}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10pt;margin-bottom:12pt;}
-.campo{font-size:10pt;line-height:1.5;}
-.campo-lbl{font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2pt;}
-.campo-val{font-size:11pt;font-weight:600;}
-.div-linha{border-top:1pt solid #e2e8f0;margin:10pt 0;}
-.dif-box{border:2pt solid #15803d;border-radius:6pt;padding:10pt 16pt;display:flex;align-items:center;justify-content:space-between;margin:12pt 0;background:#f0fdf4;}
-.dif-lbl{font-size:10pt;font-weight:700;color:#15803d;}
-.dif-val{font-size:20pt;font-weight:900;color:#15803d;letter-spacing:-1pt;}
-.dif-ext{font-size:9pt;color:#555;font-style:italic;margin-top:2pt;text-align:right;}
-.obs-box{background:#fef3c7;border:1pt solid #d97706;border-radius:6pt;padding:8pt 12pt;font-size:10pt;line-height:1.5;margin-bottom:12pt;}
-.obs-box strong{color:#92400e;}
-.campo-linha{border-top:1pt solid #222;padding-top:22pt;margin-bottom:3pt;margin-top:12pt;}
-.assin-lbl{font-size:9pt;color:#555;}
-@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
-</style></head><body><div class="recibo">` + logoHtml +
-`<div class="cab-info" style="text-align:right;font-size:8pt;color:#555;line-height:1.7;padding-bottom:10pt;margin-bottom:12pt;border-bottom:1.5pt solid #ccc;"><strong>SIM CLÍNICA MEDICA E ODONTOLOGICA LTDA</strong><br>CNPJ: 25.154.224/0001-89<br>` + dtFmt + ' às ' + hrFmt + `</div>
-<div class="titulo">RECIBO DE ERRO DE SISTEMA</div>
-<div class="subtitulo">Controle de divergência de caixa</div>
-<div class="grid2">
-<div class="campo"><span class="campo-lbl">Atendente responsável</span><div class="campo-val">` + atend + `</div></div>
-` + (pac ? '<div class="campo"><span class="campo-lbl">Paciente</span><div class="campo-val">' + pac + '</div></div>' : '<div></div>') + `
-<div class="campo"><span class="campo-lbl">Valor recebido em dinheiro</span><div class="campo-val">` + window.fmtMoedaSimples(recN) + `</div></div>
-<div class="campo"><span class="campo-lbl">Valor registrado no sistema</span><div class="campo-val">` + window.fmtMoedaSimples(sisN) + `</div></div>
-</div>
-<div class="dif-box"><div><div class="dif-lbl">Diferença a encaminhar ao caixa do líder:</div><div class="dif-ext">` + extDif.charAt(0).toUpperCase()+extDif.slice(1) + `</div></div>
-<div class="dif-val">` + difFmt + `</div></div>
-` + (obs ? '<div class="obs-box"><strong>Observação:</strong> ' + obs + '</div>' : '') + `
-<div class="div-linha"></div>
-<div><div class="campo-linha"></div><div class="assin-lbl">Assinatura do atendente (` + atend + `)</div></div>
-<div><div class="campo-linha"></div><div class="assin-lbl">Assinatura do supervisor / líder de caixa</div></div>
-</div><script>window.onload=()=>{setTimeout(()=>window.print(),400);}</script></body></html>`);
-      win.document.close();
-      fecharErroSistema();
-    };
-
   </script>
 
   <script type="module">
@@ -1116,6 +937,7 @@
     onAuthStateChanged(_auth, user => {
       if (!user) { irPara('login.html'); return; }
 
+      // Identificador único do usuário — separa dados de caixa por login
       window.USER_UID = user.uid;
 
       set(ref(_db, 'admin_logs/' + Date.now()), {
@@ -1124,15 +946,18 @@
 
       carregarLogoGlobal(['#headerLogo']);
 
+      // Cabeçalho do caixa
       get(ref(_db, 'admin/caixaHeader')).then(snap => {
         const d = snap.val();
         if (d && d.dataUrl) sessionStorage.setItem('caixaHeaderImg', d.dataUrl);
       }).catch(()=>{});
 
+      // URL da planilha NF (Google Sheets publicado como CSV)
       get(ref(_db, 'admin/configCaixa/planilhaUrl')).then(snap => {
         if (snap.val()) window._planilhaNfUrl = snap.val();
       }).catch(()=>{});
 
+      // Dados de caixa em tempo real — separado por usuário (user.uid / data)
       _on(ref(_db, `operacao/${user.uid}/caixa/${window.TK_FB}`), snap => {
         window.caixa = snap.val() || {fundo:0, entradas:0, saidas:0, sobra:0};
         if (!window.caixa.sobra) window.caixa.sobra = 0;
@@ -1140,6 +965,7 @@
         if (typeof window.updSaldo    === 'function') window.updSaldo();
       });
 
+      // Vales em tempo real — separado por usuário (user.uid / data)
       _on(ref(_db, `operacao/${user.uid}/vales/${window.TK_FB}`), snap => {
         window.vales = snap.val() || [];
         if (typeof window.renderVales === 'function') window.renderVales();
@@ -1148,7 +974,5 @@
       init();
     });
   </script>
-
-  <span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.6 · 14/07/2026</span>
 </body>
 </html>
