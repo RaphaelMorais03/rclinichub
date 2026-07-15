@@ -1,4 +1,3 @@
-<!-- VERSION: v1.6 | caixa.html | 14/07/2026 | feat: recibos ressarcimento e erro de sistema -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -917,221 +916,60 @@
       const win = window.open('', '_blank');
       if (!win) { toast('Permita pop-ups para imprimir', 'error'); return; }
       const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}@page{size:A4;margin:1.5cm;}body{font-family:system-ui,-apple-system,sans-serif;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #d1d5db;padding:5px 7px;}</style></head><body><div style="padding:0;">' + document.getElementById('relatorioDoc').innerHTML + '</div><sc' + 'ript>window.onload=function(){setTimeout(function(){window.print();},300);}<' + '/script>
-  <!-- MODAL: Ressarcimento -->
   <div id="modalRessarc" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);z-index:9000;align-items:center;justify-content:center;padding:20px;">
     <div style="background:white;border-radius:16px;max-width:460px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.3);overflow:hidden;">
       <div style="padding:18px 22px 14px;border-bottom:2px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:16px;font-weight:800;color:#0A1F44;display:flex;align-items:center;gap:8px;"><i class="fas fa-file-circle-xmark" style="color:#C62828;"></i>Recibo de Ressarcimento</div>
-        <button onclick="fecharRessarc()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:14px;color:#64748b;">✕</button>
+        <button onclick="fecharRessarc()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:14px;color:#64748b;">X</button>
       </div>
       <div style="padding:18px 22px;">
-        <div style="margin-bottom:12px;"><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Nome do paciente</label><input class="f-input" id="rss-nome" type="text" placeholder="Nome completo do paciente"></div>
+        <div style="margin-bottom:12px;"><label class="f-label">Nome do paciente</label><input class="f-input" id="rss-nome" type="text" placeholder="Nome completo do paciente"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">CPF</label><input class="f-input" id="rss-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14"></div>
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Valor (R$)</label><input class="f-input" id="rss-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)"></div>
+          <div><label class="f-label">CPF</label><input class="f-input" id="rss-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14"></div>
+          <div><label class="f-label">Valor (R$)</label><input class="f-input" id="rss-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)"></div>
         </div>
-        <div style="margin-top:12px;"><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Motivo / Descrição detalhada</label><textarea class="f-input" id="rss-motivo" rows="3" placeholder="Descreva o motivo do ressarcimento em detalhes..." style="resize:vertical;margin-top:0;"></textarea></div>
+        <div style="margin-top:12px;"><label class="f-label">Motivo / Descricao detalhada</label><textarea class="f-input" id="rss-motivo" rows="3" placeholder="Descreva o motivo..." style="resize:vertical;"></textarea></div>
       </div>
       <div style="padding:12px 22px 18px;display:flex;gap:10px;">
         <button onclick="fecharRessarc()" style="flex:1;padding:10px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;font-family:inherit;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Cancelar</button>
-        <button onclick="imprimirRessarc()" style="flex:2;padding:10px;border-radius:9px;border:none;background:#C62828;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;"><i class="fas fa-print"></i> Gerar Recibo</button>
+        <button onclick="imprimirRessarc()" style="flex:2;padding:10px;border-radius:9px;border:none;background:#C62828;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;"><i class="fas fa-print"></i> Gerar Recibo</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: Erro de Sistema -->
   <div id="modalErroSistema" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);z-index:9000;align-items:center;justify-content:center;padding:20px;">
     <div style="background:white;border-radius:16px;max-width:480px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.3);overflow:hidden;">
       <div style="padding:18px 22px 14px;border-bottom:2px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:16px;font-weight:800;color:#0A1F44;display:flex;align-items:center;gap:8px;"><i class="fas fa-triangle-exclamation" style="color:#b45309;"></i>Recibo de Erro de Sistema</div>
-        <button onclick="fecharErroSistema()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:14px;color:#64748b;">✕</button>
+        <button onclick="fecharErroSistema()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:14px;color:#64748b;">X</button>
       </div>
-      <div style="background:#fef3c7;border-left:4px solid #b45309;padding:10px 16px;font-size:12px;color:#92400e;line-height:1.5;"><strong>Quando usar:</strong> Valor recebido em dinheiro superior ao registrado no sistema. O excedente é encaminhado ao caixa do líder.</div>
+      <div style="background:#fef3c7;border-left:4px solid #b45309;padding:10px 16px;font-size:12px;color:#92400e;line-height:1.5;"><strong>Quando usar:</strong> Valor recebido em dinheiro superior ao registrado no sistema. O excedente vai ao caixa do lider.</div>
       <div style="padding:18px 22px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Atendente responsável</label><input class="f-input" id="es-atendente" type="text" placeholder="Nome do atendente"></div>
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Nome do paciente</label><input class="f-input" id="es-paciente" type="text" placeholder="Opcional"></div>
+          <div><label class="f-label">Atendente responsavel</label><input class="f-input" id="es-atendente" type="text" placeholder="Nome do atendente"></div>
+          <div><label class="f-label">Nome do paciente</label><input class="f-input" id="es-paciente" type="text" placeholder="Opcional"></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Valor recebido (R$)</label><input class="f-input" id="es-recebido" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Valor no sistema (R$)</label><input class="f-input" id="es-sistema" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
+          <div><label class="f-label">Valor recebido (R$)</label><input class="f-input" id="es-recebido" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
+          <div><label class="f-label">Valor no sistema (R$)</label><input class="f-input" id="es-sistema" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
         </div>
         <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-size:12px;font-weight:700;color:#15803d;">Diferença a encaminhar ao líder:</span>
+          <span style="font-size:12px;font-weight:700;color:#15803d;">Diferenca a encaminhar ao lider:</span>
           <span style="font-size:18px;font-weight:900;color:#15803d;" id="es-dif">R$ 0,00</span>
         </div>
-        <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Observação</label><textarea class="f-input" id="es-obs" rows="2" placeholder="Descreva o que ocorreu..." style="resize:vertical;margin-top:0;"></textarea></div>
+        <div><label class="f-label">Observacao</label><textarea class="f-input" id="es-obs" rows="2" placeholder="Descreva o que ocorreu..." style="resize:vertical;"></textarea></div>
       </div>
       <div style="padding:12px 22px 18px;display:flex;gap:10px;">
         <button onclick="fecharErroSistema()" style="flex:1;padding:10px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;font-family:inherit;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Cancelar</button>
-        <button onclick="imprimirErroSistema()" style="flex:2;padding:10px;border-radius:9px;border:none;background:#b45309;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;"><i class="fas fa-print"></i> Gerar Recibo</button>
+        <button onclick="imprimirErroSistema()" style="flex:2;padding:10px;border-radius:9px;border:none;background:#b45309;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;"><i class="fas fa-print"></i> Gerar Recibo</button>
       </div>
     </div>
   </div>
-
 </body></html>';
       win.document.write(html);
       win.document.close();
     };
-  
-    /* ═══════════════════════════════════════════════
-       RESSARCIMENTO — funções globais (acessíveis via onclick)
-    ════════════════════════════════════════════════ */
-    window.abrirRessarc = function() {
-      ['rss-nome','rss-cpf','rss-valor','rss-motivo'].forEach(function(id){
-        var el=document.getElementById(id); if(el)el.value='';
-      });
-      var m=document.getElementById('modalRessarc'); if(m)m.style.display='flex';
-      setTimeout(function(){document.getElementById('rss-nome').focus();},100);
-    };
-    window.fecharRessarc = function() {
-      var m=document.getElementById('modalRessarc'); if(m)m.style.display='none';
-    };
-    document.addEventListener('click', function(e){
-      if(e.target && e.target.id==='modalRessarc') window.fecharRessarc();
-    });
-
-    /* ═══════════════════════════════════════════════
-       ERRO DE SISTEMA — funções globais
-    ════════════════════════════════════════════════ */
-    window.abrirErroSistema = function() {
-      ['es-atendente','es-paciente','es-recebido','es-sistema','es-obs'].forEach(function(id){
-        var el=document.getElementById(id); if(el)el.value='';
-      });
-      var d=document.getElementById('es-dif'); if(d)d.textContent='R$ 0,00';
-      var m=document.getElementById('modalErroSistema'); if(m)m.style.display='flex';
-      setTimeout(function(){document.getElementById('es-atendente').focus();},100);
-    };
-    window.fecharErroSistema = function() {
-      var m=document.getElementById('modalErroSistema'); if(m)m.style.display='none';
-    };
-    document.addEventListener('click', function(e){
-      if(e.target && e.target.id==='modalErroSistema') window.fecharErroSistema();
-    });
-
-    window.calcularDif = function() {
-      function pN(v){return parseFloat((v||'0').replace(/\./g,'').replace(',','.'))||0;}
-      var rec=pN(document.getElementById('es-recebido')&&document.getElementById('es-recebido').value);
-      var sis=pN(document.getElementById('es-sistema')&&document.getElementById('es-sistema').value);
-      var dif=Math.max(0,rec-sis);
-      var el=document.getElementById('es-dif');
-      if(el){
-        el.textContent='R$ '+dif.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-        el.style.color=dif>0?'#15803d':'#64748b';
-      }
-    };
-
-    function rssExtenso(n) {
-      n=parseFloat(String(n).replace(/\./g,'').replace(',','.'))||0;
-      var i=Math.floor(n),c=Math.round((n-i)*100);
-      var U=['','um','dois','tres','quatro','cinco','seis','sete','oito','nove'];
-      var E=['dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
-      var D=['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
-      var C=['','cem','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
-      function cv(x){if(!x)return'';if(x===100)return'cem';if(x<10)return U[x];if(x<20)return E[x-10];if(x<100){var d=Math.floor(x/10),u=x%10;return u?D[d]+' e '+U[u]:D[d];}if(x<1000){var cc=Math.floor(x/100),r=x%100;if(cc===1&&r)return'cento e '+cv(r);return r?C[cc]+' e '+cv(r):C[cc];}if(x<1000000){var m=Math.floor(x/1000),r=x%1000;var mil=m===1?'mil':cv(m)+' mil';return r?mil+' e '+cv(r):mil;}return String(x);}
-      var pt=i===0?'zero reais':cv(i)+(i===1?' real':' reais');
-      if(!c)return pt;
-      return pt+' e '+cv(c)+(c===1?' centavo':' centavos');
-    }
-
-    window.imprimirRessarc = function() {
-      var nome=(document.getElementById('rss-nome').value||'').trim();
-      var cpf=(document.getElementById('rss-cpf').value||'').trim();
-      var valor=(document.getElementById('rss-valor').value||'').trim();
-      var motivo=(document.getElementById('rss-motivo').value||'').trim();
-      if(!nome){mostrarNotificacao('Informe o nome do paciente');return;}
-      if(!valor){mostrarNotificacao('Informe o valor');return;}
-      if(!motivo){mostrarNotificacao('Informe o motivo');return;}
-      var ext=rssExtenso(valor);
-      var dtFmt=new Date().toLocaleDateString('pt-BR');
-      var logo=sessionStorage.getItem('logoDataUrl')||'';
-      var logoH=logo?'<div style="text-align:center;padding-bottom:10pt;"><img src="'+logo+'" style="height:55px;width:auto;object-fit:contain;"></div>':'<div style="text-align:center;padding-bottom:10pt;font-size:20pt;font-weight:900;color:#C62828;font-family:Arial,sans-serif;">amor<span style=color:#1A5276>saúde</span></div>';
-      var w=window.open('','_blank');if(!w){mostrarNotificacao('Pop-up bloqueado');return;}
-      w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ressarcimento</title>'
-        +'<style>@page{size:A4;margin:1.2cm 2cm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;font-size:11pt;color:#1a1a1a;}'
-        +'.recibo{border:2pt solid #222;border-radius:8pt;padding:22pt 26pt;}'
-        +'.cab-info{text-align:right;font-size:8pt;color:#555;line-height:1.7;padding-bottom:10pt;margin-bottom:14pt;border-bottom:1.5pt solid #ccc;}'
-        +'.titulo{font-size:17pt;font-weight:800;text-align:center;margin-bottom:4pt;}'
-        +'.subtitulo{font-size:9pt;color:#888;text-align:center;margin-bottom:18pt;text-transform:uppercase;letter-spacing:.1em;}'
-        +'.corpo{font-size:11pt;line-height:1.8;margin-bottom:14pt;}'
-        +'.valor-box{border:2pt solid #222;border-radius:5pt;padding:10pt 16pt;display:flex;align-items:center;gap:14pt;margin:12pt 0;}'
-        +'.rs-tag{background:#1a1a1a;color:#fff;font-size:15pt;font-weight:800;padding:4pt 12pt;border-radius:4pt;}'
-        +'.valor-num{font-size:22pt;font-weight:900;letter-spacing:-1pt;}'
-        +'.valor-ext{font-size:9.5pt;color:#555;font-style:italic;margin-top:2pt;}'
-        +'.campo-linha{border-top:1pt solid #222;padding-top:22pt;margin-bottom:3pt;margin-top:14pt;}'
-        +'.assin-lbl{font-size:9pt;color:#555;}'
-        +'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}'
-        +'</style></head><body><div class="recibo">'
-        +logoH
-        +'<div class="cab-info"><strong>SIM CLÍNICA MEDICA E ODONTOLOGICA LTDA</strong><br>CNPJ: 25.154.224/0001-89</div>'
-        +'<div class="titulo">RECIBO ( RESSARCIMENTO)</div>'
-        +'<div class="subtitulo">Documento de devolução de valores</div>'
-        +'<div class="corpo">Eu <strong>'+nome.toUpperCase()+'</strong>'+(cpf?' portador do <strong>CPF: '+cpf+'</strong>':'')+', afirmo ter solicitado à clínica <strong>SIM CLÍNICA MEDICA E ODONTOLOGICA LTDA – CNPJ: 25.154.224/001 - 89</strong> o ressarcimento no valor de:</div>'
-        +'<div class="valor-box"><div class="rs-tag">R$</div><div><div class="valor-num">'+valor+'</div><div class="valor-ext">'+ext.charAt(0).toUpperCase()+ext.slice(1)+'</div></div></div>'
-        +'<div style="font-size:11pt;margin:8pt 0 14pt;line-height:1.6;"><strong>Referente:</strong> '+motivo+'</div>'
-        +'<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:22pt;"><div style="flex:1;text-align:center;"><div style="border-top:1pt solid #222;padding-top:22pt;margin-bottom:3pt;"></div><div style="font-size:9.5pt;font-weight:700;">'+nome.toUpperCase()+'</div><div class="assin-lbl">Assinatura do paciente</div></div><div style="font-size:10pt;white-space:nowrap;padding-bottom:2pt;">'+dtFmt+'</div></div>'
-        +'<div><div class="campo-linha"></div><div class="assin-lbl">Assinatura do funcionário</div></div>'
-        +'<div><div class="campo-linha"></div><div class="assin-lbl">Assinatura do supervisor / coordenador</div></div>'
-        +'</div><sc'+'ript>window.onload=()=>setTimeout(()=>window.print(),400);<'+'/script></body></html>');
-      w.document.close();
-      window.fecharRessarc();
-    };
-
-    window.imprimirErroSistema = function() {
-      function pN(v){return parseFloat((v||'0').replace(/\./g,'').replace(',','.'))||0;}
-      function fmN(n){return 'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
-      var atend=(document.getElementById('es-atendente').value||'').trim();
-      var pac=(document.getElementById('es-paciente').value||'').trim();
-      var recVal=(document.getElementById('es-recebido').value||'').trim();
-      var sisVal=(document.getElementById('es-sistema').value||'').trim();
-      var obs=(document.getElementById('es-obs').value||'').trim();
-      if(!atend){mostrarNotificacao('Informe o atendente');return;}
-      if(!recVal){mostrarNotificacao('Informe o valor recebido');return;}
-      if(!sisVal){mostrarNotificacao('Informe o valor no sistema');return;}
-      var recN=pN(recVal),sisN=pN(sisVal),difN=Math.max(0,recN-sisN);
-      var extDif=rssExtenso(difN.toFixed(2).replace('.',','));
-      var agora=new Date(),dtFmt=agora.toLocaleDateString('pt-BR'),hrFmt=agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-      var logo=sessionStorage.getItem('logoDataUrl')||'';
-      var logoH=logo?'<div style="text-align:center;padding-bottom:10pt;"><img src="'+logo+'" style="height:55px;width:auto;object-fit:contain;"></div>':'<div style="text-align:center;padding-bottom:10pt;font-size:20pt;font-weight:900;color:#C62828;font-family:Arial,sans-serif;">amor<span style=color:#1A5276>saúde</span></div>';
-      var w=window.open('','_blank');if(!w){mostrarNotificacao('Pop-up bloqueado');return;}
-      w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Erro de Sistema</title>'
-        +'<style>@page{size:A4;margin:1.2cm 2cm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;font-size:11pt;color:#1a1a1a;}'
-        +'.recibo{border:2pt solid #222;border-radius:8pt;padding:22pt 26pt;}'
-        +'.cab-info{text-align:right;font-size:8pt;color:#555;line-height:1.7;padding-bottom:10pt;margin-bottom:14pt;border-bottom:1.5pt solid #ccc;}'
-        +'.titulo{font-size:15pt;font-weight:800;text-align:center;margin-bottom:3pt;}'
-        +'.subtitulo{font-size:9pt;color:#888;text-align:center;margin-bottom:16pt;text-transform:uppercase;letter-spacing:.1em;}'
-        +'.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10pt;margin-bottom:12pt;}'
-        +'.campo{font-size:10pt;line-height:1.5;}'
-        +'.campo-lbl{font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2pt;}'
-        +'.campo-val{font-size:11pt;font-weight:600;}'
-        +'.dif-box{border:2pt solid #15803d;border-radius:6pt;padding:10pt 16pt;display:flex;align-items:center;justify-content:space-between;margin:12pt 0;background:#f0fdf4;}'
-        +'.dif-lbl{font-size:10pt;font-weight:700;color:#15803d;}'
-        +'.dif-val{font-size:20pt;font-weight:900;color:#15803d;letter-spacing:-1pt;}'
-        +'.dif-ext{font-size:9pt;color:#555;font-style:italic;margin-top:2pt;text-align:right;}'
-        +'.obs-box{background:#fef3c7;border:1pt solid #d97706;border-radius:6pt;padding:8pt 12pt;font-size:10pt;line-height:1.5;margin-bottom:12pt;}'
-        +'.campo-linha{border-top:1pt solid #222;padding-top:22pt;margin-bottom:3pt;margin-top:12pt;}'
-        +'.assin-lbl{font-size:9pt;color:#555;}'
-        +'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}'
-        +'</style></head><body><div class="recibo">'
-        +logoH
-        +'<div class="cab-info"><strong>SIM CLÍNICA MEDICA E ODONTOLOGICA LTDA</strong><br>CNPJ: 25.154.224/0001-89<br>'+dtFmt+' às '+hrFmt+'</div>'
-        +'<div class="titulo">RECIBO DE ERRO DE SISTEMA</div>'
-        +'<div class="subtitulo">Controle de divergência de caixa</div>'
-        +'<div class="grid2">'
-        +'<div class="campo"><span class="campo-lbl">Atendente responsável</span><div class="campo-val">'+atend+'</div></div>'
-        +(pac?'<div class="campo"><span class="campo-lbl">Paciente</span><div class="campo-val">'+pac+'</div></div>':'<div></div>')
-        +'<div class="campo"><span class="campo-lbl">Valor recebido em dinheiro</span><div class="campo-val">'+fmN(recN)+'</div></div>'
-        +'<div class="campo"><span class="campo-lbl">Valor registrado no sistema</span><div class="campo-val">'+fmN(sisN)+'</div></div>'
-        +'</div>'
-        +'<div class="dif-box"><div><div class="dif-lbl">Diferença a encaminhar ao caixa do líder:</div><div class="dif-ext">'+extDif.charAt(0).toUpperCase()+extDif.slice(1)+'</div></div><div class="dif-val">'+fmN(difN)+'</div></div>'
-        +(obs?'<div class="obs-box"><strong>Observação:</strong> '+obs+'</div>':'')
-        +'<div><div class="campo-linha"></div><div class="assin-lbl">Assinatura do atendente ('+atend+')</div></div>'
-        +'<div><div class="campo-linha"></div><div class="assin-lbl">Assinatura do supervisor / líder de caixa</div></div>'
-        +'</div><sc'+'ript>window.onload=()=>setTimeout(()=>window.print(),400);<'+'/script></body></html>');
-      w.document.close();
-      window.fecharErroSistema();
-    };
-</script>
+  </script>
 
   <script type="module">
     import { initializeApp }               from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
@@ -1189,57 +1027,251 @@
     });
   </script>
 
-  <!-- MODAL: Ressarcimento -->
   <div id="modalRessarc" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);z-index:9000;align-items:center;justify-content:center;padding:20px;">
     <div style="background:white;border-radius:16px;max-width:460px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.3);overflow:hidden;">
       <div style="padding:18px 22px 14px;border-bottom:2px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:16px;font-weight:800;color:#0A1F44;display:flex;align-items:center;gap:8px;"><i class="fas fa-file-circle-xmark" style="color:#C62828;"></i>Recibo de Ressarcimento</div>
-        <button onclick="fecharRessarc()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:14px;color:#64748b;">✕</button>
+        <button onclick="fecharRessarc()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:14px;color:#64748b;">X</button>
       </div>
       <div style="padding:18px 22px;">
-        <div style="margin-bottom:12px;"><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Nome do paciente</label><input class="f-input" id="rss-nome" type="text" placeholder="Nome completo do paciente"></div>
+        <div style="margin-bottom:12px;"><label class="f-label">Nome do paciente</label><input class="f-input" id="rss-nome" type="text" placeholder="Nome completo do paciente"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">CPF</label><input class="f-input" id="rss-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14"></div>
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Valor (R$)</label><input class="f-input" id="rss-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)"></div>
+          <div><label class="f-label">CPF</label><input class="f-input" id="rss-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14"></div>
+          <div><label class="f-label">Valor (R$)</label><input class="f-input" id="rss-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)"></div>
         </div>
-        <div style="margin-top:12px;"><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Motivo / Descrição detalhada</label><textarea class="f-input" id="rss-motivo" rows="3" placeholder="Descreva o motivo do ressarcimento em detalhes..." style="resize:vertical;margin-top:0;"></textarea></div>
+        <div style="margin-top:12px;"><label class="f-label">Motivo / Descricao detalhada</label><textarea class="f-input" id="rss-motivo" rows="3" placeholder="Descreva o motivo..." style="resize:vertical;"></textarea></div>
       </div>
       <div style="padding:12px 22px 18px;display:flex;gap:10px;">
         <button onclick="fecharRessarc()" style="flex:1;padding:10px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;font-family:inherit;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Cancelar</button>
-        <button onclick="imprimirRessarc()" style="flex:2;padding:10px;border-radius:9px;border:none;background:#C62828;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;"><i class="fas fa-print"></i> Gerar Recibo</button>
+        <button onclick="imprimirRessarc()" style="flex:2;padding:10px;border-radius:9px;border:none;background:#C62828;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;"><i class="fas fa-print"></i> Gerar Recibo</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: Erro de Sistema -->
   <div id="modalErroSistema" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);z-index:9000;align-items:center;justify-content:center;padding:20px;">
     <div style="background:white;border-radius:16px;max-width:480px;width:100%;box-shadow:0 25px 60px rgba(0,0,0,.3);overflow:hidden;">
       <div style="padding:18px 22px 14px;border-bottom:2px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
         <div style="font-size:16px;font-weight:800;color:#0A1F44;display:flex;align-items:center;gap:8px;"><i class="fas fa-triangle-exclamation" style="color:#b45309;"></i>Recibo de Erro de Sistema</div>
-        <button onclick="fecharErroSistema()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:14px;color:#64748b;">✕</button>
+        <button onclick="fecharErroSistema()" style="background:#f1f5f9;border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:14px;color:#64748b;">X</button>
       </div>
-      <div style="background:#fef3c7;border-left:4px solid #b45309;padding:10px 16px;font-size:12px;color:#92400e;line-height:1.5;"><strong>Quando usar:</strong> Valor recebido em dinheiro superior ao registrado no sistema. O excedente é encaminhado ao caixa do líder.</div>
+      <div style="background:#fef3c7;border-left:4px solid #b45309;padding:10px 16px;font-size:12px;color:#92400e;line-height:1.5;"><strong>Quando usar:</strong> Valor recebido em dinheiro superior ao registrado no sistema. O excedente vai ao caixa do lider.</div>
       <div style="padding:18px 22px;">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Atendente responsável</label><input class="f-input" id="es-atendente" type="text" placeholder="Nome do atendente"></div>
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Nome do paciente</label><input class="f-input" id="es-paciente" type="text" placeholder="Opcional"></div>
+          <div><label class="f-label">Atendente responsavel</label><input class="f-input" id="es-atendente" type="text" placeholder="Nome do atendente"></div>
+          <div><label class="f-label">Nome do paciente</label><input class="f-input" id="es-paciente" type="text" placeholder="Opcional"></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Valor recebido (R$)</label><input class="f-input" id="es-recebido" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
-          <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Valor no sistema (R$)</label><input class="f-input" id="es-sistema" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
+          <div><label class="f-label">Valor recebido (R$)</label><input class="f-input" id="es-recebido" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
+          <div><label class="f-label">Valor no sistema (R$)</label><input class="f-input" id="es-sistema" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
         </div>
         <div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-size:12px;font-weight:700;color:#15803d;">Diferença a encaminhar ao líder:</span>
+          <span style="font-size:12px;font-weight:700;color:#15803d;">Diferenca a encaminhar ao lider:</span>
           <span style="font-size:18px;font-weight:900;color:#15803d;" id="es-dif">R$ 0,00</span>
         </div>
-        <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#64748b;display:block;margin-bottom:5px;">Observação</label><textarea class="f-input" id="es-obs" rows="2" placeholder="Descreva o que ocorreu..." style="resize:vertical;margin-top:0;"></textarea></div>
+        <div><label class="f-label">Observacao</label><textarea class="f-input" id="es-obs" rows="2" placeholder="Descreva o que ocorreu..." style="resize:vertical;"></textarea></div>
       </div>
       <div style="padding:12px 22px 18px;display:flex;gap:10px;">
         <button onclick="fecharErroSistema()" style="flex:1;padding:10px;border-radius:9px;border:1.5px solid #e2e8f0;background:white;font-family:inherit;font-size:13px;font-weight:700;color:#64748b;cursor:pointer;">Cancelar</button>
-        <button onclick="imprimirErroSistema()" style="flex:2;padding:10px;border-radius:9px;border:none;background:#b45309;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;"><i class="fas fa-print"></i> Gerar Recibo</button>
+        <button onclick="imprimirErroSistema()" style="flex:2;padding:10px;border-radius:9px;border:none;background:#b45309;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;"><i class="fas fa-print"></i> Gerar Recibo</button>
       </div>
     </div>
   </div>
-
 </body>
 </html>
+<!-- RECIBOS RESSARCIMENTO E ERRO DE SISTEMA -->
+<script>
+function rssExtenso(v) {
+  var n = parseFloat(String(v).replace(/\./g,'').replace(',','.')) || 0;
+  var i = Math.floor(n), c = Math.round((n - i) * 100);
+  var U = ['','um','dois','tres','quatro','cinco','seis','sete','oito','nove'];
+  var E = ['dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  var D = ['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  var C = ['','cem','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+  function cv(x) {
+    if (!x) return '';
+    if (x === 100) return 'cem';
+    if (x < 10) return U[x];
+    if (x < 20) return E[x - 10];
+    if (x < 100) { var d = Math.floor(x/10), u = x%10; return u ? D[d]+' e '+U[u] : D[d]; }
+    if (x < 1000) { var cc = Math.floor(x/100), r = x%100; return (cc===1&&r) ? 'cento e '+cv(r) : (r ? C[cc]+' e '+cv(r) : C[cc]); }
+    if (x < 1000000) { var m = Math.floor(x/1000), r = x%1000; var mil = m===1?'mil':cv(m)+' mil'; return r ? mil+' e '+cv(r) : mil; }
+    return String(x);
+  }
+  var pt = i === 0 ? 'zero reais' : cv(i) + (i === 1 ? ' real' : ' reais');
+  return c ? pt + ' e ' + cv(c) + (c === 1 ? ' centavo' : ' centavos') : pt;
+}
+
+function pMoeda(v) {
+  return parseFloat((v||'0').replace(/\./g,'').replace(',','.')) || 0;
+}
+
+function fMoeda(n) {
+  return 'R$ ' + n.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+window.abrirRessarc = function() {
+  ['rss-nome','rss-cpf','rss-valor','rss-motivo'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  var m = document.getElementById('modalRessarc');
+  if (m) m.style.display = 'flex';
+  setTimeout(function() { var el = document.getElementById('rss-nome'); if(el) el.focus(); }, 100);
+};
+
+window.fecharRessarc = function() {
+  var m = document.getElementById('modalRessarc'); if (m) m.style.display = 'none';
+};
+
+window.abrirErroSistema = function() {
+  ['es-atendente','es-paciente','es-recebido','es-sistema','es-obs'].forEach(function(id) {
+    var el = document.getElementById(id); if (el) el.value = '';
+  });
+  var d = document.getElementById('es-dif'); if (d) { d.textContent = 'R$ 0,00'; d.style.color = '#64748b'; }
+  var m = document.getElementById('modalErroSistema');
+  if (m) m.style.display = 'flex';
+  setTimeout(function() { var el = document.getElementById('es-atendente'); if(el) el.focus(); }, 100);
+};
+
+window.fecharErroSistema = function() {
+  var m = document.getElementById('modalErroSistema'); if (m) m.style.display = 'none';
+};
+
+window.calcularDif = function() {
+  var rec = pMoeda(document.getElementById('es-recebido') ? document.getElementById('es-recebido').value : '0');
+  var sis = pMoeda(document.getElementById('es-sistema') ? document.getElementById('es-sistema').value : '0');
+  var dif = Math.max(0, rec - sis);
+  var el = document.getElementById('es-dif');
+  if (el) { el.textContent = fMoeda(dif); el.style.color = dif > 0 ? '#15803d' : '#64748b'; }
+};
+
+window.imprimirRessarc = function() {
+  var nome   = (document.getElementById('rss-nome')  ? document.getElementById('rss-nome').value  : '').trim();
+  var cpf    = (document.getElementById('rss-cpf')   ? document.getElementById('rss-cpf').value   : '').trim();
+  var valor  = (document.getElementById('rss-valor') ? document.getElementById('rss-valor').value : '').trim();
+  var motivo = (document.getElementById('rss-motivo')? document.getElementById('rss-motivo').value: '').trim();
+  if (!nome)   { mostrarNotificacao('Informe o nome do paciente'); return; }
+  if (!valor)  { mostrarNotificacao('Informe o valor'); return; }
+  if (!motivo) { mostrarNotificacao('Informe o motivo'); return; }
+  var ext  = rssExtenso(valor);
+  var data = new Date().toLocaleDateString('pt-BR');
+  var logo = sessionStorage.getItem('logoDataUrl') || '';
+  var logoHTML = logo
+    ? '<div style="text-align:center;padding-bottom:10pt;"><img src="' + logo + '" style="height:55px;width:auto;object-fit:contain;"></div>'
+    : '<div style="text-align:center;padding-bottom:10pt;font-size:20pt;font-weight:900;color:#C62828;font-family:Arial,sans-serif;">amor<span style="color:#1A5276">sa&#250;de</span></div>';
+  var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Ressarcimento</title>'
+    + '<style>'
+    + '@page{size:A4;margin:1.2cm 2cm;}'
+    + '*{box-sizing:border-box;margin:0;padding:0;}'
+    + 'body{font-family:Arial,sans-serif;font-size:11pt;color:#1a1a1a;}'
+    + '.recibo{border:2pt solid #222;border-radius:8pt;padding:22pt 26pt;}'
+    + '.cab-info{text-align:right;font-size:8pt;color:#555;line-height:1.7;padding-bottom:10pt;margin-bottom:14pt;border-bottom:1.5pt solid #ccc;}'
+    + '.titulo{font-size:17pt;font-weight:800;text-align:center;margin-bottom:4pt;}'
+    + '.sub{font-size:9pt;color:#888;text-align:center;margin-bottom:18pt;text-transform:uppercase;letter-spacing:.1em;}'
+    + '.corpo{font-size:11pt;line-height:1.8;margin-bottom:14pt;}'
+    + '.vbox{border:2pt solid #222;border-radius:5pt;padding:10pt 16pt;display:flex;align-items:center;gap:14pt;margin:12pt 0;}'
+    + '.rs{background:#1a1a1a;color:#fff;font-size:15pt;font-weight:800;padding:4pt 12pt;border-radius:4pt;}'
+    + '.vnum{font-size:22pt;font-weight:900;letter-spacing:-1pt;}'
+    + '.vext{font-size:9.5pt;color:#555;font-style:italic;margin-top:2pt;}'
+    + '.sep{border-top:1pt solid #222;padding-top:22pt;margin-bottom:3pt;margin-top:14pt;}'
+    + '.albl{font-size:9pt;color:#555;}'
+    + '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}'
+    + '</style></head><body>'
+    + '<div class="recibo">'
+    + logoHTML
+    + '<div class="cab-info"><strong>SIM CLINICA MEDICA E ODONTOLOGICA LTDA</strong><br>CNPJ: 25.154.224/0001-89</div>'
+    + '<div class="titulo">RECIBO ( RESSARCIMENTO)</div>'
+    + '<div class="sub">Documento de devolucao de valores</div>'
+    + '<div class="corpo">Eu <strong>' + nome.toUpperCase() + '</strong>'
+    + (cpf ? ' portador do <strong>CPF: ' + cpf + '</strong>' : '')
+    + ', afirmo ter solicitado a clinica <strong>SIM CLINICA MEDICA E ODONTOLOGICA LTDA - CNPJ: 25.154.224/001-89</strong> o ressarcimento no valor de:</div>'
+    + '<div class="vbox"><div class="rs">R$</div><div><div class="vnum">' + valor + '</div><div class="vext">' + ext.charAt(0).toUpperCase() + ext.slice(1) + '</div></div></div>'
+    + '<div style="font-size:11pt;margin:8pt 0 14pt;line-height:1.6;"><strong>Referente:</strong> ' + motivo + '</div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:22pt;">'
+    + '<div style="flex:1;text-align:center;"><div class="sep"></div><div style="font-size:9.5pt;font-weight:700;">' + nome.toUpperCase() + '</div><div class="albl">Assinatura do paciente</div></div>'
+    + '<div style="font-size:10pt;white-space:nowrap;padding-bottom:2pt;">' + data + '</div>'
+    + '</div>'
+    + '<div><div class="sep"></div><div class="albl">Assinatura do funcionario</div></div>'
+    + '<div><div class="sep"></div><div class="albl">Assinatura do supervisor / coordenador</div></div>'
+    + '</div>'
+    + '<' + 'script>window.onload=function(){setTimeout(function(){window.print();},400);};<' + '/script>'
+    + '</body></html>';
+  var w = window.open('', '_blank');
+  if (!w) { mostrarNotificacao('Pop-up bloqueado'); return; }
+  w.document.write(html);
+  w.document.close();
+  window.fecharRessarc();
+};
+
+window.imprimirErroSistema = function() {
+  var atend = (document.getElementById('es-atendente') ? document.getElementById('es-atendente').value : '').trim();
+  var pac   = (document.getElementById('es-paciente')  ? document.getElementById('es-paciente').value  : '').trim();
+  var recV  = (document.getElementById('es-recebido')  ? document.getElementById('es-recebido').value  : '').trim();
+  var sisV  = (document.getElementById('es-sistema')   ? document.getElementById('es-sistema').value   : '').trim();
+  var obs   = (document.getElementById('es-obs')       ? document.getElementById('es-obs').value       : '').trim();
+  if (!atend) { mostrarNotificacao('Informe o atendente'); return; }
+  if (!recV)  { mostrarNotificacao('Informe o valor recebido'); return; }
+  if (!sisV)  { mostrarNotificacao('Informe o valor no sistema'); return; }
+  var recN = pMoeda(recV), sisN = pMoeda(sisV), difN = Math.max(0, recN - sisN);
+  var extD = rssExtenso(difN.toFixed(2).replace('.',','));
+  var agora = new Date();
+  var data = agora.toLocaleDateString('pt-BR');
+  var hora = agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+  var logo = sessionStorage.getItem('logoDataUrl') || '';
+  var logoHTML = logo
+    ? '<div style="text-align:center;padding-bottom:10pt;"><img src="' + logo + '" style="height:55px;width:auto;object-fit:contain;"></div>'
+    : '<div style="text-align:center;padding-bottom:10pt;font-size:20pt;font-weight:900;color:#C62828;font-family:Arial,sans-serif;">amor<span style="color:#1A5276">sa&#250;de</span></div>';
+  var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Erro de Sistema</title>'
+    + '<style>'
+    + '@page{size:A4;margin:1.2cm 2cm;}'
+    + '*{box-sizing:border-box;margin:0;padding:0;}'
+    + 'body{font-family:Arial,sans-serif;font-size:11pt;color:#1a1a1a;}'
+    + '.recibo{border:2pt solid #222;border-radius:8pt;padding:22pt 26pt;}'
+    + '.cab-info{text-align:right;font-size:8pt;color:#555;line-height:1.7;padding-bottom:10pt;margin-bottom:14pt;border-bottom:1.5pt solid #ccc;}'
+    + '.titulo{font-size:15pt;font-weight:800;text-align:center;margin-bottom:3pt;}'
+    + '.sub{font-size:9pt;color:#888;text-align:center;margin-bottom:16pt;text-transform:uppercase;letter-spacing:.1em;}'
+    + '.g2{display:grid;grid-template-columns:1fr 1fr;gap:10pt;margin-bottom:12pt;}'
+    + '.campo .lbl{font-size:8pt;color:#888;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:2pt;}'
+    + '.campo .val{font-size:11pt;font-weight:600;}'
+    + '.dbox{border:2pt solid #15803d;border-radius:6pt;padding:10pt 16pt;display:flex;align-items:center;justify-content:space-between;margin:12pt 0;background:#f0fdf4;}'
+    + '.dlbl{font-size:10pt;font-weight:700;color:#15803d;}'
+    + '.dval{font-size:20pt;font-weight:900;color:#15803d;letter-spacing:-1pt;}'
+    + '.dext{font-size:9pt;color:#555;font-style:italic;margin-top:2pt;text-align:right;}'
+    + '.obsbox{background:#fef3c7;border:1pt solid #d97706;border-radius:6pt;padding:8pt 12pt;font-size:10pt;margin-bottom:12pt;}'
+    + '.sep{border-top:1pt solid #222;padding-top:22pt;margin-bottom:3pt;margin-top:12pt;}'
+    + '.albl{font-size:9pt;color:#555;}'
+    + '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}'
+    + '</style></head><body>'
+    + '<div class="recibo">'
+    + logoHTML
+    + '<div class="cab-info"><strong>SIM CLINICA MEDICA E ODONTOLOGICA LTDA</strong><br>CNPJ: 25.154.224/0001-89<br>' + data + ' as ' + hora + '</div>'
+    + '<div class="titulo">RECIBO DE ERRO DE SISTEMA</div>'
+    + '<div class="sub">Controle de divergencia de caixa</div>'
+    + '<div class="g2">'
+    + '<div class="campo"><span class="lbl">Atendente responsavel</span><div class="val">' + atend + '</div></div>'
+    + (pac ? '<div class="campo"><span class="lbl">Paciente</span><div class="val">' + pac + '</div></div>' : '<div></div>')
+    + '<div class="campo"><span class="lbl">Valor recebido em dinheiro</span><div class="val">' + fMoeda(recN) + '</div></div>'
+    + '<div class="campo"><span class="lbl">Valor registrado no sistema</span><div class="val">' + fMoeda(sisN) + '</div></div>'
+    + '</div>'
+    + '<div class="dbox">'
+    + '<div><div class="dlbl">Diferenca a encaminhar ao caixa do lider:</div><div class="dext">' + extD.charAt(0).toUpperCase() + extD.slice(1) + '</div></div>'
+    + '<div class="dval">' + fMoeda(difN) + '</div>'
+    + '</div>'
+    + (obs ? '<div class="obsbox"><strong>Observacao:</strong> ' + obs + '</div>' : '')
+    + '<div><div class="sep"></div><div class="albl">Assinatura do atendente (' + atend + ')</div></div>'
+    + '<div><div class="sep"></div><div class="albl">Assinatura do supervisor / lider de caixa</div></div>'
+    + '</div>'
+    + '<' + 'script>window.onload=function(){setTimeout(function(){window.print();},400);};<' + '/script>'
+    + '</body></html>';
+  var w = window.open('', '_blank');
+  if (!w) { mostrarNotificacao('Pop-up bloqueado'); return; }
+  w.document.write(html);
+  w.document.close();
+  window.fecharErroSistema();
+};
+
+document.addEventListener('click', function(e) {
+  if (e.target && (e.target.id === 'modalRessarc')) window.fecharRessarc();
+  if (e.target && (e.target.id === 'modalErroSistema')) window.fecharErroSistema();
+});
+</script>
+<!-- VERSION: v1.6 | caixa.html | 14/07/2026 -->
