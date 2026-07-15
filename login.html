@@ -1,3 +1,4 @@
+<!-- VERSION: v1.1 | login.html | 14/07/2026 | feat: card Contratos + botão de novidades com changelog -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -88,6 +89,31 @@
     @keyframes pop{from{opacity:0;transform:scale(.3)}to{opacity:1;transform:scale(1)}}
     @keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
     @media(max-width:860px){.portal-grid{grid-template-columns:1fr;}.p-header{padding:0 20px;}}
+
+    /* ── BOTÃO NOVIDADES ── */
+    .novidades-fab{position:fixed;bottom:24px;right:24px;z-index:1000;}
+    .novidades-btn{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#0A1F44,#122b5e);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;color:white;box-shadow:0 6px 24px rgba(10,31,68,.35);transition:all .2s;position:relative;}
+    .novidades-btn:hover{transform:scale(1.1);box-shadow:0 8px 32px rgba(10,31,68,.45);}
+    .novidades-dot{position:absolute;top:4px;right:4px;width:14px;height:14px;background:#C62828;border-radius:50%;border:2.5px solid white;animation:pulse-dot 1.8s ease-in-out infinite;}
+    @keyframes pulse-dot{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.3);opacity:.8;}}
+    .novidades-panel{position:fixed;bottom:88px;right:24px;width:340px;max-height:480px;background:white;border-radius:18px;box-shadow:0 16px 56px rgba(10,31,68,.22);border:1.5px solid #e2e8f0;z-index:1000;overflow:hidden;flex-direction:column;display:none;}
+    .novidades-panel.aberto{display:flex;}
+    .nov-head{padding:16px 18px 12px;border-bottom:1.5px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+    .nov-head-title{font-size:14px;font-weight:800;color:#0A1F44;display:flex;align-items:center;gap:8px;}
+    .nov-head-title i{color:#C62828;}
+    .nov-close{background:#f1f5f9;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;color:#64748b;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+    .nov-close:hover{background:#e2e8f0;color:#0A1F44;}
+    .nov-lista{overflow-y:auto;flex:1;padding:8px 0;}
+    .nov-lista::-webkit-scrollbar{width:4px;}
+    .nov-lista::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:4px;}
+    .nov-item{padding:12px 18px;border-bottom:1px solid #f8fafc;}
+    .nov-item:last-child{border-bottom:none;}
+    .nov-item-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;}
+    .nov-modulo{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 8px;border-radius:8px;}
+    .nov-data{font-size:10px;color:#94a3b8;font-weight:600;}
+    .nov-desc{font-size:12px;color:#475569;line-height:1.5;}
+    .nov-rodape{padding:10px 18px;border-top:1.5px solid #f1f5f9;font-size:11px;color:#94a3b8;text-align:center;flex-shrink:0;}
+
   </style>
 </head>
 <body>
@@ -204,6 +230,13 @@
           <div><div class="pc-name">NPS</div><div class="pc-desc">Pesquisa de satisfação e ranking do atendimento do call center.</div></div>
           <div class="pc-arrow"><i class="fas fa-arrow-right"></i> Acessar</div>
         </div>
+
+        <div class="portal-card" id="cardContratos" style="display:none;" onclick="abrirSistema('contratos.html','Contratos')">
+          <div class="pc-icon" style="background:#0A1F44;"><i class="fas fa-file-contract" style="color:white;font-size:22px;"></i></div>
+          <div><div class="pc-name">Contratos</div><div class="pc-desc">Gerador de contrato de neuropsicologia e guia de encaminhamento manual.</div></div>
+          <div class="pc-arrow" style="color:#0A1F44;"><i class="fas fa-arrow-right"></i> Acessar</div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -289,9 +322,11 @@
       if (isAdmin || perms.cronograma) document.getElementById('cardCronograma').style.display = 'flex';
       // Caixa: visível para todos os usuários autenticados
       document.getElementById('cardCaixa').style.display = 'flex';
+      iniciarNovidades();
       if (isAdmin)                     document.getElementById('cardAdmin').style.display      = 'flex';
       if (isAdmin)                     document.getElementById('cardDashboard').style.display  = 'flex';
       if (isAdmin || perms.nps)        document.getElementById('cardNps').style.display         = 'flex';
+      if (isAdmin)                     document.getElementById('cardContratos').style.display = 'flex';
 
       // Revela o portal já montado
       document.getElementById('telaLogin').style.display  = 'none';
@@ -375,6 +410,87 @@
     }
 
     document.addEventListener('keydown', e => { if (e.key === 'Enter') window.entrar(); });
+  
+    // ── CHANGELOG / NOVIDADES ──
+    const CHANGELOG = [
+      { id:'2026-07-14-contratos', data:'14/07/2026', modulo:'Contratos', cor:'#0A1F44', bg:'#eff6ff',
+        desc:'Novo módulo: gerador de contrato de neuropsicologia (com importação do AMEI) e guia de encaminhamento manual.' },
+      { id:'2026-07-14-caixa-recibos', data:'14/07/2026', modulo:'Caixa', cor:'#7c3aed', bg:'#f5f3ff',
+        desc:'Novos recibos: Ressarcimento (devolução ao paciente) e Erro de Sistema (divergência de caixa para o líder).' },
+      { id:'2026-07-14-dashboard-contratos', data:'14/07/2026', modulo:'Dashboard', cor:'#15803d', bg:'#f0fdf4',
+        desc:'Nova aba "Contratos" para controle mensal de repasse da Dra. Lauriana Garcia Pinto.' },
+      { id:'2026-07-07-dashboard-visao', data:'07/07/2026', modulo:'Dashboard', cor:'#15803d', bg:'#f0fdf4',
+        desc:'Nova aba "Visão Geral" com resumo do caixa, NPS, gaveta de exames e comissões do mês.' },
+      { id:'2026-07-07-orcamentos-preparo', data:'07/07/2026', modulo:'Orçamentos', cor:'#b45309', bg:'#fef3c7',
+        desc:'Pop-up de preparo: ao copiar o orçamento, exibe os preparos e pede que copie antes de fechar.' },
+      { id:'2026-06-30-preparos-usg', data:'30/06/2026', modulo:'Orçamentos', cor:'#b45309', bg:'#fef3c7',
+        desc:'Preparos de ultrassom revisados contra o guia oficial (48 tipos). Doppler agora distingue exames com/sem protocolo Luftal.' },
+      { id:'2026-06-30-financeiro-recibo', data:'30/06/2026', modulo:'Financeiro', cor:'#7c3aed', bg:'#f5f3ff',
+        desc:'Recibo: novo modo Manual (descrição livre). Linha de assinatura ajusta ao tamanho do nome do colaborador.' },
+      { id:'2026-06-30-orcamentos-duplic', data:'30/06/2026', modulo:'Orçamentos', cor:'#b45309', bg:'#fef3c7',
+        desc:'Duplicatas removidas: exames com nomes equivalentes (ex: ABDOME TOTAL / US ABDOME TOTAL) agora aparecem como um único card.' },
+    ];
+    const NOV_KEY = 'rclinich_changelog_visto';
+
+    function iniciarNovidades() {
+      const lista = document.getElementById('novidadesLista');
+      if (!lista) return;
+      lista.innerHTML = CHANGELOG.map(item =>
+        '<div class="nov-item">' +
+          '<div class="nov-item-head">' +
+            '<span class="nov-modulo" style="color:'+item.cor+';background:'+item.bg+';">'+item.modulo+'</span>' +
+            '<span class="nov-data">'+item.data+'</span>' +
+          '</div>' +
+          '<div class="nov-desc">'+item.desc+'</div>' +
+        '</div>'
+      ).join('');
+
+      const visto = localStorage.getItem(NOV_KEY);
+      const temNovo = visto !== CHANGELOG[0].id;
+      const fab = document.getElementById('novidadesFab');
+      const dot = document.getElementById('novidadesDot');
+      if (fab) fab.style.display = 'block';
+      if (dot) dot.style.display = temNovo ? 'block' : 'none';
+    }
+
+    const btnNov = document.getElementById('novidadesBtn');
+    const panel  = document.getElementById('novidadesPanel');
+    const btnFch = document.getElementById('novidadesFechar');
+
+    if (btnNov) {
+      btnNov.addEventListener('click', () => {
+        const aberto = panel.classList.toggle('aberto');
+        if (aberto) {
+          localStorage.setItem(NOV_KEY, CHANGELOG[0].id);
+          const dot = document.getElementById('novidadesDot');
+          if (dot) dot.style.display = 'none';
+        }
+      });
+    }
+    if (btnFch) btnFch.addEventListener('click', () => panel.classList.remove('aberto'));
+    document.addEventListener('click', e => {
+      if (panel && btnNov && !panel.contains(e.target) && !btnNov.contains(e.target)) {
+        panel.classList.remove('aberto');
+      }
+    });
+
   </script>
+
+  <!-- BOTÃO NOVIDADES -->
+  <div class="novidades-fab" id="novidadesFab" style="display:none;">
+    <button class="novidades-btn" id="novidadesBtn" title="O que há de novo?">
+      <i class="fas fa-sparkles"></i>
+      <span class="novidades-dot" id="novidadesDot" style="display:none;"></span>
+    </button>
+  </div>
+  <div class="novidades-panel" id="novidadesPanel">
+    <div class="nov-head">
+      <div class="nov-head-title"><i class="fas fa-sparkles"></i> O que há de novo</div>
+      <button class="nov-close" id="novidadesFechar">✕</button>
+    </div>
+    <div class="nov-lista" id="novidadesLista"></div>
+    <div class="nov-rodape">Atualizado em 14/07/2026</div>
+  </div>
+
 </body>
 </html>
