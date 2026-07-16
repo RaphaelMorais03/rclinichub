@@ -85,7 +85,6 @@
   <div class="red-bar"></div>
   <div class="toast-box" id="toastBox"></div>
 
-  <!-- MODAL COLABORADOR -->
   <div class="modal-bg" id="modalColab">
     <div class="modal-box">
       <div class="modal-head">
@@ -116,7 +115,6 @@
     </div>
   </div>
 
-  <!-- MODAL IMPRESSÃO EM LOTE -->
   <div class="modal-bg" id="modalLote">
     <div class="modal-box" style="max-width:700px;">
       <div class="modal-head">
@@ -174,7 +172,6 @@
     </div>
   </div>
 
-  <!-- MODAL GERAR RECIBO -->
   <div class="modal-bg" id="modalRecibo">
     <div class="modal-box" style="max-width:600px;">
       <div class="modal-head">
@@ -182,7 +179,6 @@
         <button class="modal-close" onclick="fecharModalRecibo()"><i class="fas fa-xmark"></i></button>
       </div>
       <div class="modal-body">
-        <!-- Tipo de recibo: Padrão ou Manual -->
         <div style="display:flex;gap:6px;margin-bottom:16px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:5px;">
           <button id="btnReciboPadrao" onclick="setTipoRecibo('padrao')"
             style="flex:1;padding:8px 10px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--navy);color:white;transition:all .2s;">
@@ -194,7 +190,6 @@
           </button>
         </div>
 
-        <!-- PADRÃO -->
         <div id="reciboPadraoFields">
           <div class="form-grid" style="margin-bottom:14px;">
             <div>
@@ -224,7 +219,6 @@
           </div>
         </div>
 
-        <!-- MANUAL -->
         <div id="reciboManualFields" style="display:none;">
           <div style="margin-bottom:14px;">
             <label class="f-label">Descrição do recibo</label>
@@ -236,7 +230,6 @@
           </div>
         </div>
 
-        <!-- CAMPOS COMUNS -->
         <div class="form-grid" style="margin-bottom:14px;">
           <div>
             <label class="f-label">Forma de pagamento</label>
@@ -260,7 +253,6 @@
     </div>
   </div>
 
-  <!-- HEADER -->
   <div class="s-header">
     <div class="s-logo">
       <div class="s-logo-icon"><img src="assets/favicon.png" alt="Logo" id="headerLogo"></div>
@@ -284,7 +276,6 @@
       <button class="tab-btn" onclick="tab('historico')"><i class="fas fa-clock-rotate-left"></i> Histórico</button>
     </div>
 
-    <!-- ABA COLABORADORES -->
     <div class="tab-pane active" id="paneColaboradores">
       <div class="panel">
         <div class="panel-header">
@@ -298,7 +289,6 @@
       </div>
     </div>
 
-    <!-- ABA HISTÓRICO -->
     <div class="tab-pane" id="paneHistorico">
       <div class="panel">
         <div class="panel-header">
@@ -310,7 +300,7 @@
             </select>
           </div>
         </div>
-        <div id="listaHistorico"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></div>
+        <div id="listaHistorico"><div class="empty-state"><i class="fas fa-clock-rotate-left"></i><p>Nenhum recibo encontrado.</p></div></div>
       </div>
     </div>
   </div>
@@ -676,8 +666,8 @@
     return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo — ${esc(c.nome||'')}</title>
       <style>${RECIBO_CSS}</style></head><body>
       ${bloco}
-      <sc`+'ript>window.print();</s'+'cript>
-</body></html>';
+      <script>window.print();<\/script>
+</body></html>`;
   }
 
   // ── Lote ──
@@ -821,8 +811,8 @@
     const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Lote de Recibos</title>
       <style>${RECIBO_CSS}</style></head><body>
       ${blocos}
-      <sc`+'ript>window.print();</s'+'cript>
-      </body></html>';
+      <script>window.print();<\/script>
+      </body></html>`;
 
     const w = window.open('', '_blank');
     if (!w) { toast('Pop-up bloqueado — permita pop-ups', 'error'); return; }
@@ -998,7 +988,6 @@
     });
   </script>
 
-  <!-- MODAL RESSARCIMENTO FINANCEIRO -->
   <div class="modal-bg" id="modalRessarcFin">
     <div class="modal" style="max-width:480px;">
       <div class="modal-head">
@@ -1034,7 +1023,6 @@
 
 </body>
 </html>
-<!-- RESSARCIMENTO FINANCEIRO -->
 <script>
 window.abrirModalRessarcFin = function() {
   ['rfin-nome','rfin-cpf','rfin-valor','rfin-motivo'].forEach(function(id){
@@ -1083,7 +1071,7 @@ window.imprimirRessarcFin = function() {
   var vN  =parseFloat(valor.replace(/\./g,'').replace(',','.'))||0;
   var ext =rssExtenso_fin(valor);
   var logo=window.LOGO_FIN||sessionStorage.getItem('logoDataUrl')||'';
-  var cNome=sessionStorage.getItem('clinicaNome')||'SIM CLINICA MEDICA E ODONTOLOGICA LTDA';
+  var cNome=sessionStorage.getItem('clinicaNome')||'SIM CLINICA MEDICA E ODONTOLÓGICA LTDA';
   var cCnpj=sessionStorage.getItem('clinicaCnpj')||'25.154.224/0001-89';
   var cEnd =sessionStorage.getItem('clinicaEnd') ||'Avenida Doutor Felipe Pinel, 367 — Pirituba/SP';
   var now  =new Date();
