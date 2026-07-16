@@ -264,6 +264,7 @@
       <div><div class="s-logo-name">Amor Saúde</div><div class="s-logo-sub">Financeiro · Pirituba</div></div>
     </div>
     <div class="header-right">
+      <button class="back-btn" onclick="abrirModalRessarcFin()" style="background:#7c3aed;"><i class="fas fa-file-circle-xmark"></i> Ressarcimento</button>
       <button class="back-btn" onclick="irPara('login.html')"><i class="fas fa-home"></i> Portal</button>
     </div>
   </div>
@@ -588,7 +589,42 @@
     return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo — ${esc(c.nome||'')}</title>
       <style>${RECIBO_CSS}</style></head><body>
       ${bloco}
-      <sc`+'ript>window.print();</s'+'cript></body></html>';
+      <sc`+'ript>window.print();</s'+'cript>
+  <!-- MODAL RESSARCIMENTO FINANCEIRO -->
+  <div class="modal-bg" id="modalRessarcFin">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-head">
+        <div class="modal-title"><i class="fas fa-file-circle-xmark" style="color:#C62828;margin-right:6px;"></i>Ressarcimento ao Paciente</div>
+        <button class="modal-close" onclick="fecharModalRessarcFin()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="padding:20px;">
+        <div class="field" style="margin-bottom:14px;">
+          <label class="f-label">Nome do paciente</label>
+          <input class="f-input" id="rfin-nome" type="text" placeholder="Nome completo do paciente">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div class="field">
+            <label class="f-label">CPF</label>
+            <input class="f-input" id="rfin-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF_fin(this)" maxlength="14">
+          </div>
+          <div class="field">
+            <label class="f-label">Valor (R$)</label>
+            <input class="f-input" id="rfin-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda_fin(this)">
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label class="f-label">Motivo / Descrição</label>
+          <textarea class="f-input" id="rfin-motivo" rows="3" placeholder="Descreva o motivo do ressarcimento..." style="resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-s" onclick="fecharModalRessarcFin()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
+          <button class="btn-p" onclick="imprimirRessarcFin()" style="flex:2;justify-content:center;"><i class="fas fa-print"></i> Gerar e Imprimir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body></html>';
   }
 
   // ── Lote ──
@@ -686,7 +722,42 @@
     const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Lote de Recibos</title>
       <style>${RECIBO_CSS}</style></head><body>
       ${blocos}
-      <sc`+'ript>window.print();</s'+'cript></body></html>';
+      <sc`+'ript>window.print();</s'+'cript>
+  <!-- MODAL RESSARCIMENTO FINANCEIRO -->
+  <div class="modal-bg" id="modalRessarcFin">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-head">
+        <div class="modal-title"><i class="fas fa-file-circle-xmark" style="color:#C62828;margin-right:6px;"></i>Ressarcimento ao Paciente</div>
+        <button class="modal-close" onclick="fecharModalRessarcFin()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="padding:20px;">
+        <div class="field" style="margin-bottom:14px;">
+          <label class="f-label">Nome do paciente</label>
+          <input class="f-input" id="rfin-nome" type="text" placeholder="Nome completo do paciente">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div class="field">
+            <label class="f-label">CPF</label>
+            <input class="f-input" id="rfin-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF_fin(this)" maxlength="14">
+          </div>
+          <div class="field">
+            <label class="f-label">Valor (R$)</label>
+            <input class="f-input" id="rfin-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda_fin(this)">
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label class="f-label">Motivo / Descrição</label>
+          <textarea class="f-input" id="rfin-motivo" rows="3" placeholder="Descreva o motivo do ressarcimento..." style="resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-s" onclick="fecharModalRessarcFin()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
+          <button class="btn-p" onclick="imprimirRessarcFin()" style="flex:2;justify-content:center;"><i class="fas fa-print"></i> Gerar e Imprimir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body></html>';
 
     const w = window.open('', '_blank');
     if (!w) { toast('Pop-up bloqueado — permita pop-ups', 'error'); return; }
@@ -824,5 +895,169 @@
       set(ref(db, 'admin_logs/' + Date.now()), { tipo:'info', msg:(user.email||user.uid)+' acessou Financeiro', ts:new Date().toISOString() }).catch(()=>{});
     });
   </script>
+
+  <!-- MODAL RESSARCIMENTO FINANCEIRO -->
+  <div class="modal-bg" id="modalRessarcFin">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-head">
+        <div class="modal-title"><i class="fas fa-file-circle-xmark" style="color:#C62828;margin-right:6px;"></i>Ressarcimento ao Paciente</div>
+        <button class="modal-close" onclick="fecharModalRessarcFin()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="padding:20px;">
+        <div class="field" style="margin-bottom:14px;">
+          <label class="f-label">Nome do paciente</label>
+          <input class="f-input" id="rfin-nome" type="text" placeholder="Nome completo do paciente">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div class="field">
+            <label class="f-label">CPF</label>
+            <input class="f-input" id="rfin-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF_fin(this)" maxlength="14">
+          </div>
+          <div class="field">
+            <label class="f-label">Valor (R$)</label>
+            <input class="f-input" id="rfin-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda_fin(this)">
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label class="f-label">Motivo / Descrição</label>
+          <textarea class="f-input" id="rfin-motivo" rows="3" placeholder="Descreva o motivo do ressarcimento..." style="resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-s" onclick="fecharModalRessarcFin()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
+          <button class="btn-p" onclick="imprimirRessarcFin()" style="flex:2;justify-content:center;"><i class="fas fa-print"></i> Gerar e Imprimir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
+<!-- RESSARCIMENTO FINANCEIRO -->
+<script>
+window.abrirModalRessarcFin = function() {
+  ['rfin-nome','rfin-cpf','rfin-valor','rfin-motivo'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  var m=document.getElementById('modalRessarcFin');
+  if(m) m.classList.add('open');
+  setTimeout(function(){ var el=document.getElementById('rfin-nome'); if(el) el.focus(); },100);
+};
+window.fecharModalRessarcFin = function() {
+  var m=document.getElementById('modalRessarcFin'); if(m) m.classList.remove('open');
+};
+
+function mascaraCPF_fin(el) {
+  var v=el.value.replace(/\D/g,'');
+  v=v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+  el.value=v;
+}
+function mascaraMoeda_fin(el) {
+  var v=el.value.replace(/\D/g,'');
+  v=(parseInt(v||'0')/100).toFixed(2).replace('.',',').replace(/(\d)(?=(\d{3})+(?!\d))/g,'$1.');
+  el.value=v;
+}
+
+function rssExtenso_fin(v) {
+  var n=parseFloat(String(v).replace(/\./g,'').replace(',','.'))||0;
+  var i=Math.floor(n),c=Math.round((n-i)*100);
+  var U=['','um','dois','tres','quatro','cinco','seis','sete','oito','nove'];
+  var E=['dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  var D=['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  var C=['','cem','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+  function cv(x){if(!x)return'';if(x===100)return'cem';if(x<10)return U[x];if(x<20)return E[x-10];if(x<100){var d2=Math.floor(x/10),u=x%10;return u?D[d2]+' e '+U[u]:D[d2];}if(x<1000){var cc=Math.floor(x/100),r=x%100;return(cc===1&&r)?'cento e '+cv(r):(r?C[cc]+' e '+cv(r):C[cc]);}if(x<1000000){var m=Math.floor(x/1000),r=x%1000;var mil=m===1?'mil':cv(m)+' mil';return r?mil+' e '+cv(r):mil;}return String(x);}
+  var pt=i===0?'zero reais':cv(i)+(i===1?' real':' reais');
+  return c?pt+' e '+cv(c)+(c===1?' centavo':' centavos'):pt;
+}
+
+window.imprimirRessarcFin = function() {
+  var nome  =(document.getElementById('rfin-nome')  ?document.getElementById('rfin-nome').value  :'').trim();
+  var cpf   =(document.getElementById('rfin-cpf')   ?document.getElementById('rfin-cpf').value   :'').trim();
+  var valor =(document.getElementById('rfin-valor') ?document.getElementById('rfin-valor').value :'').trim();
+  var motivo=(document.getElementById('rfin-motivo')?document.getElementById('rfin-motivo').value:'').trim();
+  if(!nome)  {alert('Informe o nome do paciente');return;}
+  if(!valor) {alert('Informe o valor');return;}
+  if(!motivo){alert('Informe o motivo');return;}
+
+  var vN  =parseFloat(valor.replace(/\./g,'').replace(',','.'))||0;
+  var ext =rssExtenso_fin(valor);
+  var logo=window.LOGO_FIN||sessionStorage.getItem('logoDataUrl')||'';
+  var cNome=sessionStorage.getItem('clinicaNome')||'SIM CLINICA MEDICA E ODONTOLOGICA LTDA';
+  var cCnpj=sessionStorage.getItem('clinicaCnpj')||'25.154.224/0001-89';
+  var cEnd =sessionStorage.getItem('clinicaEnd') ||'Avenida Doutor Felipe Pinel, 367 — Pirituba/SP';
+  var now  =new Date();
+  var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var dataFmt='São Paulo, '+now.getDate()+' de '+meses[now.getMonth()]+' de '+now.getFullYear();
+  var fmtV=function(n){return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+
+  var logoHtml=logo
+    ?'<img src="'+logo+'" alt="Logo">'
+    :'<span style="font-size:11px;font-weight:bold;">'+cNome+'</span>';
+
+  // Usa o mesmo CSS e estrutura do buildReciboBlock do financeiro
+  var RCSS=typeof RECIBO_CSS!=='undefined'?RECIBO_CSS:(
+    '@page{size:A4;margin:0.6cm 1cm}'
+    +'body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#000}'
+    +'.recibo-print{border:1.5px solid #000;padding:0.45cm 0.6cm;margin-bottom:0.35cm;}'
+    +'.rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}'
+    +'.recibo-logo img{height:36px;width:auto;object-fit:contain;}'
+    +'.titulo{font-size:13px;font-weight:bold;text-align:center;letter-spacing:.5px;flex:1;}'
+    +'.empresa-info{font-size:10px;text-align:right;line-height:1.4;}'
+    +'.divider{border:none;border-top:1px solid #000;margin:5px 0;}'
+    +'.recibo-campos{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:11px;margin-bottom:8px;line-height:1.6;}'
+    +'.campo-label{font-weight:bold;color:#333;}'
+    +'.valor-box{border:2px solid #000;padding:5px 10px;margin:7px 0;display:flex;align-items:center;gap:10px;}'
+    +'.valor-rs{font-size:16px;font-weight:bold;background:#1a1a1a;color:#fff;padding:3px 8px;}'
+    +'.valor-num{font-size:18px;font-weight:bold;letter-spacing:.5px;}'
+    +'.valor-extenso{font-size:10px;color:#333;margin-top:2px;font-style:italic;}'
+    +'.referente{font-size:11px;margin:5px 0;line-height:1.5;}'
+    +'.assinatura{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:20px;}'
+    +'.assin-bloco{text-align:center;}'
+    +'.assin-inner{display:inline-block;min-width:3cm;text-align:center;vertical-align:bottom;}'
+    +'.assin-linha{height:30px;border-bottom:1px solid #000;margin-bottom:3px;}'
+    +'.assin-nome{font-size:10px;white-space:nowrap;text-align:center;}'
+    +'.data-bloco{font-size:11px;text-align:right;white-space:nowrap;}'
+    +'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}'
+  );
+
+  var html='<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Ressarcimento</title>'
+    +'<style>'+RCSS+'</style></head><body>'
+    +'<div class="recibo-print">'
+    +'<div class="rh">'
+    +'<div class="recibo-logo">'+logoHtml+'</div>'
+    +'<div class="titulo">RESSARCIMENTO</div>'
+    +'<div class="empresa-info"><strong>'+cNome+'</strong><br>CNPJ: '+cCnpj+'<br>'+cEnd+'</div>'
+    +'</div>'
+    +'<hr class="divider">'
+    +'<div class="recibo-campos">'
+    +'<div><span class="campo-label">Paciente:</span> '+nome.toUpperCase()+'</div>'
+    +(cpf?'<div><span class="campo-label">CPF:</span> '+cpf+'</div>':'<div></div>')
+    +'</div>'
+    +'<div class="valor-box">'
+    +'<span class="valor-rs">R$</span>'
+    +'<div><div class="valor-num">'+fmtV(vN)+'</div>'
+    +'<div class="valor-extenso">'+ext.charAt(0).toUpperCase()+ext.slice(1)+'</div></div>'
+    +'</div>'
+    +'<div class="referente"><strong>Referente a: Ressarcimento</strong> — '+motivo+'</div>'
+    +'<div class="assinatura">'
+    +'<div class="assin-bloco"><div class="assin-inner">'
+    +'<div class="assin-linha"></div>'
+    +'<div class="assin-nome">'+nome.toUpperCase()+'</div>'
+    +'</div></div>'
+    +'<div class="data-bloco">'+dataFmt+'</div>'
+    +'</div>'
+    +'<div style="margin-top:14px;height:30px;border-bottom:1px solid #000;margin-bottom:3px;"></div>'
+    +'<div style="font-size:9px;color:#555;">Assinatura do funcionário</div>'
+    +'<div style="margin-top:10px;height:30px;border-bottom:1px solid #000;margin-bottom:3px;"></div>'
+    +'<div style="font-size:9px;color:#555;">Assinatura do supervisor / coordenador</div>'
+    +'</div>'
+    +'<'+'script>window.print();<'+'/script>'
+    +'</body></html>';
+
+  var w=window.open('','_blank');
+  if(!w){alert('Pop-up bloqueado — permita pop-ups para imprimir');return;}
+  w.document.write(html);
+  w.document.close();
+  window.fecharModalRessarcFin();
+};
+</script>
+<!-- VERSION: v1.1 | financeiro.html | 16/07/2026 | feat: recibo de ressarcimento com visual igual ao recibo de pagamento -->

@@ -67,7 +67,38 @@
     @media(max-width:900px){.caixa-nums{grid-template-columns:repeat(2,1fr);}}
     @media(max-width:768px){.caixa-grid{grid-template-columns:1fr;}.content{padding:14px 14px 60px;}.print-doc{width:100%;}.user-banner{flex-direction:column;align-items:flex-start;gap:12px;}}
     @media print{.preview-bar{display:none!important;}.preview-wrap{padding:0!important;}.print-doc{box-shadow:none!important;margin:0!important;width:100%!important;}}
+
+    /* ── ABAS DE NAVEGAÇÃO ── */
+    .nav-tabs{display:flex;gap:0;border-bottom:2px solid var(--gray-200);margin-bottom:0;padding:0 24px;background:white;}
+    .nav-tab{padding:12px 20px;border:none;border-bottom:3px solid transparent;background:none;font-family:inherit;font-size:13px;font-weight:600;color:var(--gray-500);cursor:pointer;margin-bottom:-2px;transition:all .15s;display:flex;align-items:center;gap:6px;}
+    .nav-tab:hover{color:var(--navy);}
+    .nav-tab.active{color:var(--navy);border-bottom-color:var(--navy);}
+    .tab-pane{display:none;}
+    .tab-pane.active{display:block;}
+    /* ── RECIBOS ── */
+    .recibo-section{background:white;border:1.5px solid var(--gray-200);border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+    .recibo-section-title{font-size:15px;font-weight:800;color:var(--navy);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--gray-100);display:flex;align-items:center;gap:8px;}
+    .recibo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+    .recibo-field label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500);margin-bottom:5px;}
+    .dif-badge{background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:10px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .dif-badge-lbl{font-size:12px;font-weight:700;color:#15803d;}
+    .dif-badge-val{font-size:20px;font-weight:900;color:#15803d;}
+    .aviso-box{background:#fef3c7;border-left:4px solid #b45309;padding:10px 14px;font-size:12px;color:#92400e;border-radius:0 8px 8px 0;margin-bottom:14px;line-height:1.5;}
+
   </style>
+
+  <script>
+    (function(){
+      var DIAS=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+      var d=new Date();
+      var badge=document.getElementById('dateBadge');
+      // badge ainda não existe aqui (head), então espera DOM
+      document.addEventListener('DOMContentLoaded',function(){
+        var el=document.getElementById('dateBadge');
+        if(el) el.textContent=DIAS[d.getDay()]+', '+d.getDate()+'/'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1);
+      });
+    })();
+  </script>
 </head>
 <body>
   <div class="red-bar"></div>
@@ -85,6 +116,14 @@
       </div>
     </div>
 
+    <!-- NAVEGAÇÃO DE ABAS -->
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchCaixaTab('caixa',this)"><i class="fas fa-cash-register"></i> Caixa</button>
+      <button class="nav-tab" onclick="switchCaixaTab('recibos',this)"><i class="fas fa-file-invoice"></i> Recibos</button>
+    </div>
+
+    <!-- ABA: CAIXA -->
+    <div class="tab-pane active" id="tabCaixa">
     <div class="content">
       <div class="user-banner">
         <div class="user-banner-info">
@@ -146,6 +185,47 @@
       </div>
     </div>
   </div>
+
+    </div><!-- /content -->
+    </div><!-- /tabCaixa -->
+
+    <!-- ABA: RECIBOS -->
+    <div class="tab-pane" id="tabRecibos">
+      <div style="padding:24px;max-width:800px;margin:0 auto;">
+
+        <!-- RESSARCIMENTO -->
+        <div class="recibo-section">
+          <div class="recibo-section-title"><i class="fas fa-file-circle-xmark" style="color:#C62828;"></i> Ressarcimento</div>
+          <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px;">Use quando a clínica precisa devolver um valor ao paciente.</p>
+          <div class="recibo-grid">
+            <div class="recibo-field" style="grid-column:1/-1;"><label>Nome do paciente</label><input class="f-input" id="rss-nome" type="text" placeholder="Nome completo do paciente"></div>
+            <div class="recibo-field"><label>CPF</label><input class="f-input" id="rss-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14"></div>
+            <div class="recibo-field"><label>Valor (R$)</label><input class="f-input" id="rss-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)"></div>
+            <div class="recibo-field" style="grid-column:1/-1;"><label>Motivo / Descrição detalhada</label><textarea class="f-input" id="rss-motivo" rows="3" placeholder="Descreva o motivo do ressarcimento em detalhes..." style="resize:vertical;"></textarea></div>
+          </div>
+          <button onclick="imprimirRessarc()" style="width:100%;padding:13px;border-radius:10px;border:none;background:#C62828;color:white;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-print"></i> Gerar Recibo de Ressarcimento</button>
+        </div>
+
+        <!-- ERRO DE SISTEMA -->
+        <div class="recibo-section">
+          <div class="recibo-section-title"><i class="fas fa-triangle-exclamation" style="color:#b45309;"></i> Erro de Sistema</div>
+          <div class="aviso-box"><strong>Quando usar:</strong> Valor recebido em dinheiro superior ao registrado no sistema. O excedente vai ao caixa do líder.</div>
+          <div class="recibo-grid">
+            <div class="recibo-field"><label>Atendente responsável</label><input class="f-input" id="es-atendente" type="text" placeholder="Nome do atendente"></div>
+            <div class="recibo-field"><label>Nome do paciente (opcional)</label><input class="f-input" id="es-paciente" type="text" placeholder="Nome do paciente"></div>
+            <div class="recibo-field"><label>Valor recebido (R$)</label><input class="f-input" id="es-recebido" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
+            <div class="recibo-field"><label>Valor no sistema (R$)</label><input class="f-input" id="es-sistema" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
+          </div>
+          <div class="dif-badge">
+            <div class="dif-badge-lbl">Diferença a encaminhar ao líder:</div>
+            <div class="dif-badge-val" id="es-dif">R$ 0,00</div>
+          </div>
+          <div class="recibo-field" style="margin-bottom:14px;"><label>Observação</label><textarea class="f-input" id="es-obs" rows="2" placeholder="Descreva o que ocorreu no sistema..." style="resize:vertical;"></textarea></div>
+          <button onclick="imprimirErroSistema()" style="width:100%;padding:13px;border-radius:10px;border:none;background:#b45309;color:white;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-print"></i> Gerar Recibo de Erro de Sistema</button>
+        </div>
+
+      </div>
+    </div><!-- /tabRecibos -->
 
   <!-- TELA DE PREVIEW DO RELATÓRIO -->
   <div class="preview-screen" id="telaPreview">
@@ -913,7 +993,20 @@
     window.imprimirRelatorio = function() {
       const win = window.open('', '_blank');
       if (!win) { toast('Permita pop-ups para imprimir', 'error'); return; }
-      const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}@page{size:A4;margin:1.5cm;}body{font-family:system-ui,-apple-system,sans-serif;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #d1d5db;padding:5px 7px;}</style></head><body><div style="padding:0;">' + document.getElementById('relatorioDoc').innerHTML + '</div><sc' + 'ript>window.onload=function(){setTimeout(function(){window.print();},300);}<' + '/script></body></html>';
+      const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}@page{size:A4;margin:1.5cm;}body{font-family:system-ui,-apple-system,sans-serif;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact;}table{width:100%;border-collapse:collapse;}th,td{border:1px solid #d1d5db;padding:5px 7px;}</style>
+  <script>
+    (function(){
+      var DIAS=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+      var d=new Date();
+      var badge=document.getElementById('dateBadge');
+      // badge ainda não existe aqui (head), então espera DOM
+      document.addEventListener('DOMContentLoaded',function(){
+        var el=document.getElementById('dateBadge');
+        if(el) el.textContent=DIAS[d.getDay()]+', '+d.getDate()+'/'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1);
+      });
+    })();
+  </script>
+</head><body><div style="padding:0;">' + document.getElementById('relatorioDoc').innerHTML + '</div><sc' + 'ript>window.onload=function(){setTimeout(function(){window.print();},300);}<' + '/script></body></html>';
       win.document.write(html);
       win.document.close();
     };
@@ -976,3 +1069,198 @@
   </script>
 </body>
 </html>
+<!-- RECIBOS + ABAS -->
+<script>
+/* ── Troca de abas ── */
+window.switchCaixaTab = function(tab, btn) {
+  document.querySelectorAll('.nav-tab').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.tab-pane').forEach(function(p){ p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+};
+
+/* ── Cálculo de diferença ── */
+window.calcularDif = function() {
+  function pN(v){ return parseFloat((v||'0').replace(/\./g,'').replace(',','.')) || 0; }
+  var rec = pN(document.getElementById('es-recebido') ? document.getElementById('es-recebido').value : '0');
+  var sis = pN(document.getElementById('es-sistema')  ? document.getElementById('es-sistema').value  : '0');
+  var dif = Math.max(0, rec - sis);
+  var el = document.getElementById('es-dif');
+  if (el) {
+    el.textContent = 'R$ ' + dif.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    el.style.color = dif > 0 ? '#15803d' : '#64748b';
+  }
+};
+
+/* ── Valor por extenso ── */
+function rssExtenso(v) {
+  var n = parseFloat(String(v).replace(/\./g,'').replace(',','.')) || 0;
+  var i = Math.floor(n), c = Math.round((n - i) * 100);
+  var U=['','um','dois','tres','quatro','cinco','seis','sete','oito','nove'];
+  var E=['dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  var D=['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  var C=['','cem','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+  function cv(x){
+    if(!x)return'';
+    if(x===100)return'cem';
+    if(x<10)return U[x];
+    if(x<20)return E[x-10];
+    if(x<100){var d2=Math.floor(x/10),u=x%10;return u?D[d2]+' e '+U[u]:D[d2];}
+    if(x<1000){var cc=Math.floor(x/100),r=x%100;return(cc===1&&r)?'cento e '+cv(r):(r?C[cc]+' e '+cv(r):C[cc]);}
+    if(x<1000000){var m=Math.floor(x/1000),r=x%1000;var mil=m===1?'mil':cv(m)+' mil';return r?mil+' e '+cv(r):mil;}
+    return String(x);
+  }
+  var pt = i===0?'zero reais':cv(i)+(i===1?' real':' reais');
+  return c ? pt+' e '+cv(c)+(c===1?' centavo':' centavos') : pt;
+}
+
+function pMoeda(v){ return parseFloat((v||'0').replace(/\./g,'').replace(',','.')) || 0; }
+function fMoeda(n){ return 'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+/* ── CSS dos recibos impressos ── */
+var RECIBO_CSS = '@page{size:A4;margin:0.6cm 1cm}'
+  + 'body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#000}'
+  + '.recibo-print{border:1.5px solid #000;padding:0.45cm 0.6cm;margin-bottom:0.35cm;}'
+  + '.rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}'
+  + '.recibo-logo img{height:36px;width:auto;object-fit:contain;}'
+  + '.titulo{font-size:13px;font-weight:bold;text-align:center;letter-spacing:.5px;flex:1;}'
+  + '.empresa-info{font-size:10px;text-align:right;line-height:1.4;}'
+  + '.divider{border:none;border-top:1px solid #000;margin:5px 0;}'
+  + '.campos{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:11px;margin-bottom:8px;line-height:1.6;}'
+  + '.clbl{font-weight:bold;color:#333;}'
+  + '.valor-box{border:2px solid #000;padding:5px 10px;margin:7px 0;display:flex;align-items:center;gap:10px;}'
+  + '.valor-rs{font-size:16px;font-weight:bold;background:#1a1a1a;color:#fff;padding:3px 8px;}'
+  + '.valor-num{font-size:18px;font-weight:bold;}'
+  + '.valor-ext{font-size:10px;color:#555;font-style:italic;}'
+  + '.referente{font-size:11px;margin:6px 0;line-height:1.6;}'
+  + '.assinatura{display:flex;justify-content:space-between;align-items:flex-end;margin-top:18px;gap:20px;}'
+  + '.assin-linha{border-top:1px solid #000;width:100%;margin-bottom:3px;margin-top:18px;}'
+  + '.assin-nome{font-size:10px;font-weight:bold;}'
+  + '.assin-lbl{font-size:9px;color:#555;}'
+  + '.campo-extra{font-size:11px;margin:5px 0;line-height:1.6;}'
+  + '.dif-box{border:2px solid #15803d;border-radius:4px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;margin:8px 0;background:#f0fdf4;}'
+  + '.dif-val{font-size:16px;font-weight:bold;color:#15803d;}'
+  + '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}';
+
+function logoHtml(logo, clinicaNome) {
+  return logo
+    ? '<img src="' + logo + '" alt="Logo" style="height:36px;width:auto;object-fit:contain;">'
+    : '<span style="font-size:11px;font-weight:bold;">' + clinicaNome + '</span>';
+}
+
+/* ── RESSARCIMENTO ── */
+window.imprimirRessarc = function() {
+  var nome   = (document.getElementById('rss-nome')  ? document.getElementById('rss-nome').value   : '').trim();
+  var cpf    = (document.getElementById('rss-cpf')   ? document.getElementById('rss-cpf').value    : '').trim();
+  var valor  = (document.getElementById('rss-valor') ? document.getElementById('rss-valor').value  : '').trim();
+  var motivo = (document.getElementById('rss-motivo')? document.getElementById('rss-motivo').value : '').trim();
+  if (!nome)   { mostrarNotificacao('Informe o nome do paciente'); return; }
+  if (!valor)  { mostrarNotificacao('Informe o valor'); return; }
+  if (!motivo) { mostrarNotificacao('Informe o motivo'); return; }
+
+  var vN  = pMoeda(valor);
+  var ext = rssExtenso(valor);
+  var now = new Date();
+  var meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var dataFmt = 'São Paulo, ' + now.getDate() + ' de ' + meses[now.getMonth()] + ' de ' + now.getFullYear();
+  var logo = sessionStorage.getItem('logoDataUrl') || '';
+  var clinicaN = sessionStorage.getItem('clinicaNome') || 'SIM CLINICA MEDICA E ODONTOLOGICA LTDA';
+  var clinicaC = sessionStorage.getItem('clinicaCnpj') || '25.154.224/0001-89';
+  var clinicaE = sessionStorage.getItem('clinicaEnd')  || 'Avenida Doutor Felipe Pinel, 367 — Pirituba/SP';
+
+  var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Ressarcimento</title>'
+    + '<style>' + RECIBO_CSS + '</style></head><body>'
+    + '<div class="recibo-print">'
+    + '<div class="rh">'
+    + '<div class="recibo-logo">' + logoHtml(logo, clinicaN) + '</div>'
+    + '<div class="titulo">RESSARCIMENTO</div>'
+    + '<div class="empresa-info"><strong>' + clinicaN + '</strong><br>CNPJ: ' + clinicaC + '<br>' + clinicaE + '</div>'
+    + '</div>'
+    + '<hr class="divider">'
+    + '<div class="campos">'
+    + '<div><span class="clbl">Paciente:</span> ' + nome.toUpperCase() + '</div>'
+    + (cpf ? '<div><span class="clbl">CPF:</span> ' + cpf + '</div>' : '<div></div>')
+    + '</div>'
+    + '<div class="valor-box">'
+    + '<div class="valor-rs">R$</div>'
+    + '<div><div class="valor-num">' + fMoeda(vN).replace('R$ ','') + '</div>'
+    + '<div class="valor-ext">' + ext.charAt(0).toUpperCase() + ext.slice(1) + '</div></div>'
+    + '</div>'
+    + '<div class="referente"><strong>Motivo:</strong> ' + motivo + '</div>'
+    + '<div class="assinatura">'
+    + '<div style="flex:1"><div class="assin-linha"></div>'
+    + '<div class="assin-nome">' + nome.toUpperCase() + '</div>'
+    + '<div class="assin-lbl">Assinatura do paciente</div></div>'
+    + '<div style="text-align:right;font-size:10px;">' + dataFmt + '</div>'
+    + '</div>'
+    + '<div style="margin-top:14px;"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do funcionário</div></div>'
+    + '<div style="margin-top:10px;"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do supervisor / coordenador</div></div>'
+    + '</div>'
+    + '<' + 'script>window.onload=function(){setTimeout(function(){window.print();},400);};<' + '/script>'
+    + '</body></html>';
+
+  var w = window.open('', '_blank');
+  if (!w) { mostrarNotificacao('Pop-up bloqueado — permita pop-ups para imprimir'); return; }
+  w.document.write(html);
+  w.document.close();
+};
+
+/* ── ERRO DE SISTEMA ── */
+window.imprimirErroSistema = function() {
+  var atend = (document.getElementById('es-atendente') ? document.getElementById('es-atendente').value : '').trim();
+  var pac   = (document.getElementById('es-paciente')  ? document.getElementById('es-paciente').value  : '').trim();
+  var recV  = (document.getElementById('es-recebido')  ? document.getElementById('es-recebido').value  : '').trim();
+  var sisV  = (document.getElementById('es-sistema')   ? document.getElementById('es-sistema').value   : '').trim();
+  var obs   = (document.getElementById('es-obs')       ? document.getElementById('es-obs').value       : '').trim();
+  if (!atend) { mostrarNotificacao('Informe o atendente'); return; }
+  if (!recV)  { mostrarNotificacao('Informe o valor recebido'); return; }
+  if (!sisV)  { mostrarNotificacao('Informe o valor no sistema'); return; }
+
+  var recN = pMoeda(recV), sisN = pMoeda(sisV), difN = Math.max(0, recN - sisN);
+  var extD = rssExtenso(difN.toFixed(2).replace('.',','));
+  var now = new Date();
+  var meses = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var dataFmt = 'São Paulo, ' + now.getDate() + ' de ' + meses[now.getMonth()] + ' de ' + now.getFullYear();
+  var logo = sessionStorage.getItem('logoDataUrl') || '';
+  var clinicaN = sessionStorage.getItem('clinicaNome') || 'SIM CLINICA MEDICA E ODONTOLOGICA LTDA';
+  var clinicaC = sessionStorage.getItem('clinicaCnpj') || '25.154.224/0001-89';
+  var clinicaE = sessionStorage.getItem('clinicaEnd')  || 'Avenida Doutor Felipe Pinel, 367 — Pirituba/SP';
+
+  var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Erro de Sistema</title>'
+    + '<style>' + RECIBO_CSS + '</style></head><body>'
+    + '<div class="recibo-print">'
+    + '<div class="rh">'
+    + '<div class="recibo-logo">' + logoHtml(logo, clinicaN) + '</div>'
+    + '<div class="titulo">ERRO DE SISTEMA</div>'
+    + '<div class="empresa-info"><strong>' + clinicaN + '</strong><br>CNPJ: ' + clinicaC + '<br>' + clinicaE + '</div>'
+    + '</div>'
+    + '<hr class="divider">'
+    + '<div class="campos">'
+    + '<div><span class="clbl">Atendente:</span> ' + atend + '</div>'
+    + (pac ? '<div><span class="clbl">Paciente:</span> ' + pac + '</div>' : '<div></div>')
+    + '<div><span class="clbl">Valor recebido:</span> ' + fMoeda(recN) + '</div>'
+    + '<div><span class="clbl">Valor no sistema:</span> ' + fMoeda(sisN) + '</div>'
+    + '</div>'
+    + '<div class="dif-box">'
+    + '<div><strong>Diferença a encaminhar ao líder:</strong><br><span style="font-size:10px;color:#555;font-style:italic;">' + extD.charAt(0).toUpperCase() + extD.slice(1) + '</span></div>'
+    + '<div class="dif-val">' + fMoeda(difN) + '</div>'
+    + '</div>'
+    + (obs ? '<div class="campo-extra"><strong>Observação:</strong> ' + obs + '</div>' : '')
+    + '<div class="assinatura">'
+    + '<div style="flex:1"><div class="assin-linha"></div>'
+    + '<div class="assin-nome">' + atend.toUpperCase() + '</div>'
+    + '<div class="assin-lbl">Assinatura do atendente</div></div>'
+    + '<div style="text-align:right;font-size:10px;">' + dataFmt + '</div>'
+    + '</div>'
+    + '<div style="margin-top:10px;"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do supervisor / líder de caixa</div></div>'
+    + '</div>'
+    + '<' + 'script>window.onload=function(){setTimeout(function(){window.print();},400);};<' + '/script>'
+    + '</body></html>';
+
+  var w = window.open('', '_blank');
+  if (!w) { mostrarNotificacao('Pop-up bloqueado — permita pop-ups para imprimir'); return; }
+  w.document.write(html);
+  w.document.close();
+};
+</script>
+<!-- VERSION: v1.7 | caixa.html | 16/07/2026 | feat: aba Recibos separada, fix dateBadge, visual igual financeiro -->
