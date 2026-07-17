@@ -1,4 +1,4 @@
-<!-- VERSION: v2.1 | orcamentos.html | 17/07/2026 | fix: planilha VF removida, Topografia agora só em OFTALMO a R$ 240 -->
+<!-- VERSION: v2.2 | orcamentos.html | 17/07/2026 | fix: (Cada) sem _ e —, seletor qtd em parceiros, VF e Marcus removidos -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1042,10 +1042,12 @@
       const obsUnidade   = opt ? (opt.obsUnidade||'') : '';
       const fTotal = fmtBRL(total), fGuia = fmtBRL(guia), fResta = fmtBRL(resta);
 
-      const _sufCada = isCobrado2(e.nome)
-        ? '\n⚠️ _Atenção: este exame é cobrado como 2 exames — o valor já contempla ambos._'
-        : isTcRm(e.nome) ? ' _(valor por exame — Cada)_' : '';
-      let m = `🏥 *${e.nome}*${_sufCada}\n`;
+      const _qty = (_partnerQty||1);
+      const _sufQty = _qty > 1
+        ? ' _(×2 — valor total para 2)_'
+        : isCobrado2(e.nome) ? '\n⚠️ _Atenção: cobrado como 2 exames — o valor já contempla ambos._'
+        : isTcRm(e.nome) ? ' (Cada)' : '';
+      let m = `🏥 *${e.nome}*${_sufQty}\n`;
       m += `📍 Realizado na clínica parceira *${nomeParceiro}*\n`;
 
       // Endereço para IMADI
@@ -1106,9 +1108,12 @@
       const obs = opt ? opt.obs : e.partnerObs;
       const tel = opt ? opt.tel : e.partnerTel;
       const obsUnidade = opt ? (opt.obsUnidade||'') : '';
-      const total = opt ? opt.total : e.total;
-      const guia  = opt ? opt.guia  : e.guia;
-      const resta = opt ? opt.resta : e.resta;
+      const _baseTotal = opt ? opt.total : e.total;
+      const _baseGuia  = opt ? opt.guia  : e.guia;
+      const _baseResta = opt ? opt.resta : e.resta;
+      const total = _baseTotal * (_partnerQty||1);
+      const guia  = _baseGuia  * (_partnerQty||1);
+      const resta = _baseResta * (_partnerQty||1);
       const nome  = opt ? opt.nome  : e.partnerNome;
       return `
         ${(tel || obs || obsUnidade) ? `
@@ -1130,12 +1135,24 @@
     }
 
     let _selectedPartnerOpt = null;
+    let _partnerQty = 1; // 1 ou 2 para TC/RM(cada)/ENMG em parceiros
 
     function openPartnerModal(e) {
       const opts = e.partnerOptions || [];
       const multiPartner = opts.length > 1;
       const defaultOpt = opts.length === 1 ? opts[0] : null;
       _selectedPartnerOpt = defaultOpt;
+      _partnerQty = 1; // sempre começa em 1 ao abrir modal
+
+      const needsQty = examNeedsPrompt(e);
+      const isEMG = normalize(e.nome).includes('eletroneuromiografia')||normalize(e.nome).includes('enmg')||normalize(e.nome).includes('eletromiografia');
+      const qtyLabel1 = isEMG ? '1 Membro' : '1 Exame';
+      const qtyLabel2 = isEMG ? '2 Membros' : '2 Exames';
+
+      window._setPartnerQty = function(q) {
+        _partnerQty = q;
+        render();
+      };
 
       const headerHtml = `
         <div class="modal-head">
@@ -1149,7 +1166,13 @@
             </div>
           </div>
           <button class="modal-close" id="closeBtn"><i class="fas fa-xmark"></i></button>
-        </div>`;
+        </div>
+        ${needsQty ? `
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:#f8fafc;border-bottom:1px solid var(--gray-200);">
+          <span style="font-size:12px;font-weight:700;color:var(--gray-500);">Quantidade:</span>
+          <button id="qty1Btn" onclick="_setPartnerQty(1)" style="padding:5px 14px;border-radius:8px;border:1.5px solid ${_partnerQty===1?'var(--navy)':'var(--gray-200)'};background:${_partnerQty===1?'var(--navy)':'white'};color:${_partnerQty===1?'white':'var(--gray-600)'};font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">${qtyLabel1}</button>
+          <button id="qty2Btn" onclick="_setPartnerQty(2)" style="padding:5px 14px;border-radius:8px;border:1.5px solid ${_partnerQty===2?'var(--navy)':'var(--gray-200)'};background:${_partnerQty===2?'var(--navy)':'white'};color:${_partnerQty===2?'white':'var(--gray-600)'};font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">${qtyLabel2}</button>
+        </div>` : ''}`;
 
       function buildBody() {
         if (multiPartner) {
@@ -1642,13 +1665,13 @@
     function cleanStr(v){return v==null?'':String(v).trim().replace(/\n/g,' ').replace(/\\n/g,' ');}
     function looksLikeExamName(s){if(!s||s.length<3)return false;const u=s.toUpperCase();const bad=['NOME DO EXAME','CARTÃO DE TODOS','PARTICULAR','VALOR TOTAL','VALOR GUIA','AGENDAMENTO','OBSERVAÇÃO','PROCEDIMENTO ','PRESTADOR','OBS:','WHATSAPP','CONTRASTE','ENDEREÇO','CNPJ','NÃO AGENDAR','TODOS OS EXAMES','COBRADO','COD ','PROCEDIMENTO P'];for(const b of bad)if(u.startsWith(b))return false;if(['NAN','-','.'].includes(u))return false;return true;}
     function parseWorkbook(wb){
-      const result=[],skipNames=new Set(['amor cirugias','amor cirugias ','vf','vf ']);
+      const result=[],skipNames=new Set(['amor cirugias','amor cirugias ','vf','vf ','marcus (urologista)','marcus (urologista) ']);
       const fornMap={
         'EXAMES  AMOR SAUDE ':'Amor Saúde','USG ':'USG (Equipe Interna)','IMADI-IMAGEM':'IMADI Imagem',
         'OFTALMO':'Oftalmologia','TC PREZECOR':'Prezecor (TC)','SCOPPETA':'Scoppeta',
         'PREZECOR 2.0':'Prezecor 2.0','DERMATOLOGIA':'Dermatologia',
         'MEDICOM 2.0':'Medicom 2.0','FARAGE - OCULTO':'Farage',
-        'MARCUS (UROLOGISTA)':'Marcus (Urologia)','PREZECOR':'Prezecor',
+        'PREZECOR':'Prezecor',
         'MEDICOM':'Medicom','CERGOLI - LAPA':'Cergoli (Lapa)','AURI MEDICINA':'Auri Medicina'
       };
       for(const sheetName of wb.SheetNames){
@@ -1669,6 +1692,6 @@
       cur=writeBatch(db);cnt=0;const ins=[];for(const e of list){const ref=doc(db,'orcamentos_exames',e.id);const{id,...data}=e;cur.set(ref,{...data,createdAt:new Date().toISOString(),createdBy:currentUser.email});if(++cnt>=400){ins.push(cur);cur=writeBatch(db);cnt=0;}}if(cnt>0)ins.push(cur);for(const b of ins)await b.commit();
     }
   </script>
-<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v2.1 · 17/07/2026</span>
+<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v2.2 · 17/07/2026</span>
 </body>
 </html>
