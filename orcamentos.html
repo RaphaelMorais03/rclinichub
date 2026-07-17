@@ -1,4 +1,4 @@
-<!-- VERSION: v1.9 | orcamentos.html | 07/07/2026 | fix: Auri Medicina - telefone liberado para paciente, removida restrição de aviso -->
+<!-- VERSION: v2.1 | orcamentos.html | 17/07/2026 | fix: planilha VF removida, Topografia agora só em OFTALMO a R$ 240 -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1003,6 +1003,7 @@
                 <span class="partner-badge"><i class="fas fa-hospital" style="font-size:9px;"></i> ${multiPartner?opts.length+' clínicas':'Parceiro'}</span>
               </div>
               <div class="card-name">${escapeHtml(e.nome)}</div>
+              ${isCobrado2(e.nome)?`<span style="display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#92400e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;margin-bottom:4px;"><i class="fas fa-triangle-exclamation" style="font-size:9px;"></i> Cobrado como 2 exames</span>`:isTcRm(e.nome)?`<span style="display:inline-flex;align-items:center;gap:4px;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;margin-bottom:4px;"><i class="fas fa-info-circle" style="font-size:9px;"></i> Valor por exame (Cada)</span>`:''}
               ${partnerTags}
               <div class="card-prices">
                 ${multiPartner
@@ -1020,6 +1021,7 @@
               ${e._precoDivergente?`<span class="partner-badge" title="Havia preços diferentes cadastrados para este exame — foi usado o valor mais frequente. Revisar." style="background:#fef3c7;color:var(--amber);"><i class="fas fa-triangle-exclamation" style="font-size:9px;"></i> revisar preço</span>`:''}
             </div>
             <div class="card-name">${escapeHtml(e.nome)}</div>
+            ${isCobrado2(e.nome)?`<span style="display:inline-flex;align-items:center;gap:4px;background:#fef3c7;color:#92400e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;margin-bottom:4px;"><i class="fas fa-triangle-exclamation" style="font-size:9px;"></i> Cobrado como 2 exames</span>`:isTcRm(e.nome)?`<span style="display:inline-flex;align-items:center;gap:4px;background:#eff6ff;color:#1d4ed8;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;margin-bottom:4px;"><i class="fas fa-info-circle" style="font-size:9px;"></i> Valor por exame (Cada)</span>`:''}
             ${e.fornecedor?`<div class="card-forn"><i class="fas fa-building" style="font-size:9px;margin-right:3px;"></i>${escapeHtml(e.fornecedor)}</div>`:''}
             <div class="card-prices">
               <div class="price-box ct"><div class="price-lbl">Cartão</div><div class="price-val">${e.preco_ct!=null?fmtBRL(e.preco_ct):'<span class="price-null">—</span>'}</div></div>
@@ -1040,7 +1042,10 @@
       const obsUnidade   = opt ? (opt.obsUnidade||'') : '';
       const fTotal = fmtBRL(total), fGuia = fmtBRL(guia), fResta = fmtBRL(resta);
 
-      let m = `🏥 *${e.nome}*\n`;
+      const _sufCada = isCobrado2(e.nome)
+        ? '\n⚠️ _Atenção: este exame é cobrado como 2 exames — o valor já contempla ambos._'
+        : isTcRm(e.nome) ? ' _(valor por exame — Cada)_' : '';
+      let m = `🏥 *${e.nome}*${_sufCada}\n`;
       m += `📍 Realizado na clínica parceira *${nomeParceiro}*\n`;
 
       // Endereço para IMADI
@@ -1387,10 +1392,36 @@
     }
 
 
+
+    // ── Classificação TC/RM (Cada / 2 exames / único) ──────────────────
+    function isTcRm(nome) {
+      const n = normalize(nome);
+      return n.startsWith('tc ') || n.startsWith('rm ') ||
+             n.startsWith('angio-rm') || n.startsWith('angio-tc') ||
+             n.includes(' tc ') || n.includes(' rm ');
+    }
+    function isCobrado2(nome) {
+      return normalize(nome).includes('cobrado 2') || normalize(nome).includes('cobrado dois');
+    }
+    function isCadaExame(nome) {
+      const n = normalize(nome);
+      return (n.includes('tc ') || n.includes('rm ')) &&
+             (n.includes('(cada)') || n.includes('cada)') || n.endsWith(' cada'));
+    }
+    function labelCada(nome) {
+      // Rótulo "(Cada)" ou "⚠️ 2 exames" para exibição no card/mensagem
+      if (isCobrado2(nome)) return '2x';
+      if (isCadaExame(nome)) return 'cada';
+      if (isTcRm(nome)) return 'cada';
+      return null;
+    }
+
     function examNeedsPrompt(e) {
       const n = normalize(e.nome);
-      return n.includes('eletroneuromiografia')||n.includes('eletromiografia')||n.includes('enmg')||n.includes('miografia')||
-             (n.includes('potencial')&&(n.includes('auditi')||n.includes('bera')||n.includes('peate')||n.includes('visual')||n.includes('pev')));
+      const isEMG = n.includes('eletroneuromiografia')||n.includes('eletromiografia')||n.includes('enmg')||n.includes('miografia')||
+                    (n.includes('potencial')&&(n.includes('auditi')||n.includes('bera')||n.includes('peate')||n.includes('visual')||n.includes('pev')));
+      const isCada = isCadaExame(e.nome); // TC/RM com "(cada)" no nome
+      return isEMG || isCada;
     }
     let _qtyPending=null, _qtyOpts=[];
     function promptAddToCart(id, tipo) {
@@ -1400,11 +1431,14 @@
       const n=normalize(e.nome), preco=tipo==='ct'?e.preco_ct:e.preco_pt;
       const f1=fmtBRL(preco), f2=fmtBRL(preco*2);
       const isEMG=n.includes('eletroneuromiografia')||n.includes('eletromiografia')||n.includes('enmg')||n.includes('miografia');
+      const isCada=isCadaExame(e.nome);
       _qtyPending={id,tipo};
       _qtyOpts=isEMG
         ?[{label:'1 membro',price:f1,mult:1,suffix:'— 1 Membro'},{label:'2 membros',price:f2,mult:2,suffix:'— 2 Membros'}]
-        :[{label:'Unilateral',price:f1,mult:1,suffix:'Unilateral'},{label:'Bilateral',price:f2,mult:2,suffix:'Bilateral'}];
-      document.getElementById('qtyTitle').textContent=isEMG?'Quantos membros serão examinados?':'Unilateral ou Bilateral?';
+        :isCada
+          ?[{label:'1 exame',price:f1,mult:1,suffix:'— 1 Exame'},{label:'2 exames',price:f2,mult:2,suffix:'— 2 Exames'}]
+          :[{label:'Unilateral',price:f1,mult:1,suffix:'Unilateral'},{label:'Bilateral',price:f2,mult:2,suffix:'Bilateral'}];
+      document.getElementById('qtyTitle').textContent=isEMG?'Quantos membros serão examinados?':isCada?'Quantos exames serão realizados?':'Unilateral ou Bilateral?';
       document.getElementById('qtySub').textContent=e.nome;
       document.getElementById('qtyOpts').innerHTML=_qtyOpts.map((o,i)=>`<button class="qty-opt" onclick="qtyConfirm(${i})"><span>${o.label}</span><span class="qty-price">${o.price}</span></button>`).join('');
       document.getElementById('qtyOverlay').classList.add('show');
@@ -1608,15 +1642,14 @@
     function cleanStr(v){return v==null?'':String(v).trim().replace(/\n/g,' ').replace(/\\n/g,' ');}
     function looksLikeExamName(s){if(!s||s.length<3)return false;const u=s.toUpperCase();const bad=['NOME DO EXAME','CARTÃO DE TODOS','PARTICULAR','VALOR TOTAL','VALOR GUIA','AGENDAMENTO','OBSERVAÇÃO','PROCEDIMENTO ','PRESTADOR','OBS:','WHATSAPP','CONTRASTE','ENDEREÇO','CNPJ','NÃO AGENDAR','TODOS OS EXAMES','COBRADO','COD ','PROCEDIMENTO P'];for(const b of bad)if(u.startsWith(b))return false;if(['NAN','-','.'].includes(u))return false;return true;}
     function parseWorkbook(wb){
-      const result=[],skipNames=new Set(['amor cirugias','amor cirugias ']);
+      const result=[],skipNames=new Set(['amor cirugias','amor cirugias ','vf','vf ']);
       const fornMap={
         'EXAMES  AMOR SAUDE ':'Amor Saúde','USG ':'USG (Equipe Interna)','IMADI-IMAGEM':'IMADI Imagem',
         'OFTALMO':'Oftalmologia','TC PREZECOR':'Prezecor (TC)','SCOPPETA':'Scoppeta',
         'PREZECOR 2.0':'Prezecor 2.0','DERMATOLOGIA':'Dermatologia',
         'MEDICOM 2.0':'Medicom 2.0','FARAGE - OCULTO':'Farage',
         'MARCUS (UROLOGISTA)':'Marcus (Urologia)','PREZECOR':'Prezecor',
-        'MEDICOM':'Medicom','CERGOLI - LAPA':'Cergoli (Lapa)','AURI MEDICINA':'Auri Medicina',
-        'VF':'VF Oftalmologia'
+        'MEDICOM':'Medicom','CERGOLI - LAPA':'Cergoli (Lapa)','AURI MEDICINA':'Auri Medicina'
       };
       for(const sheetName of wb.SheetNames){
         const lower=sheetName.toLowerCase();
@@ -1636,6 +1669,6 @@
       cur=writeBatch(db);cnt=0;const ins=[];for(const e of list){const ref=doc(db,'orcamentos_exames',e.id);const{id,...data}=e;cur.set(ref,{...data,createdAt:new Date().toISOString(),createdBy:currentUser.email});if(++cnt>=400){ins.push(cur);cur=writeBatch(db);cnt=0;}}if(cnt>0)ins.push(cur);for(const b of ins)await b.commit();
     }
   </script>
-<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.9 · 07/07/2026</span>
+<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v2.1 · 17/07/2026</span>
 </body>
 </html>
