@@ -172,23 +172,50 @@
     <div class="tab-pane" id="tabRecibos">
       <div style="padding:24px;max-width:760px;margin:0 auto;">
 
-        <!-- RESSARCIMENTO -->
+        <!-- AVISO GERAL -->
+        <div style="background:#fff1f2;border:1.5px solid #fecaca;border-radius:12px;padding:14px 18px;margin-bottom:22px;display:flex;align-items:flex-start;gap:10px;">
+          <i class="fas fa-circle-exclamation" style="color:#C62828;font-size:16px;margin-top:1px;flex-shrink:0;"></i>
+          <div style="font-size:12px;color:#7f1d1d;line-height:1.6;">
+            <strong>Todos os recibos só serão aceitos mediante o cumprimento das orientações abaixo.</strong><br>
+            O não cumprimento pode resultar em desconto do colaborador em caso de não comprovação e descumprimento das instruções.
+          </div>
+        </div>
+
+        <!-- RECIBO RESSARCIMENTO -->
         <div class="recibo-sec">
-          <div class="recibo-sec-title"><i class="fas fa-file-circle-xmark" style="color:#C62828;"></i> Ressarcimento</div>
-          <p style="font-size:13px;color:var(--gray-500);margin-bottom:16px;">Use quando a clínica precisa devolver um valor ao paciente.</p>
+          <div class="recibo-sec-title"><i class="fas fa-file-circle-xmark" style="color:#C62828;"></i> Recibo Ressarcimento</div>
+          <div style="background:#f8fafc;border:1px solid var(--gray-200);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-500);margin-bottom:8px;">Quando usar</div>
+            <p style="font-size:13px;color:var(--gray-600);line-height:1.6;margin-bottom:10px;">Quando estamos estornando algum valor para o paciente.</p>
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-500);margin-bottom:6px;">Documentos obrigatórios</div>
+            <ul style="font-size:12px;color:var(--gray-600);line-height:1.9;padding-left:16px;margin:0;">
+              <li>Cópia do Documento do paciente (RG ou CPF)</li>
+              <li>Recibo de pagamento</li>
+              <li>Assinatura do paciente e da liderança no recibo</li>
+            </ul>
+          </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
             <div style="grid-column:1/-1;"><label class="f-label">Nome do paciente</label><input class="f-input" id="rss-nome" type="text" placeholder="Nome completo do paciente"></div>
             <div><label class="f-label">CPF</label><input class="f-input" id="rss-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14"></div>
             <div><label class="f-label">Valor (R$)</label><input class="f-input" id="rss-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)"></div>
             <div style="grid-column:1/-1;"><label class="f-label">Motivo / Descrição detalhada</label><textarea class="f-input" id="rss-motivo" rows="3" placeholder="Descreva o motivo do ressarcimento..." style="resize:vertical;"></textarea></div>
           </div>
-          <button onclick="imprimirRessarc()" style="width:100%;padding:13px;border-radius:10px;border:none;background:#C62828;color:white;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-print"></i> Gerar Recibo de Ressarcimento</button>
+          <button onclick="imprimirRessarc()" style="width:100%;padding:13px;border-radius:10px;border:none;background:#C62828;color:white;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-print"></i> Gerar Recibo Ressarcimento</button>
         </div>
 
-        <!-- ERRO DE SISTEMA -->
+        <!-- RECIBO ERRO DE SISTEMA -->
         <div class="recibo-sec">
-          <div class="recibo-sec-title"><i class="fas fa-triangle-exclamation" style="color:#b45309;"></i> Erro de Sistema</div>
-          <div class="aviso-box"><strong>Quando usar:</strong> Valor recebido em dinheiro superior ao registrado no sistema. O excedente vai ao caixa do líder.</div>
+          <div class="recibo-sec-title"><i class="fas fa-triangle-exclamation" style="color:#b45309;"></i> Recibo Erro de Sistema</div>
+          <div style="background:#f8fafc;border:1px solid var(--gray-200);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-500);margin-bottom:8px;">Quando usar</div>
+            <p style="font-size:13px;color:var(--gray-600);line-height:1.6;margin-bottom:10px;">Quando recebemos um valor a mais em dinheiro e mandamos para um dos caixas da liderança, pois no sistema o valor está incorreto.</p>
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-500);margin-bottom:6px;">Documentos obrigatórios</div>
+            <ul style="font-size:12px;color:var(--gray-600);line-height:1.9;padding-left:16px;margin:0;">
+              <li>Cópia do Documento do paciente (RG ou CPF)</li>
+              <li>Recibo de pagamento</li>
+              <li>Assinatura do paciente e da liderança</li>
+            </ul>
+          </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;">
             <div><label class="f-label">Atendente responsável</label><input class="f-input" id="es-atendente" type="text" placeholder="Nome do atendente"></div>
             <div><label class="f-label">Nome do paciente (opcional)</label><input class="f-input" id="es-paciente" type="text" placeholder="Nome do paciente"></div>
@@ -200,7 +227,31 @@
             <span style="font-size:20px;font-weight:900;color:#15803d;" id="es-dif">R$ 0,00</span>
           </div>
           <div style="margin-bottom:14px;"><label class="f-label">Observação</label><textarea class="f-input" id="es-obs" rows="2" placeholder="Descreva o que ocorreu no sistema..." style="resize:vertical;"></textarea></div>
-          <button onclick="imprimirErroSistema()" style="width:100%;padding:13px;border-radius:10px;border:none;background:#b45309;color:white;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-print"></i> Gerar Recibo de Erro de Sistema</button>
+          <button onclick="imprimirErroSistema()" style="width:100%;padding:13px;border-radius:10px;border:none;background:#b45309;color:white;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-print"></i> Gerar Recibo Erro de Sistema</button>
+        </div>
+
+        <!-- RECIBO BONIFICAÇÃO -->
+        <div class="recibo-sec">
+          <div class="recibo-sec-title"><i class="fas fa-hand-holding-heart" style="color:#15803d;"></i> Recibo Bonificação</div>
+          <div style="background:#f8fafc;border:1px solid var(--gray-200);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-500);margin-bottom:8px;">Quando usar</div>
+            <p style="font-size:13px;color:var(--gray-600);line-height:1.6;margin-bottom:10px;">Quando houve algum problema com receita, atestado ou relatório e, por autorização da liderança e do profissional médico, é necessário bonificar a consulta ao paciente para corrigir um erro da parte da unidade.</p>
+            <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-500);margin-bottom:6px;">Documentos obrigatórios</div>
+            <ul style="font-size:12px;color:var(--gray-600);line-height:1.9;padding-left:16px;margin:0;">
+              <li>Documento do paciente (RG ou CPF)</li>
+              <li>Recibo de pagamento da consulta anterior que ocasionou a falha/erro</li>
+              <li>Assinatura do paciente e da liderança</li>
+            </ul>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div style="grid-column:1/-1;"><label class="f-label">Nome do paciente</label><input class="f-input" id="bon-nome" type="text" placeholder="Nome completo do paciente"></div>
+            <div><label class="f-label">CPF</label><input class="f-input" id="bon-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14"></div>
+            <div><label class="f-label">Valor bonificado (R$)</label><input class="f-input" id="bon-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)"></div>
+            <div><label class="f-label">Profissional / Médico autorizador</label><input class="f-input" id="bon-medico" type="text" placeholder="Nome do médico responsável"></div>
+            <div><label class="f-label">Liderança autorizadora</label><input class="f-input" id="bon-lider" type="text" placeholder="Nome da liderança"></div>
+            <div style="grid-column:1/-1;"><label class="f-label">Descrição do problema / erro</label><textarea class="f-input" id="bon-motivo" rows="3" placeholder="Descreva o problema que gerou a necessidade de bonificação..." style="resize:vertical;"></textarea></div>
+          </div>
+          <button onclick="imprimirBonificacao()" style="width:100%;padding:13px;border-radius:10px;border:none;background:#15803d;color:white;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-print"></i> Gerar Recibo Bonificação</button>
         </div>
 
       </div>
@@ -1194,5 +1245,79 @@ window.imprimirErroSistema = function() {
     +'</body></html>';
   _rxPrint(html);
 };
+window.imprimirBonificacao = function() {
+  var nome   = _rxGet('bon-nome');
+  var cpf    = _rxGet('bon-cpf');
+  var valor  = _rxGet('bon-valor');
+  var medico = _rxGet('bon-medico');
+  var lider  = _rxGet('bon-lider');
+  var motivo = _rxGet('bon-motivo');
+  if (!nome)   { mostrarNotificacao('Informe o nome do paciente'); return; }
+  if (!valor)  { mostrarNotificacao('Informe o valor bonificado'); return; }
+  if (!medico) { mostrarNotificacao('Informe o profissional autorizador'); return; }
+  if (!lider)  { mostrarNotificacao('Informe a liderança autorizadora'); return; }
+  if (!motivo) { mostrarNotificacao('Descreva o problema/erro'); return; }
+
+  var vN  = _rxPM(valor);
+  var ext = _rxExt(valor);
+  var now = new Date();
+  var meses = ['Janeiro','Fevereiro','Marco','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var data = 'Sao Paulo, '+now.getDate()+' de '+meses[now.getMonth()]+' de '+now.getFullYear();
+  var logo = sessionStorage.getItem('logoDataUrl') || '';
+  var cNome = sessionStorage.getItem('clinicaNome') || 'SIM CLINICA MEDICA E ODONTOLOGICA LTDA';
+  var cCnpj = sessionStorage.getItem('clinicaCnpj') || '25.154.224/0001-89';
+  var cEnd  = sessionStorage.getItem('clinicaEnd')  || 'Av. Dr. Felipe Pinel, 367 - Pirituba/SP';
+  var logoHTML = logo
+    ? '<img src="'+logo+'" alt="Logo" style="height:36px;width:auto;object-fit:contain;">'
+    : '<span style="font-size:11px;font-weight:bold;">'+cNome+'</span>';
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Recibo Bonificacao</title>'
+    +'<style>@page{size:A4;margin:0.6cm 1cm}'
+    +'body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#000}'
+    +'.rp{border:1.5px solid #000;padding:0.45cm 0.6cm;}'
+    +'.rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}'
+    +'.rl img{height:36px;width:auto;object-fit:contain;}'
+    +'.rt{font-size:13px;font-weight:bold;text-align:center;letter-spacing:.5px;flex:1;}'
+    +'.ri{font-size:10px;text-align:right;line-height:1.4;}'
+    +'.rd{border:none;border-top:1px solid #000;margin:5px 0;}'
+    +'.rc{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:11px;margin-bottom:8px;line-height:1.6;}'
+    +'.clb{font-weight:bold;color:#333;}'
+    +'.vb{border:2px solid #000;padding:5px 10px;margin:7px 0;display:flex;align-items:center;gap:10px;}'
+    +'.vr{font-size:16px;font-weight:bold;background:#15803d;color:#fff;padding:3px 8px;}'
+    +'.vn{font-size:18px;font-weight:bold;}'
+    +'.ve{font-size:10px;color:#555;font-style:italic;}'
+    +'.ref{font-size:11px;margin:5px 0;line-height:1.5;border-left:3px solid #15803d;padding-left:8px;background:#f0fdf4;border-radius:0 4px 4px 0;}'
+    +'.auth{background:#fef9c3;border:1px solid #d97706;border-radius:4px;padding:6px 10px;font-size:10px;margin:6px 0;}'
+    +'.auth strong{color:#92400e;}'
+    +'.as{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;gap:20px;}'
+    +'.al{border-top:1px solid #000;margin-bottom:3px;margin-top:18px;}'
+    +'.an{font-size:10px;font-weight:bold;}'
+    +'.albl{font-size:9px;color:#555;}'
+    +'.db{font-size:11px;text-align:right;white-space:nowrap;}'
+    +'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}'
+    +'</style></head><body><div class="rp">'
+    +'<div class="rh"><div class="rl">'+logoHTML+'</div>'
+    +'<div class="rt">RECIBO BONIFICACAO</div>'
+    +'<div class="ri"><strong>'+cNome+'</strong><br>CNPJ: '+cCnpj+'<br>'+cEnd+'</div></div>'
+    +'<hr class="rd">'
+    +'<div class="rc">'
+    +'<div><span class="clb">Paciente:</span> '+nome.toUpperCase()+'</div>'
+    +(cpf?'<div><span class="clb">CPF:</span> '+cpf+'</div>':'<div></div>')
+    +'</div>'
+    +'<div class="vb"><div class="vr">R$</div>'
+    +'<div><div class="vn">'+_rxFM(vN).replace('R$ ','')+'</div>'
+    +'<div class="ve">'+ext.charAt(0).toUpperCase()+ext.slice(1)+'</div></div></div>'
+    +'<div class="ref"><strong>Motivo da bonificacao:</strong> '+motivo+'</div>'
+    +'<div class="auth"><strong>Autorizacao:</strong> Dr./Dra. '+medico+' &nbsp;|&nbsp; <strong>Lideranca:</strong> '+lider+'</div>'
+    +'<div class="as"><div style="flex:1"><div class="al"></div><div class="an">'+nome.toUpperCase()+'</div>'
+    +'<div class="albl">Assinatura do paciente</div></div>'
+    +'<div class="db">'+data+'</div></div>'
+    +'<div><div class="al"></div><div class="albl">Assinatura da lideranca ('+lider+')</div></div>'
+    +'</div>'
+    +'<'+'script>window.onload=function(){setTimeout(function(){window.print();},400);};<'+'/script>'
+    +'</body></html>';
+  _rxPrint(html);
+};
+
 </script>
-<!-- VERSION: v1.8 | caixa.html | 16/07/2026 | feat: aba Recibos separada (ressarcimento + erro sistema) -->
+<!-- VERSION: v1.9 | caixa.html | 17/07/2026 | feat: aba Recibos redesenhada com títulos, instruções e novo Recibo Bonificação -->

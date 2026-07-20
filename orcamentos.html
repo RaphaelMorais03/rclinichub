@@ -1,4 +1,4 @@
-<!-- VERSION: v2.2 | orcamentos.html | 17/07/2026 | fix: (Cada) sem _ e —, seletor qtd em parceiros, VF e Marcus removidos -->
+<!-- VERSION: v2.3 | orcamentos.html | 17/07/2026 | fix: preparo Transvaginal com Preparo Intestinal adicionado -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1329,6 +1329,8 @@
         return 'Comer chocolate 30 minutos antes do exame.\nVir acompanhada.';
 
       // Transvaginal — casos especiais checados antes da regra geral
+      if (n.includes('transvaginal')&&(n.includes('preparo intestinal')||n.includes('com preparo')))
+        return 'Alimentação leve nas 24 horas anteriores ao exame.\nTomar 1 comprimido de Dulcolax pela manhã e outro à noite do dia anterior ao exame.\nTomar 40 gotas de Luftal na noite anterior ao exame.\nDia do exame: usar Fleet Enema 30 minutos antes da realização do exame.\nBeber 2 copos de água ao chegar na clínica e mais 2 copos de água antes de iniciar o exame.\n\nObs: o preparo intestinal é de extrema importância para a eficácia do exame.';
       if (n.includes('ovulacao'))
         return 'Agendamento deve ser feito entre o 7º e o 10º dia da menstruação.';
       if (n.includes('foliculo'))
@@ -1692,6 +1694,6 @@
       cur=writeBatch(db);cnt=0;const ins=[];for(const e of list){const ref=doc(db,'orcamentos_exames',e.id);const{id,...data}=e;cur.set(ref,{...data,createdAt:new Date().toISOString(),createdBy:currentUser.email});if(++cnt>=400){ins.push(cur);cur=writeBatch(db);cnt=0;}}if(cnt>0)ins.push(cur);for(const b of ins)await b.commit();
     }
   </script>
-<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v2.2 · 17/07/2026</span>
+<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v2.3 · 17/07/2026</span>
 </body>
 </html>
