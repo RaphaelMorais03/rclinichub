@@ -208,7 +208,7 @@
           <div class="recibo-sec-title"><i class="fas fa-triangle-exclamation" style="color:#b45309;"></i> Recibo Erro de Sistema</div>
           <div style="background:#f8fafc;border:1px solid var(--gray-200);border-radius:10px;padding:14px 16px;margin-bottom:16px;">
             <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-500);margin-bottom:8px;">Quando usar</div>
-            <p style="font-size:13px;color:var(--gray-600);line-height:1.6;margin-bottom:10px;">Quando recebemos um valor a mais em dinheiro e mandamos para um dos caixas da liderança, pois no sistema o valor está incorreto.</p>
+            <p style="font-size:13px;color:var(--gray-600);line-height:1.6;margin-bottom:10px;">Quando recebemos um valor em dinheiro e precisamos transferir para o caixa da liderança, pois o sistema não permite registrar corretamente.</p>
             <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--gray-500);margin-bottom:6px;">Documentos obrigatórios</div>
             <ul style="font-size:12px;color:var(--gray-600);line-height:1.9;padding-left:16px;margin:0;">
               <li>Cópia do Documento do paciente (RG ou CPF)</li>
@@ -216,17 +216,12 @@
               <li>Assinatura do paciente e da liderança</li>
             </ul>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px;">
-            <div><label class="f-label">Atendente responsável</label><input class="f-input" id="es-atendente" type="text" placeholder="Nome do atendente"></div>
-            <div><label class="f-label">Nome do paciente (opcional)</label><input class="f-input" id="es-paciente" type="text" placeholder="Nome do paciente"></div>
-            <div><label class="f-label">Valor recebido (R$)</label><input class="f-input" id="es-recebido" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
-            <div><label class="f-label">Valor no sistema (R$)</label><input class="f-input" id="es-sistema" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this);calcularDif()"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+            <div style="grid-column:1/-1;"><label class="f-label">Nome do paciente</label><input class="f-input" id="es-paciente" type="text" placeholder="Nome completo do paciente"></div>
+            <div><label class="f-label">CPF</label><input class="f-input" id="es-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF(this)" maxlength="14"></div>
+            <div><label class="f-label">Valor a transferir (R$)</label><input class="f-input" id="es-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this)"></div>
+            <div style="grid-column:1/-1;"><label class="f-label">Descrição / Motivo</label><textarea class="f-input" id="es-obs" rows="3" placeholder="Ex: recibo de erro para liberar mapa..." style="resize:vertical;"></textarea></div>
           </div>
-          <div class="dif-badge">
-            <span style="font-size:12px;font-weight:700;color:#15803d;">Diferença a encaminhar ao líder:</span>
-            <span style="font-size:20px;font-weight:900;color:#15803d;" id="es-dif">R$ 0,00</span>
-          </div>
-          <div style="margin-bottom:14px;"><label class="f-label">Observação</label><textarea class="f-input" id="es-obs" rows="2" placeholder="Descreva o que ocorreu no sistema..." style="resize:vertical;"></textarea></div>
           <button onclick="imprimirErroSistema()" style="width:100%;padding:13px;border-radius:10px;border:none;background:#b45309;color:white;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-print"></i> Gerar Recibo Erro de Sistema</button>
         </div>
 
@@ -1096,17 +1091,7 @@ window.cxTab = function(tab, btn) {
   if (el) el.classList.add('active');
 };
 
-window.calcularDif = function() {
-  function pN(v){ return parseFloat((v||'0').replace(/\./g,'').replace(',','.')) || 0; }
-  var rec = pN(document.getElementById('es-recebido') ? document.getElementById('es-recebido').value : '');
-  var sis = pN(document.getElementById('es-sistema')  ? document.getElementById('es-sistema').value  : '');
-  var dif = Math.max(0, rec - sis);
-  var el  = document.getElementById('es-dif');
-  if (el) {
-    el.textContent = 'R$ ' + dif.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
-    el.style.color = dif > 0 ? '#15803d' : '#64748b';
-  }
-};
+window.calcularDif = function() { /* não utilizado */ };
 
 function _rxExt(v) {
   var n = parseFloat(String(v).replace(/\./g,'').replace(',','.')) || 0;
@@ -1211,35 +1196,35 @@ window.imprimirRessarc = function() {
 };
 
 window.imprimirErroSistema = function() {
-  var atend = _rxGet('es-atendente');
-  var pac   = _rxGet('es-paciente');
-  var recV  = _rxGet('es-recebido');
-  var sisV  = _rxGet('es-sistema');
-  var obs   = _rxGet('es-obs');
-  if (!atend) { mostrarNotificacao('Informe o atendente'); return; }
-  if (!recV)  { mostrarNotificacao('Informe o valor recebido'); return; }
-  if (!sisV)  { mostrarNotificacao('Informe o valor no sistema'); return; }
-  var recN = _rxPM(recV), sisN = _rxPM(sisV), difN = Math.max(0, recN - sisN);
-  var extD = _rxExt(difN.toFixed(2).replace('.',','));
-  var now  = new Date();
+  var pac    = _rxGet('es-paciente');
+  var cpf    = _rxGet('es-cpf');
+  var valor  = _rxGet('es-valor');
+  var obs    = _rxGet('es-obs');
+  if (!pac)   { mostrarNotificacao('Informe o nome do paciente'); return; }
+  if (!valor) { mostrarNotificacao('Informe o valor'); return; }
+  if (!obs)   { mostrarNotificacao('Informe a descrição'); return; }
+  var vN  = _rxPM(valor);
+  var ext = _rxExt(valor);
+  var now = new Date();
   var data = 'Sao Paulo, '+now.getDate()+' de '+_MESES[now.getMonth()]+' de '+now.getFullYear();
   var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Erro de Sistema</title>'
     +'<style>'+_rxCSS()+'</style></head><body><div class="rp">'
     +_rxHeader('ERRO DE SISTEMA')
     +'<div class="rc">'
-    +'<div><span class="clb">Atendente:</span> '+atend+'</div>'
-    +(pac?'<div><span class="clb">Paciente:</span> '+pac+'</div>':'<div></div>')
-    +'<div><span class="clb">Valor recebido:</span> '+_rxFM(recN)+'</div>'
-    +'<div><span class="clb">Valor no sistema:</span> '+_rxFM(sisN)+'</div>'
+    +'<div><span class="clb">Paciente:</span> '+pac.toUpperCase()+'</div>'
+    +(cpf?'<div><span class="clb">CPF:</span> '+cpf+'</div>':'<div></div>')
     +'</div>'
-    +'<div class="dfbox"><div><strong>Diferenca ao lider:</strong><br>'
-    +'<span style="font-size:10px;color:#555;font-style:italic;">'+extD.charAt(0).toUpperCase()+extD.slice(1)+'</span></div>'
-    +'<div class="dfv">'+_rxFM(difN)+'</div></div>'
-    +(obs?'<div class="ref"><strong>Obs:</strong> '+obs+'</div>':'')
-    +'<div class="as"><div style="flex:1"><div class="al"></div><div class="an">'+atend.toUpperCase()+'</div>'
-    +'<div class="albl">Assinatura do atendente</div></div>'
+    +'<div class="vb"><div class="vr">R$</div>'
+    +'<div><div class="vn">'+_rxFM(vN).replace('R$ ','')+'</div>'
+    +'<div class="ve">'+ext.charAt(0).toUpperCase()+ext.slice(1)+'</div></div></div>'
+    +'<div class="ref"><strong>Descricao:</strong> '+obs+'</div>'
+    +'<div style="font-size:10px;background:#fef3c7;border:1px solid #d97706;border-radius:4px;padding:5px 8px;margin:6px 0;">'
+    +'<strong></strong></div>'
+    +'<div class="as"><div style="flex:1"><div class="al"></div>'
+    +'<div class="an">'+pac.toUpperCase()+'</div>'
+    +'<div class="albl">Assinatura do paciente</div></div>'
     +'<div class="db">'+data+'</div></div>'
-    +'<div><div class="al"></div><div class="albl">Assinatura do supervisor / lider de caixa</div></div>'
+    +'<div><div class="al"></div><div class="albl">Assinatura da lideranca</div></div>'
     +'</div>'
     +'<'+'script>window.onload=function(){setTimeout(function(){window.print();},400);};<'+'/script>'
     +'</body></html>';
@@ -1320,4 +1305,4 @@ window.imprimirBonificacao = function() {
 };
 
 </script>
-<!-- VERSION: v1.9 | caixa.html | 17/07/2026 | feat: aba Recibos redesenhada com títulos, instruções e novo Recibo Bonificação -->
+<!-- VERSION: v2.0 | caixa.html | 17/07/2026 | feat: Erro de Sistema simplificado, Recibo Bonificação adicionado, títulos e instruções -->
