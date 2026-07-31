@@ -1,4 +1,4 @@
-<!-- VERSION: v1.5 | dashboard.html | 14/07/2026 | feat: aba contratos com lista mensal e resumo para repasse Dra. Lauriana -->
+<!-- VERSION: v1.6 | dashboard.html | 30/07/2026 | feat: exportar caixa por forma de pagamento -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -447,9 +447,55 @@
         <select class="f-select" id="cxMesSelect" onchange="renderCaixaTab()" style="width:160px;"></select>
         <button class="btn-sec" style="font-size:12px;padding:7px 12px;white-space:nowrap;" onclick="toggleTodosCaixaCards(true)"><i class="fas fa-compress-alt"></i> Recolher todos</button>
         <button class="btn-sec" style="font-size:12px;padding:7px 12px;white-space:nowrap;" onclick="toggleTodosCaixaCards(false)"><i class="fas fa-expand-alt"></i> Expandir todos</button>
+        <button onclick="abrirExportCaixa()" style="font-size:12px;padding:7px 14px;white-space:nowrap;background:#0A1F44;color:white;border:none;border-radius:9px;font-family:inherit;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;"><i class="fas fa-file-arrow-down"></i> Exportar</button>
       </div>
       <div id="caixaTabContent">
         <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
+      </div>
+
+      <!-- MODAL EXPORTAÇÃO CAIXA -->
+      <div id="modalExportCaixa" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:white;border-radius:18px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
+          <div style="padding:18px 22px 14px;border-bottom:1.5px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:15px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;"><i class="fas fa-file-arrow-down" style="color:var(--navy);"></i> Exportar Caixa por Pagamento</div>
+            <button onclick="fecharExportCaixa()" style="background:#f1f5f9;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:13px;color:#64748b;">✕</button>
+          </div>
+          <div style="padding:20px 22px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+              <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500);display:block;margin-bottom:5px;">Data início</label>
+                <input type="date" id="expDataInicio" class="f-input"></div>
+              <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500);display:block;margin-bottom:5px;">Data fim</label>
+                <input type="date" id="expDataFim" class="f-input"></div>
+            </div>
+            <div id="expResultado" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:16px;">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gray-500);margin-bottom:12px;">Resumo do período</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div style="background:#eff6ff;border-radius:10px;padding:12px 14px;">
+                  <div style="font-size:10px;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;"><i class="fas fa-mobile-alt" style="margin-right:3px;"></i>Débito + PIX</div>
+                  <div style="font-size:20px;font-weight:900;color:#1d4ed8;" id="expDebitoPix">R$ 0,00</div>
+                  <div style="font-size:10px;color:#64748b;margin-top:3px;" id="expDebPix2">Débito: R$ 0 · PIX: R$ 0</div>
+                </div>
+                <div style="background:#f5f3ff;border-radius:10px;padding:12px 14px;">
+                  <div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;"><i class="fas fa-credit-card" style="margin-right:3px;"></i>Crédito</div>
+                  <div style="font-size:20px;font-weight:900;color:#7c3aed;" id="expCredito">R$ 0,00</div>
+                  <div style="font-size:10px;color:#64748b;margin-top:3px;" id="expCred2">À vista: R$ 0 · Parcelo: R$ 0</div>
+                </div>
+                <div style="background:#f0fdf4;border-radius:10px;padding:12px 14px;">
+                  <div style="font-size:10px;font-weight:700;color:#15803d;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;"><i class="fas fa-money-bill" style="margin-right:3px;"></i>Dinheiro</div>
+                  <div style="font-size:20px;font-weight:900;color:#15803d;" id="expDinheiro">R$ 0,00</div>
+                </div>
+                <div style="background:#fff1f2;border-radius:10px;padding:12px 14px;">
+                  <div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;"><i class="fas fa-coins" style="margin-right:3px;"></i>Total Geral</div>
+                  <div style="font-size:20px;font-weight:900;color:var(--red);" id="expTotal">R$ 0,00</div>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button onclick="calcularExportCaixa()" style="flex:1;padding:11px;border-radius:10px;border:none;background:var(--navy);color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;"><i class="fas fa-calculator"></i> Calcular</button>
+              <button id="btnBaixarExport" onclick="baixarExportCaixa()" style="flex:1;padding:11px;border-radius:10px;border:none;background:#15803d;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:none;"><i class="fas fa-download"></i> Baixar CSV</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -904,6 +950,110 @@
       if (tab === 'contratos') { preencherMesContratos(); renderContratos(); }
     };
 
+
+
+    // ── EXPORTAÇÃO DE CAIXA POR FORMA DE PAGAMENTO ──────────────────
+    window.abrirExportCaixa = function() {
+      var hoje = new Date();
+      var primDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().slice(0,10);
+      var ultDia  = new Date(hoje.getFullYear(), hoje.getMonth()+1, 0).toISOString().slice(0,10);
+      document.getElementById('expDataInicio').value = primDia;
+      document.getElementById('expDataFim').value    = ultDia;
+      document.getElementById('expResultado').style.display = 'none';
+      document.getElementById('btnBaixarExport').style.display = 'none';
+      var m = document.getElementById('modalExportCaixa');
+      if (m) m.style.display = 'flex';
+    };
+
+    window.fecharExportCaixa = function() {
+      var m = document.getElementById('modalExportCaixa');
+      if (m) m.style.display = 'none';
+    };
+
+    document.getElementById('modalExportCaixa').addEventListener('click', function(e) {
+      if (e.target === this) window.fecharExportCaixa();
+    });
+
+    function fmtR(v) { return 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+    window._expTotais = null;
+
+    window.calcularExportCaixa = function() {
+      var ini = document.getElementById('expDataInicio').value;
+      var fim = document.getElementById('expDataFim').value;
+      if (!ini || !fim) { alert('Selecione o período'); return; }
+      if (ini > fim)    { alert('Data início deve ser anterior à data fim'); return; }
+
+      var tot = { debito:0, pix:0, dinheiro:0, credito_av:0, credito_pa:0, despesa:0 };
+      var linhas = []; // para CSV
+
+      for (var uid in _dados) {
+        for (var dia in _dados[uid]) {
+          if (dia < ini || dia > fim) continue;
+          var lcs = _dados[uid][dia];
+          for (var k in lcs) {
+            var it = lcs[k];
+            var val = it.valor || 0;
+            var desc = it.descricao || it.tipo || '';
+            if (tot[it.forma] !== undefined) tot[it.forma] += val;
+            linhas.push([dia, it.forma||'', desc, val]);
+          }
+        }
+      }
+
+      var debPix  = tot.debito + tot.pix;
+      var cred    = tot.credito_av + tot.credito_pa;
+      var total   = debPix + cred + tot.dinheiro;
+
+      window._expTotais = { tot, debPix, cred, total, ini, fim, linhas };
+
+      document.getElementById('expDebitoPix').textContent = fmtR(debPix);
+      document.getElementById('expDebPix2').textContent   = 'Débito: ' + fmtR(tot.debito) + ' · PIX: ' + fmtR(tot.pix);
+      document.getElementById('expCredito').textContent   = fmtR(cred);
+      document.getElementById('expCred2').textContent     = 'À vista: ' + fmtR(tot.credito_av) + ' · Parcelado: ' + fmtR(tot.credito_pa);
+      document.getElementById('expDinheiro').textContent  = fmtR(tot.dinheiro);
+      document.getElementById('expTotal').textContent     = fmtR(total);
+
+      document.getElementById('expResultado').style.display = 'block';
+      document.getElementById('btnBaixarExport').style.display = 'block';
+    };
+
+        window.baixarExportCaixa = function() {
+      if (!window._expTotais) return;
+      var expData = window._expTotais;
+      var tot = expData.tot, debPix = expData.debPix, cred = expData.cred;
+      var total = expData.total, ini = expData.ini, fim = expData.fim, linhas = expData.linhas;
+      var fmtN = function(n) { return n.toFixed(2).replace('.',','); };
+      var fmtQ = function(v) { return '"' + String(v).replace(/"/g,'""') + '"'; };
+      var NL = '\n';
+      var SC = ';';
+      var rows = [];
+      rows.push('sep=' + SC);
+      rows.push('RESUMO POR FORMA DE PAGAMENTO');
+      rows.push('Periodo' + SC + ini + ' a ' + fim);
+      rows.push('');
+      rows.push('FORMA' + SC + 'VALOR');
+      rows.push('Debito + PIX (Combinado)' + SC + fmtN(debPix));
+      rows.push('  Debito' + SC + fmtN(tot.debito));
+      rows.push('  PIX' + SC + fmtN(tot.pix));
+      rows.push('Credito (Combinado)' + SC + fmtN(cred));
+      rows.push('  Credito a Vista' + SC + fmtN(tot.credito_av));
+      rows.push('  Credito Parcelado' + SC + fmtN(tot.credito_pa));
+      rows.push('Dinheiro' + SC + fmtN(tot.dinheiro));
+      rows.push('TOTAL GERAL' + SC + fmtN(total));
+      rows.push('');
+      rows.push('DETALHE POR LANCAMENTO');
+      rows.push('Data' + SC + 'Forma' + SC + 'Descricao' + SC + 'Valor');
+      linhas.forEach(function(l) {
+        rows.push(fmtQ(l[0]) + SC + fmtQ(l[1]) + SC + fmtQ(l[2]) + SC + fmtN(l[3]));
+      });
+      var csv = rows.join(NL);
+            var blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'caixa-formas-pagamento-' + ini + '-a-' + fim + '.csv';
+      a.click();
+    };
 
     // ── Preencher select de meses dos Contratos ──
     function preencherMesContratos() {

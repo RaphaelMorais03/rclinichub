@@ -1,4 +1,4 @@
-<!-- VERSION: v2.3 | orcamentos.html | 17/07/2026 | fix: preparo Transvaginal com Preparo Intestinal adicionado -->
+<!-- VERSION: v2.5 | orcamentos.html | 30/07/2026 | feat: template parceiros redesenhado, endereços verificados, nomeExib/nomeFormal -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -383,6 +383,9 @@
   window._PARC = {
     auri: {
       nome: 'Auri Medicina',
+      nomeExib: 'Auri Medicina',
+      nomeFormal: 'AURI MEDICINA DIAGNOSTICA LTDA',
+      endereco: 'Av. Cruzeiro do Sul, 3337 — Santana, São Paulo/SP (próx. Metrô Santana)',
       tel:  '(11) 4517-4907',
       obs:  'Sedação: R$ 400,00 (PIX, à vista).',
       exames: [
@@ -421,9 +424,12 @@
       ]
     },
     cergoli: {
-      nome: 'Clínica Cergoli — Lapa',
+      nome: 'Cergoli (Lapa)',
+      nomeExib: 'Cergoli',
+      nomeFormal: 'CERGOLI MEDICINA ESPECIALIZADA',
+      endereco: 'Rua Cerro Corá, 1145 — Alto da Lapa, São Paulo/SP',
       tel:  '(11) 3021-5058 / (11) 99775-8497',
-      obs:  'Endereço: Rua Cerro Corá, 1145 — Alto da Lapa.',
+      obs:  '',
       exames: [
         { nome: 'Audiometria T + V + Impedanciometria — Convênio',   total: 250, guia:  50, resta: 200 },
         { nome: 'Audiometria T + V + Impedanciometria — Particular', total: 300, guia: 100, resta: 200 },
@@ -432,9 +438,12 @@
       ]
     },
     imadi: {
-      nome: 'IMADI - IMAGEM & DIAGNOSTICO LTDA',
+      nome: 'IMADI Imagem',
+      nomeExib: 'IMADI / GlobalMed',
+      nomeFormal: 'IMADI - IMAGEM & DIAGNOSTICO LTDA - EPP',
+      endereco: 'Rua Nossa Senhora da Lapa, 423 — Lapa, São Paulo/SP, CEP 05072-000',
       tel:  '(11) 96640-8998',
-      obs:  'Endereço: Rua Nossa Senhora da Lapa, 423. Atendimento: todos os dias das 8h às 13h (Ultrassom: seg, qui, sex e sáb).',
+      obs:  'Atendimento: todos os dias das 8h às 13h. Ultrassom: segunda, quinta, sexta e sábado.',
       exames: [
         { nome: 'Mamografia',                      total: 120, guia: 45, resta:  75 },
         { nome: 'Ultrassom Morfológico',           total: 180, guia: 55, resta: 125 },
@@ -459,8 +468,11 @@
     },
     medicom: {
       nome: 'Medicom',
+      nomeExib: 'Medicom',
+      nomeFormal: 'MEDICOM MEDICINA DIAGNOSTICA LTDA',
+      endereco: 'Av. Nova Cantareira, 2.398 ou R. Inglesa, 143 — São Paulo/SP (unidade confirmada no agendamento)',
       tel:  '(11) 97104-9868 (WhatsApp ADECLIN)',
-      obs:  'Unidades: Av. Nova Cantareira, 2.398 e R. Inglesa, 143. A unidade que realiza o exame é confirmada no ato do agendamento. Contraste RM: R$ 150,00 (pago na clínica). Sedação: R$ 280,00. Particular: dobrar o valor da guia.',
+      obs:  'Contraste RM: R$ 150,00 (pago na clínica). Sedação: R$ 280,00. Particular: dobrar o valor da guia.',
       exames: [
         { nome: 'RM Abdome Total (cobrado 2 exames)',        total: 700, guia: 200, resta: 500 },
         { nome: 'RM com Fluxo Liquórico (cobrado 2 exames)', total: 700, guia: 200, resta: 500 },
@@ -508,9 +520,12 @@
       ]
     },
     prezecor: {
-      nome: 'PREZECOR DIAGNOSTICOS EM MEDICINA LTDA - EPP',
+      nome: 'Prezecor',
+      nomeExib: 'Prezecor',
+      nomeFormal: 'PREZECOR DIAGNOSTICOS EM MEDICINA LTDA - EPP',
+      endereco: 'Unidades: Santana, Guarulhos Centro, Tatuapé e Freguesia do Ó',
       tel:  '(11) 3934-4100',
-      obs:  'Unidades: Santana, Guarulhos Centro, Tatuapé e Freguesia do Ó. Raio-X a partir de 6 anos.',
+      obs:  'Raio-X a partir de 6 anos.',
       unidades_obs: {
         'gastro':    'Disponível em: Santana, Freguesia do Ó e Guarulhos Centro.',
         'ginecologia':'Disponível somente em: Guarulhos Centro.',
@@ -557,6 +572,9 @@
     },
     scoppeta: {
       nome: 'Scoppeta',
+      nomeExib: 'Scoppeta',
+      nomeFormal: 'CLINICA DE DIAGNOSTICOS DR LUIZ SCOPPETTA S S',
+      endereco: 'Av. Pompéia, 1137 — Vila Pompéia, São Paulo/SP',
       tel:  'agendamento_clinica',
       obs:  '⚠️ Não agendar em aparelho aberto: exame com contraste, HD Parkinson, Mastóides, Face, Crânio. Peso máx. TC: 140 kg. Laudo: 7–10 dias úteis.',
       exames: [
@@ -617,9 +635,12 @@
       ]
     },
     tc_prezecor: {
-      nome: 'PREZECOR DIAGNOSTICOS EM MEDICINA LTDA - EPP',
+      nome: 'Prezecor (TC)',
+      nomeExib: 'Prezecor',
+      nomeFormal: 'PREZECOR DIAGNOSTICOS EM MEDICINA LTDA - EPP',
+      endereco: 'Tomografia: unidades Freguesia do Ó e Guarulhos Centro',
       tel:  '(11) 3934-4100',
-      obs:  'Tomografia disponível somente nas unidades Freguesia do Ó e Guarulhos Centro. Contraste: R$ 150,00 pago diretamente na Prezecor.',
+      obs:  'Contraste: R$ 150,00 pago diretamente na Prezecor.',
       exames: [
         { nome: 'TC Abdome Total', total: 350, guia: 50, resta: 300 },
         ...([
@@ -1033,13 +1054,15 @@
     }
 
     function buildPartnerMsg(e, opt) {
-      const clinica      = sessionStorage.getItem('clinicaNome') || 'Amor Saúde';
-      const nomeParceiro = opt ? opt.nome  : e.partnerNome;
-      const tel          = opt ? (opt.tel||'') : (e.partnerTel||'');
-      const total        = opt ? opt.total : e.total;
-      const guia         = opt ? opt.guia  : e.guia;
-      const resta        = opt ? opt.resta : e.resta;
-      const obsUnidade   = opt ? (opt.obsUnidade||'') : '';
+      const clinica     = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
+      const nomeExib    = (opt ? opt.nomeExib || opt.nome : e.partnerNomeExib || e.partnerNome) || 'clínica parceira';
+      const nomeFormal  = (opt ? opt.nomeFormal || opt.nome : e.partnerNomeFormal || e.partnerNome) || nomeExib;
+      const tel         = opt ? (opt.tel||'') : (e.partnerTel||'');
+      const endereco    = (opt ? opt.endereco : e.partnerEndereco) || '';
+      const total       = (opt ? opt.total : e.total) * (_partnerQty||1);
+      const guia        = (opt ? opt.guia  : e.guia)  * (_partnerQty||1);
+      const resta       = (opt ? opt.resta : e.resta) * (_partnerQty||1);
+      const obsUnidade  = opt ? (opt.obsUnidade||'') : '';
       const fTotal = fmtBRL(total), fGuia = fmtBRL(guia), fResta = fmtBRL(resta);
 
       const _qty = (_partnerQty||1);
@@ -1047,44 +1070,47 @@
         ? ' _(×2 — valor total para 2)_'
         : isCobrado2(e.nome) ? '\n⚠️ _Atenção: cobrado como 2 exames — o valor já contempla ambos._'
         : isTcRm(e.nome) ? ' (Cada)' : '';
-      let m = `🏥 *${e.nome}*${_sufQty}\n`;
-      m += `📍 Realizado na clínica parceira *${nomeParceiro}*\n`;
 
-      // Endereço para IMADI
-      if (nomeParceiro.includes('IMADI')) {
-        m += `📍 *Endereço:* Rua Nossa Senhora da Lapa, 423\n`;
-      }
-      // Para Prezecor — informar unidades
-      if (nomeParceiro.includes('PREZECOR') || nomeParceiro.includes('Prezecor')) {
-        if (obsUnidade) m += `📍 *${obsUnidade}*\n`;
-        else m += `📍 *Confirmar a unidade mais próxima com o paciente.*\n`;
-      }
+      let m = `🏥 *${e.nome}*${_sufQty}\n`;
+      m += `📍 Realizado na clínica parceira *${nomeExib}*\n`;
+
+      // Endereço
+      const endFinal = obsUnidade || endereco;
+      if (endFinal) m += `📍 *${endFinal}*\n`;
 
       m += `\n💰 *Valor Total:* ${fTotal}\n`;
+
       if (guia > 0) {
         m += `📋 *Guia (pagar aqui na ${clinica}):* ${fGuia}\n`;
-        m += `🏥 *Restante (pagar na ${nomeParceiro}):* ${fResta}\n`;
+        m += `🏥 *Restante (pagar na ${nomeExib}):* ${fResta}\n`;
         m += `\n*Como funciona:*\n\n`;
-        m += `1️⃣ Após o pagamento de *${fGuia}* aqui na ${clinica}, emitimos a guia de encaminhamento (válida por 30 dias).\n\n`;
+
+        // Passo 1 — agendar
         if (tel === 'agendamento_clinica') {
-          m += `2️⃣ O agendamento é realizado diretamente pela nossa clínica — não é necessário ligar.\n\n`;
+          m += `1️⃣ O agendamento é realizado diretamente pela nossa clínica — não é necessário ligar.\n\n`;
         } else if (tel && !tel.toLowerCase().includes('confirmar')) {
-          m += `2️⃣ Com a guia em mãos, ligue para *${tel}* para agendar o melhor horário.\n\n`;
+          m += `1️⃣ Ligue para a clínica parceira no telefone *${tel}* para verificar as datas disponíveis e realizar o seu agendamento.\n\n`;
         } else {
-          m += `2️⃣ Com a guia em mãos, entre em contato com a *${nomeParceiro}* para agendar.\n\n`;
+          m += `1️⃣ Entre em contato com a *${nomeExib}* para verificar as datas disponíveis e realizar o seu agendamento.\n\n`;
         }
-        m += `3️⃣ O valor restante de *${fResta}* é pago diretamente na *${nomeParceiro}* no dia do exame.`;
+
+        // Passo 2 — pagar guia
+        m += `2️⃣ Com a data confirmada, faça o pagamento de *${fGuia}* com a ${clinica} para emissão da guia de encaminhamento (válida por 30 dias). O pagamento pode ser feito presencialmente na clínica ou por WhatsApp via Pix.\n\n`;
+
+        // Passo 3 — pagar restante
+        m += `3️⃣ O valor restante de *${fResta}* é pago diretamente na *${nomeFormal}* no dia do exame.`;
+
       } else {
-        m += `🏥 *Valor (pagar na ${nomeParceiro}):* ${fResta}\n`;
+        m += `🏥 *Valor (pagar na ${nomeExib}):* ${fResta}\n`;
         m += `\n*Como funciona:*\n\n`;
         if (tel === 'agendamento_clinica') {
           m += `1️⃣ O agendamento é realizado diretamente pela nossa clínica.\n\n`;
         } else if (tel && !tel.toLowerCase().includes('confirmar')) {
-          m += `1️⃣ Ligue para *${tel}* (${nomeParceiro}) para agendar o melhor horário.\n\n`;
+          m += `1️⃣ Ligue para *${tel}* para verificar as datas e realizar o seu agendamento.\n\n`;
         } else {
-          m += `1️⃣ Entre em contato com a *${nomeParceiro}* para agendar.\n\n`;
+          m += `1️⃣ Entre em contato com a *${nomeExib}* para verificar as datas e agendar.\n\n`;
         }
-        m += `2️⃣ O valor de *${fResta}* é pago diretamente na recepção da *${nomeParceiro}* no dia do exame.`;
+        m += `2️⃣ O valor de *${fResta}* é pago diretamente na *${nomeFormal}* no dia do exame.`;
       }
       return m;
     }
@@ -1665,7 +1691,7 @@
 
     function parsePrice(v){if(v==null||v==='')return null;if(typeof v==='number')return v;const m=String(v).trim().match(/(\d{1,3}(?:[\.\s]\d{3})*(?:,\d{1,2})?|\d+(?:[\.,]\d{1,2})?)/);if(!m)return null;const n=parseFloat(m[1].replace(/\./g,'').replace(',','.'));return isNaN(n)?null:n;}
     function cleanStr(v){return v==null?'':String(v).trim().replace(/\n/g,' ').replace(/\\n/g,' ');}
-    function looksLikeExamName(s){if(!s||s.length<3)return false;const u=s.toUpperCase();const bad=['NOME DO EXAME','CARTÃO DE TODOS','PARTICULAR','VALOR TOTAL','VALOR GUIA','AGENDAMENTO','OBSERVAÇÃO','PROCEDIMENTO ','PRESTADOR','OBS:','WHATSAPP','CONTRASTE','ENDEREÇO','CNPJ','NÃO AGENDAR','TODOS OS EXAMES','COBRADO','COD ','PROCEDIMENTO P'];for(const b of bad)if(u.startsWith(b))return false;if(['NAN','-','.'].includes(u))return false;return true;}
+    function looksLikeExamName(s){if(!s||s.length<3)return false;const u=s.toUpperCase();const bad=['NOME DO EXAME','CARTÃO DE TODOS','PARTICULAR','VALOR TOTAL','VALOR GUIA','AGENDAMENTO','OBSERVAÇÃO','PROCEDIMENTO ','PRESTADOR','OBS:','WHATSAPP','CONTRASTE','ENDEREÇO','CNPJ','NÃO AGENDAR','TODOS OS EXAMES','COBRADO','COD ','PROCEDIMENTO P','DR BRENO','DR LUIS','REPASSE DR'];for(const b of bad)if(u.startsWith(b))return false;if(['NAN','-','.'].includes(u))return false;return true;}
     function parseWorkbook(wb){
       const result=[],skipNames=new Set(['amor cirugias','amor cirugias ','vf','vf ','marcus (urologista)','marcus (urologista) ']);
       const fornMap={
@@ -1674,6 +1700,7 @@
         'PREZECOR 2.0':'Prezecor 2.0','DERMATOLOGIA':'Dermatologia',
         'MEDICOM 2.0':'Medicom 2.0','FARAGE - OCULTO':'Farage',
         'PREZECOR':'Prezecor',
+        'DR BRENO':'Dr. Breno (USG)',
         'MEDICOM':'Medicom','CERGOLI - LAPA':'Cergoli (Lapa)','AURI MEDICINA':'Auri Medicina'
       };
       for(const sheetName of wb.SheetNames){
@@ -1694,6 +1721,6 @@
       cur=writeBatch(db);cnt=0;const ins=[];for(const e of list){const ref=doc(db,'orcamentos_exames',e.id);const{id,...data}=e;cur.set(ref,{...data,createdAt:new Date().toISOString(),createdBy:currentUser.email});if(++cnt>=400){ins.push(cur);cur=writeBatch(db);cnt=0;}}if(cnt>0)ins.push(cur);for(const b of ins)await b.commit();
     }
   </script>
-<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v2.3 · 17/07/2026</span>
+<span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v2.5 · 30/07/2026</span>
 </body>
 </html>
