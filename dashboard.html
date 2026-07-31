@@ -235,7 +235,10 @@
       </div>
     </div>
     <div class="header-right">
-<button class="btn-lancamento" id="btnLancamentoHeader" onclick="abrirLancamento()">
+      <button class="main-tab" id="tabBtnProd" onclick="switchMainTab('prod')" style="color:var(--navy);border-bottom:3px solid var(--navy);padding:8px 16px;font-size:12px;"><i class="fas fa-chart-bar"></i> Produção</button>
+      <button class="main-tab" id="tabBtnCaixa" onclick="switchMainTab('caixa')" style="padding:8px 16px;font-size:12px;"><i class="fas fa-cash-register"></i> Caixa</button>
+      <button class="main-tab" id="tabBtnFech" onclick="switchMainTab('fech')" style="padding:8px 16px;font-size:12px;"><i class="fas fa-file-invoice-dollar"></i> Fechamentos</button>
+      <button class="btn-lancamento" id="btnLancamentoHeader" onclick="abrirLancamento()">
         <i class="fas fa-plus"></i> Lançamento Manual
       </button>
       <button class="back-btn" onclick="irPara('login.html')"><i class="fas fa-home"></i> Portal</button>
@@ -449,47 +452,6 @@
       <div id="caixaTabContent">
         <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
       </div>
-      <div id="modalExportCaixa" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:20px;">
-        <div style="background:white;border-radius:18px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
-          <div style="padding:18px 22px 14px;border-bottom:1.5px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
-            <div style="font-size:15px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;"><i class="fas fa-file-arrow-down"></i> Exportar por Forma de Pagamento</div>
-            <button onclick="fecharExportCaixa()" style="background:#f1f5f9;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:13px;color:#64748b;">X</button>
-          </div>
-          <div style="padding:18px 22px;">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
-              <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:5px;">Data inicio</label><input type="date" id="expDataInicio" class="f-input"></div>
-              <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:5px;">Data fim</label><input type="date" id="expDataFim" class="f-input"></div>
-            </div>
-            <div style="margin-bottom:14px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                <label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);">Colaboradores</label>
-                <div style="display:flex;gap:6px;">
-                  <button onclick="expSelecionarTodos(true)"  style="font-size:10px;padding:2px 9px;border-radius:6px;border:1px solid var(--gray-200);background:white;cursor:pointer;font-family:inherit;font-weight:700;">Todos</button>
-                  <button onclick="expSelecionarTodos(false)" style="font-size:10px;padding:2px 9px;border-radius:6px;border:1px solid var(--gray-200);background:white;cursor:pointer;font-family:inherit;font-weight:700;">Nenhum</button>
-                </div>
-              </div>
-              <div id="expColabList" style="max-height:130px;overflow-y:auto;border:1.5px solid var(--gray-200);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--gray-400);">Selecione um periodo e clique em Calcular.</div>
-            </div>
-            <div id="expResultado" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:14px;">
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:10px;">Resumo do periodo</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-                <div style="background:#eff6ff;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:#1d4ed8;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-mobile-alt" style="margin-right:3px;"></i>Debito + PIX</div><div style="font-size:18px;font-weight:900;color:#1d4ed8;" id="expDebitoPix">R$ 0,00</div><div style="font-size:10px;color:#64748b;margin-top:2px;" id="expDebPix2">Deb: - | PIX: -</div></div>
-                <div style="background:#f5f3ff;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-credit-card" style="margin-right:3px;"></i>Credito</div><div style="font-size:18px;font-weight:900;color:#7c3aed;" id="expCredito">R$ 0,00</div></div>
-                <div style="background:#f0fdf4;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:#15803d;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-money-bill" style="margin-right:3px;"></i>Dinheiro</div><div style="font-size:18px;font-weight:900;color:#15803d;" id="expDinheiro">R$ 0,00</div></div>
-                <div style="background:#fff1f2;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-coins" style="margin-right:3px;"></i>Total</div><div style="font-size:18px;font-weight:900;color:var(--red);" id="expTotal">R$ 0,00</div></div>
-              </div>
-              <div style="border-top:1.5px solid #e2e8f0;padding-top:12px;">
-                <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;display:flex;align-items:center;gap:6px;"><i class="fas fa-trophy" style="color:#d97706;"></i> Ranking - Total a Vista</div>
-                <div id="expRanking" style="display:flex;flex-direction:column;gap:6px;"></div>
-              </div>
-            </div>
-            <div style="display:flex;gap:10px;">
-              <button onclick="calcularExportCaixa()" style="flex:1;padding:11px;border-radius:10px;border:none;background:var(--navy);color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;"><i class="fas fa-calculator"></i> Calcular</button>
-              <button id="btnBaixarExport" onclick="baixarExportCaixa()" style="flex:1;padding:11px;border-radius:10px;border:none;background:#15803d;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:none;"><i class="fas fa-download"></i> Baixar CSV</button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- PAINEL FECHAMENTOS -->
@@ -550,20 +512,6 @@
         <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
       </div>
     </div><!-- /viewContratos -->
-    <div class="view-panel" id="viewRanking">
-      <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
-        <div>
-          <div style="font-size:16px;font-weight:800;color:var(--navy);">Ranking de Producao</div>
-          <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Selecione o periodo e veja quem produziu mais</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto;">
-          <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">De</label><input type="date" id="rankDataIni" class="f-input" style="width:140px;"></div>
-          <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">Ate</label><input type="date" id="rankDataFim" class="f-input" style="width:140px;"></div>
-          <div style="padding-top:16px;"><button onclick="renderRanking()" style="padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;"><i class="fas fa-trophy"></i> Gerar Ranking</button></div>
-        </div>
-      </div>
-      <div id="rankingArea"><div class="loading" style="padding:48px;"><i class="fas fa-trophy" style="font-size:36px;opacity:.15;display:block;margin-bottom:10px;"></i><span>Selecione um periodo e clique em Gerar Ranking</span></div></div>
-    </div>
 
   </div><!-- /content -->
 
@@ -2263,123 +2211,119 @@
     });
   </script>
 <span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.4 · 07/07/2026</span>
+
+  <!-- MODAL EXPORTACAO -->
+  <div id="modalExportCaixa" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:20px;">
+    <div style="background:white;border-radius:18px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
+      <div style="padding:18px 22px 14px;border-bottom:1.5px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;"><div style="font-size:15px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;"><i class="fas fa-file-arrow-down"></i> Exportar por Forma de Pagamento</div><button onclick="fecharExportCaixa()" style="background:#f1f5f9;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:13px;color:#64748b;">X</button></div>
+      <div style="padding:18px 22px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;"><div><label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:5px;">Data inicio</label><input type="date" id="expDataInicio" class="f-input"></div><div><label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:5px;">Data fim</label><input type="date" id="expDataFim" class="f-input"></div></div>
+        <div style="margin-bottom:14px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;"><label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);">Colaboradores</label><div style="display:flex;gap:6px;"><button onclick="expSelecionarTodos(true)" style="font-size:10px;padding:2px 9px;border-radius:6px;border:1px solid var(--gray-200);background:white;cursor:pointer;font-family:inherit;font-weight:700;">Todos</button><button onclick="expSelecionarTodos(false)" style="font-size:10px;padding:2px 9px;border-radius:6px;border:1px solid var(--gray-200);background:white;cursor:pointer;font-family:inherit;font-weight:700;">Nenhum</button></div></div><div id="expColabList" style="max-height:130px;overflow-y:auto;border:1.5px solid var(--gray-200);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--gray-400);">Selecione um periodo e clique em Calcular.</div></div>
+        <div id="expResultado" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:10px;">Resumo do periodo</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;"><div style="background:#eff6ff;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:#1d4ed8;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-mobile-alt" style="margin-right:3px;"></i>Debito + PIX</div><div style="font-size:18px;font-weight:900;color:#1d4ed8;" id="expDebitoPix">R$ 0,00</div><div style="font-size:10px;color:#64748b;margin-top:2px;" id="expDebPix2">Deb: - | PIX: -</div></div><div style="background:#f5f3ff;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-credit-card" style="margin-right:3px;"></i>Credito</div><div style="font-size:18px;font-weight:900;color:#7c3aed;" id="expCredito">R$ 0,00</div></div><div style="background:#f0fdf4;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:#15803d;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-money-bill" style="margin-right:3px;"></i>Dinheiro</div><div style="font-size:18px;font-weight:900;color:#15803d;" id="expDinheiro">R$ 0,00</div></div><div style="background:#fff1f2;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-coins" style="margin-right:3px;"></i>Total</div><div style="font-size:18px;font-weight:900;color:var(--red);" id="expTotal">R$ 0,00</div></div></div>
+          <div style="border-top:1.5px solid #e2e8f0;padding-top:10px;"><div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;"><i class="fas fa-trophy" style="color:#d97706;margin-right:4px;"></i>Ranking - Total a Vista</div><div id="expRanking" style="display:flex;flex-direction:column;gap:6px;"></div></div>
+        </div>
+        <div style="display:flex;gap:10px;"><button onclick="calcularExportCaixa()" style="flex:1;padding:11px;border-radius:10px;border:none;background:var(--navy);color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;"><i class="fas fa-calculator"></i> Calcular</button><button id="btnBaixarExport" onclick="baixarExportCaixa()" style="flex:1;padding:11px;border-radius:10px;border:none;background:#15803d;color:white;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:none;"><i class="fas fa-download"></i> Baixar CSV</button></div>
+      </div>
+    </div>
+  </div>
+  <!-- RANKING PANEL -->
+  <div class="view-panel" id="viewRanking" style="display:none;">
+    <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:20px;flex-wrap:wrap;"><div><div style="font-size:16px;font-weight:800;color:var(--navy);">Ranking de Producao</div><div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Selecione o periodo e veja quem produziu mais</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto;"><div><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">De</label><input type="date" id="rankDataIni" class="f-input" style="width:140px;"></div><div><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">Ate</label><input type="date" id="rankDataFim" class="f-input" style="width:140px;"></div><div style="padding-top:16px;"><button onclick="renderRanking()" style="padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;"><i class="fas fa-trophy"></i> Gerar Ranking</button></div></div></div>
+    <div id="rankingArea"><div class="loading" style="padding:48px;text-align:center;"><i class="fas fa-trophy" style="font-size:36px;opacity:.15;display:block;margin-bottom:10px;"></i>Selecione um periodo e clique em Gerar Ranking</div></div>
+  </div>
+
 </body>
 </html>
-<script>
-/* === FUNÇÕES ADICIONADAS === */
 
-/* Lê totForma de um snapshot — compatível com chaves acentuadas e sem acento */
+<script>
+/* ===== ADDON: Ranking + Export + Fixes ===== */
+
+/* --- lerTotForma: lê totForma de snapshot --- */
 function lerTotForma(tf) {
   tf = tf || {};
   var deb  = (tf['Cart\u00e3o de D\u00e9bito']  || tf['Cartao de Debito']  || {}).entrada || 0;
   var pix  = (tf['PIX']                          || {}).entrada || 0;
   var crd  = (tf['Cart\u00e3o de Cr\u00e9dito'] || tf['Cartao de Credito'] || {}).entrada || 0;
   var din  = (tf['Dinheiro']                      || {}).entrada || 0;
-  var desp = Object.keys(tf).reduce(function(s,k){ return s + (tf[k].saida || 0); }, 0);
+  var desp = 0;
+  Object.keys(tf).forEach(function(k){ desp += (tf[k].saida || 0); });
   return { deb: deb, pix: pix, crd: crd, din: din, desp: desp };
 }
 
-/* Fix aplicarAlias — fallback para nome vazio ou UID Firebase */
-(function patchAlias() {
-  var _orig = window.aplicarAlias || function(n){ return n; };
+/* --- Patch aplicarAlias: fallback para nome vazio --- */
+(function() {
+  var _orig = window.aplicarAlias;
   window.aplicarAlias = function(nome) {
-    if (!nome || !nome.trim()) return '(Sem identificacao)';
-    var result = _orig(nome);
-    if (!result || !result.trim()) return '(Sem identificacao)';
-    if (result.length > 20 && result.indexOf(' ') === -1 && /^[A-Za-z0-9_-]+$/.test(result)) {
-      return '(ID: ' + result.slice(0, 8) + '...)';
+    if (!nome || !nome.trim || !nome.trim()) return '(Sem identificacao)';
+    var res = _orig ? _orig(nome) : nome;
+    if (!res || !res.trim()) return '(Sem identificacao)';
+    if (res.length > 20 && res.indexOf(' ') < 0 && /^[A-Za-z0-9_-]+$/.test(res)) {
+      return '(ID:' + res.slice(0, 8) + ')';
     }
-    return result;
+    return res;
   };
 })();
 
-/* Fix renderVisao — usar totForma em vez de iterar snapshot como objeto plano */
-(function patchVisao() {
+/* --- Patch renderVisao: usar totForma --- */
+(function() {
   var _orig = window.renderVisao;
-  if (!_orig) return;
   window.renderVisao = async function() {
-    // Injetar dados corretos no _dados antes de chamar a função original
-    // Na verdade, vamos sobrescrever os totais após renderização
-    // Melhor: substituir a função inteira
     var mes = (document.getElementById('visaoMesSelect') || {}).value || '';
     if (!mes) return;
-    var totais = { debito: 0, pix: 0, dinheiro: 0, credito: 0, despesa: 0 };
+    var tot = { deb:0, pix:0, crd:0, din:0, desp:0 };
     for (var uid in _dados) {
       for (var dia in _dados[uid]) {
         if (!dia.startsWith(mes)) continue;
         var snap = _dados[uid][dia];
         if (!snap) continue;
         var v = lerTotForma(snap.totForma);
-        totais.debito   += v.deb;
-        totais.pix      += v.pix;
-        totais.dinheiro += v.din;
-        totais.credito  += v.crd;
-        totais.despesa  += v.desp;
+        tot.deb += v.deb; tot.pix += v.pix; tot.crd += v.crd;
+        tot.din += v.din; tot.desp += v.desp;
       }
     }
-    var avista  = totais.debito + totais.pix + totais.dinheiro;
-    var credito = totais.credito;
-    var despesa = totais.despesa;
-    var total   = avista + credito - despesa;
-    function fmtV(v) { return 'R$ ' + (v||0).toLocaleString('pt-BR', {minimumFractionDigits:2}); }
-    var cardsData = [
-      { label:'Total Geral',  val:fmtV(total),            cor:'var(--navy)', bg:'#eff6ff', icon:'fa-coins' },
-      { label:'A Vista',      val:fmtV(avista),            cor:'#15803d',     bg:'#f0fdf4', icon:'fa-circle-check' },
-      { label:'Credito',      val:fmtV(credito),           cor:'#7c3aed',     bg:'#f5f3ff', icon:'fa-credit-card' },
-      { label:'Debito',       val:fmtV(totais.debito),     cor:'#1d4ed8',     bg:'#eff6ff', icon:'fa-credit-card' },
-      { label:'PIX',          val:fmtV(totais.pix),        cor:'#0369a1',     bg:'#f0f9ff', icon:'fa-qrcode' },
-      { label:'Dinheiro',     val:fmtV(totais.dinheiro),   cor:'#065f46',     bg:'#ecfdf5', icon:'fa-money-bill' },
-      { label:'Despesas',     val:fmtV(despesa),            cor:'var(--red)',   bg:'#fff1f2', icon:'fa-arrow-down' },
+    var avista = tot.deb + tot.pix + tot.din;
+    var total  = avista + tot.crd;
+    function fV(n) { return 'R$ ' + (n||0).toLocaleString('pt-BR',{minimumFractionDigits:2}); }
+    var cards = [
+      {l:'Total Geral', v:fV(total),   c:'var(--navy)', bg:'#eff6ff', i:'fa-coins'},
+      {l:'A Vista',     v:fV(avista),   c:'#15803d',    bg:'#f0fdf4', i:'fa-circle-check'},
+      {l:'Credito',     v:fV(tot.crd),  c:'#7c3aed',    bg:'#f5f3ff', i:'fa-credit-card'},
+      {l:'Debito',      v:fV(tot.deb),  c:'#1d4ed8',    bg:'#eff6ff', i:'fa-credit-card'},
+      {l:'PIX',         v:fV(tot.pix),  c:'#0369a1',    bg:'#f0f9ff', i:'fa-qrcode'},
+      {l:'Dinheiro',    v:fV(tot.din),  c:'#065f46',    bg:'#ecfdf5', i:'fa-money-bill'},
+      {l:'Despesas',    v:fV(tot.desp), c:'var(--red)',  bg:'#fff1f2', i:'fa-arrow-down'},
     ];
     var el = document.getElementById('visaoCards');
     if (el) {
-      el.innerHTML = cardsData.map(function(cd) {
+      el.innerHTML = cards.map(function(cd) {
         return '<div style="background:' + cd.bg + ';border-radius:14px;padding:16px 18px;">'
-          + '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:' + cd.cor + ';margin-bottom:6px;opacity:.75;"><i class="fas ' + cd.icon + '" style="margin-right:4px;"></i>' + cd.label + '</div>'
-          + '<div style="font-size:20px;font-weight:900;color:' + cd.cor + ';letter-spacing:-1px;">' + cd.val + '</div>'
+          + '<div style="font-size:10px;font-weight:700;text-transform:uppercase;color:' + cd.c + ';opacity:.75;margin-bottom:6px;">'
+          + '<i class="fas ' + cd.i + '" style="margin-right:4px;"></i>' + cd.l + '</div>'
+          + '<div style="font-size:20px;font-weight:900;color:' + cd.c + ';">' + cd.v + '</div>'
           + '</div>';
       }).join('');
     }
-    // Continuar com NPS e demais cards via função original
-    // (chamar apenas para NPS, comissoes, gaveta)
-    try { await _orig(); } catch(e) {}
+    try { if (_orig) await _orig(); } catch(e) { /* NPS pode falhar — ignorar */ }
   };
 })();
 
-/* Aba Ranking — adicionar ao switchMainTab */
-(function patchSwitch() {
-  var _orig = window.switchMainTab;
-  if (!_orig) return;
-  window.switchMainTab = function(tab) {
-    _orig(tab);
-    if (tab === 'ranking') {
-      var tabs = document.querySelectorAll('.main-tab');
-      tabs.forEach(function(b){ b.classList.remove('active'); });
-      var btn = document.getElementById('mainTabRanking');
-      if (btn) btn.classList.add('active');
-      document.querySelectorAll('.view-panel').forEach(function(p){ p.style.display='none'; });
-      var vr = document.getElementById('viewRanking');
-      if (vr) vr.style.display='block';
-      rankInitDatas();
-    }
-  };
-})();
-
-/* Inicializar datas do ranking */
+/* --- Aba Ranking --- */
 function rankInitDatas() {
   var ini = document.getElementById('rankDataIni');
   var fim = document.getElementById('rankDataFim');
-  if (ini && !ini.value) {
-    var hoje = new Date();
-    var y = hoje.getFullYear();
-    var m = String(hoje.getMonth() + 1).padStart(2, '0');
-    var ult = String(new Date(y, hoje.getMonth() + 1, 0).getDate()).padStart(2, '0');
-    ini.value = y + '-' + m + '-01';
-    fim.value = y + '-' + m + '-' + ult;
-  }
+  if (!ini || ini.value) return;
+  var hoje = new Date();
+  var y = hoje.getFullYear();
+  var m = hoje.getMonth();
+  var ini1 = new Date(y, m, 1);
+  var fim1 = new Date(y, m + 1, 0);
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  ini.value = y + '-' + pad(m + 1) + '-01';
+  fim.value = y + '-' + pad(m + 1) + '-' + pad(fim1.getDate());
 }
 
-/* Renderizar Ranking */
 window.renderRanking = function() {
   var iniV = (document.getElementById('rankDataIni') || {}).value || '';
   var fimV = (document.getElementById('rankDataFim') || {}).value || '';
@@ -2387,107 +2331,104 @@ window.renderRanking = function() {
   if (!area) return;
   if (!iniV || !fimV) { area.innerHTML = '<div class="loading">Selecione as datas.</div>'; return; }
 
-  var porColab = {};
-  var totalDias = 0;
+  var por = {};
+  var dias = 0;
   for (var uid in _dados) {
     for (var dia in _dados[uid]) {
       if (dia < iniV || dia > fimV) continue;
       var snap = _dados[uid][dia];
       if (!snap || !snap.totForma) continue;
       var nome = window.aplicarAlias(snap.colaborador || uid);
-      if (!porColab[nome]) porColab[nome] = { deb:0, pix:0, crd:0, din:0, desp:0, dias:0 };
+      if (!por[nome]) por[nome] = {deb:0,pix:0,crd:0,din:0,desp:0,dias:0};
       var v = lerTotForma(snap.totForma);
-      porColab[nome].deb  += v.deb;
-      porColab[nome].pix  += v.pix;
-      porColab[nome].crd  += v.crd;
-      porColab[nome].din  += v.din;
-      porColab[nome].desp += v.desp;
-      porColab[nome].dias++;
-      totalDias++;
+      por[nome].deb+=v.deb; por[nome].pix+=v.pix; por[nome].crd+=v.crd;
+      por[nome].din+=v.din; por[nome].desp+=v.desp; por[nome].dias++;
+      dias++;
     }
   }
 
-  var nomes = Object.keys(porColab);
+  var nomes = Object.keys(por);
   if (!nomes.length) {
-    area.innerHTML = '<div class="loading">Nenhum caixa encontrado neste periodo.</div>';
+    area.innerHTML = '<div class="loading">Nenhum caixa no periodo selecionado.</div>';
     return;
   }
 
-  var ranking = nomes.map(function(nome) {
-    var v = porColab[nome];
-    var avista = v.deb + v.pix + v.din;
-    return { nome:nome, avista:avista, deb:v.deb, pix:v.pix, din:v.din, crd:v.crd, desp:v.desp, total:avista+v.crd-v.desp, dias:v.dias };
-  }).sort(function(a,b){ return b.avista - a.avista; });
-
-  var maxAvista   = ranking[0].avista || 1;
-  var totalAvista = ranking.reduce(function(s,r){ return s + r.avista; }, 0);
-  var totalCred   = ranking.reduce(function(s,r){ return s + r.crd;   }, 0);
-  var totalGeral  = ranking.reduce(function(s,r){ return s + r.total; }, 0);
-  var MEDALS = ['1', '2', '3'];
-
-  function fmtR(n) { return 'R$ ' + (n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-  function fmtD(s) { var p=s.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+  function fR(n) { return 'R$ '+(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function fD(s) { var p=s.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
   function esc2(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  var html = '<div class="table-card">'
-    + '<div class="table-header">'
-    + '<i class="fas fa-trophy" style="color:#d97706;font-size:16px;"></i>'
-    + '<span class="table-title">Ranking por Total a Vista</span>'
-    + '<span class="period-pill"><i class="fas fa-calendar"></i> ' + fmtD(iniV) + ' a ' + fmtD(fimV) + '</span>'
-    + '<span style="margin-left:auto;font-size:11px;color:var(--gray-400);">' + ranking.length + ' colab. ' + totalDias + ' reg.</span>'
-    + '</div>'
-    + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 18px;border-bottom:1px solid var(--gray-200);">'
-    + '<div style="background:#f0fdf4;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:#15803d;text-transform:uppercase;margin-bottom:3px;">Total a Vista</div><div style="font-size:18px;font-weight:900;color:#15803d;">' + fmtR(totalAvista) + '</div></div>'
-    + '<div style="background:#f5f3ff;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;margin-bottom:3px;">Credito</div><div style="font-size:18px;font-weight:900;color:#7c3aed;">' + fmtR(totalCred) + '</div></div>'
-    + '<div style="background:#eff6ff;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;margin-bottom:3px;">Total Geral</div><div style="font-size:18px;font-weight:900;color:var(--navy);">' + fmtR(totalGeral) + '</div></div>'
-    + '</div>'
-    + '<div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px;">';
+  var rank = nomes.map(function(n) {
+    var v = por[n];
+    var av = v.deb + v.pix + v.din;
+    return {nome:n, av:av, deb:v.deb, pix:v.pix, din:v.din, crd:v.crd, desp:v.desp, total:av+v.crd-v.desp, dias:v.dias};
+  }).sort(function(a,b){ return b.av - a.av; });
 
-  ranking.forEach(function(r, i) {
-    var pct   = maxAvista > 0 ? Math.round(r.avista / maxAvista * 100) : 0;
-    var share = totalAvista > 0 ? (r.avista / totalAvista * 100).toFixed(1) : '0.0';
-    var medEmoji = i === 0 ? '\ud83e\udd47' : i === 1 ? '\ud83e\udd48' : i === 2 ? '\ud83e\udd49' : '';
-    var posNum   = i >= 3 ? (i+1)+'.' : '';
-    var initials = r.nome.split(' ').filter(Boolean).map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
-    var bgColors = ['#d97706','#64748b','#b45309'];
-    var bgAv = bgColors[i] || 'var(--navy)';
+  var maxAv = rank[0].av || 1;
+  var sumAv  = rank.reduce(function(s,r){ return s + r.av; }, 0);
+  var sumCrd = rank.reduce(function(s,r){ return s + r.crd; }, 0);
+  var sumTot = rank.reduce(function(s,r){ return s + r.total; }, 0);
 
-    html += '<div style="background:white;border:1px solid var(--gray-200);border-radius:14px;padding:14px 16px;">'
-      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
-      + '<div style="font-size:22px;min-width:28px;text-align:center;">' + (medEmoji || '<span style="font-size:13px;font-weight:800;color:var(--gray-400);">'+posNum+'</span>') + '</div>'
-      + '<div style="width:36px;height:36px;border-radius:50%;background:'+bgAv+';color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">' + esc2(initials) + '</div>'
-      + '<div style="flex:1;min-width:0;">'
-      + '<div style="font-size:14px;font-weight:800;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc2(r.nome) + '</div>'
-      + '<div style="font-size:11px;color:var(--gray-400);">' + r.dias + ' dia(s) registrado(s)</div>'
-      + '</div>'
-      + '<div style="text-align:right;">'
-      + '<div style="font-size:18px;font-weight:900;color:#15803d;">' + fmtR(r.avista) + '</div>'
-      + '<div style="font-size:10px;color:var(--gray-400);">' + share + '% do grupo</div>'
-      + '</div></div>'
-      + '<div style="height:7px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-bottom:8px;">'
-      + '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#15803d,#22c55e);border-radius:4px;"></div>'
-      + '</div>'
-      + '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--gray-500);">'
-      + '<span><b style="color:#1d4ed8;">Deb</b> ' + fmtR(r.deb) + '</span>'
-      + '<span><b style="color:#0369a1;">PIX</b> ' + fmtR(r.pix) + '</span>'
-      + '<span><b style="color:#065f46;">Din</b> ' + fmtR(r.din) + '</span>'
-      + '<span><b style="color:#7c3aed;">Cred</b> ' + fmtR(r.crd) + '</span>'
-      + (r.desp > 0 ? '<span><b style="color:var(--red);">Desp</b> -' + fmtR(r.desp) + '</span>' : '')
-      + '</div>'
-      + '</div>';
+  var html = '<div class="table-card">';
+  html += '<div class="table-header">';
+  html += '<i class="fas fa-trophy" style="color:#d97706;font-size:16px;"></i>';
+  html += '<span class="table-title">Ranking por Total a Vista</span>';
+  html += '<span class="period-pill"><i class="fas fa-calendar"></i> ' + fD(iniV) + ' a ' + fD(fimV) + '</span>';
+  html += '<span style="margin-left:auto;font-size:11px;color:var(--gray-400);">' + rank.length + ' colaboradores</span>';
+  html += '</div>';
+
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 18px;border-bottom:1px solid var(--gray-200);">';
+  html += '<div style="background:#f0fdf4;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:#15803d;text-transform:uppercase;margin-bottom:3px;">Total a Vista</div><div style="font-size:18px;font-weight:900;color:#15803d;">' + fR(sumAv) + '</div></div>';
+  html += '<div style="background:#f5f3ff;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;margin-bottom:3px;">Credito</div><div style="font-size:18px;font-weight:900;color:#7c3aed;">' + fR(sumCrd) + '</div></div>';
+  html += '<div style="background:#eff6ff;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;margin-bottom:3px;">Total Geral</div><div style="font-size:18px;font-weight:900;color:var(--navy);">' + fR(sumTot) + '</div></div>';
+  html += '</div>';
+
+  html += '<div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px;">';
+
+  var medals = ['\ud83e\udd47', '\ud83e\udd48', '\ud83e\udd49'];
+  var bgTop  = ['#d97706', '#64748b', '#b45309'];
+
+  rank.forEach(function(r, i) {
+    var pct   = Math.round(r.av / maxAv * 100);
+    var share = sumAv > 0 ? (r.av / sumAv * 100).toFixed(1) : '0.0';
+    var init  = r.nome.split(' ').filter(Boolean).map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
+    var bg    = bgTop[i] || 'var(--navy)';
+    var pos   = i < 3 ? '<span style="font-size:22px;">' + medals[i] + '</span>' : '<span style="font-size:13px;font-weight:800;color:var(--gray-400);">' + (i+1) + '.</span>';
+
+    html += '<div style="background:white;border:1px solid var(--gray-200);border-radius:14px;padding:14px 16px;">';
+    html += '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">';
+    html += '<div style="min-width:28px;text-align:center;">' + pos + '</div>';
+    html += '<div style="width:36px;height:36px;border-radius:50%;background:' + bg + ';color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">' + esc2(init) + '</div>';
+    html += '<div style="flex:1;min-width:0;">';
+    html += '<div style="font-size:14px;font-weight:800;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc2(r.nome) + '</div>';
+    html += '<div style="font-size:11px;color:var(--gray-400);">' + r.dias + ' dia(s)</div>';
+    html += '</div>';
+    html += '<div style="text-align:right;">';
+    html += '<div style="font-size:18px;font-weight:900;color:#15803d;">' + fR(r.av) + '</div>';
+    html += '<div style="font-size:10px;color:var(--gray-400);">' + share + '% do grupo</div>';
+    html += '</div></div>';
+    html += '<div style="height:7px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-bottom:8px;">';
+    html += '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#15803d,#22c55e);border-radius:4px;"></div>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--gray-500);">';
+    html += '<span><b style="color:#1d4ed8;">Deb</b> ' + fR(r.deb) + '</span>';
+    html += '<span><b style="color:#0369a1;">PIX</b> ' + fR(r.pix) + '</span>';
+    html += '<span><b style="color:#065f46;">Din</b> ' + fR(r.din) + '</span>';
+    html += '<span><b style="color:#7c3aed;">Cred</b> ' + fR(r.crd) + '</span>';
+    if (r.desp > 0) { html += '<span><b style="color:var(--red);">Desp</b> -' + fR(r.desp) + '</span>'; }
+    html += '</div></div>';
   });
 
   html += '</div></div>';
   area.innerHTML = html;
 };
 
-/* Exportacao */
+/* --- Export Caixa --- */
 window.abrirExportCaixa = function() {
   var hoje = new Date();
-  var y = hoje.getFullYear(), m = String(hoje.getMonth()+1).padStart(2,'0');
-  var ult = String(new Date(y, hoje.getMonth()+1, 0).getDate()).padStart(2,'0');
-  document.getElementById('expDataInicio').value = y+'-'+m+'-01';
-  document.getElementById('expDataFim').value    = y+'-'+m+'-'+ult;
+  var y = hoje.getFullYear(), m = hoje.getMonth();
+  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+  document.getElementById('expDataInicio').value = y+'-'+pad(m+1)+'-01';
+  document.getElementById('expDataFim').value    = y+'-'+pad(m+1)+'-'+pad(new Date(y,m+1,0).getDate());
   document.getElementById('expResultado').style.display = 'none';
   document.getElementById('btnBaixarExport').style.display = 'none';
   document.getElementById('expColabList').innerHTML = 'Selecione um periodo e clique em Calcular.';
@@ -2501,81 +2442,78 @@ window.fecharExportCaixa = function() {
 document.getElementById('modalExportCaixa').addEventListener('click', function(e) {
   if (e.target === this) window.fecharExportCaixa();
 });
-window.expSelecionarTodos = function(todos) {
-  document.querySelectorAll('.exp-colab-chk').forEach(function(chk){ chk.checked = todos; });
+window.expSelecionarTodos = function(v) {
+  document.querySelectorAll('.exp-colab-chk').forEach(function(c){ c.checked = v; });
 };
-
 window._expData = null;
+
 window.calcularExportCaixa = function() {
   var iniV = (document.getElementById('expDataInicio')||{}).value||'';
   var fimV = (document.getElementById('expDataFim')||{}).value||'';
   if (!iniV||!fimV) { alert('Selecione o periodo'); return; }
-  var colabSet = {};
+  var set = {};
   for (var uid in _dados) {
     for (var dia in _dados[uid]) {
       if (dia < iniV || dia > fimV) continue;
-      var snap = _dados[uid][dia];
-      if (!snap) continue;
-      var nome = window.aplicarAlias(snap.colaborador || uid);
-      colabSet[nome] = true;
+      var snap = _dados[uid][dia]; if (!snap) continue;
+      set[window.aplicarAlias(snap.colaborador || uid)] = true;
     }
   }
-  var nomes = Object.keys(colabSet).sort();
-  var listEl = document.getElementById('expColabList');
-  if (!nomes.length) { listEl.innerHTML = '<span style="color:var(--gray-400);">Nenhum registro.</span>'; return; }
-  listEl.innerHTML = nomes.map(function(nome) {
-    var id = 'expchk-' + nome.replace(/[^a-z0-9]/gi,'');
+  var nomes = Object.keys(set).sort();
+  var el = document.getElementById('expColabList');
+  if (!nomes.length) { el.innerHTML = '<span style="color:var(--gray-400);">Nenhum registro.</span>'; return; }
+  el.innerHTML = nomes.map(function(n) {
+    var id = 'ck-' + n.replace(/[^a-z0-9]/gi,'');
     return '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 0;">'
-      + '<input type="checkbox" class="exp-colab-chk" id="'+id+'" value="'+nome+'" checked style="width:14px;height:14px;">'
-      + '<span>'+nome+'</span></label>';
+      + '<input type="checkbox" class="exp-colab-chk" id="'+id+'" value="'+n+'" checked style="width:14px;height:14px;"> <span>'+n+'</span></label>';
   }).join('');
-  _recalcExport(iniV, fimV);
+  _recalcExp(iniV, fimV);
 };
 
-function fmtRE(v) { return 'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fRE(n){ return 'R$ '+(n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
-function _recalcExport(iniV, fimV) {
-  var selecionados = {};
-  document.querySelectorAll('.exp-colab-chk:checked').forEach(function(chk){ selecionados[chk.value]=true; });
+function _recalcExp(iniV, fimV) {
+  var sel = {};
+  document.querySelectorAll('.exp-colab-chk:checked').forEach(function(c){ sel[c.value]=true; });
   var deb=0,pix=0,crd=0,din=0,desp=0;
-  var linhas=[], porColab={};
+  var linhas=[], por={};
   for (var uid in _dados) {
     for (var dia in _dados[uid]) {
       if (dia < iniV || dia > fimV) continue;
       var snap = _dados[uid][dia]; if (!snap) continue;
       var nome = window.aplicarAlias(snap.colaborador || uid);
-      if (!selecionados[nome]) continue;
+      if (!sel[nome]) continue;
       var v = lerTotForma(snap.totForma);
       deb+=v.deb; pix+=v.pix; crd+=v.crd; din+=v.din; desp+=v.desp;
       linhas.push({dia:dia,nome:nome,deb:v.deb,pix:v.pix,crd:v.crd,din:v.din,desp:v.desp,total:v.deb+v.pix+v.crd+v.din-v.desp});
-      if (!porColab[nome]) porColab[nome]={deb:0,pix:0,crd:0,din:0};
-      porColab[nome].deb+=v.deb; porColab[nome].pix+=v.pix; porColab[nome].crd+=v.crd; porColab[nome].din+=v.din;
+      if (!por[nome]) por[nome]={deb:0,pix:0,crd:0,din:0};
+      por[nome].deb+=v.deb; por[nome].pix+=v.pix; por[nome].crd+=v.crd; por[nome].din+=v.din;
     }
   }
-  var debPix=deb+pix, total=debPix+crd+din;
-  window._expData={deb:deb,pix:pix,crd:crd,din:din,desp:desp,debPix:debPix,total:total,ini:iniV,fim:fimV,linhas:linhas,porColab:porColab};
-  document.getElementById('expDebitoPix').textContent = fmtRE(debPix);
-  document.getElementById('expDebPix2').textContent   = 'Deb: '+fmtRE(deb)+' | PIX: '+fmtRE(pix);
-  document.getElementById('expCredito').textContent   = fmtRE(crd);
-  document.getElementById('expDinheiro').textContent  = fmtRE(din);
-  document.getElementById('expTotal').textContent     = fmtRE(total);
+  var dp=deb+pix, tot=dp+crd+din;
+  window._expData={deb:deb,pix:pix,crd:crd,din:din,desp:desp,dp:dp,total:tot,ini:iniV,fim:fimV,linhas:linhas,por:por};
+  document.getElementById('expDebitoPix').textContent = fRE(dp);
+  document.getElementById('expDebPix2').textContent   = 'Deb: '+fRE(deb)+' | PIX: '+fRE(pix);
+  document.getElementById('expCredito').textContent   = fRE(crd);
+  document.getElementById('expDinheiro').textContent  = fRE(din);
+  document.getElementById('expTotal').textContent     = fRE(tot);
   document.getElementById('expResultado').style.display = 'block';
   document.getElementById('btnBaixarExport').style.display = 'block';
 
-  var MEDALS2 = ['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'];
-  var rank2 = Object.keys(porColab).map(function(n){ var v=porColab[n]; var av=v.deb+v.pix+v.din; return {nome:n,avista:av,deb:v.deb,pix:v.pix,din:v.din,crd:v.crd}; }).sort(function(a,b){return b.avista-a.avista;});
-  var max2 = rank2.length ? rank2[0].avista||1 : 1;
-  var rankEl = document.getElementById('expRanking');
-  if (rankEl) {
-    rankEl.innerHTML = rank2.map(function(r,i){
-      var pct2=max2>0?Math.round(r.avista/max2*100):0;
-      var med2=MEDALS2[i]||('<b style="color:var(--gray-400);font-size:11px;">'+(i+1)+'.</b>');
+  var rank2 = Object.keys(por).map(function(n){ var v=por[n]; var av=v.deb+v.pix+v.din; return {nome:n,av:av}; }).sort(function(a,b){return b.av-a.av;});
+  var max2 = rank2.length ? rank2[0].av||1 : 1;
+  var medals2 = ['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'];
+  var rEl = document.getElementById('expRanking');
+  if (rEl) {
+    rEl.innerHTML = rank2.map(function(r,i){
+      var pct2 = Math.round(r.av/max2*100);
+      var med2 = i < 3 ? medals2[i] : '<b style="font-size:11px;color:var(--gray-400);">'+(i+1)+'.</b>';
       return '<div style="display:flex;align-items:center;gap:8px;">'
         +'<div style="min-width:22px;text-align:center;font-size:14px;">'+med2+'</div>'
-        +'<div style="flex:1;min-width:0;">'
-        +'<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px;">'
-        +'<span style="font-size:12px;font-weight:700;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px;">'+r.nome.split(' ')[0]+'</span>'
-        +'<span style="font-size:12px;font-weight:900;color:#15803d;white-space:nowrap;margin-left:6px;">'+fmtRE(r.avista)+'</span>'
+        +'<div style="flex:1;">'
+        +'<div style="display:flex;justify-content:space-between;margin-bottom:3px;">'
+        +'<span style="font-size:12px;font-weight:700;color:var(--navy);">'+r.nome.split(' ')[0]+'</span>'
+        +'<span style="font-size:12px;font-weight:900;color:#15803d;">'+fRE(r.av)+'</span>'
         +'</div>'
         +'<div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;">'
         +'<div style="height:100%;width:'+pct2+'%;background:linear-gradient(90deg,#15803d,#22c55e);border-radius:3px;"></div>'
@@ -2587,40 +2525,52 @@ function _recalcExport(iniV, fimV) {
 document.getElementById('expColabList').addEventListener('change', function() {
   var iniV=(document.getElementById('expDataInicio')||{}).value||'';
   var fimV=(document.getElementById('expDataFim')||{}).value||'';
-  if (iniV&&fimV) _recalcExport(iniV,fimV);
+  if (iniV&&fimV) _recalcExp(iniV,fimV);
 });
 
 window.baixarExportCaixa = function() {
   if (!window._expData) return;
-  var d=window._expData, NL='\n', SC=';';
-  var fmtN=function(n){return(n||0).toFixed(2).replace('.',',');};
+  var d=window._expData;
+  function fN(n){ return (n||0).toFixed(2).replace('.',','); }
+  var NL='\n', SC=';';
   var rows=[];
-  rows.push('EXPORTACAO DE CAIXA'); rows.push('Periodo'+SC+d.ini+' a '+d.fim); rows.push('');
+  rows.push('CAIXA POR FORMA DE PAGAMENTO'); rows.push('Periodo'+SC+d.ini+' a '+d.fim); rows.push('');
   rows.push('FORMA'+SC+'VALOR');
-  rows.push('Debito + PIX'+SC+fmtN(d.debPix));
-  rows.push('  Debito'+SC+fmtN(d.deb)); rows.push('  PIX'+SC+fmtN(d.pix));
-  rows.push('Credito'+SC+fmtN(d.crd)); rows.push('Dinheiro'+SC+fmtN(d.din));
-  rows.push('TOTAL GERAL'+SC+fmtN(d.total)); rows.push('');
-  rows.push('RANKING - TOTAL A VISTA'); rows.push('Pos'+SC+'Nome'+SC+'A Vista'+SC+'Debito'+SC+'PIX'+SC+'Dinheiro'+SC+'Credito');
-  var rank3=Object.keys(d.porColab).map(function(n){var v=d.porColab[n];return{nome:n,av:v.deb+v.pix+v.din,deb:v.deb,pix:v.pix,din:v.din,crd:v.crd};}).sort(function(a,b){return b.av-a.av;});
-  rank3.forEach(function(r,i){rows.push((i+1)+SC+r.nome+SC+fmtN(r.av)+SC+fmtN(r.deb)+SC+fmtN(r.pix)+SC+fmtN(r.din)+SC+fmtN(r.crd));});
+  rows.push('Debito+PIX'+SC+fN(d.dp)); rows.push(' Debito'+SC+fN(d.deb)); rows.push(' PIX'+SC+fN(d.pix));
+  rows.push('Credito'+SC+fN(d.crd)); rows.push('Dinheiro'+SC+fN(d.din)); rows.push('TOTAL'+SC+fN(d.total)); rows.push('');
+  rows.push('RANKING A VISTA'); rows.push('Pos'+SC+'Nome'+SC+'A Vista'+SC+'Debito'+SC+'PIX'+SC+'Dinheiro'+SC+'Credito');
+  var rk=Object.keys(d.por).map(function(n){var v=d.por[n];return{nome:n,av:v.deb+v.pix+v.din,deb:v.deb,pix:v.pix,din:v.din,crd:v.crd};}).sort(function(a,b){return b.av-a.av;});
+  rk.forEach(function(r,i){rows.push((i+1)+SC+r.nome+SC+fN(r.av)+SC+fN(r.deb)+SC+fN(r.pix)+SC+fN(r.din)+SC+fN(r.crd));});
   rows.push(''); rows.push('DETALHE'); rows.push('Data'+SC+'Colab'+SC+'Deb'+SC+'PIX'+SC+'Cred'+SC+'Din'+SC+'Desp'+SC+'Total');
-  d.linhas.sort(function(a,b){return a.dia<b.dia?-1:1;}).forEach(function(l){rows.push(l.dia+SC+l.nome+SC+fmtN(l.deb)+SC+fmtN(l.pix)+SC+fmtN(l.crd)+SC+fmtN(l.din)+SC+fmtN(l.desp)+SC+fmtN(l.total));});
-  var csv='\uFEFF'+rows.join(NL);
-  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  d.linhas.sort(function(a,b){return a.dia<b.dia?-1:1;}).forEach(function(l){rows.push(l.dia+SC+l.nome+SC+fN(l.deb)+SC+fN(l.pix)+SC+fN(l.crd)+SC+fN(l.din)+SC+fN(l.desp)+SC+fN(l.total));});
+  var blob=new Blob(['\uFEFF'+rows.join(NL)],{type:'text/csv;charset=utf-8'});
   var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='caixa-'+d.ini+'-a-'+d.fim+'.csv'; a.click();
 };
 
-/* Adicionar aba Ranking na nav */
-(function addRankTab() {
+/* --- Adicionar aba Ranking na nav e tratar switchMainTab --- */
+(function() {
+  var _origSwitch = window.switchMainTab;
+  window.switchMainTab = function(tab) {
+    if (tab === 'ranking') {
+      document.querySelectorAll('.main-tab').forEach(function(b){ b.classList.remove('active'); });
+      var btn = document.getElementById('mainTabRanking');
+      if (btn) btn.classList.add('active');
+      document.querySelectorAll('.view-panel').forEach(function(p){ p.style.display='none'; });
+      var vr = document.getElementById('viewRanking');
+      if (vr) { vr.style.display='block'; rankInitDatas(); }
+      return;
+    }
+    if (_origSwitch) _origSwitch(tab);
+  };
   var nav = document.querySelector('.main-tabs');
-  if (!nav) return;
-  var btn = document.createElement('button');
-  btn.className = 'main-tab';
-  btn.id = 'mainTabRanking';
-  btn.innerHTML = '<i class="fas fa-trophy"></i> Ranking';
-  btn.onclick = function() { window.switchMainTab('ranking'); };
-  nav.appendChild(btn);
+  if (nav) {
+    var btn = document.createElement('button');
+    btn.className = 'main-tab';
+    btn.id = 'mainTabRanking';
+    btn.innerHTML = '<i class="fas fa-trophy"></i> Ranking';
+    btn.addEventListener('click', function(){ window.switchMainTab('ranking'); });
+    nav.appendChild(btn);
+  }
 })();
 </script>
-<!-- VERSION: v1.9 | dashboard.html | 30/07/2026 | fix: syntax error resolvido, ranking e exportacao com script separado seguro -->
+<!-- VERSION: v2.0 | dashboard.html | 31/07/2026 -->
