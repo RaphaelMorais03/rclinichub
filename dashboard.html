@@ -1,4 +1,4 @@
-<!-- VERSION: v1.9 | dashboard.html | 30/07/2026 | feat: aba Ranking com periodo livre e barras visuais -->
+<!-- VERSION: v1.5 | dashboard.html | 14/07/2026 | feat: aba contratos com lista mensal e resumo para repasse Dra. Lauriana -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -235,7 +235,7 @@
       </div>
     </div>
     <div class="header-right">
-      <button class="btn-lancamento" id="btnLancamentoHeader" onclick="abrirLancamento()">
+<button class="btn-lancamento" id="btnLancamentoHeader" onclick="abrirLancamento()">
         <i class="fas fa-plus"></i> Lançamento Manual
       </button>
       <button class="back-btn" onclick="irPara('login.html')"><i class="fas fa-home"></i> Portal</button>
@@ -399,7 +399,6 @@
         <button class="main-tab" id="mainTabFech" onclick="switchMainTab('fech')"><i class="fas fa-file-invoice-dollar"></i> Fechamentos</button>
         <button class="main-tab" id="mainTabVisao" onclick="switchMainTab('visao')"><i class="fas fa-gauge-high"></i> Visão Geral</button>
         <button class="main-tab" id="mainTabContratos" onclick="switchMainTab('contratos')"><i class="fas fa-file-contract"></i> Contratos</button>
-        <button class="main-tab" id="mainTabRanking" onclick="switchMainTab('ranking')"><i class="fas fa-trophy"></i> Ranking</button>
       </div>
       <button class="btn-lancamento" id="btnLancProd" onclick="abrirLancamento()"><i class="fas fa-plus"></i> Lançamento Manual</button>
     </div>
@@ -450,8 +449,6 @@
       <div id="caixaTabContent">
         <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
       </div>
-
-      <!-- MODAL EXPORTAÇÃO -->
       <div id="modalExportCaixa" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:20px;">
         <div style="background:white;border-radius:18px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
           <div style="padding:18px 22px 14px;border-bottom:1.5px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
@@ -471,35 +468,18 @@
                   <button onclick="expSelecionarTodos(false)" style="font-size:10px;padding:2px 9px;border-radius:6px;border:1px solid var(--gray-200);background:white;cursor:pointer;font-family:inherit;font-weight:700;">Nenhum</button>
                 </div>
               </div>
-              <div id="expColabList" style="max-height:130px;overflow-y:auto;border:1.5px solid var(--gray-200);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--gray-400);">
-                Selecione um período e clique em Calcular.
-              </div>
+              <div id="expColabList" style="max-height:130px;overflow-y:auto;border:1.5px solid var(--gray-200);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--gray-400);">Selecione um periodo e clique em Calcular.</div>
             </div>
             <div id="expResultado" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:14px;">
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:10px;">Resumo — colaboradores selecionados</div>
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:10px;">Resumo do periodo</div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-                <div style="background:#eff6ff;border-radius:10px;padding:10px 12px;">
-                  <div style="font-size:10px;font-weight:700;color:#1d4ed8;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-mobile-alt" style="margin-right:3px;"></i>Debito + PIX</div>
-                  <div style="font-size:18px;font-weight:900;color:#1d4ed8;" id="expDebitoPix">R$ 0,00</div>
-                  <div style="font-size:10px;color:#64748b;margin-top:2px;" id="expDebPix2">Deb: — | PIX: —</div>
-                </div>
-                <div style="background:#f5f3ff;border-radius:10px;padding:10px 12px;">
-                  <div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-credit-card" style="margin-right:3px;"></i>Credito</div>
-                  <div style="font-size:18px;font-weight:900;color:#7c3aed;" id="expCredito">R$ 0,00</div>
-                </div>
-                <div style="background:#f0fdf4;border-radius:10px;padding:10px 12px;">
-                  <div style="font-size:10px;font-weight:700;color:#15803d;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-money-bill" style="margin-right:3px;"></i>Dinheiro</div>
-                  <div style="font-size:18px;font-weight:900;color:#15803d;" id="expDinheiro">R$ 0,00</div>
-                </div>
-                <div style="background:#fff1f2;border-radius:10px;padding:10px 12px;">
-                  <div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-coins" style="margin-right:3px;"></i>Total</div>
-                  <div style="font-size:18px;font-weight:900;color:var(--red);" id="expTotal">R$ 0,00</div>
-                </div>
+                <div style="background:#eff6ff;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:#1d4ed8;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-mobile-alt" style="margin-right:3px;"></i>Debito + PIX</div><div style="font-size:18px;font-weight:900;color:#1d4ed8;" id="expDebitoPix">R$ 0,00</div><div style="font-size:10px;color:#64748b;margin-top:2px;" id="expDebPix2">Deb: - | PIX: -</div></div>
+                <div style="background:#f5f3ff;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-credit-card" style="margin-right:3px;"></i>Credito</div><div style="font-size:18px;font-weight:900;color:#7c3aed;" id="expCredito">R$ 0,00</div></div>
+                <div style="background:#f0fdf4;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:#15803d;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-money-bill" style="margin-right:3px;"></i>Dinheiro</div><div style="font-size:18px;font-weight:900;color:#15803d;" id="expDinheiro">R$ 0,00</div></div>
+                <div style="background:#fff1f2;border-radius:10px;padding:10px 12px;"><div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-coins" style="margin-right:3px;"></i>Total</div><div style="font-size:18px;font-weight:900;color:var(--red);" id="expTotal">R$ 0,00</div></div>
               </div>
-
-              <!-- RANKING À VISTA -->
               <div style="border-top:1.5px solid #e2e8f0;padding-top:12px;">
-                <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;display:flex;align-items:center;gap:6px;"><i class="fas fa-trophy" style="color:#d97706;"></i> Ranking — Total à Vista</div>
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;display:flex;align-items:center;gap:6px;"><i class="fas fa-trophy" style="color:#d97706;"></i> Ranking - Total a Vista</div>
                 <div id="expRanking" style="display:flex;flex-direction:column;gap:6px;"></div>
               </div>
             </div>
@@ -570,32 +550,20 @@
         <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
       </div>
     </div><!-- /viewContratos -->
-
-    <!-- PAINEL RANKING -->
     <div class="view-panel" id="viewRanking">
       <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
         <div>
-          <div style="font-size:16px;font-weight:800;color:var(--navy);">Ranking de Produção</div>
-          <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Selecione o período e veja quem produziu mais</div>
+          <div style="font-size:16px;font-weight:800;color:var(--navy);">Ranking de Producao</div>
+          <div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Selecione o periodo e veja quem produziu mais</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto;">
-          <div>
-            <label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">De</label>
-            <input type="date" id="rankDataIni" class="f-input" style="width:140px;">
-          </div>
-          <div>
-            <label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">Até</label>
-            <input type="date" id="rankDataFim" class="f-input" style="width:140px;">
-          </div>
-          <div style="padding-top:16px;">
-            <button onclick="renderRanking()" style="padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;white-space:nowrap;"><i class="fas fa-trophy"></i> Gerar Ranking</button>
-          </div>
+          <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">De</label><input type="date" id="rankDataIni" class="f-input" style="width:140px;"></div>
+          <div><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">Ate</label><input type="date" id="rankDataFim" class="f-input" style="width:140px;"></div>
+          <div style="padding-top:16px;"><button onclick="renderRanking()" style="padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;"><i class="fas fa-trophy"></i> Gerar Ranking</button></div>
         </div>
       </div>
-      <div id="rankingArea">
-        <div class="loading" style="padding:48px;"><i class="fas fa-trophy" style="font-size:36px;opacity:.15;display:block;margin-bottom:10px;"></i><span>Selecione um período e clique em Gerar Ranking</span></div>
-      </div>
-    </div><!-- /viewRanking -->
+      <div id="rankingArea"><div class="loading" style="padding:48px;"><i class="fas fa-trophy" style="font-size:36px;opacity:.15;display:block;margin-bottom:10px;"></i><span>Selecione um periodo e clique em Gerar Ranking</span></div></div>
+    </div>
 
   </div><!-- /content -->
 
@@ -971,7 +939,7 @@
     var _cxEditUID = null, _cxEditDT = null;
 
     window.switchMainTab = function(tab) {
-      var tabs = ['prod','caixa','fech','visao','contratos','ranking'];
+      var tabs = ['prod','caixa','fech','visao','contratos'];
       tabs.forEach(function(t) {
         var vp = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
         var mt = document.getElementById('mainTab' + t.charAt(0).toUpperCase() + t.slice(1));
@@ -987,372 +955,8 @@
       if (tab === 'fech')  { preencherMesFech();  renderFechTab(); }
       if (tab === 'visao') { preencherMesVisao(); renderVisao(); }
       if (tab === 'contratos') { preencherMesContratos(); renderContratos(); }
-      if (tab === 'ranking') { rankInitDatas(); }
     };
 
-
-
-    // ── EXPORTAÇÃO POR FORMA DE PAGAMENTO + COLABORADORES ─────────────
-    window.abrirExportCaixa = function() {
-      var hoje = new Date();
-      var y = hoje.getFullYear(), m = String(hoje.getMonth()+1).padStart(2,'0');
-      var ult = new Date(y, hoje.getMonth()+1, 0).getDate();
-      var ini = document.getElementById('expDataInicio');
-      var fim = document.getElementById('expDataFim');
-      if (ini) ini.value = y+'-'+m+'-01';
-      if (fim) fim.value = y+'-'+m+'-'+String(ult).padStart(2,'0');
-      document.getElementById('expResultado').style.display = 'none';
-      document.getElementById('btnBaixarExport').style.display = 'none';
-      document.getElementById('expColabList').innerHTML = 'Selecione um período e clique em Calcular.';
-      var mod = document.getElementById('modalExportCaixa');
-      if (mod) mod.style.display = 'flex';
-    };
-
-    window.fecharExportCaixa = function() {
-      var mod = document.getElementById('modalExportCaixa');
-      if (mod) mod.style.display = 'none';
-    };
-
-    document.getElementById('modalExportCaixa').addEventListener('click', function(e) {
-      if (e.target === this) window.fecharExportCaixa();
-    });
-
-    window.expSelecionarTodos = function(todos) {
-      document.querySelectorAll('.exp-colab-chk').forEach(function(chk) {
-        chk.checked = todos;
-      });
-    };
-
-    function fmtRE(v) {
-      return 'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-    }
-
-    // Agrega totForma com compatibilidade de chaves acentuadas e sem acento
-    function lerTotForma(tf) {
-      return {
-        deb:  (tf['Cart\u00e3o de D\u00e9bito']  || tf['Cartao de Debito']  || {}).entrada || 0,
-        pix:  (tf['PIX']                            || {}).entrada || 0,
-        crd:  (tf['Cart\u00e3o de Cr\u00e9dito'] || tf['Cartao de Credito'] || {}).entrada || 0,
-        din:  (tf['Dinheiro']                        || {}).entrada || 0,
-        desp: Object.values(tf).reduce(function(s,v){ return s+(v.saida||0);}, 0)
-      };
-    }
-
-    window._expData = null;
-
-    window.calcularExportCaixa = function() {
-      var iniV = (document.getElementById('expDataInicio') || {}).value || '';
-      var fimV = (document.getElementById('expDataFim')    || {}).value || '';
-      if (!iniV || !fimV) { alert('Selecione o período'); return; }
-      if (iniV > fimV)    { alert('Data início deve ser anterior à data fim'); return; }
-
-      // Coletar todos os colaboradores no período
-      var colabSet = {};
-      for (var uid in _dados) {
-        for (var dia in _dados[uid]) {
-          if (dia < iniV || dia > fimV) continue;
-          var snap = _dados[uid][dia];
-          if (!snap) continue;
-          var nome = aplicarAlias(snap.colaborador || uid);
-          if (!colabSet[nome]) colabSet[nome] = { uid: uid };
-        }
-      }
-
-      // Renderizar lista de checkboxes
-      var nomes = Object.keys(colabSet).sort();
-      var listEl = document.getElementById('expColabList');
-      if (!nomes.length) {
-        listEl.innerHTML = '<span style="color:var(--gray-400);">Nenhum registro no período.</span>';
-        return;
-      }
-      listEl.innerHTML = nomes.map(function(nome) {
-        var id = 'expchk-' + nome.replace(/[^a-z0-9]/gi,'');
-        return '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 0;">'
-          + '<input type="checkbox" class="exp-colab-chk" id="'+id+'" value="'+nome+'" checked style="width:14px;height:14px;">'
-          + '<span>'+nome+'</span></label>';
-      }).join('');
-
-      // Calcular com todos selecionados inicialmente
-      _recalcExport(iniV, fimV);
-    };
-
-    function _recalcExport(iniV, fimV) {
-      var selecionados = {};
-      document.querySelectorAll('.exp-colab-chk:checked').forEach(function(chk) {
-        selecionados[chk.value] = true;
-      });
-
-      var deb=0, pix=0, crd=0, din=0, desp=0;
-      var linhas = [];
-      var porColab = {}; // para o ranking
-
-      for (var uid in _dados) {
-        for (var dia in _dados[uid]) {
-          if (dia < iniV || dia > fimV) continue;
-          var snap = _dados[uid][dia];
-          if (!snap) continue;
-          var nome = aplicarAlias(snap.colaborador || uid);
-          if (!selecionados[nome]) continue;
-          var tf = snap.totForma || {};
-          var v = lerTotForma(tf);
-          deb  += v.deb;
-          pix  += v.pix;
-          crd  += v.crd;
-          din  += v.din;
-          desp += v.desp;
-          linhas.push({ dia:dia, nome:nome, deb:v.deb, pix:v.pix, crd:v.crd, din:v.din, desp:v.desp, total:v.deb+v.pix+v.crd+v.din-v.desp });
-
-          // Agregar por colaborador para o ranking
-          if (!porColab[nome]) porColab[nome] = { deb:0, pix:0, crd:0, din:0, desp:0 };
-          porColab[nome].deb  += v.deb;
-          porColab[nome].pix  += v.pix;
-          porColab[nome].crd  += v.crd;
-          porColab[nome].din  += v.din;
-          porColab[nome].desp += v.desp;
-        }
-      }
-
-      var debPix = deb + pix;
-      var total  = debPix + crd + din;
-
-      window._expData = { deb:deb, pix:pix, crd:crd, din:din, desp:desp, debPix:debPix, total:total, ini:iniV, fim:fimV, linhas:linhas, porColab:porColab };
-
-      document.getElementById('expDebitoPix').textContent = fmtRE(debPix);
-      document.getElementById('expDebPix2').textContent   = 'Deb: '+fmtRE(deb)+' | PIX: '+fmtRE(pix);
-      document.getElementById('expCredito').textContent   = fmtRE(crd);
-      document.getElementById('expDinheiro').textContent  = fmtRE(din);
-      document.getElementById('expTotal').textContent     = fmtRE(total);
-      document.getElementById('expResultado').style.display = 'block';
-      document.getElementById('btnBaixarExport').style.display = 'block';
-
-      // ── Renderizar ranking à vista ──
-      var MEDALS = ['🥇','🥈','🥉'];
-      var ranking = Object.keys(porColab).map(function(nome) {
-        var v = porColab[nome];
-        var avista = v.deb + v.pix + v.din;
-        return { nome: nome, avista: avista, deb: v.deb, pix: v.pix, din: v.din, crd: v.crd };
-      }).sort(function(a,b){ return b.avista - a.avista; });
-
-      var maxAvista = ranking.length ? ranking[0].avista : 1;
-
-      var rankEl = document.getElementById('expRanking');
-      if (!ranking.length) {
-        rankEl.innerHTML = '<div style="font-size:12px;color:var(--gray-400);">Nenhum dado.</div>';
-        return;
-      }
-
-      rankEl.innerHTML = ranking.map(function(r, i) {
-        var pct = maxAvista > 0 ? Math.round((r.avista / maxAvista) * 100) : 0;
-        var medal = MEDALS[i] || ('<span style="font-size:11px;color:var(--gray-400);font-weight:700;">'+(i+1)+'º</span>');
-        var primeiroN = (r.nome||'').split(' ')[0];
-        return '<div style="display:flex;align-items:center;gap:8px;">'
-          + '<div style="width:22px;text-align:center;font-size:14px;flex-shrink:0;">' + medal + '</div>'
-          + '<div style="flex:1;min-width:0;">'
-          +   '<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px;">'
-          +     '<span style="font-size:12px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;" title="'+r.nome+'">'+primeiroN+'</span>'
-          +     '<span style="font-size:12px;font-weight:900;color:#15803d;white-space:nowrap;margin-left:6px;">'+fmtRE(r.avista)+'</span>'
-          +   '</div>'
-          +   '<div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;">'
-          +     '<div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#15803d,#22c55e);border-radius:3px;transition:width .3s;"></div>'
-          +   '</div>'
-          +   '<div style="font-size:10px;color:var(--gray-400);margin-top:2px;">Déb: '+fmtRE(r.deb)+' · PIX: '+fmtRE(r.pix)+' · Din: '+fmtRE(r.din)+'</div>'
-          + '</div>'
-          + '</div>';
-      }).join('');
-    }
-
-    // Recalcular ao marcar/desmarcar colaborador
-    document.getElementById('expColabList').addEventListener('change', function() {
-      var iniV = (document.getElementById('expDataInicio') || {}).value || '';
-      var fimV = (document.getElementById('expDataFim')    || {}).value || '';
-      if (iniV && fimV) _recalcExport(iniV, fimV);
-    });
-
-    window.baixarExportCaixa = function() {
-      if (!window._expData) return;
-      var d = window._expData;
-      var fmtN = function(n) { return (n||0).toFixed(2).replace('.',','); };
-      var NL = '\n', SC = ';';
-
-      var rows = [];
-      rows.push('EXPORTACAO DE CAIXA POR FORMA DE PAGAMENTO');
-      rows.push('Periodo' + SC + d.ini + ' a ' + d.fim);
-      rows.push('');
-      rows.push('TOTAIS GERAIS');
-      rows.push('FORMA' + SC + 'VALOR');
-      rows.push('Debito + PIX (Combinado)' + SC + fmtN(d.debPix));
-      rows.push('  Debito' + SC + fmtN(d.deb));
-      rows.push('  PIX' + SC + fmtN(d.pix));
-      rows.push('Credito (a vista + parcelado)' + SC + fmtN(d.crd));
-      rows.push('Dinheiro' + SC + fmtN(d.din));
-      rows.push('TOTAL GERAL' + SC + fmtN(d.total));
-
-      // Ranking por colaborador
-      if (d.porColab && Object.keys(d.porColab).length) {
-        rows.push('');
-        rows.push('RANKING - TOTAL A VISTA (DEBITO + PIX + DINHEIRO)');
-        rows.push('Posicao' + SC + 'Colaborador' + SC + 'A Vista' + SC + 'Debito' + SC + 'PIX' + SC + 'Dinheiro' + SC + 'Credito');
-        var ranking = Object.keys(d.porColab).map(function(nome) {
-          var v = d.porColab[nome];
-          return { nome:nome, avista:v.deb+v.pix+v.din, deb:v.deb, pix:v.pix, din:v.din, crd:v.crd };
-        }).sort(function(a,b){ return b.avista - a.avista; });
-        ranking.forEach(function(r, i) {
-          rows.push((i+1) + SC + r.nome + SC + fmtN(r.avista) + SC + fmtN(r.deb) + SC + fmtN(r.pix) + SC + fmtN(r.din) + SC + fmtN(r.crd));
-        });
-      }
-
-      rows.push('');
-      rows.push('DETALHE POR DIA E COLABORADOR');
-      rows.push('Data' + SC + 'Colaborador' + SC + 'Debito' + SC + 'PIX' + SC + 'Credito' + SC + 'Dinheiro' + SC + 'Despesas' + SC + 'Total');
-      d.linhas.sort(function(a,b){ return a.dia < b.dia ? -1 : 1; }).forEach(function(l) {
-        rows.push(l.dia + SC + l.nome + SC + fmtN(l.deb) + SC + fmtN(l.pix) + SC + fmtN(l.crd) + SC + fmtN(l.din) + SC + fmtN(l.desp) + SC + fmtN(l.total));
-      });
-
-      var csv = '\uFEFF' + rows.join(NL);
-      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-      var a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'caixa-ranking-'+d.ini+'-a-'+d.fim+'.csv';
-      a.click();
-    };
-
-
-    // ══════════════════════════════════════════════════════════════════
-    // RANKING DE PRODUÇÃO — seleção livre de período
-    // ══════════════════════════════════════════════════════════════════
-    function rankInitDatas() {
-      var ini = document.getElementById('rankDataIni');
-      var fim = document.getElementById('rankDataFim');
-      if (ini && !ini.value) {
-        var hoje = new Date();
-        var y = hoje.getFullYear(), m = String(hoje.getMonth()+1).padStart(2,'0');
-        ini.value = y + '-' + m + '-01';
-        fim.value = y + '-' + m + '-' + String(new Date(y, hoje.getMonth()+1, 0).getDate()).padStart(2,'0');
-      }
-    }
-
-    window.renderRanking = function() {
-      var iniV = (document.getElementById('rankDataIni') || {}).value || '';
-      var fimV = (document.getElementById('rankDataFim') || {}).value || '';
-      var area = document.getElementById('rankingArea');
-      if (!area) return;
-      if (!iniV || !fimV) { area.innerHTML = '<div class="loading">Selecione as datas.</div>'; return; }
-      if (iniV > fimV)    { area.innerHTML = '<div class="loading">Data início deve ser anterior à data fim.</div>'; return; }
-
-      // Agregar por colaborador
-      var porColab = {};
-      var totalDias = 0;
-      for (var uid in _dados) {
-        for (var dia in _dados[uid]) {
-          if (dia < iniV || dia > fimV) continue;
-          var snap = _dados[uid][dia];
-          if (!snap || !snap.totForma) continue;
-          var nome = aplicarAlias(snap.colaborador || uid);
-          if (!porColab[nome]) porColab[nome] = { deb:0, pix:0, crd:0, din:0, desp:0, dias:0 };
-          var v = lerTotForma(snap.totForma);
-          porColab[nome].deb  += v.deb;
-          porColab[nome].pix  += v.pix;
-          porColab[nome].crd  += v.crd;
-          porColab[nome].din  += v.din;
-          porColab[nome].desp += v.desp;
-          porColab[nome].dias++;
-          totalDias++;
-        }
-      }
-
-      var nomes = Object.keys(porColab);
-      if (!nomes.length) {
-        area.innerHTML = '<div class="loading"><i class="fas fa-inbox" style="font-size:36px;opacity:.15;display:block;margin-bottom:10px;"></i><span>Nenhum caixa encontrado neste período.</span></div>';
-        return;
-      }
-
-      // Criar ranking por à vista
-      var MEDALS = ['🥇','🥈','🥉'];
-      var ranking = nomes.map(function(nome) {
-        var v = porColab[nome];
-        var avista = v.deb + v.pix + v.din;
-        var total  = avista + v.crd - v.desp;
-        return { nome:nome, avista:avista, deb:v.deb, pix:v.pix, din:v.din, crd:v.crd, desp:v.desp, total:total, dias:v.dias };
-      }).sort(function(a,b){ return b.avista - a.avista; });
-
-      var maxAvista = ranking[0].avista || 1;
-      var totalAvista = ranking.reduce(function(s,r){ return s+r.avista; }, 0);
-
-      // Formatar período para exibição
-      function fmtD(s){ var p=s.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
-      var periodoLabel = fmtD(iniV) + ' a ' + fmtD(fimV);
-
-      var html = '<div class="table-card">';
-
-      // Cabeçalho com totalizadores do período
-      html += '<div class="table-header" style="flex-wrap:wrap;gap:8px;">'
-        + '<i class="fas fa-trophy" style="font-size:16px;color:#d97706;"></i>'
-        + '<span class="table-title">Ranking por Total à Vista</span>'
-        + '<span class="period-pill"><i class="fas fa-calendar"></i> ' + periodoLabel + '</span>'
-        + '<span style="margin-left:auto;font-size:11px;color:var(--gray-400);">' + ranking.length + ' colaborador(es) · ' + totalDias + ' registro(s)</span>'
-        + '</div>';
-
-      // Cards de total geral
-      var totGeral   = ranking.reduce(function(s,r){ return s+r.total;  }, 0);
-      var totCredito = ranking.reduce(function(s,r){ return s+r.crd;    }, 0);
-      var totDesp    = ranking.reduce(function(s,r){ return s+r.desp;   }, 0);
-      html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;padding:14px 18px;border-bottom:1px solid var(--gray-200);">'
-        + '<div style="background:#f0fdf4;border-radius:10px;padding:10px 12px;">'
-        +   '<div style="font-size:10px;font-weight:700;color:#15803d;text-transform:uppercase;margin-bottom:3px;">Total à Vista</div>'
-        +   '<div style="font-size:18px;font-weight:900;color:#15803d;">' + fmtBRL(totalAvista) + '</div>'
-        + '</div>'
-        + '<div style="background:#f5f3ff;border-radius:10px;padding:10px 12px;">'
-        +   '<div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;margin-bottom:3px;">Crédito</div>'
-        +   '<div style="font-size:18px;font-weight:900;color:#7c3aed;">' + fmtBRL(totCredito) + '</div>'
-        + '</div>'
-        + '<div style="background:#eff6ff;border-radius:10px;padding:10px 12px;">'
-        +   '<div style="font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;margin-bottom:3px;">Total Geral</div>'
-        +   '<div style="font-size:18px;font-weight:900;color:var(--navy);">' + fmtBRL(totGeral) + '</div>'
-        + '</div>'
-        + '</div>';
-
-      // Ranking visual
-      html += '<div style="padding:16px 18px;display:flex;flex-direction:column;gap:12px;">';
-
-      ranking.forEach(function(r, i) {
-        var pct    = maxAvista > 0 ? Math.round((r.avista / maxAvista) * 100) : 0;
-        var share  = totalAvista > 0 ? (r.avista / totalAvista * 100).toFixed(1) : '0.0';
-        var medal  = i < 3 ? MEDALS[i] : '<span style="font-size:12px;font-weight:800;color:var(--gray-400);min-width:20px;text-align:center;">' + (i+1) + 'º</span>';
-        var initials = r.nome.split(' ').filter(Boolean).map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
-        var bgAvatar = i===0 ? '#d97706' : i===1 ? '#64748b' : i===2 ? '#b45309' : 'var(--navy)';
-
-        html += '<div style="background:white;border:1px solid var(--gray-200);border-radius:14px;padding:14px 16px;transition:box-shadow .15s;" onmouseenter="this.style.boxShadow='0 4px 16px rgba(0,0,0,.08)'" onmouseleave="this.style.boxShadow='none'">'
-          // Linha do topo: posição, avatar, nome, valor
-          + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
-          +   '<div style="font-size:' + (i<3?'22':'14') + 'px;min-width:28px;text-align:center;">' + medal + '</div>'
-          +   '<div style="width:36px;height:36px;border-radius:50%;background:' + bgAvatar + ';color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">' + initials + '</div>'
-          +   '<div style="flex:1;min-width:0;">'
-          +     '<div style="font-size:14px;font-weight:800;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc(r.nome) + '</div>'
-          +     '<div style="font-size:11px;color:var(--gray-400);">' + r.dias + ' dia(s) registrado(s)</div>'
-          +   '</div>'
-          +   '<div style="text-align:right;">'
-          +     '<div style="font-size:18px;font-weight:900;color:#15803d;">' + fmtBRL(r.avista) + '</div>'
-          +     '<div style="font-size:10px;color:var(--gray-400);">' + share + '% do total</div>'
-          +   '</div>'
-          + '</div>'
-          // Barra de progresso
-          + '<div style="height:7px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-bottom:8px;">'
-          +   '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#15803d,#22c55e);border-radius:4px;transition:width .4s;"></div>'
-          + '</div>'
-          // Detalhe: Déb · PIX · Din · Crédito
-          + '<div style="display:flex;gap:12px;flex-wrap:wrap;">'
-          +   '<span style="font-size:11px;color:var(--gray-500);"><span style="color:#1d4ed8;font-weight:700;">Déb</span> ' + fmtBRL(r.deb) + '</span>'
-          +   '<span style="font-size:11px;color:var(--gray-500);"><span style="color:#0369a1;font-weight:700;">PIX</span> ' + fmtBRL(r.pix) + '</span>'
-          +   '<span style="font-size:11px;color:var(--gray-500);"><span style="color:#065f46;font-weight:700;">Din</span> ' + fmtBRL(r.din) + '</span>'
-          +   '<span style="font-size:11px;color:var(--gray-500);"><span style="color:#7c3aed;font-weight:700;">Cred</span> ' + fmtBRL(r.crd) + '</span>'
-          +   (r.desp > 0 ? '<span style="font-size:11px;color:var(--gray-500);"><span style="color:var(--red);font-weight:700;">Desp</span> −' + fmtBRL(r.desp) + '</span>' : '')
-          + '</div>'
-          + '</div>';
-      });
-
-      html += '</div></div>'; // fecha lista + table-card
-      area.innerHTML = html;
-    };
 
     // ── Preencher select de meses dos Contratos ──
     function preencherMesContratos() {
@@ -1460,37 +1064,33 @@
       var mes = (document.getElementById('visaoMesSelect') || {}).value || '';
       if (!mes) return;
 
-      // ── 1. Cards de totais do caixa (lê totForma — estrutura real do Firebase) ──
-      var totais = { debito:0, pix:0, dinheiro:0, credito:0, despesa:0 };
+      // ── 1. Cards de totais do caixa ──
+      var totais = { debito:0, pix:0, dinheiro:0, credito_av:0, credito_pa:0, despesa:0 };
       for (var uid in _dados) {
         for (var dia in _dados[uid]) {
           if (!dia.startsWith(mes)) continue;
-          var snap = _dados[uid][dia];
-          if (!snap) continue;
-          var tf = snap.totForma || {};
-          // Compatível com ambos os formatos de chave (acentuado e sem acento)
-          totais.debito  += (tf['Cartão de Débito']  || tf['Cartao de Debito']  || {}).entrada || 0;
-          totais.pix     += (tf['PIX']                                           || {}).entrada || 0;
-          totais.dinheiro+= (tf['Dinheiro']                                      || {}).entrada || 0;
-          totais.credito += (tf['Cartão de Crédito'] || tf['Cartao de Credito'] || {}).entrada || 0;
-          for (var f in tf) totais.despesa += (tf[f].saida || 0);
+          var lancamentos = _dados[uid][dia];
+          for (var k in lancamentos) {
+            var it = lancamentos[k];
+            if (totais[it.forma] !== undefined) totais[it.forma] += (it.valor || 0);
+          }
         }
       }
-      var avista  = totais.debito + totais.pix + totais.dinheiro;
-      var credito = totais.credito;
+      var avista  = totais.debito + totais.pix + totais.dinheiro + totais.credito_av;
+      var credito = totais.credito_pa;
       var despesa = totais.despesa;
       var total   = avista + credito - despesa;
 
       function fmtV(v) { return 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2}); }
 
       var cardsData = [
-        { label:'Total Geral',  val: fmtV(total),            cor:'var(--navy)', bg:'#eff6ff', icon:'fa-coins' },
-        { label:'À Vista',      val: fmtV(avista),            cor:'#15803d',     bg:'#f0fdf4', icon:'fa-circle-check' },
-        { label:'Crédito',      val: fmtV(credito),           cor:'#7c3aed',     bg:'#f5f3ff', icon:'fa-credit-card' },
-        { label:'Débito',       val: fmtV(totais.debito),     cor:'#1d4ed8',     bg:'#eff6ff', icon:'fa-credit-card' },
-        { label:'PIX',          val: fmtV(totais.pix),        cor:'#0369a1',     bg:'#f0f9ff', icon:'fa-qrcode' },
-        { label:'Dinheiro',     val: fmtV(totais.dinheiro),   cor:'#065f46',     bg:'#ecfdf5', icon:'fa-money-bill' },
-        { label:'Despesas',     val: fmtV(despesa),            cor:'var(--red)',   bg:'#fff1f2', icon:'fa-arrow-down' },
+        { label:'Total Geral',  val: fmtV(total),   cor:'var(--navy)',   bg:'#eff6ff', icon:'fa-coins' },
+        { label:'À Vista',      val: fmtV(avista),   cor:'#15803d',       bg:'#f0fdf4', icon:'fa-circle-check' },
+        { label:'Crédito',      val: fmtV(credito),  cor:'#7c3aed',       bg:'#f5f3ff', icon:'fa-credit-card' },
+        { label:'Débito',       val: fmtV(totais.debito), cor:'#1d4ed8', bg:'#eff6ff', icon:'fa-credit-card' },
+        { label:'PIX',          val: fmtV(totais.pix),    cor:'#0369a1', bg:'#f0f9ff', icon:'fa-qrcode' },
+        { label:'Dinheiro',     val: fmtV(totais.dinheiro),cor:'#065f46',bg:'#ecfdf5', icon:'fa-money-bill' },
+        { label:'Despesas',     val: fmtV(despesa),   cor:'var(--red)',    bg:'#fff1f2', icon:'fa-arrow-down' },
       ];
 
       document.getElementById('visaoCards').innerHTML = cardsData.map(function(c) {
@@ -1941,17 +1541,13 @@
     }
     function primeiroNome(nome) { return (nome||'').split(' ')[0]; }
     function aplicarAlias(nome) {
-      if (!nome) return '(Sem identificação)';
+      if (!nome) return nome;
       const nLower = nome.toLowerCase().trim();
       for (const [from, to] of Object.entries(window._aliases || {})) {
         if (nLower === from.toLowerCase().trim()) return to;
         if (nLower.startsWith(from.toLowerCase().trim())) return to;
       }
-      // Se parece um UID do Firebase (>20 chars alfanumérico sem espaço) → rotula
-      if (nome.length > 20 && !nome.includes(' ') && /^[A-Za-z0-9_-]+$/.test(nome)) {
-        return '(Sem nome — ID: ' + nome.slice(0,8) + '…)';
-      }
-      return nome || '(Sem identificação)';
+      return nome;
     }
 
     /* ── ESTADO ── */
@@ -2669,3 +2265,362 @@
 <span id="version-badge" style="position:fixed;bottom:6px;right:8px;background:rgba(0,0,0,.35);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;z-index:9999;letter-spacing:.3px;pointer-events:none;">v1.4 · 07/07/2026</span>
 </body>
 </html>
+<script>
+/* === FUNÇÕES ADICIONADAS === */
+
+/* Lê totForma de um snapshot — compatível com chaves acentuadas e sem acento */
+function lerTotForma(tf) {
+  tf = tf || {};
+  var deb  = (tf['Cart\u00e3o de D\u00e9bito']  || tf['Cartao de Debito']  || {}).entrada || 0;
+  var pix  = (tf['PIX']                          || {}).entrada || 0;
+  var crd  = (tf['Cart\u00e3o de Cr\u00e9dito'] || tf['Cartao de Credito'] || {}).entrada || 0;
+  var din  = (tf['Dinheiro']                      || {}).entrada || 0;
+  var desp = Object.keys(tf).reduce(function(s,k){ return s + (tf[k].saida || 0); }, 0);
+  return { deb: deb, pix: pix, crd: crd, din: din, desp: desp };
+}
+
+/* Fix aplicarAlias — fallback para nome vazio ou UID Firebase */
+(function patchAlias() {
+  var _orig = window.aplicarAlias || function(n){ return n; };
+  window.aplicarAlias = function(nome) {
+    if (!nome || !nome.trim()) return '(Sem identificacao)';
+    var result = _orig(nome);
+    if (!result || !result.trim()) return '(Sem identificacao)';
+    if (result.length > 20 && result.indexOf(' ') === -1 && /^[A-Za-z0-9_-]+$/.test(result)) {
+      return '(ID: ' + result.slice(0, 8) + '...)';
+    }
+    return result;
+  };
+})();
+
+/* Fix renderVisao — usar totForma em vez de iterar snapshot como objeto plano */
+(function patchVisao() {
+  var _orig = window.renderVisao;
+  if (!_orig) return;
+  window.renderVisao = async function() {
+    // Injetar dados corretos no _dados antes de chamar a função original
+    // Na verdade, vamos sobrescrever os totais após renderização
+    // Melhor: substituir a função inteira
+    var mes = (document.getElementById('visaoMesSelect') || {}).value || '';
+    if (!mes) return;
+    var totais = { debito: 0, pix: 0, dinheiro: 0, credito: 0, despesa: 0 };
+    for (var uid in _dados) {
+      for (var dia in _dados[uid]) {
+        if (!dia.startsWith(mes)) continue;
+        var snap = _dados[uid][dia];
+        if (!snap) continue;
+        var v = lerTotForma(snap.totForma);
+        totais.debito   += v.deb;
+        totais.pix      += v.pix;
+        totais.dinheiro += v.din;
+        totais.credito  += v.crd;
+        totais.despesa  += v.desp;
+      }
+    }
+    var avista  = totais.debito + totais.pix + totais.dinheiro;
+    var credito = totais.credito;
+    var despesa = totais.despesa;
+    var total   = avista + credito - despesa;
+    function fmtV(v) { return 'R$ ' + (v||0).toLocaleString('pt-BR', {minimumFractionDigits:2}); }
+    var cardsData = [
+      { label:'Total Geral',  val:fmtV(total),            cor:'var(--navy)', bg:'#eff6ff', icon:'fa-coins' },
+      { label:'A Vista',      val:fmtV(avista),            cor:'#15803d',     bg:'#f0fdf4', icon:'fa-circle-check' },
+      { label:'Credito',      val:fmtV(credito),           cor:'#7c3aed',     bg:'#f5f3ff', icon:'fa-credit-card' },
+      { label:'Debito',       val:fmtV(totais.debito),     cor:'#1d4ed8',     bg:'#eff6ff', icon:'fa-credit-card' },
+      { label:'PIX',          val:fmtV(totais.pix),        cor:'#0369a1',     bg:'#f0f9ff', icon:'fa-qrcode' },
+      { label:'Dinheiro',     val:fmtV(totais.dinheiro),   cor:'#065f46',     bg:'#ecfdf5', icon:'fa-money-bill' },
+      { label:'Despesas',     val:fmtV(despesa),            cor:'var(--red)',   bg:'#fff1f2', icon:'fa-arrow-down' },
+    ];
+    var el = document.getElementById('visaoCards');
+    if (el) {
+      el.innerHTML = cardsData.map(function(cd) {
+        return '<div style="background:' + cd.bg + ';border-radius:14px;padding:16px 18px;">'
+          + '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:' + cd.cor + ';margin-bottom:6px;opacity:.75;"><i class="fas ' + cd.icon + '" style="margin-right:4px;"></i>' + cd.label + '</div>'
+          + '<div style="font-size:20px;font-weight:900;color:' + cd.cor + ';letter-spacing:-1px;">' + cd.val + '</div>'
+          + '</div>';
+      }).join('');
+    }
+    // Continuar com NPS e demais cards via função original
+    // (chamar apenas para NPS, comissoes, gaveta)
+    try { await _orig(); } catch(e) {}
+  };
+})();
+
+/* Aba Ranking — adicionar ao switchMainTab */
+(function patchSwitch() {
+  var _orig = window.switchMainTab;
+  if (!_orig) return;
+  window.switchMainTab = function(tab) {
+    _orig(tab);
+    if (tab === 'ranking') {
+      var tabs = document.querySelectorAll('.main-tab');
+      tabs.forEach(function(b){ b.classList.remove('active'); });
+      var btn = document.getElementById('mainTabRanking');
+      if (btn) btn.classList.add('active');
+      document.querySelectorAll('.view-panel').forEach(function(p){ p.style.display='none'; });
+      var vr = document.getElementById('viewRanking');
+      if (vr) vr.style.display='block';
+      rankInitDatas();
+    }
+  };
+})();
+
+/* Inicializar datas do ranking */
+function rankInitDatas() {
+  var ini = document.getElementById('rankDataIni');
+  var fim = document.getElementById('rankDataFim');
+  if (ini && !ini.value) {
+    var hoje = new Date();
+    var y = hoje.getFullYear();
+    var m = String(hoje.getMonth() + 1).padStart(2, '0');
+    var ult = String(new Date(y, hoje.getMonth() + 1, 0).getDate()).padStart(2, '0');
+    ini.value = y + '-' + m + '-01';
+    fim.value = y + '-' + m + '-' + ult;
+  }
+}
+
+/* Renderizar Ranking */
+window.renderRanking = function() {
+  var iniV = (document.getElementById('rankDataIni') || {}).value || '';
+  var fimV = (document.getElementById('rankDataFim') || {}).value || '';
+  var area = document.getElementById('rankingArea');
+  if (!area) return;
+  if (!iniV || !fimV) { area.innerHTML = '<div class="loading">Selecione as datas.</div>'; return; }
+
+  var porColab = {};
+  var totalDias = 0;
+  for (var uid in _dados) {
+    for (var dia in _dados[uid]) {
+      if (dia < iniV || dia > fimV) continue;
+      var snap = _dados[uid][dia];
+      if (!snap || !snap.totForma) continue;
+      var nome = window.aplicarAlias(snap.colaborador || uid);
+      if (!porColab[nome]) porColab[nome] = { deb:0, pix:0, crd:0, din:0, desp:0, dias:0 };
+      var v = lerTotForma(snap.totForma);
+      porColab[nome].deb  += v.deb;
+      porColab[nome].pix  += v.pix;
+      porColab[nome].crd  += v.crd;
+      porColab[nome].din  += v.din;
+      porColab[nome].desp += v.desp;
+      porColab[nome].dias++;
+      totalDias++;
+    }
+  }
+
+  var nomes = Object.keys(porColab);
+  if (!nomes.length) {
+    area.innerHTML = '<div class="loading">Nenhum caixa encontrado neste periodo.</div>';
+    return;
+  }
+
+  var ranking = nomes.map(function(nome) {
+    var v = porColab[nome];
+    var avista = v.deb + v.pix + v.din;
+    return { nome:nome, avista:avista, deb:v.deb, pix:v.pix, din:v.din, crd:v.crd, desp:v.desp, total:avista+v.crd-v.desp, dias:v.dias };
+  }).sort(function(a,b){ return b.avista - a.avista; });
+
+  var maxAvista   = ranking[0].avista || 1;
+  var totalAvista = ranking.reduce(function(s,r){ return s + r.avista; }, 0);
+  var totalCred   = ranking.reduce(function(s,r){ return s + r.crd;   }, 0);
+  var totalGeral  = ranking.reduce(function(s,r){ return s + r.total; }, 0);
+  var MEDALS = ['1', '2', '3'];
+
+  function fmtR(n) { return 'R$ ' + (n||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function fmtD(s) { var p=s.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+  function esc2(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  var html = '<div class="table-card">'
+    + '<div class="table-header">'
+    + '<i class="fas fa-trophy" style="color:#d97706;font-size:16px;"></i>'
+    + '<span class="table-title">Ranking por Total a Vista</span>'
+    + '<span class="period-pill"><i class="fas fa-calendar"></i> ' + fmtD(iniV) + ' a ' + fmtD(fimV) + '</span>'
+    + '<span style="margin-left:auto;font-size:11px;color:var(--gray-400);">' + ranking.length + ' colab. ' + totalDias + ' reg.</span>'
+    + '</div>'
+    + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 18px;border-bottom:1px solid var(--gray-200);">'
+    + '<div style="background:#f0fdf4;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:#15803d;text-transform:uppercase;margin-bottom:3px;">Total a Vista</div><div style="font-size:18px;font-weight:900;color:#15803d;">' + fmtR(totalAvista) + '</div></div>'
+    + '<div style="background:#f5f3ff;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;margin-bottom:3px;">Credito</div><div style="font-size:18px;font-weight:900;color:#7c3aed;">' + fmtR(totalCred) + '</div></div>'
+    + '<div style="background:#eff6ff;border-radius:10px;padding:12px;"><div style="font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;margin-bottom:3px;">Total Geral</div><div style="font-size:18px;font-weight:900;color:var(--navy);">' + fmtR(totalGeral) + '</div></div>'
+    + '</div>'
+    + '<div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px;">';
+
+  ranking.forEach(function(r, i) {
+    var pct   = maxAvista > 0 ? Math.round(r.avista / maxAvista * 100) : 0;
+    var share = totalAvista > 0 ? (r.avista / totalAvista * 100).toFixed(1) : '0.0';
+    var medEmoji = i === 0 ? '\ud83e\udd47' : i === 1 ? '\ud83e\udd48' : i === 2 ? '\ud83e\udd49' : '';
+    var posNum   = i >= 3 ? (i+1)+'.' : '';
+    var initials = r.nome.split(' ').filter(Boolean).map(function(w){ return w[0]; }).join('').toUpperCase().slice(0,2);
+    var bgColors = ['#d97706','#64748b','#b45309'];
+    var bgAv = bgColors[i] || 'var(--navy)';
+
+    html += '<div style="background:white;border:1px solid var(--gray-200);border-radius:14px;padding:14px 16px;">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+      + '<div style="font-size:22px;min-width:28px;text-align:center;">' + (medEmoji || '<span style="font-size:13px;font-weight:800;color:var(--gray-400);">'+posNum+'</span>') + '</div>'
+      + '<div style="width:36px;height:36px;border-radius:50%;background:'+bgAv+';color:white;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">' + esc2(initials) + '</div>'
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-size:14px;font-weight:800;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + esc2(r.nome) + '</div>'
+      + '<div style="font-size:11px;color:var(--gray-400);">' + r.dias + ' dia(s) registrado(s)</div>'
+      + '</div>'
+      + '<div style="text-align:right;">'
+      + '<div style="font-size:18px;font-weight:900;color:#15803d;">' + fmtR(r.avista) + '</div>'
+      + '<div style="font-size:10px;color:var(--gray-400);">' + share + '% do grupo</div>'
+      + '</div></div>'
+      + '<div style="height:7px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin-bottom:8px;">'
+      + '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#15803d,#22c55e);border-radius:4px;"></div>'
+      + '</div>'
+      + '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--gray-500);">'
+      + '<span><b style="color:#1d4ed8;">Deb</b> ' + fmtR(r.deb) + '</span>'
+      + '<span><b style="color:#0369a1;">PIX</b> ' + fmtR(r.pix) + '</span>'
+      + '<span><b style="color:#065f46;">Din</b> ' + fmtR(r.din) + '</span>'
+      + '<span><b style="color:#7c3aed;">Cred</b> ' + fmtR(r.crd) + '</span>'
+      + (r.desp > 0 ? '<span><b style="color:var(--red);">Desp</b> -' + fmtR(r.desp) + '</span>' : '')
+      + '</div>'
+      + '</div>';
+  });
+
+  html += '</div></div>';
+  area.innerHTML = html;
+};
+
+/* Exportacao */
+window.abrirExportCaixa = function() {
+  var hoje = new Date();
+  var y = hoje.getFullYear(), m = String(hoje.getMonth()+1).padStart(2,'0');
+  var ult = String(new Date(y, hoje.getMonth()+1, 0).getDate()).padStart(2,'0');
+  document.getElementById('expDataInicio').value = y+'-'+m+'-01';
+  document.getElementById('expDataFim').value    = y+'-'+m+'-'+ult;
+  document.getElementById('expResultado').style.display = 'none';
+  document.getElementById('btnBaixarExport').style.display = 'none';
+  document.getElementById('expColabList').innerHTML = 'Selecione um periodo e clique em Calcular.';
+  var mod = document.getElementById('modalExportCaixa');
+  if (mod) mod.style.display = 'flex';
+};
+window.fecharExportCaixa = function() {
+  var mod = document.getElementById('modalExportCaixa');
+  if (mod) mod.style.display = 'none';
+};
+document.getElementById('modalExportCaixa').addEventListener('click', function(e) {
+  if (e.target === this) window.fecharExportCaixa();
+});
+window.expSelecionarTodos = function(todos) {
+  document.querySelectorAll('.exp-colab-chk').forEach(function(chk){ chk.checked = todos; });
+};
+
+window._expData = null;
+window.calcularExportCaixa = function() {
+  var iniV = (document.getElementById('expDataInicio')||{}).value||'';
+  var fimV = (document.getElementById('expDataFim')||{}).value||'';
+  if (!iniV||!fimV) { alert('Selecione o periodo'); return; }
+  var colabSet = {};
+  for (var uid in _dados) {
+    for (var dia in _dados[uid]) {
+      if (dia < iniV || dia > fimV) continue;
+      var snap = _dados[uid][dia];
+      if (!snap) continue;
+      var nome = window.aplicarAlias(snap.colaborador || uid);
+      colabSet[nome] = true;
+    }
+  }
+  var nomes = Object.keys(colabSet).sort();
+  var listEl = document.getElementById('expColabList');
+  if (!nomes.length) { listEl.innerHTML = '<span style="color:var(--gray-400);">Nenhum registro.</span>'; return; }
+  listEl.innerHTML = nomes.map(function(nome) {
+    var id = 'expchk-' + nome.replace(/[^a-z0-9]/gi,'');
+    return '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 0;">'
+      + '<input type="checkbox" class="exp-colab-chk" id="'+id+'" value="'+nome+'" checked style="width:14px;height:14px;">'
+      + '<span>'+nome+'</span></label>';
+  }).join('');
+  _recalcExport(iniV, fimV);
+};
+
+function fmtRE(v) { return 'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+function _recalcExport(iniV, fimV) {
+  var selecionados = {};
+  document.querySelectorAll('.exp-colab-chk:checked').forEach(function(chk){ selecionados[chk.value]=true; });
+  var deb=0,pix=0,crd=0,din=0,desp=0;
+  var linhas=[], porColab={};
+  for (var uid in _dados) {
+    for (var dia in _dados[uid]) {
+      if (dia < iniV || dia > fimV) continue;
+      var snap = _dados[uid][dia]; if (!snap) continue;
+      var nome = window.aplicarAlias(snap.colaborador || uid);
+      if (!selecionados[nome]) continue;
+      var v = lerTotForma(snap.totForma);
+      deb+=v.deb; pix+=v.pix; crd+=v.crd; din+=v.din; desp+=v.desp;
+      linhas.push({dia:dia,nome:nome,deb:v.deb,pix:v.pix,crd:v.crd,din:v.din,desp:v.desp,total:v.deb+v.pix+v.crd+v.din-v.desp});
+      if (!porColab[nome]) porColab[nome]={deb:0,pix:0,crd:0,din:0};
+      porColab[nome].deb+=v.deb; porColab[nome].pix+=v.pix; porColab[nome].crd+=v.crd; porColab[nome].din+=v.din;
+    }
+  }
+  var debPix=deb+pix, total=debPix+crd+din;
+  window._expData={deb:deb,pix:pix,crd:crd,din:din,desp:desp,debPix:debPix,total:total,ini:iniV,fim:fimV,linhas:linhas,porColab:porColab};
+  document.getElementById('expDebitoPix').textContent = fmtRE(debPix);
+  document.getElementById('expDebPix2').textContent   = 'Deb: '+fmtRE(deb)+' | PIX: '+fmtRE(pix);
+  document.getElementById('expCredito').textContent   = fmtRE(crd);
+  document.getElementById('expDinheiro').textContent  = fmtRE(din);
+  document.getElementById('expTotal').textContent     = fmtRE(total);
+  document.getElementById('expResultado').style.display = 'block';
+  document.getElementById('btnBaixarExport').style.display = 'block';
+
+  var MEDALS2 = ['\ud83e\udd47','\ud83e\udd48','\ud83e\udd49'];
+  var rank2 = Object.keys(porColab).map(function(n){ var v=porColab[n]; var av=v.deb+v.pix+v.din; return {nome:n,avista:av,deb:v.deb,pix:v.pix,din:v.din,crd:v.crd}; }).sort(function(a,b){return b.avista-a.avista;});
+  var max2 = rank2.length ? rank2[0].avista||1 : 1;
+  var rankEl = document.getElementById('expRanking');
+  if (rankEl) {
+    rankEl.innerHTML = rank2.map(function(r,i){
+      var pct2=max2>0?Math.round(r.avista/max2*100):0;
+      var med2=MEDALS2[i]||('<b style="color:var(--gray-400);font-size:11px;">'+(i+1)+'.</b>');
+      return '<div style="display:flex;align-items:center;gap:8px;">'
+        +'<div style="min-width:22px;text-align:center;font-size:14px;">'+med2+'</div>'
+        +'<div style="flex:1;min-width:0;">'
+        +'<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:3px;">'
+        +'<span style="font-size:12px;font-weight:700;color:var(--navy);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px;">'+r.nome.split(' ')[0]+'</span>'
+        +'<span style="font-size:12px;font-weight:900;color:#15803d;white-space:nowrap;margin-left:6px;">'+fmtRE(r.avista)+'</span>'
+        +'</div>'
+        +'<div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;">'
+        +'<div style="height:100%;width:'+pct2+'%;background:linear-gradient(90deg,#15803d,#22c55e);border-radius:3px;"></div>'
+        +'</div></div></div>';
+    }).join('');
+  }
+}
+
+document.getElementById('expColabList').addEventListener('change', function() {
+  var iniV=(document.getElementById('expDataInicio')||{}).value||'';
+  var fimV=(document.getElementById('expDataFim')||{}).value||'';
+  if (iniV&&fimV) _recalcExport(iniV,fimV);
+});
+
+window.baixarExportCaixa = function() {
+  if (!window._expData) return;
+  var d=window._expData, NL='\n', SC=';';
+  var fmtN=function(n){return(n||0).toFixed(2).replace('.',',');};
+  var rows=[];
+  rows.push('EXPORTACAO DE CAIXA'); rows.push('Periodo'+SC+d.ini+' a '+d.fim); rows.push('');
+  rows.push('FORMA'+SC+'VALOR');
+  rows.push('Debito + PIX'+SC+fmtN(d.debPix));
+  rows.push('  Debito'+SC+fmtN(d.deb)); rows.push('  PIX'+SC+fmtN(d.pix));
+  rows.push('Credito'+SC+fmtN(d.crd)); rows.push('Dinheiro'+SC+fmtN(d.din));
+  rows.push('TOTAL GERAL'+SC+fmtN(d.total)); rows.push('');
+  rows.push('RANKING - TOTAL A VISTA'); rows.push('Pos'+SC+'Nome'+SC+'A Vista'+SC+'Debito'+SC+'PIX'+SC+'Dinheiro'+SC+'Credito');
+  var rank3=Object.keys(d.porColab).map(function(n){var v=d.porColab[n];return{nome:n,av:v.deb+v.pix+v.din,deb:v.deb,pix:v.pix,din:v.din,crd:v.crd};}).sort(function(a,b){return b.av-a.av;});
+  rank3.forEach(function(r,i){rows.push((i+1)+SC+r.nome+SC+fmtN(r.av)+SC+fmtN(r.deb)+SC+fmtN(r.pix)+SC+fmtN(r.din)+SC+fmtN(r.crd));});
+  rows.push(''); rows.push('DETALHE'); rows.push('Data'+SC+'Colab'+SC+'Deb'+SC+'PIX'+SC+'Cred'+SC+'Din'+SC+'Desp'+SC+'Total');
+  d.linhas.sort(function(a,b){return a.dia<b.dia?-1:1;}).forEach(function(l){rows.push(l.dia+SC+l.nome+SC+fmtN(l.deb)+SC+fmtN(l.pix)+SC+fmtN(l.crd)+SC+fmtN(l.din)+SC+fmtN(l.desp)+SC+fmtN(l.total));});
+  var csv='\uFEFF'+rows.join(NL);
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='caixa-'+d.ini+'-a-'+d.fim+'.csv'; a.click();
+};
+
+/* Adicionar aba Ranking na nav */
+(function addRankTab() {
+  var nav = document.querySelector('.main-tabs');
+  if (!nav) return;
+  var btn = document.createElement('button');
+  btn.className = 'main-tab';
+  btn.id = 'mainTabRanking';
+  btn.innerHTML = '<i class="fas fa-trophy"></i> Ranking';
+  btn.onclick = function() { window.switchMainTab('ranking'); };
+  nav.appendChild(btn);
+})();
+</script>
+<!-- VERSION: v1.9 | dashboard.html | 30/07/2026 | fix: syntax error resolvido, ranking e exportacao com script separado seguro -->
