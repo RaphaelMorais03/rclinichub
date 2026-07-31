@@ -2230,7 +2230,25 @@
   </div>
   <!-- RANKING PANEL -->
   <div class="view-panel" id="viewRanking" style="display:none;">
-    <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:20px;flex-wrap:wrap;"><div><div style="font-size:16px;font-weight:800;color:var(--navy);">Ranking de Producao</div><div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Selecione o periodo e veja quem produziu mais</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto;"><div><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">De</label><input type="date" id="rankDataIni" class="f-input" style="width:140px;"></div><div><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">Ate</label><input type="date" id="rankDataFim" class="f-input" style="width:140px;"></div><div style="padding-top:16px;"><button onclick="renderRanking()" style="padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;"><i class="fas fa-trophy"></i> Gerar Ranking</button></div></div></div>
+    <div style="display:flex;align-items:flex-end;gap:12px;margin-bottom:20px;flex-wrap:wrap;"><div><div style="font-size:16px;font-weight:800;color:var(--navy);">Ranking de Producao</div><div style="font-size:12px;color:var(--gray-400);margin-top:2px;">Selecione o periodo e veja quem produziu mais</div></div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto;"><div><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">De</label><input type="date" id="rankDataIni" class="f-input" style="width:140px;"></div><div><label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:3px;">Ate</label><input type="date" id="rankDataFim" class="f-input" style="width:140px;"></div><div style="padding-top:16px;"><button onclick="renderRanking()" style="padding:9px 18px;background:var(--navy);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;"><i class="fas fa-trophy"></i> Gerar Ranking</button></div></div>
+      <div style="margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:8px;letter-spacing:.5px;">Formas de pagamento no ranking</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:#1d4ed8;">
+            <input type="checkbox" id="rkChkDeb" checked style="width:14px;height:14px;accent-color:#1d4ed8;"> Debito
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:#0369a1;">
+            <input type="checkbox" id="rkChkPix" checked style="width:14px;height:14px;accent-color:#0369a1;"> PIX
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:#ecfdf5;border:1.5px solid #a7f3d0;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:#065f46;">
+            <input type="checkbox" id="rkChkDin" checked style="width:14px;height:14px;accent-color:#065f46;"> Dinheiro
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;color:#7c3aed;">
+            <input type="checkbox" id="rkChkCrd" style="width:14px;height:14px;accent-color:#7c3aed;"> Credito
+          </label>
+        </div>
+      </div>
+    </div>
     <div id="rankingArea"><div class="loading" style="padding:48px;text-align:center;"><i class="fas fa-trophy" style="font-size:36px;opacity:.15;display:block;margin-bottom:10px;"></i>Selecione um periodo e clique em Gerar Ranking</div></div>
   </div>
 
@@ -2357,10 +2375,23 @@ window.renderRanking = function() {
   function fD(s) { var p=s.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
   function esc2(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+  // Ler formas selecionadas
+  var useDeb = !!(document.getElementById('rkChkDeb') && document.getElementById('rkChkDeb').checked);
+  var usePix = !!(document.getElementById('rkChkPix') && document.getElementById('rkChkPix').checked);
+  var useDin = !!(document.getElementById('rkChkDin') && document.getElementById('rkChkDin').checked);
+  var useCrd = !!(document.getElementById('rkChkCrd') && document.getElementById('rkChkCrd').checked);
+  // Labels para o titulo
+  var lblFormas = [];
+  if (useDeb) lblFormas.push('Debito');
+  if (usePix) lblFormas.push('PIX');
+  if (useDin) lblFormas.push('Dinheiro');
+  if (useCrd) lblFormas.push('Credito');
+  if (!lblFormas.length) { area.innerHTML = '<div class="loading">Selecione ao menos uma forma de pagamento.</div>'; return; }
+
   var rank = nomes.map(function(n) {
     var v = por[n];
-    var av = v.deb + v.pix + v.din;
-    return {nome:n, av:av, deb:v.deb, pix:v.pix, din:v.din, crd:v.crd, desp:v.desp, total:av+v.crd-v.desp, dias:v.dias};
+    var av = (useDeb ? v.deb : 0) + (usePix ? v.pix : 0) + (useDin ? v.din : 0) + (useCrd ? v.crd : 0);
+    return {nome:n, av:av, deb:v.deb, pix:v.pix, din:v.din, crd:v.crd, desp:v.desp, total:v.deb+v.pix+v.din+v.crd-v.desp, dias:v.dias};
   }).sort(function(a,b){ return b.av - a.av; });
 
   var maxAv = rank[0].av || 1;
@@ -2371,7 +2402,7 @@ window.renderRanking = function() {
   var html = '<div class="table-card">';
   html += '<div class="table-header">';
   html += '<i class="fas fa-trophy" style="color:#d97706;font-size:16px;"></i>';
-  html += '<span class="table-title">Ranking por Total a Vista</span>';
+  html += '<span class="table-title">Ranking: ' + lblFormas.join(' + ') + '</span>';
   html += '<span class="period-pill"><i class="fas fa-calendar"></i> ' + fD(iniV) + ' a ' + fD(fimV) + '</span>';
   html += '<span style="margin-left:auto;font-size:11px;color:var(--gray-400);">' + rank.length + ' colaboradores</span>';
   html += '</div>';
