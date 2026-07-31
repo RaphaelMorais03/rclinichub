@@ -1,4 +1,4 @@
-<!-- VERSION: v1.6 | dashboard.html | 30/07/2026 | fix: export correto (totForma), abas duplicadas removidas -->
+<!-- VERSION: v1.7 | dashboard.html | 30/07/2026 | fix: Visao Geral corrigida, card sem nome, exportacao com colaboradores -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -235,9 +235,6 @@
       </div>
     </div>
     <div class="header-right">
-      <button class="main-tab" id="tabBtnProd" onclick="switchMainTab('prod')" style="color:var(--navy);border-bottom:3px solid var(--navy);padding:8px 16px;font-size:12px;"><i class="fas fa-chart-bar"></i> Produção</button>
-      <button class="main-tab" id="tabBtnCaixa" onclick="switchMainTab('caixa')" style="padding:8px 16px;font-size:12px;"><i class="fas fa-cash-register"></i> Caixa</button>
-      <button class="main-tab" id="tabBtnFech" onclick="switchMainTab('fech')" style="padding:8px 16px;font-size:12px;"><i class="fas fa-file-invoice-dollar"></i> Fechamentos</button>
       <button class="btn-lancamento" id="btnLancamentoHeader" onclick="abrirLancamento()">
         <i class="fas fa-plus"></i> Lançamento Manual
       </button>
@@ -447,7 +444,7 @@
         <select class="f-select" id="cxMesSelect" onchange="renderCaixaTab()" style="width:160px;"></select>
         <button class="btn-sec" style="font-size:12px;padding:7px 12px;white-space:nowrap;" onclick="toggleTodosCaixaCards(true)"><i class="fas fa-compress-alt"></i> Recolher todos</button>
         <button class="btn-sec" style="font-size:12px;padding:7px 12px;white-space:nowrap;" onclick="toggleTodosCaixaCards(false)"><i class="fas fa-expand-alt"></i> Expandir todos</button>
-        <button onclick="abrirExportCaixa()" style="font-size:12px;padding:7px 14px;white-space:nowrap;background:#0A1F44;color:white;border:none;border-radius:9px;font-family:inherit;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;"><i class="fas fa-file-arrow-down"></i> Exportar pagamentos</button>
+        <button onclick="abrirExportCaixa()" style="font-size:12px;padding:7px 14px;white-space:nowrap;background:var(--navy);color:white;border:none;border-radius:9px;font-family:inherit;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;"><i class="fas fa-file-arrow-down"></i> Exportar</button>
       </div>
       <div id="caixaTabContent">
         <div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando...</div>
@@ -455,35 +452,47 @@
 
       <!-- MODAL EXPORTAÇÃO -->
       <div id="modalExportCaixa" style="display:none;position:fixed;inset:0;background:rgba(10,31,68,.55);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:20px;">
-        <div style="background:white;border-radius:18px;max-width:460px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
+        <div style="background:white;border-radius:18px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden;">
           <div style="padding:18px 22px 14px;border-bottom:1.5px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
             <div style="font-size:15px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:8px;"><i class="fas fa-file-arrow-down"></i> Exportar por Forma de Pagamento</div>
             <button onclick="fecharExportCaixa()" style="background:#f1f5f9;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:13px;color:#64748b;">X</button>
           </div>
-          <div style="padding:20px 22px;">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+          <div style="padding:18px 22px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
               <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:5px;">Data inicio</label><input type="date" id="expDataInicio" class="f-input"></div>
               <div><label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);display:block;margin-bottom:5px;">Data fim</label><input type="date" id="expDataFim" class="f-input"></div>
             </div>
-            <div id="expResultado" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:16px;">
-              <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:12px;">Resumo do periodo selecionado</div>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-                <div style="background:#eff6ff;border-radius:10px;padding:12px 14px;">
-                  <div style="font-size:10px;font-weight:700;color:#1d4ed8;text-transform:uppercase;margin-bottom:4px;"><i class="fas fa-mobile-alt" style="margin-right:3px;"></i>Debito + PIX</div>
-                  <div style="font-size:20px;font-weight:900;color:#1d4ed8;" id="expDebitoPix">R$ 0,00</div>
-                  <div style="font-size:10px;color:#64748b;margin-top:3px;" id="expDebPix2">Debito: R$ 0 | PIX: R$ 0</div>
+            <div style="margin-bottom:14px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <label style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);">Colaboradores</label>
+                <div style="display:flex;gap:6px;">
+                  <button onclick="expSelecionarTodos(true)"  style="font-size:10px;padding:2px 9px;border-radius:6px;border:1px solid var(--gray-200);background:white;cursor:pointer;font-family:inherit;font-weight:700;">Todos</button>
+                  <button onclick="expSelecionarTodos(false)" style="font-size:10px;padding:2px 9px;border-radius:6px;border:1px solid var(--gray-200);background:white;cursor:pointer;font-family:inherit;font-weight:700;">Nenhum</button>
                 </div>
-                <div style="background:#f5f3ff;border-radius:10px;padding:12px 14px;">
-                  <div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;margin-bottom:4px;"><i class="fas fa-credit-card" style="margin-right:3px;"></i>Credito</div>
-                  <div style="font-size:20px;font-weight:900;color:#7c3aed;" id="expCredito">R$ 0,00</div>
+              </div>
+              <div id="expColabList" style="max-height:130px;overflow-y:auto;border:1.5px solid var(--gray-200);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--gray-400);">
+                Selecione um período e clique em Calcular.
+              </div>
+            </div>
+            <div id="expResultado" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:14px;margin-bottom:14px;">
+              <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--gray-500);margin-bottom:10px;">Resumo — colaboradores selecionados</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <div style="background:#eff6ff;border-radius:10px;padding:10px 12px;">
+                  <div style="font-size:10px;font-weight:700;color:#1d4ed8;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-mobile-alt" style="margin-right:3px;"></i>Debito + PIX</div>
+                  <div style="font-size:18px;font-weight:900;color:#1d4ed8;" id="expDebitoPix">R$ 0,00</div>
+                  <div style="font-size:10px;color:#64748b;margin-top:2px;" id="expDebPix2">Deb: — | PIX: —</div>
                 </div>
-                <div style="background:#f0fdf4;border-radius:10px;padding:12px 14px;">
-                  <div style="font-size:10px;font-weight:700;color:#15803d;text-transform:uppercase;margin-bottom:4px;"><i class="fas fa-money-bill" style="margin-right:3px;"></i>Dinheiro</div>
-                  <div style="font-size:20px;font-weight:900;color:#15803d;" id="expDinheiro">R$ 0,00</div>
+                <div style="background:#f5f3ff;border-radius:10px;padding:10px 12px;">
+                  <div style="font-size:10px;font-weight:700;color:#7c3aed;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-credit-card" style="margin-right:3px;"></i>Credito</div>
+                  <div style="font-size:18px;font-weight:900;color:#7c3aed;" id="expCredito">R$ 0,00</div>
                 </div>
-                <div style="background:#fff1f2;border-radius:10px;padding:12px 14px;">
-                  <div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;margin-bottom:4px;"><i class="fas fa-coins" style="margin-right:3px;"></i>Total Geral</div>
-                  <div style="font-size:20px;font-weight:900;color:var(--red);" id="expTotal">R$ 0,00</div>
+                <div style="background:#f0fdf4;border-radius:10px;padding:10px 12px;">
+                  <div style="font-size:10px;font-weight:700;color:#15803d;text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-money-bill" style="margin-right:3px;"></i>Dinheiro</div>
+                  <div style="font-size:18px;font-weight:900;color:#15803d;" id="expDinheiro">R$ 0,00</div>
+                </div>
+                <div style="background:#fff1f2;border-radius:10px;padding:10px 12px;">
+                  <div style="font-size:10px;font-weight:700;color:var(--red);text-transform:uppercase;margin-bottom:3px;"><i class="fas fa-coins" style="margin-right:3px;"></i>Total</div>
+                  <div style="font-size:18px;font-weight:900;color:var(--red);" id="expTotal">R$ 0,00</div>
                 </div>
               </div>
             </div>
@@ -948,15 +957,19 @@
     };
 
 
-    // ── EXPORTAÇÃO DE CAIXA POR FORMA DE PAGAMENTO ──────────────────
+
+    // ── EXPORTAÇÃO POR FORMA DE PAGAMENTO + COLABORADORES ─────────────
     window.abrirExportCaixa = function() {
       var hoje = new Date();
       var y = hoje.getFullYear(), m = String(hoje.getMonth()+1).padStart(2,'0');
       var ult = new Date(y, hoje.getMonth()+1, 0).getDate();
-      document.getElementById('expDataInicio').value = y+'-'+m+'-01';
-      document.getElementById('expDataFim').value    = y+'-'+m+'-'+String(ult).padStart(2,'0');
+      var ini = document.getElementById('expDataInicio');
+      var fim = document.getElementById('expDataFim');
+      if (ini) ini.value = y+'-'+m+'-01';
+      if (fim) fim.value = y+'-'+m+'-'+String(ult).padStart(2,'0');
       document.getElementById('expResultado').style.display = 'none';
       document.getElementById('btnBaixarExport').style.display = 'none';
+      document.getElementById('expColabList').innerHTML = 'Selecione um período e clique em Calcular.';
       var mod = document.getElementById('modalExportCaixa');
       if (mod) mod.style.display = 'flex';
     };
@@ -970,67 +983,112 @@
       if (e.target === this) window.fecharExportCaixa();
     });
 
-    function fmtRExp(v) {
-      return 'R$ ' + (v||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+    window.expSelecionarTodos = function(todos) {
+      document.querySelectorAll('.exp-colab-chk').forEach(function(chk) {
+        chk.checked = todos;
+      });
+    };
+
+    function fmtRE(v) {
+      return 'R$ '+(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+
+    // Agrega totForma com compatibilidade de chaves acentuadas e sem acento
+    function lerTotForma(tf) {
+      return {
+        deb:  (tf['Cart\u00e3o de D\u00e9bito']  || tf['Cartao de Debito']  || {}).entrada || 0,
+        pix:  (tf['PIX']                            || {}).entrada || 0,
+        crd:  (tf['Cart\u00e3o de Cr\u00e9dito'] || tf['Cartao de Credito'] || {}).entrada || 0,
+        din:  (tf['Dinheiro']                        || {}).entrada || 0,
+        desp: Object.values(tf).reduce(function(s,v){ return s+(v.saida||0);}, 0)
+      };
     }
 
     window._expData = null;
 
     window.calcularExportCaixa = function() {
-      var ini = document.getElementById('expDataInicio').value;
-      var fim = document.getElementById('expDataFim').value;
-      if (!ini || !fim) { toast('Selecione o periodo','error'); return; }
-      if (ini > fim)    { toast('Data inicio deve ser anterior a data fim','error'); return; }
+      var iniV = (document.getElementById('expDataInicio') || {}).value || '';
+      var fimV = (document.getElementById('expDataFim')    || {}).value || '';
+      if (!iniV || !fimV) { alert('Selecione o período'); return; }
+      if (iniV > fimV)    { alert('Data início deve ser anterior à data fim'); return; }
 
-      var debito = 0, pix = 0, credito = 0, dinheiro = 0, despesa = 0;
-      var linhas = [];
-
-      // _dados[uid][YYYY-MM-DD] = snapshot com totForma e lancamentos
+      // Coletar todos os colaboradores no período
+      var colabSet = {};
       for (var uid in _dados) {
-        var colab = '';
         for (var dia in _dados[uid]) {
-          if (dia < ini || dia > fim) continue;
+          if (dia < iniV || dia > fimV) continue;
           var snap = _dados[uid][dia];
           if (!snap) continue;
-          if (!colab && snap.colaborador) colab = snap.colaborador;
-
-          // Somar totForma (estrutura principal do caixa)
-          var tf = snap.totForma || {};
-          var deb = (tf['Cartao de Debito']  || tf['Cartão de Débito']  || {}).entrada || 0;
-          var px  = (tf['PIX']               || {}).entrada || 0;
-          var crd = (tf['Cartao de Credito'] || tf['Cartão de Crédito'] || {}).entrada || 0;
-          var din = (tf['Dinheiro']          || {}).entrada || 0;
-          var desp= 0;
-          for (var forma in tf) desp += (tf[forma].saida || 0);
-
-          debito   += deb;
-          pix      += px;
-          credito  += crd;
-          dinheiro += din;
-          despesa  += desp;
-
-          // Linha de detalhe por dia
-          var totalDia = deb + px + crd + din - desp;
-          if (totalDia !== 0 || deb || px || crd || din) {
-            linhas.push({ dia: dia, colab: snap.colaborador||uid, deb: deb, pix: px, crd: crd, din: din, desp: desp, total: totalDia });
-          }
+          var nome = aplicarAlias(snap.colaborador || uid);
+          if (!colabSet[nome]) colabSet[nome] = { uid: uid };
         }
       }
 
-      var debPix = debito + pix;
-      var total  = debPix + credito + dinheiro;
+      // Renderizar lista de checkboxes
+      var nomes = Object.keys(colabSet).sort();
+      var listEl = document.getElementById('expColabList');
+      if (!nomes.length) {
+        listEl.innerHTML = '<span style="color:var(--gray-400);">Nenhum registro no período.</span>';
+        return;
+      }
+      listEl.innerHTML = nomes.map(function(nome) {
+        var id = 'expchk-' + nome.replace(/[^a-z0-9]/gi,'');
+        return '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 0;">'
+          + '<input type="checkbox" class="exp-colab-chk" id="'+id+'" value="'+nome+'" checked style="width:14px;height:14px;">'
+          + '<span>'+nome+'</span></label>';
+      }).join('');
 
-      window._expData = { debito, pix, credito, dinheiro, despesa, debPix, total, ini, fim, linhas };
+      // Calcular com todos selecionados inicialmente
+      _recalcExport(iniV, fimV);
+    };
 
-      document.getElementById('expDebitoPix').textContent = fmtRExp(debPix);
-      document.getElementById('expDebPix2').textContent   = 'Debito: ' + fmtRExp(debito) + ' | PIX: ' + fmtRExp(pix);
-      document.getElementById('expCredito').textContent   = fmtRExp(credito);
-      document.getElementById('expDinheiro').textContent  = fmtRExp(dinheiro);
-      document.getElementById('expTotal').textContent     = fmtRExp(total);
+    function _recalcExport(iniV, fimV) {
+      var selecionados = {};
+      document.querySelectorAll('.exp-colab-chk:checked').forEach(function(chk) {
+        selecionados[chk.value] = true;
+      });
 
+      var deb=0, pix=0, crd=0, din=0, desp=0;
+      var linhas = [];
+
+      for (var uid in _dados) {
+        for (var dia in _dados[uid]) {
+          if (dia < iniV || dia > fimV) continue;
+          var snap = _dados[uid][dia];
+          if (!snap) continue;
+          var nome = aplicarAlias(snap.colaborador || uid);
+          if (!selecionados[nome]) continue;
+          var tf = snap.totForma || {};
+          var v = lerTotForma(tf);
+          deb  += v.deb;
+          pix  += v.pix;
+          crd  += v.crd;
+          din  += v.din;
+          desp += v.desp;
+          linhas.push({ dia:dia, nome:nome, deb:v.deb, pix:v.pix, crd:v.crd, din:v.din, desp:v.desp, total:v.deb+v.pix+v.crd+v.din-v.desp });
+        }
+      }
+
+      var debPix = deb + pix;
+      var total  = debPix + crd + din;
+
+      window._expData = { deb:deb, pix:pix, crd:crd, din:din, desp:desp, debPix:debPix, total:total, ini:iniV, fim:fimV, linhas:linhas };
+
+      document.getElementById('expDebitoPix').textContent = fmtRE(debPix);
+      document.getElementById('expDebPix2').textContent   = 'Deb: '+fmtRE(deb)+' | PIX: '+fmtRE(pix);
+      document.getElementById('expCredito').textContent   = fmtRE(crd);
+      document.getElementById('expDinheiro').textContent  = fmtRE(din);
+      document.getElementById('expTotal').textContent     = fmtRE(total);
       document.getElementById('expResultado').style.display = 'block';
       document.getElementById('btnBaixarExport').style.display = 'block';
-    };
+    }
+
+    // Recalcular ao marcar/desmarcar colaborador
+    document.getElementById('expColabList').addEventListener('change', function() {
+      var iniV = (document.getElementById('expDataInicio') || {}).value || '';
+      var fimV = (document.getElementById('expDataFim')    || {}).value || '';
+      if (iniV && fimV) _recalcExport(iniV, fimV);
+    });
 
     window.baixarExportCaixa = function() {
       if (!window._expData) return;
@@ -1044,23 +1102,23 @@
       rows.push('');
       rows.push('FORMA' + SC + 'VALOR');
       rows.push('Debito + PIX (Combinado)' + SC + fmtN(d.debPix));
-      rows.push('  Debito' + SC + fmtN(d.debito));
+      rows.push('  Debito' + SC + fmtN(d.deb));
       rows.push('  PIX' + SC + fmtN(d.pix));
-      rows.push('Credito (a vista + parcelado)' + SC + fmtN(d.credito));
-      rows.push('Dinheiro' + SC + fmtN(d.dinheiro));
+      rows.push('Credito (a vista + parcelado)' + SC + fmtN(d.crd));
+      rows.push('Dinheiro' + SC + fmtN(d.din));
       rows.push('TOTAL GERAL' + SC + fmtN(d.total));
       rows.push('');
       rows.push('DETALHE POR DIA E COLABORADOR');
       rows.push('Data' + SC + 'Colaborador' + SC + 'Debito' + SC + 'PIX' + SC + 'Credito' + SC + 'Dinheiro' + SC + 'Despesas' + SC + 'Total');
-      d.linhas.sort(function(a,b){ return a.dia.localeCompare(b.dia); }).forEach(function(l) {
-        rows.push(l.dia + SC + l.colab + SC + fmtN(l.deb) + SC + fmtN(l.pix) + SC + fmtN(l.crd) + SC + fmtN(l.din) + SC + fmtN(l.desp) + SC + fmtN(l.total));
+      d.linhas.sort(function(a,b){ return a.dia < b.dia ? -1 : 1; }).forEach(function(l) {
+        rows.push(l.dia + SC + l.nome + SC + fmtN(l.deb) + SC + fmtN(l.pix) + SC + fmtN(l.crd) + SC + fmtN(l.din) + SC + fmtN(l.desp) + SC + fmtN(l.total));
       });
 
       var csv = '\uFEFF' + rows.join(NL);
       var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
       var a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'caixa-pagamentos-' + d.ini + '-a-' + d.fim + '.csv';
+      a.download = 'caixa-'+d.ini+'-a-'+d.fim+'.csv';
       a.click();
     };
 
@@ -1170,33 +1228,37 @@
       var mes = (document.getElementById('visaoMesSelect') || {}).value || '';
       if (!mes) return;
 
-      // ── 1. Cards de totais do caixa ──
-      var totais = { debito:0, pix:0, dinheiro:0, credito_av:0, credito_pa:0, despesa:0 };
+      // ── 1. Cards de totais do caixa (lê totForma — estrutura real do Firebase) ──
+      var totais = { debito:0, pix:0, dinheiro:0, credito:0, despesa:0 };
       for (var uid in _dados) {
         for (var dia in _dados[uid]) {
           if (!dia.startsWith(mes)) continue;
-          var lancamentos = _dados[uid][dia];
-          for (var k in lancamentos) {
-            var it = lancamentos[k];
-            if (totais[it.forma] !== undefined) totais[it.forma] += (it.valor || 0);
-          }
+          var snap = _dados[uid][dia];
+          if (!snap) continue;
+          var tf = snap.totForma || {};
+          // Compatível com ambos os formatos de chave (acentuado e sem acento)
+          totais.debito  += (tf['Cartão de Débito']  || tf['Cartao de Debito']  || {}).entrada || 0;
+          totais.pix     += (tf['PIX']                                           || {}).entrada || 0;
+          totais.dinheiro+= (tf['Dinheiro']                                      || {}).entrada || 0;
+          totais.credito += (tf['Cartão de Crédito'] || tf['Cartao de Credito'] || {}).entrada || 0;
+          for (var f in tf) totais.despesa += (tf[f].saida || 0);
         }
       }
-      var avista  = totais.debito + totais.pix + totais.dinheiro + totais.credito_av;
-      var credito = totais.credito_pa;
+      var avista  = totais.debito + totais.pix + totais.dinheiro;
+      var credito = totais.credito;
       var despesa = totais.despesa;
       var total   = avista + credito - despesa;
 
       function fmtV(v) { return 'R$ ' + v.toLocaleString('pt-BR', {minimumFractionDigits:2}); }
 
       var cardsData = [
-        { label:'Total Geral',  val: fmtV(total),   cor:'var(--navy)',   bg:'#eff6ff', icon:'fa-coins' },
-        { label:'À Vista',      val: fmtV(avista),   cor:'#15803d',       bg:'#f0fdf4', icon:'fa-circle-check' },
-        { label:'Crédito',      val: fmtV(credito),  cor:'#7c3aed',       bg:'#f5f3ff', icon:'fa-credit-card' },
-        { label:'Débito',       val: fmtV(totais.debito), cor:'#1d4ed8', bg:'#eff6ff', icon:'fa-credit-card' },
-        { label:'PIX',          val: fmtV(totais.pix),    cor:'#0369a1', bg:'#f0f9ff', icon:'fa-qrcode' },
-        { label:'Dinheiro',     val: fmtV(totais.dinheiro),cor:'#065f46',bg:'#ecfdf5', icon:'fa-money-bill' },
-        { label:'Despesas',     val: fmtV(despesa),   cor:'var(--red)',    bg:'#fff1f2', icon:'fa-arrow-down' },
+        { label:'Total Geral',  val: fmtV(total),            cor:'var(--navy)', bg:'#eff6ff', icon:'fa-coins' },
+        { label:'À Vista',      val: fmtV(avista),            cor:'#15803d',     bg:'#f0fdf4', icon:'fa-circle-check' },
+        { label:'Crédito',      val: fmtV(credito),           cor:'#7c3aed',     bg:'#f5f3ff', icon:'fa-credit-card' },
+        { label:'Débito',       val: fmtV(totais.debito),     cor:'#1d4ed8',     bg:'#eff6ff', icon:'fa-credit-card' },
+        { label:'PIX',          val: fmtV(totais.pix),        cor:'#0369a1',     bg:'#f0f9ff', icon:'fa-qrcode' },
+        { label:'Dinheiro',     val: fmtV(totais.dinheiro),   cor:'#065f46',     bg:'#ecfdf5', icon:'fa-money-bill' },
+        { label:'Despesas',     val: fmtV(despesa),            cor:'var(--red)',   bg:'#fff1f2', icon:'fa-arrow-down' },
       ];
 
       document.getElementById('visaoCards').innerHTML = cardsData.map(function(c) {
@@ -1647,13 +1709,17 @@
     }
     function primeiroNome(nome) { return (nome||'').split(' ')[0]; }
     function aplicarAlias(nome) {
-      if (!nome) return nome;
+      if (!nome) return '(Sem identificação)';
       const nLower = nome.toLowerCase().trim();
       for (const [from, to] of Object.entries(window._aliases || {})) {
         if (nLower === from.toLowerCase().trim()) return to;
         if (nLower.startsWith(from.toLowerCase().trim())) return to;
       }
-      return nome;
+      // Se parece um UID do Firebase (>20 chars alfanumérico sem espaço) → rotula
+      if (nome.length > 20 && !nome.includes(' ') && /^[A-Za-z0-9_-]+$/.test(nome)) {
+        return '(Sem nome — ID: ' + nome.slice(0,8) + '…)';
+      }
+      return nome || '(Sem identificação)';
     }
 
     /* ── ESTADO ── */
