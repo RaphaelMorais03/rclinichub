@@ -2441,10 +2441,10 @@ window.renderRanking = function() {
     html += '<div style="height:100%;width:' + pct + '%;background:linear-gradient(90deg,#15803d,#22c55e);border-radius:4px;"></div>';
     html += '</div>';
     html += '<div style="display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--gray-500);">';
-    html += '<span><b style="color:#1d4ed8;">Deb</b> ' + fR(r.deb) + '</span>';
-    html += '<span><b style="color:#0369a1;">PIX</b> ' + fR(r.pix) + '</span>';
-    html += '<span><b style="color:#065f46;">Din</b> ' + fR(r.din) + '</span>';
-    html += '<span><b style="color:#7c3aed;">Cred</b> ' + fR(r.crd) + '</span>';
+    if (useDeb) { html += '<span><b style="color:#1d4ed8;">Deb</b> ' + fR(r.deb) + '</span>'; }
+    if (usePix) { html += '<span><b style="color:#0369a1;">PIX</b> ' + fR(r.pix) + '</span>'; }
+    if (useDin) { html += '<span><b style="color:#065f46;">Din</b> ' + fR(r.din) + '</span>'; }
+    if (useCrd) { html += '<span><b style="color:#7c3aed;">Cred</b> ' + fR(r.crd) + '</span>'; }
     if (r.desp > 0) { html += '<span><b style="color:var(--red);">Desp</b> -' + fR(r.desp) + '</span>'; }
     html += '</div></div>';
   });
