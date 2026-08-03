@@ -1169,26 +1169,55 @@ window.imprimirRessarc = function() {
   if (!nome)   { mostrarNotificacao('Informe o nome do paciente'); return; }
   if (!valor)  { mostrarNotificacao('Informe o valor'); return; }
   if (!motivo) { mostrarNotificacao('Informe o motivo'); return; }
+
   var vN  = _rxPM(valor);
   var ext = _rxExt(valor);
   var now = new Date();
-  var data = 'Sao Paulo, '+now.getDate()+' de '+_MESES[now.getMonth()]+' de '+now.getFullYear();
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Ressarcimento</title>'
-    +'<style>'+_rxCSS()+'</style></head><body><div class="rp">'
-    +_rxHeader('RESSARCIMENTO')
-    +'<div class="rc">'
-    +'<div><span class="clb">Paciente:</span> '+nome.toUpperCase()+'</div>'
-    +(cpf?'<div><span class="clb">CPF:</span> '+cpf+'</div>':'<div></div>')
-    +'</div>'
-    +'<div class="vb"><div class="vr">R$</div>'
-    +'<div><div class="vn">'+_rxFM(vN).replace('R$ ','')+'</div>'
-    +'<div class="ve">'+ext.charAt(0).toUpperCase()+ext.slice(1)+'</div></div></div>'
-    +'<div class="ref"><strong>Motivo:</strong> '+motivo+'</div>'
-    +'<div class="as"><div style="flex:1"><div class="al"></div><div class="an">'+nome.toUpperCase()+'</div>'
-    +'<div class="albl">Assinatura do paciente</div></div>'
-    +'<div class="db">'+data+'</div></div>'
-    +'<div><div class="al"></div><div class="albl">Assinatura do funcionario</div></div>'
-    +'<div><div class="al"></div><div class="albl">Assinatura do supervisor / coordenador</div></div>'
+  var data = 'S\u00e3o Paulo, '+now.getDate()+' de '+_MESES[now.getMonth()]+' de '+now.getFullYear()+'.';
+  var logo = sessionStorage.getItem('logoDataUrl') || '';
+  var logoHtml = logo
+    ? '<img src="'+logo+'" alt="Logo" style="height:60px;width:auto;object-fit:contain;display:block;margin:0 auto 6pt;">'
+    : '<div style="font-size:20pt;font-weight:900;color:#C0392B;text-align:center;margin-bottom:6pt;">amor<span style="color:#1A5276;">sa\u00fade</span></div>';
+
+  var CSS = '@page{size:A4;margin:1.2cm 2cm}'
+    +'*{box-sizing:border-box;margin:0;padding:0}'
+    +'body{font-family:Arial,sans-serif;font-size:11pt;color:#1a1a1a;background:#fff}'
+    +'.rp{border:1.5px solid #1a1a1a;border-radius:4pt;padding:24pt 28pt}'
+    +'.logo-area{text-align:center;margin-bottom:4pt}'
+    +'.empresa{text-align:center;font-size:9pt;color:#444;line-height:1.6;margin-bottom:10pt}'
+    +'.empresa strong{font-size:10pt;color:#1a1a1a}'
+    +'.divider{border:none;border-top:1.5pt solid #1a1a1a;margin:10pt 0}'
+    +'.titulo{font-size:14pt;font-weight:bold;letter-spacing:2pt;text-transform:uppercase;text-align:center;margin:10pt 0 18pt}'
+    +'.corpo{font-size:11pt;line-height:1.85;text-align:justify;margin-bottom:14pt}'
+    +'.ref-box{background:#f8f9fa;border-left:3pt solid #1a1a1a;padding:10pt 14pt;margin-bottom:16pt;border-radius:0 4pt 4pt 0}'
+    +'.ref-lbl{font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:.6pt;color:#666;margin-bottom:4pt}'
+    +'.ref-txt{font-size:10.5pt;line-height:1.75;color:#222}'
+    +'.data{text-align:right;font-size:11pt;margin-bottom:24pt}'
+    +'.assin{margin-bottom:14pt}'
+    +'.assin-linha{border-top:1pt solid #1a1a1a;margin-top:22pt;padding-top:3pt}'
+    +'.assin-lbl{font-size:9pt;color:#444}'
+    +'.aviso{margin-top:18pt;background:#fff8e1;border:1pt solid #f59e0b;border-radius:4pt;padding:7pt 10pt;font-size:8.5pt;color:#78350f;text-align:center;line-height:1.6}'
+    +'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
+
+  var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo Ressarcimento</title>'
+    +'<style>'+CSS+'</style></head><body><div class="rp">'
+    +'<div class="logo-area">'+logoHtml+'</div>'
+    +'<div class="empresa"><strong>SIM CL\u00cdNICA M\u00c9DICA E ODONTOL\u00d3GICA LTDA</strong><br>'
+    +'CNPJ: 25.154.224/0001-89 &nbsp;|&nbsp; Av. Dr. Felipe Pinel, 367 \u2013 Pirituba, S\u00e3o Paulo/SP</div>'
+    +'<hr class="divider">'
+    +'<div class="titulo">RECIBO (RESSARCIMENTO)</div>'
+    +'<div class="corpo">Eu <strong>'+nome.toUpperCase()+'</strong>'
+    +(cpf?', portador(a) do CPF: <strong>'+cpf+'</strong>':'')+', afirmo ter solicitado da cl\u00ednica '
+    +'<strong>SIM CL\u00cdNICA M\u00c9DICA E ODONTOL\u00d3GICA LTDA \u2014 CNPJ: 25.154.224/001-89</strong> '
+    +'o ressarcimento no valor de <strong>R$ '+_rxFM(vN).replace('R$ ','')+' reais</strong> '
+    +'('+ext.charAt(0).toUpperCase()+ext.slice(1)+').</div>'
+    +'<div class="ref-box"><div class="ref-lbl">Referente</div><div class="ref-txt">'+motivo+'</div></div>'
+    +'<div class="data">'+data+'</div>'
+    +'<div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do respons\u00e1vel (Nome Completo): '+nome.toUpperCase()+'</div></div>'
+    +'<div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do funcion\u00e1rio</div></div>'
+    +'<div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do supervisor / coordenador</div></div>'
+    +'<div class="aviso">&#9888;&#65039; Este recibo s\u00f3 ser\u00e1 aceito mediante apresenta\u00e7\u00e3o de: c\u00f3pia do documento do paciente + recibo de pagamento original.<br>'
+    +'O n\u00e3o cumprimento das orienta\u00e7\u00f5es pode resultar em desconto do colaborador.</div>'
     +'</div>'
     +'<'+'script>window.onload=function(){setTimeout(function(){window.print();},400);};<'+'/script>'
     +'</body></html>';
@@ -1196,35 +1225,63 @@ window.imprimirRessarc = function() {
 };
 
 window.imprimirErroSistema = function() {
-  var pac    = _rxGet('es-paciente');
-  var cpf    = _rxGet('es-cpf');
-  var valor  = _rxGet('es-valor');
-  var obs    = _rxGet('es-obs');
+  var pac   = _rxGet('es-paciente');
+  var cpf   = _rxGet('es-cpf');
+  var valor = _rxGet('es-valor');
+  var obs   = _rxGet('es-obs');
   if (!pac)   { mostrarNotificacao('Informe o nome do paciente'); return; }
   if (!valor) { mostrarNotificacao('Informe o valor'); return; }
-  if (!obs)   { mostrarNotificacao('Informe a descrição'); return; }
+  if (!obs)   { mostrarNotificacao('Informe a descri\u00e7\u00e3o'); return; }
+
   var vN  = _rxPM(valor);
   var ext = _rxExt(valor);
   var now = new Date();
-  var data = 'Sao Paulo, '+now.getDate()+' de '+_MESES[now.getMonth()]+' de '+now.getFullYear();
-  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Erro de Sistema</title>'
-    +'<style>'+_rxCSS()+'</style></head><body><div class="rp">'
-    +_rxHeader('ERRO DE SISTEMA')
-    +'<div class="rc">'
-    +'<div><span class="clb">Paciente:</span> '+pac.toUpperCase()+'</div>'
-    +(cpf?'<div><span class="clb">CPF:</span> '+cpf+'</div>':'<div></div>')
-    +'</div>'
-    +'<div class="vb"><div class="vr">R$</div>'
-    +'<div><div class="vn">'+_rxFM(vN).replace('R$ ','')+'</div>'
-    +'<div class="ve">'+ext.charAt(0).toUpperCase()+ext.slice(1)+'</div></div></div>'
-    +'<div class="ref"><strong>Descricao:</strong> '+obs+'</div>'
-    +'<div style="font-size:10px;background:#fef3c7;border:1px solid #d97706;border-radius:4px;padding:5px 8px;margin:6px 0;">'
-    +'<strong></strong></div>'
-    +'<div class="as"><div style="flex:1"><div class="al"></div>'
-    +'<div class="an">'+pac.toUpperCase()+'</div>'
-    +'<div class="albl">Assinatura do paciente</div></div>'
-    +'<div class="db">'+data+'</div></div>'
-    +'<div><div class="al"></div><div class="albl">Assinatura da lideranca</div></div>'
+  var data = 'S\u00e3o Paulo, '+now.getDate()+' de '+_MESES[now.getMonth()]+' de '+now.getFullYear()+'.';
+  var logo = sessionStorage.getItem('logoDataUrl') || '';
+  var logoHtml = logo
+    ? '<img src="'+logo+'" alt="Logo" style="height:60px;width:auto;object-fit:contain;display:block;margin:0 auto 6pt;">'
+    : '<div style="font-size:20pt;font-weight:900;color:#C0392B;text-align:center;margin-bottom:6pt;">amor<span style="color:#1A5276;">sa\u00fade</span></div>';
+
+  var CSS = '@page{size:A4;margin:1.2cm 2cm}'
+    +'*{box-sizing:border-box;margin:0;padding:0}'
+    +'body{font-family:Arial,sans-serif;font-size:11pt;color:#1a1a1a;background:#fff}'
+    +'.rp{border:1.5px solid #1a1a1a;border-radius:4pt;padding:24pt 28pt}'
+    +'.logo-area{text-align:center;margin-bottom:4pt}'
+    +'.empresa{text-align:center;font-size:9pt;color:#444;line-height:1.6;margin-bottom:10pt}'
+    +'.empresa strong{font-size:10pt;color:#1a1a1a}'
+    +'.divider{border:none;border-top:1.5pt solid #1a1a1a;margin:10pt 0}'
+    +'.titulo{font-size:14pt;font-weight:bold;letter-spacing:2pt;text-transform:uppercase;text-align:center;margin:10pt 0 18pt}'
+    +'.corpo{font-size:11pt;line-height:1.85;text-align:justify;margin-bottom:14pt}'
+    +'.ref-box{background:#f8f9fa;border-left:3pt solid #1a1a1a;padding:10pt 14pt;margin-bottom:16pt;border-radius:0 4pt 4pt 0}'
+    +'.ref-lbl{font-size:8pt;font-weight:bold;text-transform:uppercase;letter-spacing:.6pt;color:#666;margin-bottom:4pt}'
+    +'.ref-txt{font-size:10.5pt;line-height:1.75;color:#222}'
+    +'.data{text-align:right;font-size:11pt;margin-bottom:24pt}'
+    +'.assin{margin-bottom:14pt}'
+    +'.assin-linha{border-top:1pt solid #1a1a1a;margin-top:22pt;padding-top:3pt}'
+    +'.assin-lbl{font-size:9pt;color:#444}'
+    +'.aviso{margin-top:18pt;background:#fff8e1;border:1pt solid #f59e0b;border-radius:4pt;padding:7pt 10pt;font-size:8.5pt;color:#78350f;text-align:center;line-height:1.6}'
+    +'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
+
+  var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo Erro de Sistema</title>'
+    +'<style>'+CSS+'</style></head><body><div class="rp">'
+    +'<div class="logo-area">'+logoHtml+'</div>'
+    +'<div class="empresa"><strong>SIM CL\u00cdNICA M\u00c9DICA E ODONTOL\u00d3GICA LTDA</strong><br>'
+    +'CNPJ: 25.154.224/0001-89 &nbsp;|&nbsp; Av. Dr. Felipe Pinel, 367 \u2013 Pirituba, S\u00e3o Paulo/SP</div>'
+    +'<hr class="divider">'
+    +'<div class="titulo">RECIBO (ERRO DE SISTEMA)</div>'
+    +'<div class="corpo">Eu <strong>'+pac.toUpperCase()+'</strong>'
+    +(cpf?', portador(a) do CPF: <strong>'+cpf+'</strong>':'')+', afirmo ter encaminhado ao caixa da lideran\u00e7a o valor de '
+    +'<strong>R$ '+_rxFM(vN).replace('R$ ','')+' reais</strong> '
+    +'('+ext.charAt(0).toUpperCase()+ext.slice(1)+'), '
+    +'referente a diverg\u00eancia registrada no sistema da cl\u00ednica '
+    +'<strong>SIM CL\u00cdNICA M\u00c9DICA E ODONTOL\u00d3GICA LTDA \u2014 CNPJ: 25.154.224/001-89</strong>.</div>'
+    +'<div class="ref-box"><div class="ref-lbl">Descri\u00e7\u00e3o / Refer\u00eante</div><div class="ref-txt">'+obs+'</div></div>'
+    +'<div class="data">'+data+'</div>'
+    +'<div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do respons\u00e1vel (Nome Completo): '+pac.toUpperCase()+'</div></div>'
+    +'<div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do funcion\u00e1rio</div></div>'
+    +'<div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do supervisor / coordenador</div></div>'
+    +'<div class="aviso">&#9888;&#65039; Este recibo s\u00f3 ser\u00e1 aceito mediante apresenta\u00e7\u00e3o de: c\u00f3pia do documento do paciente + recibo de pagamento original.<br>'
+    +'O n\u00e3o cumprimento das orienta\u00e7\u00f5es pode resultar em desconto do colaborador.</div>'
     +'</div>'
     +'<'+'script>window.onload=function(){setTimeout(function(){window.print();},400);};<'+'/script>'
     +'</body></html>';
@@ -1305,4 +1362,4 @@ window.imprimirBonificacao = function() {
 };
 
 </script>
-<!-- VERSION: v2.0 | caixa.html | 17/07/2026 | feat: Erro de Sistema simplificado, Recibo Bonificação adicionado, títulos e instruções -->
+<!-- VERSION: v2.1 | caixa.html | 17/07/2026 | feat: recibo ressarcimento com texto formal de documento -->
