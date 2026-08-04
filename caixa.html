@@ -1218,7 +1218,7 @@ window.imprimirRessarc = function() {
     +'<div class="ref-box"><div class="ref-lbl">Referente</div><div class="ref-txt">'+motivo+'</div></div>'
     +'<div class="data">'+data+'</div>'
     +'<div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do respons\u00e1vel (Nome Completo): '+nome.toUpperCase()+'</div></div>'
-    +'<div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do colaborador'+(colab?' ('+colab+')':'')+': _____________________</div></div>'
+    +'<div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do colaborador'+(colab?' ('+colab+')':'')+':</div></div>'
     +'<div class="assin"><div class="assin-linha"></div><div class="assin-lbl">Assinatura do supervisor / coordenador</div></div>'
     +'<div class="aviso">&#9888;&#65039; Este recibo s\u00f3 ser\u00e1 aceito mediante apresenta\u00e7\u00e3o de: c\u00f3pia do documento do paciente + recibo de pagamento original.<br>'
     +'O n\u00e3o cumprimento das orienta\u00e7\u00f5es pode resultar em desconto do colaborador.</div>'
@@ -1291,7 +1291,7 @@ window.imprimirErroSistema = function() {
     +'<div class="aviso">&#9888;&#65039; Este recibo s\u00f3 ser\u00e1 aceito mediante apresenta\u00e7\u00e3o de: c\u00f3pia do documento do paciente + recibo de pagamento original.<br>'
     +'O n\u00e3o cumprimento das orienta\u00e7\u00f5es pode resultar em desconto do colaborador.</div>'
     +'</div>'
-    +'<'+'script>window.onload=function(){setTimeout(function(){window.print();},400);};<'+'/script>'
+    +'<'+'script>window.onload=function(){setTimeout(function(){window.print();},300);};<'+'/script>'
     +'</body></html>';
   _rxPrint(html);
 };
