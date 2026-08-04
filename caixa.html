@@ -1179,9 +1179,9 @@ window.imprimirRessarc = function() {
     ? '<img src="'+logo+'" alt="Logo" style="height:60px;width:auto;object-fit:contain;display:block;margin:0 auto 6pt;">'
     : '<div style="font-size:20pt;font-weight:900;color:#C0392B;text-align:center;margin-bottom:6pt;">amor<span style="color:#1A5276;">sa\u00fade</span></div>';
 
-  var CSS = '@page{size:A4;margin:1.2cm 2cm}'
+  var CSS = '@page{size:A4 portrait;margin:15mm}'
     +'*{box-sizing:border-box;margin:0;padding:0}'
-    +'body{font-family:Arial,sans-serif;font-size:11pt;color:#1a1a1a;background:#fff}'
+    +'body{font-family:Arial,sans-serif;font-size:11pt;color:#1a1a1a;background:#fff;width:100%;}'
     +'.rp{border:1.5px solid #1a1a1a;border-radius:4pt;padding:24pt 28pt}'
     +'.logo-area{text-align:center;margin-bottom:4pt}'
     +'.empresa{text-align:center;font-size:9pt;color:#444;line-height:1.6;margin-bottom:10pt}'
@@ -1197,7 +1197,10 @@ window.imprimirRessarc = function() {
     +'.assin-linha{border-top:1pt solid #1a1a1a;margin-top:22pt;padding-top:3pt}'
     +'.assin-lbl{font-size:9pt;color:#444}'
     +'.aviso{margin-top:18pt;background:#fff8e1;border:1pt solid #f59e0b;border-radius:4pt;padding:7pt 10pt;font-size:8.5pt;color:#78350f;text-align:center;line-height:1.6}'
-    +'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
+    +'@media print{'
+    +'  @page{size:A4 portrait;margin:15mm}'
+    +'  body{zoom:70%;width:100%;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+    +'}';
 
   var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo Ressarcimento</title>'
     +'<style>'+CSS+'</style></head><body><div class="rp">'
@@ -1242,9 +1245,9 @@ window.imprimirErroSistema = function() {
     ? '<img src="'+logo+'" alt="Logo" style="height:60px;width:auto;object-fit:contain;display:block;margin:0 auto 6pt;">'
     : '<div style="font-size:20pt;font-weight:900;color:#C0392B;text-align:center;margin-bottom:6pt;">amor<span style="color:#1A5276;">sa\u00fade</span></div>';
 
-  var CSS = '@page{size:A4;margin:1.2cm 2cm}'
+  var CSS = '@page{size:A4 portrait;margin:15mm}'
     +'*{box-sizing:border-box;margin:0;padding:0}'
-    +'body{font-family:Arial,sans-serif;font-size:11pt;color:#1a1a1a;background:#fff}'
+    +'body{font-family:Arial,sans-serif;font-size:11pt;color:#1a1a1a;background:#fff;width:100%;}'
     +'.rp{border:1.5px solid #1a1a1a;border-radius:4pt;padding:24pt 28pt}'
     +'.logo-area{text-align:center;margin-bottom:4pt}'
     +'.empresa{text-align:center;font-size:9pt;color:#444;line-height:1.6;margin-bottom:10pt}'
@@ -1260,7 +1263,10 @@ window.imprimirErroSistema = function() {
     +'.assin-linha{border-top:1pt solid #1a1a1a;margin-top:22pt;padding-top:3pt}'
     +'.assin-lbl{font-size:9pt;color:#444}'
     +'.aviso{margin-top:18pt;background:#fff8e1;border:1pt solid #f59e0b;border-radius:4pt;padding:7pt 10pt;font-size:8.5pt;color:#78350f;text-align:center;line-height:1.6}'
-    +'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}';
+    +'@media print{'
+    +'  @page{size:A4 portrait;margin:15mm}'
+    +'  body{zoom:70%;width:100%;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}'
+    +'}';
 
   var html = '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo Erro de Sistema</title>'
     +'<style>'+CSS+'</style></head><body><div class="rp">'
