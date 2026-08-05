@@ -1,4 +1,4 @@
-<!-- VERSION: v1.1 | contratos.html | 14/07/2026 | feat: contrato neuropsicologia com logo real + aba guia encaminhamento -->
+<!-- VERSION: v1.2 | contratos.html | 03/08/2026 | fix: logo real na guia de encaminhamento -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -640,6 +640,10 @@ strong{font-weight:700;}
       const procsRows=procs.filter(p=>p.proc).map(p=>`
         <tr><td style="padding:6pt 4pt;border-bottom:0.5pt solid #E8EAED;">${esc(p.proc)}</td>
             <td style="padding:6pt 4pt;border-bottom:0.5pt solid #E8EAED;text-align:right;color:#555;">${esc(p.exec)}</td></tr>`).join('');
+      const _logoGuia = sessionStorage.getItem('logoDataUrl') || '';
+      const _logoGuiaHtml = _logoGuia
+        ? `<img src="${_logoGuia}" alt="Logo" style="height:44pt;width:auto;object-fit:contain;">`
+        : `<div class="logo-icone">&#9829;</div>`;
       const win=window.open('','_blank');
       if(!win){toast('Pop-up bloqueado');return;}
       win.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Encaminhamento — ${esc(pac)}</title>
@@ -671,7 +675,7 @@ td{font-size:9pt;padding:5pt 4pt;}
 </style></head><body>
 <div class="cabecalho">
   <div class="logo-area">
-    <div class="logo-icone">♥</div>
+    ${_logoGuiaHtml}
     <div><div class="logo-nome">AmorSaúde SP Pirituba</div><div class="logo-sub">CNPJ: 25.154.224/0001-89</div><div class="logo-sub">Endereço: Avenida Doutor Felipe Pinel, 367 - Pirituba - 02939-000 São Paulo - SP</div><div class="logo-sub">Atendimento: (11) 3976-5149 · E-mail: pirituba.sp@amorsaude.com</div></div>
   </div>
 </div>
