@@ -597,7 +597,7 @@
     return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo — ${esc(c.nome||'')}</title>
       <style>${RECIBO_CSS}</style></head><body>
       ${bloco}
-      <sc`+'ript>window.print();</s'+'cript>
+      ${'<scr'+'ipt>window.print();</scr'+'ipt>'}
   <!-- MODAL RESSARCIMENTO FINANCEIRO -->
   <div class="modal-bg" id="modalRessarcFin">
     <div class="modal" style="max-width:480px;">
@@ -765,7 +765,7 @@
     const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Lote de Recibos</title>
       <style>${LOTE_CSS}</style></head><body>
       ${paginasHtml}
-      <sc`+'ript>window.print();</s'+'cript>
+      ${'<scr'+'ipt>window.print();</scr'+'ipt>'}
   <!-- MODAL RESSARCIMENTO FINANCEIRO -->
   <div class="modal-bg" id="modalRessarcFin">
     <div class="modal" style="max-width:480px;">
