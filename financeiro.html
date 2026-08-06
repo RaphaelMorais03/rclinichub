@@ -85,6 +85,7 @@
   <div class="red-bar"></div>
   <div class="toast-box" id="toastBox"></div>
 
+  <!-- MODAL COLABORADOR -->
   <div class="modal-bg" id="modalColab">
     <div class="modal-box">
       <div class="modal-head">
@@ -115,6 +116,7 @@
     </div>
   </div>
 
+  <!-- MODAL IMPRESSÃO EM LOTE -->
   <div class="modal-bg" id="modalLote">
     <div class="modal-box" style="max-width:700px;">
       <div class="modal-head">
@@ -131,7 +133,6 @@
               <option value="Vale-Transporte">Vale-Transporte</option>
               <option value="Bonificação">Bonificação</option>
               <option value="Adiantamento">Adiantamento</option>
-              <option value="Cesta-Básica">Cesta Básica</option>
             </select>
           </div>
           <div style="display:flex;gap:8px;align-items:flex-end;">
@@ -165,13 +166,13 @@
         <div id="loteLista" style="max-height:320px;overflow-y:auto;border:1px solid var(--gray-200);border-radius:10px;padding:8px;background:var(--gray-50);"></div>
         <div style="display:flex;gap:10px;margin-top:16px;">
           <button class="btn-s" onclick="fecharModalLote()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
-          <button class="btn-g" onclick="imprimirLote(false)" style="flex:1.5;justify-content:center;"><i class="fas fa-print"></i> Apenas Imprimir</button>
-          <button class="btn-p" onclick="imprimirLote(true)" style="flex:2;justify-content:center;"><i class="fas fa-floppy-disk"></i> Salvar e Imprimir Lote</button>
+          <button class="btn-p" onclick="imprimirLote()" style="flex:2;justify-content:center;"><i class="fas fa-print"></i> Gerar e Imprimir Lote</button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- MODAL GERAR RECIBO -->
   <div class="modal-bg" id="modalRecibo">
     <div class="modal-box" style="max-width:600px;">
       <div class="modal-head">
@@ -179,6 +180,7 @@
         <button class="modal-close" onclick="fecharModalRecibo()"><i class="fas fa-xmark"></i></button>
       </div>
       <div class="modal-body">
+        <!-- Tipo de recibo: Padrão ou Manual -->
         <div style="display:flex;gap:6px;margin-bottom:16px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:10px;padding:5px;">
           <button id="btnReciboPadrao" onclick="setTipoRecibo('padrao')"
             style="flex:1;padding:8px 10px;border:none;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;background:var(--navy);color:white;transition:all .2s;">
@@ -190,6 +192,7 @@
           </button>
         </div>
 
+        <!-- PADRÃO -->
         <div id="reciboPadraoFields">
           <div class="form-grid" style="margin-bottom:14px;">
             <div>
@@ -199,7 +202,6 @@
                 <option value="Vale-Transporte">Vale-Transporte</option>
                 <option value="Bonificação">Bonificação</option>
                 <option value="Adiantamento">Adiantamento</option>
-                <option value="Cesta-Básica">Cesta Básica</option>
               </select>
             </div>
             <div>
@@ -219,6 +221,7 @@
           </div>
         </div>
 
+        <!-- MANUAL -->
         <div id="reciboManualFields" style="display:none;">
           <div style="margin-bottom:14px;">
             <label class="f-label">Descrição do recibo</label>
@@ -230,6 +233,7 @@
           </div>
         </div>
 
+        <!-- CAMPOS COMUNS -->
         <div class="form-grid" style="margin-bottom:14px;">
           <div>
             <label class="f-label">Forma de pagamento</label>
@@ -253,6 +257,7 @@
     </div>
   </div>
 
+  <!-- HEADER -->
   <div class="s-header">
     <div class="s-logo">
       <div class="s-logo-icon"><img src="assets/favicon.png" alt="Logo" id="headerLogo"></div>
@@ -276,6 +281,7 @@
       <button class="tab-btn" onclick="tab('historico')"><i class="fas fa-clock-rotate-left"></i> Histórico</button>
     </div>
 
+    <!-- ABA COLABORADORES -->
     <div class="tab-pane active" id="paneColaboradores">
       <div class="panel">
         <div class="panel-header">
@@ -289,6 +295,7 @@
       </div>
     </div>
 
+    <!-- ABA HISTÓRICO -->
     <div class="tab-pane" id="paneHistorico">
       <div class="panel">
         <div class="panel-header">
@@ -300,7 +307,7 @@
             </select>
           </div>
         </div>
-        <div id="listaHistorico"><div class="empty-state"><i class="fas fa-clock-rotate-left"></i><p>Nenhum recibo encontrado.</p></div></div>
+        <div id="listaHistorico"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></div>
       </div>
     </div>
   </div>
@@ -348,45 +355,7 @@
   ];
 
   function formatCPF(cpf) {
-    const clean = (cpf || '').replace(/\D/g, '');
-    if (clean.length === 11) {
-      return clean.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-    }
-    return cpf;
-  }
-
-  function fmtMoeda(valor) {
-    if (typeof window.fmtMoeda === 'function') return window.fmtMoeda(valor);
-    return parseFloat(valor || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  function mascaraCPF(el) {
-    var v = el.value.replace(/\D/g,'');
-    if (v.length > 11) v = v.slice(0, 11);
-    v = v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2');
-    el.value = v;
-  }
-
-  function mascaraMoeda(el) {
-    var v = el.value.replace(/\D/g,'');
-    v = (parseInt(v || '0') / 100).toFixed(2).replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-    el.value = v;
-  }
-
-  function formatPeriodo(dados) {
-    if (dados.periodoRef) return dados.periodoRef;
-    if (dados.inicio && dados.fim) {
-      const di = dados.inicio.split('-').reverse().join('/');
-      const df = dados.fim.split('-').reverse().join('/');
-      const startParts = dados.inicio.split('-');
-      const endParts = dados.fim.split('-');
-      if (startParts[0] === endParts[0] && startParts[1] === endParts[1]) {
-        const mesesNomes = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-        return `${mesesNomes[parseInt(startParts[1], 10) - 1]}/${startParts[0]}`;
-      }
-      return `${di} a ${df}`;
-    }
-    return '—';
+    return (cpf || '').replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
   }
 
   // ── Tabs ──
@@ -424,6 +393,7 @@
         nome,
         cargo: document.getElementById('cCargo').value.trim(),
         cpf:   document.getElementById('cCpf').value.trim(),
+
         atualizadoEm: new Date().toISOString()
       });
       toast('Colaborador salvo!', 'success');
@@ -436,18 +406,15 @@
     const keys = Object.keys(colaboradores);
     document.getElementById('stColab').textContent = keys.length;
     if (!keys.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum colaborador cadastrado.</p></div>'; return; }
-    
-    // Ordenar colaboradores por nome
-    const sortedKeys = [...keys].sort((a,b) => (colaboradores[a].nome || '').localeCompare(colaboradores[b].nome || '', 'pt-BR'));
-    
-    el.innerHTML = sortedKeys.map(k => {
+    el.innerHTML = keys.map(k => {
       const c = colaboradores[k];
       return '<div class="colab-card">' +
         '<div class="colab-top">' +
           '<div class="colab-avatar">' + esc((c.nome || '?')[0].toUpperCase()) + '</div>' +
           '<div class="colab-info">' +
             '<div class="colab-nome">' + esc(c.nome || '—') + '</div>' +
-            '<div class="colab-cargo">' + esc(c.cargo || '') + (c.cpf ? ' · ' + esc(formatCPF(c.cpf)) : '') + '</div>' +
+            '<div class="colab-cargo">' + esc(c.cargo || '') + (c.cpf ? ' · ' + esc(c.cpf) : '') + '</div>' +
+
           '</div>' +
           '<div class="colab-actions">' +
             '<button class="btn-g" style="font-size:11px;padding:6px 12px;" onclick="abrirModalRecibo(\'' + k + '\')"><i class="fas fa-receipt"></i> Recibo</button>' +
@@ -515,159 +482,157 @@
     return ext;
   }
 
-  // ── Bloco de recibo clássico (Estilo Excel automatizado) ──
-  function buildReciboBlock(c, dados, logoSrc, clinicaNome, clinicaCnpj) {
-    const now    = new Date();
-    const dia    = String(now.getDate()).padStart(2,'0');
-    const meses  = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-    const dataAuto = `São Paulo, ${dia} de ${meses[now.getMonth()]} de ${now.getFullYear()}`;
+  // ── Bloco de recibo clássico ──
+  function buildReciboBlock(colab, dados, logoSrc, clinicaNome, clinicaCnpj) {
+    const now     = new Date();
+    const MESES   = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+    const dataAuto= `São Paulo, ${now.getDate()} de ${MESES[now.getMonth()]} de ${now.getFullYear()}.`;
     const valorF  = fmtMoeda(dados.valor);
     const extenso = valorExtenso(dados.valor);
-    const cpfFmt  = formatCPF((c.cpf || '').replace(/\D/g, '')) || (c.cpf || '—');
-    const cat     = dados.categoria || 'Pagamento';
+    const cpfFmt  = formatCPF((colab.cpf || '').replace(/\D/g,'')) || (colab.cpf || '');
+    const cat     = (dados.categoria || 'pagamento').trim();
 
-    // Texto explicativo principal dinâmico igual ao Excel
-    let corpoTexto = '';
-    if (dados.isPadrao === false || dados.descricao) {
-      corpoTexto = `Recebi da empresa <strong>${clinicaNome}</strong>, o equivalente a <strong>R$ ${valorF} (${extenso.charAt(0).toUpperCase() + extenso.slice(1)})</strong> de <em>${esc(dados.descricao || cat)}</em>.`;
-    } else {
-      const periodo = formatPeriodo(dados);
-      corpoTexto = `Recebi da empresa <strong>${clinicaNome}</strong>, o equivalente a <strong>R$ ${valorF} (${extenso.charAt(0).toUpperCase() + extenso.slice(1)})</strong> de <strong>${esc(cat)}</strong> para utilização no período de <strong>${periodo}</strong>.`;
+    // Mapear categoria para título e texto do corpo
+    const catN = cat.toLowerCase();
+    let titulo = 'RECIBO DE PAGAMENTO';
+    let lblTipo = cat;
+    let prep = 'referente ao período de';
+    if (catN.includes('vale') && catN.includes('trans')) { titulo='RECIBO DE VALE-TRANSPORTE'; lblTipo='vale-transporte'; prep='para utilização no período de'; }
+    else if (catN.includes('cesta')) { titulo='RECIBO DE CESTA BÁSICA'; lblTipo='cesta básica'; prep='referente ao período de'; }
+    else if (catN.includes('salário')||catN.includes('salario')) { titulo='RECIBO DE SALÁRIO'; lblTipo='salário'; prep='referente à competência'; }
+    else if (catN.includes('adiant')) { titulo='RECIBO DE ADIANTAMENTO'; lblTipo='adiantamento de salário'; prep='referente ao período de'; }
+
+    // Período
+    let periodoTxt = '';
+    if (dados.inicio && dados.fim) {
+      const di = dados.inicio.split('-').reverse().join('/');
+      const df = dados.fim.split('-').reverse().join('/');
+      periodoTxt = `${di} a ${df}`;
+    } else if (dados.inicio) {
+      periodoTxt = dados.inicio.split('-').reverse().join('/');
     }
 
-    return `
-    <div class="recibo-print">
-      <div class="recibo-header-title">Recibo de ${esc(cat)}</div>
-      <div class="recibo-box-empresa">
-        <div class="empresa-nome">${esc(clinicaNome).toUpperCase()}</div>
-        <div class="empresa-cnpj">CNPJ: ${esc(clinicaCnpj || '25.154.224/0001-89')}</div>
-      </div>
-      <div class="recibo-linha-colab">
-        <strong>Nome do Empregado:</strong>
-        <span class="colab-nome-print">${esc((c.nome || '—').toUpperCase())}</span>
-      </div>
-      <div class="recibo-corpo">
-        ${corpoTexto}
-      </div>
-      <div class="recibo-footer">
-        <div class="recibo-data">${dataAuto}</div>
-        <div class="recibo-assinatura">
-          <div class="assin-linha"></div>
-          <div class="assin-nome">${esc((c.nome || '—').toUpperCase())}</div>
+    const formaMap = {pix:'PIX', dinheiro:'Dinheiro', transferencia:'Transferência'};
+    const formaSel = formaMap[dados.forma] || dados.forma || '';
+
+    const logoHtml = logoSrc
+      ? `<img src="${logoSrc}" alt="Logo" style="height:36px;width:auto;object-fit:contain;">`
+      : `<span style="font-size:9px;font-weight:800;color:#C0392B;">amor<span style="color:#1A5276;">saúde</span></span>`;
+
+    return `<div class="recibo-print">
+      <div class="rh">
+        <div class="recibo-logo">${logoHtml}</div>
+        <div class="titulo">${titulo}</div>
+        <div class="empresa-info">
+          <strong>${esc(clinicaNome)}</strong><br>
+          CNPJ: ${esc(clinicaCnpj||'25.154.224/0001-89')}<br>
+          Av. Dr. Felipe Pinel, 367 — Pirituba/SP
         </div>
       </div>
-    </div>
-    `;
+      <hr class="divider">
+      <div class="rc-empregado">
+        <span class="campo-label">Nome do Empregado</span>
+        <span class="campo-val">${esc((colab.nome||'').toUpperCase())}${cpfFmt ? ' &nbsp;·&nbsp; CPF '+esc(cpfFmt) : ''}</span>
+      </div>
+      <div class="valor-box">
+        <span class="valor-rs">R$</span>
+        <div>
+          <div class="valor-num">${valorF}</div>
+          <div class="valor-extenso">${extenso.charAt(0).toUpperCase()+extenso.slice(1)}</div>
+        </div>
+      </div>
+      <div class="referente">
+        Recebi da empresa <strong>${esc(clinicaNome)}</strong> o equivalente à
+        <strong>R$ ${valorF} (${extenso})</strong> de ${esc(lblTipo)}${periodoTxt ? ` ${prep} <strong>${esc(periodoTxt)}</strong>` : ''}.
+        ${formaSel ? `<br><span class="campo-label">Forma de pagamento:</span> ${esc(formaSel)}` : ''}
+      </div>
+      <div class="assinatura">
+        <div class="assin-bloco">
+          <div class="assin-inner"><div class="assin-linha"></div>
+          <div class="assin-nome">${esc((colab.nome||'').toUpperCase())}</div>
+          <div style="font-size:8px;color:#555;">Assinatura do empregado</div></div>
+        </div>
+        <div class="data-bloco">${dataAuto}</div>
+      </div>
+      <div style="margin-top:8px;">
+        <div class="assin-linha"></div>
+        <div style="font-size:8px;color:#555;">Assinatura do responsável / empregador</div>
+      </div>
+    </div>`;
   }
 
-  // ── CSS compartilhado dos recibos otimizado para caber até 4 por folha A4 ──
+  // ── CSS compartilhado dos recibos ──
   const RECIBO_CSS = `
-    @page {
-      size: A4;
-      margin: 0.8cm 1.0cm;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #fff;
-      color: #000;
-    }
-    .recibo-print {
-      border: 1px solid #000;
-      padding: 0.45cm 0.6cm;
-      margin-bottom: 0.25cm;
-      page-break-inside: avoid;
-      break-inside: avoid;
-      height: 6.3cm;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-sizing: border-box;
-    }
-    .recibo-header-title {
-      font-size: 11pt;
-      font-weight: bold;
-      text-align: center;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-    .recibo-box-empresa {
-      display: flex;
-      justify-content: space-between;
-      font-size: 9.5pt;
-      font-weight: bold;
-      border-bottom: 1px solid #000;
-      padding-bottom: 2px;
-      margin-bottom: 4px;
-    }
-    .empresa-nome {
-      max-width: 70%;
-    }
-    .empresa-cnpj {
-      text-align: right;
-    }
-    .recibo-linha-colab {
-      font-size: 9.5pt;
-      margin-bottom: 6px;
-      display: flex;
-      gap: 15px;
-    }
-    .colab-nome-print {
-      font-weight: normal;
-    }
-    .recibo-corpo {
-      font-size: 9.5pt;
-      line-height: 1.45;
-      text-align: justify;
-      flex-grow: 1;
-      margin-bottom: 6px;
-    }
-    .recibo-footer {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-    .recibo-data {
-      font-size: 9.5pt;
-      text-align: center;
-    }
-    .recibo-assinatura {
-      width: 300px;
-      text-align: center;
-    }
-    .assin-linha {
-      border-top: 1px solid #000;
-      width: 100%;
-      margin-bottom: 2px;
-    }
-    .assin-nome {
-      font-size: 8.5pt;
-      font-weight: bold;
-    }
-    .corte {
-      border: none;
-      border-top: 1px dashed #aaa;
-      margin: 0.1cm 0;
-    }
-    @media print {
-      body {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-    }
+    @page{size:A4 portrait;margin:10mm 12mm}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,sans-serif;background:#fff;color:#000;width:100%;}
+    .recibo-print{border:1.5px solid #1a1a1a;padding:12px 14px;page-break-inside:avoid;break-inside:avoid;}
+    .rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+    .recibo-logo img{height:36px;width:auto;object-fit:contain;}
+    .titulo{font-size:11px;font-weight:800;text-align:center;letter-spacing:1.2px;text-transform:uppercase;flex:1;}
+    .empresa-info{font-size:8.5px;text-align:right;line-height:1.55;}
+    .divider{border:none;border-top:1.5px solid #1a1a1a;margin:6px 0;}
+    .rc-empregado{border-bottom:0.5px solid #ccc;padding-bottom:5px;margin-bottom:6px;}
+    .campo-label{font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#666;display:block;}
+    .campo-val{font-size:10.5px;font-weight:600;color:#1a1a1a;}
+    .valor-box{border:2px solid #1a1a1a;padding:5px 10px;margin:6px 0;display:flex;align-items:center;gap:10px;}
+    .valor-rs{font-size:14px;font-weight:800;background:#1a1a1a;color:#fff;padding:3px 8px;}
+    .valor-num{font-size:17px;font-weight:900;letter-spacing:-.3px;}
+    .valor-extenso{font-size:8.5px;color:#444;margin-top:2px;font-style:italic;}
+    .referente{font-size:10px;line-height:1.8;margin:4px 0;}
+    .assinatura{display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px;gap:14px;}
+    .assin-bloco{text-align:center;flex:1;}
+    .assin-inner{display:inline-block;width:100%;text-align:center;vertical-align:bottom;}
+    .assin-linha{height:28px;border-bottom:1px solid #1a1a1a;margin-bottom:3px;}
+    .assin-nome{font-size:9px;font-weight:700;white-space:nowrap;text-align:center;}
+    .data-bloco{font-size:10px;text-align:right;white-space:nowrap;flex-shrink:0;}
+    @media print{body{zoom:85%;-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
   `;
 
   function montarHtmlRecibo(c, dados, usuario) {
     const clinicaNome = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
-    const clinicaCnpj = sessionStorage.getItem('clinicaCnpj') || '25.154.224/0001-89';
+    const clinicaCnpj = sessionStorage.getItem('clinicaCnpj') || '';
     const logo = LOGO_FIN || sessionStorage.getItem('logoDataUrl') || '';
     const bloco = buildReciboBlock(c, {...dados, usuario}, logo, clinicaNome, clinicaCnpj);
     return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Recibo — ${esc(c.nome||'')}</title>
       <style>${RECIBO_CSS}</style></head><body>
       ${bloco}
-      <script>window.print();<\/script>
-</body></html>`;
+      <sc`+'ript>window.print();</s'+'cript>
+  <!-- MODAL RESSARCIMENTO FINANCEIRO -->
+  <div class="modal-bg" id="modalRessarcFin">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-head">
+        <div class="modal-title"><i class="fas fa-file-circle-xmark" style="color:#C62828;margin-right:6px;"></i>Ressarcimento ao Paciente</div>
+        <button class="modal-close" onclick="fecharModalRessarcFin()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="padding:20px;">
+        <div class="field" style="margin-bottom:14px;">
+          <label class="f-label">Nome do paciente</label>
+          <input class="f-input" id="rfin-nome" type="text" placeholder="Nome completo do paciente">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div class="field">
+            <label class="f-label">CPF</label>
+            <input class="f-input" id="rfin-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF_fin(this)" maxlength="14">
+          </div>
+          <div class="field">
+            <label class="f-label">Valor (R$)</label>
+            <input class="f-input" id="rfin-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda_fin(this)">
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label class="f-label">Motivo / Descrição</label>
+          <textarea class="f-input" id="rfin-motivo" rows="3" placeholder="Descreva o motivo do ressarcimento..." style="resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-s" onclick="fecharModalRessarcFin()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
+          <button class="btn-p" onclick="imprimirRessarcFin()" style="flex:2;justify-content:center;"><i class="fas fa-print"></i> Gerar e Imprimir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body></html>';
   }
 
   // ── Lote ──
@@ -705,7 +670,7 @@
         <input type="checkbox" class="lote-check" data-key="${item.key}" style="width:16px;height:16px;cursor:pointer;" checked>
         <div style="flex:1;">
           <div style="font-size:13px;font-weight:700;color:var(--navy);">${esc(item.nome)}</div>
-          <div style="font-size:10px;color:var(--gray-400);">${item.cargo ? esc(item.cargo) + ' · ' : ''}${esc(formatCPF(item.cpf))}</div>
+          <div style="font-size:10px;color:var(--gray-400);">${item.cargo ? esc(item.cargo) + ' · ' : ''}${esc(item.cpf)}</div>
         </div>
         <div style="display:flex;align-items:center;gap:4px;">
           <span style="font-size:12px;font-weight:700;color:var(--gray-600);">R$</span>
@@ -719,100 +684,123 @@
     document.querySelectorAll('.lote-check').forEach(cb => cb.checked = sel);
   }
 
-  async function imprimirLote(salvar) {
+  function imprimirLote() {
     const cat     = document.getElementById('loteCat').value;
     const inicio  = document.getElementById('loteInicio').value;
     const fim     = document.getElementById('loteFim').value;
     const desc    = ''; // categoria + período auto-preenche no recibo
-    const loteFrm = document.getElementById('loteForma') ? document.getElementById('loteForma').value : 'pix';
     const usuario = sessionStorage.getItem('usuario') || 'Financeiro';
 
     const itens = [];
-    const promises = [];
-    
-    // Select checked employees
-    const checkedBoxes = document.querySelectorAll('.lote-check:checked');
-    if (!checkedBoxes.length) {
-      toast('Selecione ao menos um colaborador', 'error');
-      return;
-    }
-
-    for (let cb of checkedBoxes) {
+    document.querySelectorAll('.lote-check:checked').forEach(cb => {
       const k = cb.dataset.key;
       const valInput = document.querySelector(`.lote-valor[data-key="${k}"]`);
       const valorStr = ((valInput ? valInput.value : '') || '').replace(/\./g,'').replace(',','.');
       const valor = parseFloat(valorStr) || 0;
-      if (valor <= 0) {
-        toast('Defina um valor válido maior que zero para os colaboradores selecionados', 'error');
-        return;
-      }
+      if (valor <= 0) return;
 
       let colab;
-      let colabKey = k;
       if (k.startsWith('base_')) {
         const idx = parseInt(k.replace('base_', ''), 10);
         const raw = colabBaseRaw[idx];
-        colab = { nome: raw.nome, cpf: formatCPF(raw.cpf), cargo: 'Colaborador' };
-        colabKey = 'base_' + idx;
+        colab = { nome: raw.nome, cpf: formatCPF(raw.cpf), cargo: '' };
       } else {
         colab = colaboradores[k];
       }
+      if (colab) itens.push({ colab, valor });
+    });
 
-      if (colab) {
-        const dados = {
-          descricao: '',
-          valor: valor,
-          categoria: cat,
-          inicio,
-          fim,
-          forma: loteFrm,
-          obs: 'Gerado em lote',
-          isPadrao: true
-        };
-        
-        itens.push({ colab, valor, dados });
-
-        if (salvar) {
-          const timestamp = Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-          promises.push(window._fbSet('financeiro/recibos/' + timestamp, {
-            colabKey: colabKey,
-            colabNome: colab.nome || '—',
-            colabCargo: colab.cargo || '',
-            colabCpf: colab.cpf || '',
-            ...dados,
-            usuario,
-            emitidoEm: new Date().toISOString()
-          }));
-        }
-      }
-    }
-
-    if (salvar && promises.length > 0) {
-      try {
-        await Promise.all(promises);
-        toast('Todos os recibos do lote foram salvos no histórico!', 'success');
-      } catch(e) {
-        toast('Erro ao salvar lote no Firebase: ' + e.message, 'error');
-        return;
-      }
-    }
+    if (!itens.length) { toast('Selecione ao menos um colaborador com valor', 'error'); return; }
 
     const clinicaNome = sessionStorage.getItem('clinicaNome') || 'Amor Saúde Pirituba';
-    const clinicaCnpj = sessionStorage.getItem('clinicaCnpj') || '25.154.224/0001-89';
+    const clinicaCnpj = sessionStorage.getItem('clinicaCnpj') || '';
     const logo = LOGO_FIN || sessionStorage.getItem('logoDataUrl') || '';
 
-    const blocos = itens.map((it, i) => {
-      const bloco = buildReciboBlock(it.colab,
-        { ...it.dados, usuario },
-        logo, clinicaNome, clinicaCnpj);
-      return bloco;
+    const loteFrm = document.getElementById('loteForma') ? document.getElementById('loteForma').value : 'pix';
+    const LOTE_CSS = `
+      @page { size: A4 portrait; margin: 10mm 12mm; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: Arial, sans-serif; background: #fff; color: #000; zoom: 85%; }
+      .pagina { display: flex; flex-direction: column; gap: 6mm; min-height: 277mm; page-break-after: always; break-after: page; }
+      .pagina:last-child { page-break-after: auto; break-after: auto; }
+      .recibo-wrap { flex: 1; display: flex; flex-direction: column; }
+      .recibo-print { flex: 1; border: 1.5px solid #1a1a1a; padding: 12px 14px; }
+      .rh { display:flex;align-items:center;justify-content:space-between;margin-bottom:6px; }
+      .recibo-logo img { height:36px;width:auto;object-fit:contain; }
+      .titulo { font-size:11px;font-weight:800;text-align:center;letter-spacing:1.2px;text-transform:uppercase;flex:1; }
+      .empresa-info { font-size:8.5px;text-align:right;line-height:1.55; }
+      .divider { border:none;border-top:1.5px solid #1a1a1a;margin:6px 0; }
+      .rc-empregado { border-bottom:0.5px solid #ccc;padding-bottom:5px;margin-bottom:6px; }
+      .campo-label { font-size:7.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#666;display:block; }
+      .campo-val { font-size:10.5px;font-weight:600;color:#1a1a1a; }
+      .valor-box { border:2px solid #1a1a1a;padding:5px 10px;margin:6px 0;display:flex;align-items:center;gap:10px; }
+      .valor-rs { font-size:14px;font-weight:800;background:#1a1a1a;color:#fff;padding:3px 8px; }
+      .valor-num { font-size:17px;font-weight:900;letter-spacing:-.3px; }
+      .valor-extenso { font-size:8.5px;color:#444;margin-top:2px;font-style:italic; }
+      .referente { font-size:10px;line-height:1.8;margin:4px 0; }
+      .assinatura { display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px;gap:14px; }
+      .assin-bloco { text-align:center;flex:1; }
+      .assin-inner { display:inline-block;width:100%;text-align:center;vertical-align:bottom; }
+      .assin-linha { height:28px;border-bottom:1px solid #1a1a1a;margin-bottom:3px; }
+      .assin-nome { font-size:9px;font-weight:700;white-space:nowrap;text-align:center; }
+      .data-bloco { font-size:10px;text-align:right;white-space:nowrap;flex-shrink:0; }
+      @media print { body { -webkit-print-color-adjust:exact; print-color-adjust:exact; } }
+`;
+
+    // Agrupar em páginas de 3 (empilhados verticalmente)
+    const paginas = [];
+    for (let i = 0; i < itens.length; i += 3) paginas.push(itens.slice(i, i + 3));
+
+    const paginasHtml = paginas.map(grupo => {
+      const celulas = grupo.map(it => {
+        const bloco = buildReciboBlock(it.colab,
+          { descricao: desc, valor: it.valor, categoria: cat, inicio, fim, usuario, forma: loteFrm },
+          logo, clinicaNome, clinicaCnpj);
+        return `<div class="recibo-wrap">${bloco}</div>`;
+      }).join('');
+      const vazias = Array(3 - grupo.length).fill('<div class="recibo-wrap"></div>').join('');
+      return `<div class="pagina">${celulas}${vazias}</div>`;
     }).join('');
 
     const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Lote de Recibos</title>
-      <style>${RECIBO_CSS}</style></head><body>
-      ${blocos}
-      <script>window.print();<\/script>
-      </body></html>`;
+      <style>${LOTE_CSS}</style></head><body>
+      ${paginasHtml}
+      <sc`+'ript>window.print();</s'+'cript>
+  <!-- MODAL RESSARCIMENTO FINANCEIRO -->
+  <div class="modal-bg" id="modalRessarcFin">
+    <div class="modal" style="max-width:480px;">
+      <div class="modal-head">
+        <div class="modal-title"><i class="fas fa-file-circle-xmark" style="color:#C62828;margin-right:6px;"></i>Ressarcimento ao Paciente</div>
+        <button class="modal-close" onclick="fecharModalRessarcFin()"><i class="fas fa-xmark"></i></button>
+      </div>
+      <div class="modal-body" style="padding:20px;">
+        <div class="field" style="margin-bottom:14px;">
+          <label class="f-label">Nome do paciente</label>
+          <input class="f-input" id="rfin-nome" type="text" placeholder="Nome completo do paciente">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+          <div class="field">
+            <label class="f-label">CPF</label>
+            <input class="f-input" id="rfin-cpf" type="text" placeholder="000.000.000-00" oninput="mascaraCPF_fin(this)" maxlength="14">
+          </div>
+          <div class="field">
+            <label class="f-label">Valor (R$)</label>
+            <input class="f-input" id="rfin-valor" type="text" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda_fin(this)">
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label class="f-label">Motivo / Descrição</label>
+          <textarea class="f-input" id="rfin-motivo" rows="3" placeholder="Descreva o motivo do ressarcimento..." style="resize:vertical;"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn-s" onclick="fecharModalRessarcFin()" style="flex:1;justify-content:center;"><i class="fas fa-xmark"></i> Cancelar</button>
+          <button class="btn-p" onclick="imprimirRessarcFin()" style="flex:2;justify-content:center;"><i class="fas fa-print"></i> Gerar e Imprimir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body></html>';
 
     const w = window.open('', '_blank');
     if (!w) { toast('Pop-up bloqueado — permita pop-ups', 'error'); return; }
@@ -880,40 +868,22 @@
     });
     const el = document.getElementById('listaHistorico');
     if (!lista.length) { el.innerHTML = '<div class="empty-state"><i class="fas fa-clock-rotate-left"></i><p>Nenhum recibo encontrado.</p></div>'; return; }
-    
     el.innerHTML = lista.map(r => {
       const dt = r.emitidoEm ? new Date(r.emitidoEm).toLocaleString('pt-BR') : '—';
-      const descExibida = r.isPadrao ? esc(r.categoria) : (esc(r.descricao) || 'Recibo Manual');
       return '<div class="recibo-row">' +
         '<div style="width:36px;height:36px;border-radius:8px;background:var(--green-bg);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;"><i class="fas fa-receipt"></i></div>' +
         '<div style="flex:1;">' +
           '<div class="recibo-nome">' + esc(r.colabNome || '—') + (r.colabCargo ? ' <span style="font-weight:400;color:var(--gray-400);">· ' + esc(r.colabCargo) + '</span>' : '') + '</div>' +
-          '<div style="font-size:11px;color:var(--gray-500);">' + descExibida + ' · ' + ({pix:'PIX',dinheiro:'Dinheiro',transferencia:'Transferência'}[r.forma]||r.forma||'—') + '</div>' +
+          '<div style="font-size:11px;color:var(--gray-500);">' + esc(r.descricao || '—') + ' · ' + ({pix:'PIX',dinheiro:'Dinheiro',transferencia:'Transferência'}[r.forma]||r.forma||'—') + '</div>' +
         '</div>' +
-        '<div style="text-align:right; display:flex; align-items:center; gap:12px;">' +
-          '<div style="text-align:right;">' +
-            '<div class="recibo-val">R$ ' + fmtMoeda(r.valor) + '</div>' +
-            '<div class="recibo-ts">' + dt + '</div>' +
-          '</div>' +
-          '<button class="btn-s" style="padding:6px 10px; font-size:11px;" onclick="reimprimirReciboDoHistorico(\'' + r._key + '\')" title="Reimprimir Recibo"><i class="fas fa-print"></i></button>' +
+        '<div style="text-align:right;">' +
+          '<div class="recibo-val">R$ ' + fmtMoeda(r.valor) + '</div>' +
+          '<div class="recibo-ts">' + dt + '</div>' +
+          (r.pago ? '<div style="font-size:10px;color:var(--green);font-weight:700;">✓ Quitado</div>' : '') +
         '</div>' +
       '</div>';
     }).join('');
   }
-
-  window.reimprimirReciboDoHistorico = function(key) {
-    const r = todosRecibos.find(item => item._key === key);
-    if (!r) { toast('Recibo não encontrado', 'error'); return; }
-    const colab = {
-      nome: r.colabNome,
-      cpf: r.colabCpf,
-      cargo: r.colabCargo
-    };
-    const w = window.open('', '_blank');
-    if (!w) { toast('Pop-up bloqueado — permita pop-ups', 'error'); return; }
-    w.document.write(montarHtmlRecibo(colab, r, r.usuario));
-    w.document.close();
-  };
 
   function filtrarHistorico() { renderHistorico(); }
 
@@ -939,21 +909,6 @@
     window._fbSet    = (path, data) => set(ref(db, path), data);
     window._fbRemove = (path)       => remove(ref(db, path));
 
-    async function seedColaboradores() {
-      const dbRef = ref(db, 'financeiro/colaboradores');
-      const temp = {};
-      colabBaseRaw.forEach((c, idx) => {
-        const key = 'colab_base_' + idx;
-        temp[key] = {
-          nome: c.nome,
-          cpf: formatCPF(c.cpf),
-          cargo: 'Colaborador',
-          criadoEm: new Date().toISOString()
-        };
-      });
-      await set(dbRef, temp);
-    }
-
     onAuthStateChanged(auth, user => {
       if (!user) { irPara('login.html'); return; }
       carregarLogoGlobal(['#headerLogo']).then(() => {
@@ -962,12 +917,8 @@
 
       // Colaboradores
       onValue(ref(db, 'financeiro/colaboradores'), snap => {
-        if (!snap.exists()) {
-          seedColaboradores();
-        } else {
-          colaboradores = snap.val();
-          renderColabs();
-        }
+        colaboradores = snap.exists() ? snap.val() : {};
+        renderColabs();
       });
 
       // Recibos
@@ -988,6 +939,7 @@
     });
   </script>
 
+  <!-- MODAL RESSARCIMENTO FINANCEIRO -->
   <div class="modal-bg" id="modalRessarcFin">
     <div class="modal" style="max-width:480px;">
       <div class="modal-head">
@@ -1023,6 +975,7 @@
 
 </body>
 </html>
+<!-- RESSARCIMENTO FINANCEIRO -->
 <script>
 window.abrirModalRessarcFin = function() {
   ['rfin-nome','rfin-cpf','rfin-valor','rfin-motivo'].forEach(function(id){
@@ -1068,61 +1021,104 @@ window.imprimirRessarcFin = function() {
   if(!valor) {alert('Informe o valor');return;}
   if(!motivo){alert('Informe o motivo');return;}
 
-  var vN  =parseFloat(valor.replace(/\./g,'').replace(',','.'))||0;
-  var ext =rssExtenso_fin(valor);
-  var logo=window.LOGO_FIN||sessionStorage.getItem('logoDataUrl')||'';
-  var cNome=sessionStorage.getItem('clinicaNome')||'SIM CLINICA MEDICA E ODONTOLÓGICA LTDA';
-  var cCnpj=sessionStorage.getItem('clinicaCnpj')||'25.154.224/0001-89';
-  var cEnd =sessionStorage.getItem('clinicaEnd') ||'Avenida Doutor Felipe Pinel, 367 — Pirituba/SP';
-  var now  =new Date();
-  var meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  var dataFmt='São Paulo, '+now.getDate()+' de '+meses[now.getMonth()]+' de '+now.getFullYear();
-  var fmtV=function(n){return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
+  var vN   = parseFloat(valor.replace(/\./g,'').replace(',','.'))||0;
+  var ext  = rssExtenso_fin(valor);
+  var logo = window.LOGO_FIN||sessionStorage.getItem('logoDataUrl')||'';
+  var colab= sessionStorage.getItem('usuario')||'';
+  var cNome= sessionStorage.getItem('clinicaNome')||'SIM CL\u00cdNICA M\u00c9DICA E ODONTOL\u00d3GICA LTDA';
+  var cCnpj= sessionStorage.getItem('clinicaCnpj')||'25.154.224/0001-89';
+  var cEnd = sessionStorage.getItem('clinicaEnd') ||'Avenida Doutor Felipe Pinel, 367 \u2014 Pirituba/SP';
+  var now  = new Date();
+  var MESES=['Janeiro','Fevereiro','Mar\u00e7o','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  var dataFmt='S\u00e3o Paulo, '+now.getDate()+' de '+MESES[now.getMonth()]+' de '+now.getFullYear()+'.';
+  var fmtV = function(n){return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});};
 
-  var logoHtml=logo
-    ?'<img src="'+logo+'" alt="Logo">'
-    :'<span style="font-size:11px;font-weight:bold;">'+cNome+'</span>';
+  var logoHtml = logo
+    ? '<img src="'+logo+'" alt="Logo">'
+    : '<span style="font-size:11px;font-weight:bold;">'+cNome+'</span>';
 
-  var RCSS=`@page{size:A4;margin:0.6cm 1cm}body{font-family:Arial,sans-serif;margin:0;background:#fff;color:#000}.recibo-print{border:1.5px solid #000;padding:0.45cm 0.6cm;margin-bottom:0.35cm;}.rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}.recibo-logo img{height:36px;width:auto;object-fit:contain;}.titulo{font-size:13px;font-weight:bold;text-align:center;letter-spacing:.5px;flex:1;}.empresa-info{font-size:10px;text-align:right;line-height:1.4;}.divider{border:none;border-top:1px solid #000;margin:5px 0;}.recibo-campos{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:11px;margin-bottom:8px;line-height:1.6;}.campo-label{font-weight:bold;color:#333;}.valor-box{border:2px solid #000;padding:5px 10px;margin:7px 0;display:flex;align-items:center;gap:10px;}.valor-rs{font-size:16px;font-weight:bold;background:#1a1a1a;color:#fff;padding:3px 8px;}.valor-num{font-size:18px;font-weight:bold;letter-spacing:.5px;}.valor-extenso{font-size:10px;color:#333;margin-top:2px;font-style:italic;}.referente{font-size:11px;margin:5px 0;line-height:1.5;}.assinatura{display:flex;justify-content:space-between;align-items:flex-end;margin-top:10px;gap:20px;}.assin-bloco{text-align:center;}.assin-inner{display:inline-block;min-width:3cm;text-align:center;vertical-align:bottom;}.assin-linha{height:30px;border-bottom:1px solid #000;margin-bottom:3px;}.assin-nome{font-size:10px;white-space:nowrap;text-align:center;}.data-bloco{font-size:11px;text-align:right;white-space:nowrap;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}`;
+  // CSS idêntico ao buildReciboBlock do financeiro
+  var RCSS = (typeof RECIBO_CSS!=='undefined' ? RECIBO_CSS : '')
+    || ('@page{size:A4 portrait;margin:15mm}'
+    +'*{box-sizing:border-box;margin:0;padding:0}'
+    +'body{font-family:Arial,sans-serif;font-size:11pt;color:#1a1a1a;background:#fff;width:100%;}'
+    +'.recibo-print{border:1.5px solid #000;padding:0.45cm 0.6cm;margin-bottom:0.35cm;page-break-inside:avoid;}'
+    +'.rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}'
+    +'.recibo-logo img{height:36px;width:auto;object-fit:contain;}'
+    +'.titulo{font-size:13px;font-weight:bold;text-align:center;letter-spacing:.5px;flex:1;}'
+    +'.empresa-info{font-size:10px;text-align:right;line-height:1.4;}'
+    +'.divider{border:none;border-top:1px solid #000;margin:5px 0;}'
+    +'.recibo-campos{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-size:11px;margin-bottom:8px;line-height:1.6;}'
+    +'.campo-label{font-weight:bold;color:#333;}'
+    +'.valor-box{border:2px solid #000;padding:5px 10px;margin:7px 0;display:flex;align-items:center;gap:10px;}'
+    +'.valor-rs{font-size:16px;font-weight:bold;background:#1a1a1a;color:#fff;padding:3px 8px;}'
+    +'.valor-num{font-size:18px;font-weight:bold;letter-spacing:.5px;}'
+    +'.valor-extenso{font-size:10px;color:#333;margin-top:2px;font-style:italic;}'
+    +'.referente{font-size:11px;margin:5px 0;line-height:1.75;}'
+    +'.assinatura{display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;gap:20px;}'
+    +'.assin-bloco{text-align:center;}'
+    +'.assin-inner{display:inline-block;min-width:3cm;text-align:center;vertical-align:bottom;}'
+    +'.assin-linha{height:30px;border-bottom:1px solid #000;margin-bottom:3px;}'
+    +'.assin-nome{font-size:10px;white-space:nowrap;text-align:center;}'
+    +'.assin-extra{margin-top:12px;}'
+    +'.assin-lbl{font-size:9px;color:#555;}'
+    +'.data-bloco{font-size:11px;text-align:right;white-space:nowrap;}'
+    +'.aviso{margin-top:10px;background:#fff8e1;border:1pt solid #f59e0b;border-radius:3pt;padding:6pt 9pt;font-size:8pt;color:#78350f;text-align:center;line-height:1.6;}'
+    +'@media print{body{zoom:70%;-webkit-print-color-adjust:exact;print-color-adjust:exact;}}');
 
   var html='<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Ressarcimento</title>'
     +'<style>'+RCSS+'</style></head><body>'
     +'<div class="recibo-print">'
+    // Cabeçalho: logo | TITULO | empresa
     +'<div class="rh">'
     +'<div class="recibo-logo">'+logoHtml+'</div>'
-    +'<div class="titulo">RESSARCIMENTO</div>'
+    +'<div class="titulo">RECIBO (RESSARCIMENTO)</div>'
     +'<div class="empresa-info"><strong>'+cNome+'</strong><br>CNPJ: '+cCnpj+'<br>'+cEnd+'</div>'
     +'</div>'
     +'<hr class="divider">'
+    // Campos paciente
     +'<div class="recibo-campos">'
     +'<div><span class="campo-label">Paciente:</span> '+nome.toUpperCase()+'</div>'
     +(cpf?'<div><span class="campo-label">CPF:</span> '+cpf+'</div>':'<div></div>')
     +'</div>'
+    // Caixa de valor
     +'<div class="valor-box">'
     +'<span class="valor-rs">R$</span>'
     +'<div><div class="valor-num">'+fmtV(vN)+'</div>'
     +'<div class="valor-extenso">'+ext.charAt(0).toUpperCase()+ext.slice(1)+'</div></div>'
     +'</div>'
-    +'<div class="referente"><strong>Referente a: Ressarcimento</strong> — '+motivo+'</div>'
+    // Referente — texto formal completo
+    +'<div class="referente">Eu <strong>'+nome.toUpperCase()+'</strong>'
+    +(cpf?', portador(a) do CPF: <strong>'+cpf+'</strong>':'')
+    +', afirmo ter solicitado da cl\u00ednica <strong>'+cNome+' \u2014 CNPJ: '+cCnpj+'</strong>'
+    +' o ressarcimento no valor acima.<br><strong>Referente:</strong> '+motivo+'</div>'
+    // Assinatura paciente + data
     +'<div class="assinatura">'
     +'<div class="assin-bloco"><div class="assin-inner">'
     +'<div class="assin-linha"></div>'
     +'<div class="assin-nome">'+nome.toUpperCase()+'</div>'
+    +'<div class="assin-lbl">Assinatura do paciente</div>'
     +'</div></div>'
     +'<div class="data-bloco">'+dataFmt+'</div>'
     +'</div>'
-    +'<div style="margin-top:14px;height:30px;border-bottom:1px solid #000;margin-bottom:3px;"></div>'
-    +'<div style="font-size:9px;color:#555;">Assinatura do funcionário</div>'
-    +'<div style="margin-top:10px;height:30px;border-bottom:1px solid #000;margin-bottom:3px;"></div>'
-    +'<div style="font-size:9px;color:#555;">Assinatura do supervisor / coordenador</div>'
+    // Assinatura colaborador
+    +'<div class="assin-extra"><div class="assin-linha"></div>'
+    +'<div class="assin-lbl">Assinatura do colaborador'+(colab?' ('+colab+')':'')+': _____________________</div></div>'
+    // Assinatura supervisor
+    +'<div class="assin-extra"><div class="assin-linha"></div>'
+    +'<div class="assin-lbl">Assinatura do supervisor / coordenador</div></div>'
+    // Aviso
+    +'<div class="aviso">&#9888;&#65039; Recibo v\u00e1lido somente com: c\u00f3pia do documento do paciente + comprovante de pagamento original.<br>'
+    +'O n\u00e3o cumprimento pode resultar em desconto do colaborador.</div>'
     +'</div>'
     +'<'+'script>window.print();<'+'/script>'
     +'</body></html>';
 
   var w=window.open('','_blank');
-  if(!w){alert('Pop-up bloqueado — permita pop-ups para imprimir');return;}
+  if(!w){alert('Pop-up bloqueado');return;}
   w.document.write(html);
   w.document.close();
   window.fecharModalRessarcFin();
 };
 </script>
+<!-- VERSION: v1.4 | financeiro.html | 03/08/2026 | feat: recibos de pagamento novo design, 3 por pagina vertical, zoom 85% -->
