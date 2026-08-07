@@ -862,7 +862,7 @@
 <script>
 /* === ADDON FINANCEIRO: novos tipos de pagamento, bonificação multi-select, prestação de serviço === */
 
-/* ── buildReciboBlock: novo design ── */
+/* ── buildReciboBlock: layout idêntico ao recibos_offline ── */
 window.buildReciboBlock = function(colab, dados, logoSrc, clinicaNome, clinicaCnpj) {
   var now = new Date();
   var MESES = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
@@ -872,7 +872,6 @@ window.buildReciboBlock = function(colab, dados, logoSrc, clinicaNome, clinicaCn
   var cpfFmt  = formatCPF((colab.cpf||'').replace(/\D/g,'')) || (colab.cpf||'');
   var cat     = (dados.categoria||'pagamento').trim();
   var catN    = cat.toLowerCase();
-
   var titulo='RECIBO DE PAGAMENTO', lblTipo=cat, prep='referente ao período de';
   if (catN.indexOf('vale')>=0&&catN.indexOf('trans')>=0){titulo='RECIBO DE VALE-TRANSPORTE';lblTipo='vale-transporte';prep='para utilização no período de';}
   else if(catN.indexOf('cesta')>=0){titulo='RECIBO DE CESTA BÁSICA';lblTipo='cesta básica';prep='referente ao período de';}
@@ -881,66 +880,39 @@ window.buildReciboBlock = function(colab, dados, logoSrc, clinicaNome, clinicaCn
   else if(catN.indexOf('bonific')>=0){titulo='RECIBO DE BONIFICAÇÃO';lblTipo='bonificação';prep='referente a';}
   else if(catN.indexOf('presta')>=0||catN.indexOf('serviço')>=0||catN.indexOf('servico')>=0){titulo='RECIBO DE PRESTAÇÃO DE SERVIÇO';lblTipo='prestação de serviço';prep='referente a';}
   else if(catN.indexOf('manguito')>=0){titulo='RECIBO — LIMPEZA DE MANGUITOS';lblTipo='limpeza de manguitos';prep='referente ao período de';}
-
   var periodoTxt='';
   if(dados.inicio&&dados.fim){periodoTxt=dados.inicio.split('-').reverse().join('/')+' a '+dados.fim.split('-').reverse().join('/');}
   else if(dados.inicio){periodoTxt=dados.inicio.split('-').reverse().join('/');}
-
-  var itensExtras = dados.itensExtras||[];
+  var itensExtras=dados.itensExtras||[];
   var formaMap={pix:'PIX',dinheiro:'Dinheiro',transferencia:'Transferência'};
   var formaSel=formaMap[dados.forma]||dados.forma||'';
-  var logoHtml=logoSrc?'<img src="'+logoSrc+'" alt="Logo" style="height:44px;width:auto;object-fit:contain;">':'<div style="width:110px;height:44px;"></div>';
-
+  var logoHtml=logoSrc?'<img src="'+logoSrc+'" alt="Logo" style="height:44px;width:auto;object-fit:contain;display:block;margin:0 auto;">':'';
   var corpoPeriodo='.';
-  if(itensExtras.length){
-    corpoPeriodo=' '+prep+': '+itensExtras.map(function(it){return '<strong>'+esc(it.label)+' — R$ '+fmtMoeda(it.valor)+'</strong>';}).join(', ')+'.';
-  } else if(periodoTxt){
-    corpoPeriodo=' '+prep+' <strong>'+esc(periodoTxt)+'</strong>.';
-  }
-
-  var CSS='@page{size:A4 portrait;margin:10mm 12mm}'
-    +'*{box-sizing:border-box;margin:0;padding:0}'
-    +'body{font-family:Arial,sans-serif;background:#fff;color:#000;}'
-    +'.recibo-print{border:1.5px solid #1a1a1a;padding:12px 14px;}'
-    +'.rh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}'
-    +'.recibo-logo img{height:44px;width:auto;object-fit:contain;}'
-    +'.titulo{font-size:11px;font-weight:800;text-align:center;letter-spacing:1.2px;text-transform:uppercase;flex:1;}'
-    +'.empresa-info{font-size:8.5px;text-align:right;line-height:1.55;}'
-    +'.divider{border:none;border-top:1.5px solid #1a1a1a;margin:6px 0;}'
-    +'.rc-emp{border-bottom:0.5px solid #ccc;padding-bottom:5px;margin-bottom:6px;}'
-    +'.rc-lbl{font-size:7.5px;font-weight:700;text-transform:uppercase;color:#666;display:block;}'
-    +'.rc-val{font-size:10.5px;font-weight:600;color:#1a1a1a;}'
-    +'.vbox{border:2px solid #1a1a1a;padding:5px 10px;margin:6px 0;display:flex;align-items:center;gap:10px;}'
-    +'.vrs{font-size:14px;font-weight:800;background:#1a1a1a;color:#fff;padding:3px 8px;}'
-    +'.vnum{font-size:17px;font-weight:900;letter-spacing:-.3px;}'
-    +'.vext{font-size:8.5px;color:#444;margin-top:2px;font-style:italic;}'
-    +'.ref{font-size:10px;line-height:1.8;margin:4px 0;}'
-    +'.assin{display:flex;justify-content:space-between;align-items:flex-end;margin-top:12px;gap:14px;}'
-    +'.alinha{height:28px;border-bottom:1px solid #1a1a1a;margin-bottom:3px;}'
-    +'.anome{font-size:9px;font-weight:700;text-align:center;}'
-    +'.albl{font-size:8px;color:#555;text-align:center;}'
-    +'.adata{font-size:10px;text-align:right;white-space:nowrap;flex-shrink:0;}'
-    +'@media print{body{zoom:85%;-webkit-print-color-adjust:exact;print-color-adjust:exact;}}';
-
-  window._RECIBO_CSS_ADDON = CSS;
-
-  return '<div class="recibo-print">'
-    +'<div class="rh"><div class="recibo-logo">'+logoHtml+'</div>'
-    +'<div class="titulo">'+titulo+'</div>'
-    +'<div class="empresa-info"><strong>'+esc(clinicaNome)+'</strong><br>CNPJ: '+esc(clinicaCnpj||'25.154.224/0001-89')+'<br>Av. Dr. Felipe Pinel, 367 — Pirituba/SP</div>'
+  if(itensExtras.length){corpoPeriodo=' '+prep+': '+itensExtras.map(function(it){return '<strong>'+esc(it.label)+' — R$ '+fmtMoeda(it.valor)+'</strong>';}).join(', ')+'.';}
+  else if(periodoTxt){corpoPeriodo=' '+prep+' <strong>'+esc(periodoTxt)+'</strong>.';}
+  window._RECIBO_CSS_ADDON = '@page{size:A4 portrait;margin:17mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#fff;color:#1a1a1a;zoom:85%}.pagina{display:flex;flex-direction:column;gap:5mm;min-height:263mm;page-break-after:always;break-after:page;}.pagina:last-child{page-break-after:auto;break-after:auto;}.rec{border:1.5px solid #1a1a1a;padding:14px 18px;flex:1;}.rec-titulo{font-size:14px;font-weight:800;text-align:center;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}.rec-empresa{font-size:10.5px;text-align:center;color:#444;margin-bottom:7px;}.rec-divider{border:none;border-top:1.5px solid #1a1a1a;margin:7px 0;}.rec-empregado{margin-bottom:7px;border-bottom:.5px solid #ccc;padding-bottom:6px;}.rec-lbl{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#666;display:block;}.rec-campo{font-size:12px;font-weight:600;}.rec-vbox{border:2px solid #1a1a1a;display:flex;align-items:center;gap:10px;padding:6px 12px;margin:7px 0;}.rec-rs{font-size:15px;font-weight:800;background:#1a1a1a;color:#fff;padding:4px 9px;}.rec-vnum{font-size:20px;font-weight:900;letter-spacing:-.3px;}.rec-vext{font-size:10.5px;color:#444;font-style:italic;margin-top:2px;}.rec-corpo{font-size:13px;line-height:2;margin:7px 0;text-align:justify;}.rec-data{font-size:11px;text-align:right;margin:7px 0;}.rec-assin-wrap{text-align:center;margin-top:10px;}.rec-assin-linha{border-bottom:1.5px solid #1a1a1a;height:30px;width:100%;max-width:420px;margin:0 auto 4px;}.rec-assin-nome{font-size:10.5px;font-weight:700;}.rec-assin-lbl{font-size:9.5px;color:#555;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}';
+  return '<div class="rec">'
+    +(logoHtml?'<div style="text-align:center;margin-bottom:5px;">'+logoHtml+'</div>':'<div style="height:44px;"></div>')
+    +'<div class="rec-titulo">'+titulo+'</div>'
+    +'<div class="rec-empresa"><strong>'+esc(clinicaNome)+'</strong>&nbsp;|&nbsp;CNPJ: '+esc(clinicaCnpj||'25.154.224/0001-89')+'</div>'
+    +'<hr class="rec-divider">'
+    +'<div class="rec-empregado">'
+    +'<span class="rec-lbl">Nome do Empregado</span>'
+    +'<span class="rec-campo">'+esc((colab.nome||'').toUpperCase())+(cpfFmt?' &nbsp;—&nbsp; CPF: '+esc(cpfFmt):'')+'</span>'
     +'</div>'
-    +'<hr class="divider">'
-    +'<div class="rc-emp"><span class="rc-lbl">Nome do Colaborador</span>'
-    +'<span class="rc-val">'+esc((colab.nome||'').toUpperCase())+(cpfFmt?' &nbsp;—&nbsp; CPF '+esc(cpfFmt):'')+' </span></div>'
-    +'<div class="vbox"><span class="vrs">R$</span>'
-    +'<div><div class="vnum">'+valorF+'</div><div class="vext">'+extenso.charAt(0).toUpperCase()+extenso.slice(1)+'</div></div></div>'
-    +'<div class="ref">Recebi da empresa <strong>'+esc(clinicaNome)+'</strong> o equivalente à <strong>R$ '+valorF+' ('+extenso+')</strong>'
+    +'<div class="rec-vbox"><span class="rec-rs">R$</span>'
+    +'<div><div class="rec-vnum">'+valorF+'</div>'
+    +'<div class="rec-vext">'+extenso.charAt(0).toUpperCase()+extenso.slice(1)+'</div></div></div>'
+    +'<div class="rec-corpo">Recebi da empresa <strong>'+esc(clinicaNome)+'</strong>'
+    +' o equivalente à <strong>R$ '+valorF+' ('+extenso+')</strong>'
     +' de '+esc(lblTipo)+corpoPeriodo
-    +(formaSel?'<br><span class="rc-lbl">Forma de pagamento:</span> '+esc(formaSel):'')+'</div>'
-    +'<div class="assin"><div style="flex:1;text-align:center;">'
-    +'<div class="alinha"></div><div class="anome">'+esc((colab.nome||'').toUpperCase())+'</div>'
-    +'<div class="albl">Assinatura do colaborador</div></div>'
-    +'<div class="adata">'+dataAuto+'</div></div>'
+    +(formaSel?'<br><span class="rec-lbl">Forma de pagamento: </span>'+esc(formaSel):'')+'</div>'
+    +'<div class="rec-data">'+dataAuto+'</div>'
+    +'<div class="rec-assin-wrap">'
+    +'<div class="rec-assin-linha"></div>'
+    +'<div class="rec-assin-nome">'+esc((colab.nome||'').toUpperCase())+'</div>'
+    +'<div class="rec-assin-lbl">Assinatura do colaborador</div>'
+    +'</div>'
     +'</div>';
 };
 
@@ -1087,16 +1059,7 @@ window.imprimirLote = function() {
     });
   }
 
-  var CSS=window._RECIBO_CSS_ADDON||'';
-  var LOTE_CSS='@page{size:A4 portrait;margin:10mm 12mm}'
-    +'*{box-sizing:border-box;margin:0;padding:0}'
-    +'body{font-family:Arial,sans-serif;background:#fff;color:#000;zoom:85%;}'
-    +'.pagina{display:flex;flex-direction:column;gap:6mm;min-height:277mm;page-break-after:always;break-after:page;}'
-    +'.pagina:last-child{page-break-after:auto;break-after:auto;}'
-    +'.recibo-wrap{flex:1;display:flex;flex-direction:column;}'
-    +CSS.replace('@page{size:A4 portrait;margin:10mm 12mm}','').replace('@media print{body{zoom:85%;-webkit-print-color-adjust:exact;print-color-adjust:exact;}}','')
-    +'.recibo-print{flex:1;}'
-    +'@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}';
+  var LOTE_CSS = '@page{size:A4 portrait;margin:17mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#fff;color:#1a1a1a;zoom:85%}.pagina{display:flex;flex-direction:column;gap:5mm;min-height:263mm;page-break-after:always;break-after:page;}.pagina:last-child{page-break-after:auto;break-after:auto;}.rec{border:1.5px solid #1a1a1a;padding:14px 18px;flex:1;}.rec-titulo{font-size:14px;font-weight:800;text-align:center;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px;}.rec-empresa{font-size:10.5px;text-align:center;color:#444;margin-bottom:7px;}.rec-divider{border:none;border-top:1.5px solid #1a1a1a;margin:7px 0;}.rec-empregado{margin-bottom:7px;border-bottom:.5px solid #ccc;padding-bottom:6px;}.rec-lbl{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:#666;display:block;}.rec-campo{font-size:12px;font-weight:600;}.rec-vbox{border:2px solid #1a1a1a;display:flex;align-items:center;gap:10px;padding:6px 12px;margin:7px 0;}.rec-rs{font-size:15px;font-weight:800;background:#1a1a1a;color:#fff;padding:4px 9px;}.rec-vnum{font-size:20px;font-weight:900;letter-spacing:-.3px;}.rec-vext{font-size:10.5px;color:#444;font-style:italic;margin-top:2px;}.rec-corpo{font-size:13px;line-height:2;margin:7px 0;text-align:justify;}.rec-data{font-size:11px;text-align:right;margin:7px 0;}.rec-assin-wrap{text-align:center;margin-top:10px;}.rec-assin-linha{border-bottom:1.5px solid #1a1a1a;height:30px;width:100%;max-width:420px;margin:0 auto 4px;}.rec-assin-nome{font-size:10.5px;font-weight:700;}.rec-assin-lbl{font-size:9.5px;color:#555;}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact;}}';
 
   var paginas=[];
   for(var i=0;i<itens.length;i+=3) paginas.push(itens.slice(i,i+3));
@@ -1105,7 +1068,7 @@ window.imprimirLote = function() {
     var celulas=grupo.map(function(it){
       var valorItem=itensExtras.length&&valorExtrasTotal>0?valorExtrasTotal:it.valor;
       var bloco=window.buildReciboBlock(it.colab,{valor:valorItem,categoria:cat,inicio:inicio,fim:fim,usuario:usuario,forma:loteFrm,itensExtras:itensExtras},logo,clinicaNome,clinicaCnpj);
-      return '<div class="recibo-wrap">'+bloco+'</div>';
+      return bloco;
     }).join('');
     var vazias=Array(3-grupo.length).fill('<div class="recibo-wrap"></div>').join('');
     return '<div class="pagina">'+celulas+vazias+'</div>';
