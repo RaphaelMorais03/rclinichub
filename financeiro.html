@@ -128,13 +128,41 @@
         <div class="form-grid" style="margin-bottom:16px;">
           <div>
             <label class="f-label">Categoria</label>
-            <select class="f-select" id="loteCat">
+            <select class="f-select" id="loteCat" onchange="toggleCatExtras()">
               <option value="Salário">Salário</option>
               <option value="Vale-Transporte">Vale-Transporte</option>
+              <option value="Cesta Básica">Cesta Básica</option>
+              <option value="Adiantamento">Adiantamento de Salário</option>
               <option value="Bonificação">Bonificação</option>
-              <option value="Adiantamento">Adiantamento</option>
+              <option value="Prestação de Serviço">Prestação de Serviço</option>
+              <option value="Limpeza de Manguitos">Limpeza de Manguitos</option>
             </select>
           </div>
+
+          <!-- EXTRAS BONIFICAÇÃO -->
+          <div id="catBonifWrap" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 14px;">
+            <label class="f-label" style="margin-bottom:8px;display:block;">Referente a (selecione um ou mais)</label>
+            <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px;" id="lBonifOpcoes">
+              <button class="btn-bonif-fin" data-val="avaliações" onclick="toggleBonifFin(this)">⭐ Avaliações</button>
+              <button class="btn-bonif-fin" data-val="comissão" onclick="toggleBonifFin(this)">💰 Comissão</button>
+              <button class="btn-bonif-fin" data-val="cirurgia" onclick="toggleBonifFin(this)">🏥 Cirurgia</button>
+              <button class="btn-bonif-fin" data-val="boleto" onclick="toggleBonifFin(this)">📄 Boleto</button>
+              <button class="btn-bonif-fin" data-val="plano odontológico" onclick="toggleBonifFin(this)">🦷 Plano Odontológico</button>
+            </div>
+            <div id="lBonifValores" style="display:flex;flex-direction:column;gap:7px;"></div>
+            <div id="lBonifTotal" style="display:none;margin-top:8px;padding:7px 12px;background:var(--navy);color:white;border-radius:7px;font-size:12px;font-weight:700;text-align:right;"></div>
+          </div>
+
+          <!-- EXTRAS PRESTAÇÃO DE SERVIÇO -->
+          <div id="catServWrap" style="display:none;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:12px 14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <label class="f-label">Serviços prestados</label>
+              <button onclick="addServicoFin()" style="padding:4px 12px;background:var(--navy);color:white;border:none;border-radius:7px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;">+ Adicionar</button>
+            </div>
+            <div id="lServicos" style="display:flex;flex-direction:column;gap:7px;"></div>
+            <div id="lServTotal" style="display:none;margin-top:8px;padding:7px 12px;background:var(--navy);color:white;border-radius:7px;font-size:12px;font-weight:700;text-align:right;"></div>
+          </div>
+
           <div style="display:flex;gap:8px;align-items:flex-end;">
             <div style="flex:1;">
               <label class="f-label">Período início</label>
@@ -264,7 +292,6 @@
       <div><div class="s-logo-name">Amor Saúde</div><div class="s-logo-sub">Financeiro · Pirituba</div></div>
     </div>
     <div class="header-right">
-      <button class="back-btn" onclick="abrirModalRessarcFin()" style="background:#7c3aed;"><i class="fas fa-file-circle-xmark"></i> Ressarcimento</button>
       <button class="back-btn" onclick="irPara('login.html')"><i class="fas fa-home"></i> Portal</button>
     </div>
   </div>
@@ -486,83 +513,96 @@
   function buildReciboBlock(colab, dados, logoSrc, clinicaNome, clinicaCnpj) {
     const now     = new Date();
     const MESES   = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-    const dataAuto= `São Paulo, ${now.getDate()} de ${MESES[now.getMonth()]} de ${now.getFullYear()}.`;
+    const dataAuto= 'São Paulo, '+now.getDate()+' de '+MESES[now.getMonth()]+' de '+now.getFullYear()+'.';
     const valorF  = fmtMoeda(dados.valor);
     const extenso = valorExtenso(dados.valor);
     const cpfFmt  = formatCPF((colab.cpf || '').replace(/\D/g,'')) || (colab.cpf || '');
     const cat     = (dados.categoria || 'pagamento').trim();
+    const catN    = cat.toLowerCase();
 
-    // Mapear categoria para título e texto do corpo
-    const catN = cat.toLowerCase();
+    // Título e corpo por categoria
     let titulo = 'RECIBO DE PAGAMENTO';
     let lblTipo = cat;
-    let prep = 'referente ao período de';
-    if (catN.includes('vale') && catN.includes('trans')) { titulo='RECIBO DE VALE-TRANSPORTE'; lblTipo='vale-transporte'; prep='para utilização no período de'; }
-    else if (catN.includes('cesta')) { titulo='RECIBO DE CESTA BÁSICA'; lblTipo='cesta básica'; prep='referente ao período de'; }
-    else if (catN.includes('salário')||catN.includes('salario')) { titulo='RECIBO DE SALÁRIO'; lblTipo='salário'; prep='referente à competência'; }
-    else if (catN.includes('adiant')) { titulo='RECIBO DE ADIANTAMENTO'; lblTipo='adiantamento de salário'; prep='referente ao período de'; }
+    let prep    = 'referente ao período de';
+    if (catN.includes('vale') && catN.includes('trans')) { titulo='RECIBO DE VALE-TRANSPORTE';    lblTipo='vale-transporte';          prep='para utilização no período de'; }
+    else if (catN.includes('cesta'))                     { titulo='RECIBO DE CESTA BÁSICA';        lblTipo='cesta básica';              prep='referente ao período de'; }
+    else if (catN.includes('salário')||catN.includes('salario')) { titulo='RECIBO DE SALÁRIO';     lblTipo='salário';                   prep='referente à competência'; }
+    else if (catN.includes('adiant'))                    { titulo='RECIBO DE ADIANTAMENTO';        lblTipo='adiantamento de salário';   prep='referente ao período de'; }
+    else if (catN.includes('bonific'))                   { titulo='RECIBO DE BONIFICAÇÃO';          lblTipo='bonificação';               prep='referente a'; }
+    else if (catN.includes('prestação')||catN.includes('prestacao')||catN.includes('serviço')||catN.includes('servico')) { titulo='RECIBO DE PRESTAÇÃO DE SERVIÇO'; lblTipo='prestação de serviço'; prep='referente a'; }
+    else if (catN.includes('manguito'))                  { titulo='RECIBO — LIMPEZA DE MANGUITOS'; lblTipo='limpeza de manguitos';      prep='referente ao período de'; }
 
     // Período
     let periodoTxt = '';
     if (dados.inicio && dados.fim) {
       const di = dados.inicio.split('-').reverse().join('/');
       const df = dados.fim.split('-').reverse().join('/');
-      periodoTxt = `${di} a ${df}`;
+      periodoTxt = di+' a '+df;
     } else if (dados.inicio) {
       periodoTxt = dados.inicio.split('-').reverse().join('/');
     }
 
+    // Itens extras (bonificação / serviços)
+    const itensExtras = dados.itensExtras || [];
+
     const formaMap = {pix:'PIX', dinheiro:'Dinheiro', transferencia:'Transferência'};
     const formaSel = formaMap[dados.forma] || dados.forma || '';
 
+    // Logo
     const logoHtml = logoSrc
-      ? `<img src="${logoSrc}" alt="Logo" style="height:36px;width:auto;object-fit:contain;">`
-      : `<span style="font-size:9px;font-weight:800;color:#C0392B;">amor<span style="color:#1A5276;">saúde</span></span>`;
+      ? '<img src="'+logoSrc+'" alt="Logo" style="height:44px;width:auto;object-fit:contain;">'
+      : '';
 
-    return `<div class="recibo-print">
-      <div class="rh">
-        <div class="recibo-logo">${logoHtml}</div>
-        <div class="titulo">${titulo}</div>
-        <div class="empresa-info">
-          <strong>${esc(clinicaNome)}</strong><br>
-          CNPJ: ${esc(clinicaCnpj||'25.154.224/0001-89')}<br>
-          Av. Dr. Felipe Pinel, 367 — Pirituba/SP
-        </div>
-      </div>
-      <hr class="divider">
-      <div class="rc-empregado">
-        <span class="campo-label">Nome do Empregado</span>
-        <span class="campo-val">${esc((colab.nome||'').toUpperCase())}${cpfFmt ? ' &nbsp;·&nbsp; CPF '+esc(cpfFmt) : ''}</span>
-      </div>
-      <div class="valor-box">
-        <span class="valor-rs">R$</span>
-        <div>
-          <div class="valor-num">${valorF}</div>
-          <div class="valor-extenso">${extenso.charAt(0).toUpperCase()+extenso.slice(1)}</div>
-        </div>
-      </div>
-      <div class="referente">
-        Recebi da empresa <strong>${esc(clinicaNome)}</strong> o equivalente à
-        <strong>R$ ${valorF} (${extenso})</strong> de ${esc(lblTipo)}${periodoTxt ? ` ${prep} <strong>${esc(periodoTxt)}</strong>` : ''}.
-        ${formaSel ? `<br><span class="campo-label">Forma de pagamento:</span> ${esc(formaSel)}` : ''}
-      </div>
-      <div class="assinatura">
-        <div class="assin-bloco">
-          <div class="assin-inner"><div class="assin-linha"></div>
-          <div class="assin-nome">${esc((colab.nome||'').toUpperCase())}</div>
-          <div style="font-size:8px;color:#555;">Assinatura do empregado</div></div>
-        </div>
-        <div class="data-bloco">${dataAuto}</div>
-      </div>
-      <div style="margin-top:8px;">
-        <div class="assin-linha"></div>
-        <div style="font-size:8px;color:#555;">Assinatura do responsável / empregador</div>
-      </div>
-    </div>`;
+    // Corpo — texto do recibo
+    let corpoPeriodo = '';
+    if (itensExtras.length) {
+      corpoPeriodo = ' '+prep+': '+itensExtras.map(function(it){
+        return '<strong>'+esc(it.label)+' — R$ '+fmtMoeda(it.valor)+'</strong>';
+      }).join(', ')+'.';
+    } else if (periodoTxt) {
+      corpoPeriodo = ' '+prep+' <strong>'+esc(periodoTxt)+'</strong>.';
+    } else {
+      corpoPeriodo = '.';
+    }
+
+    return '<div class="recibo-print">'
+      // Espaço para logo + título + empresa
+      +'<div class="rh">'
+      +  '<div class="recibo-logo">'+(logoHtml||'<div style="width:110px;height:44px;"></div>')+'</div>'
+      +  '<div class="titulo">'+titulo+'</div>'
+      +  '<div class="empresa-info"><strong>'+esc(clinicaNome)+'</strong><br>CNPJ: '+esc(clinicaCnpj||'25.154.224/0001-89')+'<br>Av. Dr. Felipe Pinel, 367 — Pirituba/SP</div>'
+      +'</div>'
+      +'<hr class="divider">'
+      +'<div class="rc-empregado">'
+      +  '<span class="campo-label">Nome do Colaborador</span>'
+      +  '<span class="campo-val">'+esc((colab.nome||'').toUpperCase())+(cpfFmt?' &nbsp;—&nbsp; CPF '+esc(cpfFmt):'')+'</span>'
+      +'</div>'
+      +'<div class="valor-box">'
+      +  '<span class="valor-rs">R$</span>'
+      +  '<div>'
+      +    '<div class="valor-num">'+valorF+'</div>'
+      +    '<div class="valor-extenso">'+extenso.charAt(0).toUpperCase()+extenso.slice(1)+'</div>'
+      +  '</div>'
+      +'</div>'
+      +'<div class="referente">'
+      +  'Recebi da empresa <strong>'+esc(clinicaNome)+'</strong> o equivalente à <strong>R$ '+valorF+' ('+extenso+')</strong>'
+      +  ' de '+esc(lblTipo)+corpoPeriodo
+      +  (formaSel ? '<br><span class="campo-label">Forma de pagamento:</span> '+esc(formaSel) : '')
+      +'</div>'
+      +'<div class="assinatura">'
+      +  '<div class="assin-bloco" style="width:100%;">'
+      +    '<div class="assin-inner">'
+      +      '<div class="assin-linha" style="max-width:100%;width:100%;"></div>'
+      +      '<div class="assin-nome">'+esc((colab.nome||'').toUpperCase())+'</div>'
+      +      '<div style="font-size:8px;color:#555;text-align:center;">Assinatura do colaborador</div>'
+      +    '</div>'
+      +  '</div>'
+      +  '<div class="data-bloco">'+dataAuto+'</div>'
+      +'</div>'
+      +'</div>';
   }
 
-  // ── CSS compartilhado dos recibos ──
-  const RECIBO_CSS = `
+    const RECIBO_CSS = `
     @page{size:A4 portrait;margin:10mm 12mm}
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:Arial,sans-serif;background:#fff;color:#000;width:100%;}
@@ -636,6 +676,127 @@
   }
 
   // ── Lote ──
+
+  // ── Auto-preenchimento do período com o mês atual ──
+  function preencherPeriodoAtual() {
+    const hoje = new Date();
+    const y = hoje.getFullYear(), m = hoje.getMonth();
+    const d1 = new Date(y, m, 1).toISOString().slice(0,10);
+    const df = new Date(y, m+1, 0).toISOString().slice(0,10);
+    if (document.getElementById('loteInicio')) document.getElementById('loteInicio').value = d1;
+    if (document.getElementById('loteFim'))    document.getElementById('loteFim').value    = df;
+  }
+
+  // ── Toggle campos extras conforme categoria ──
+  function toggleCatExtras() {
+    const cat = (document.getElementById('loteCat')||{}).value || '';
+    const catN = cat.toLowerCase();
+    const isBonif = catN.includes('bonific');
+    const isServ  = catN.includes('presta') || catN.includes('servi');
+    const bWrap = document.getElementById('catBonifWrap');
+    const sWrap = document.getElementById('catServWrap');
+    if (bWrap) bWrap.style.display = isBonif ? 'block' : 'none';
+    if (sWrap) sWrap.style.display = isServ  ? 'block' : 'none';
+    if (!isBonif) {
+      document.querySelectorAll('.btn-bonif-fin').forEach(b => b.classList.remove('ativo'));
+      const bv = document.getElementById('lBonifValores');
+      if (bv) bv.innerHTML = '';
+      const bt = document.getElementById('lBonifTotal');
+      if (bt) bt.style.display = 'none';
+    }
+    if (!isServ && document.getElementById('lServicos')) {
+      if (!document.querySelector('.serv-row')) addServicoFin();
+    }
+  }
+
+  // ── Bonificação multi-select ──
+  function toggleBonifFin(btn) {
+    btn.classList.toggle('ativo');
+    atualizarValoresBonifFin();
+  }
+
+  function mascaraValorBonifFin(el) {
+    let v = el.value.replace(/\D/g,'');
+    if (!v) { el.value=''; atualizarTotalBonifFin(); return; }
+    v = (parseInt(v)/100).toFixed(2);
+    el.value = parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    atualizarTotalBonifFin();
+  }
+
+  function atualizarValoresBonifFin() {
+    const ativos = Array.from(document.querySelectorAll('.btn-bonif-fin.ativo'));
+    const wrap = document.getElementById('lBonifValores');
+    if (!wrap) return;
+    wrap.innerHTML = ativos.map(function(btn) {
+      const id = 'lbv-' + btn.dataset.val.replace(/[^a-z]/gi,'');
+      const ex = document.getElementById(id);
+      const val = ex ? ex.value : '';
+      return '<div class="serv-row">'
+        +'<span style="font-size:12px;font-weight:700;color:var(--navy);flex:1;">'+btn.textContent.trim()+'</span>'
+        +'<span style="font-size:11px;font-weight:700;color:#555;">R$</span>'
+        +'<input id="'+id+'" type="text" value="'+val+'" oninput="mascaraValorBonifFin(this)" placeholder="0,00" style="width:110px;text-align:right;">'
+        +'</div>';
+    }).join('');
+    atualizarTotalBonifFin();
+  }
+
+  function atualizarTotalBonifFin() {
+    const ativos = document.querySelectorAll('.btn-bonif-fin.ativo');
+    let total = 0;
+    ativos.forEach(function(btn) {
+      const el = document.getElementById('lbv-' + btn.dataset.val.replace(/[^a-z]/gi,''));
+      if (el) total += parseFloat(String(el.value||0).replace(/\./g,'').replace(',','.')) || 0;
+    });
+    const div = document.getElementById('lBonifTotal');
+    if (!div) return;
+    if (ativos.length > 1) {
+      div.style.display = 'block';
+      div.textContent = 'Total: R$ ' + total.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    } else {
+      div.style.display = 'none';
+    }
+  }
+
+  // ── Prestação de Serviço ──
+  let _servCount = 0;
+  function addServicoFin(descDefault) {
+    _servCount++;
+    const id = 'serv-' + _servCount;
+    const wrap = document.getElementById('lServicos');
+    if (!wrap) return;
+    const div = document.createElement('div');
+    div.className = 'serv-row'; div.id = id;
+    div.innerHTML = '<input type="text" placeholder="Descrição do serviço" value="'+(descDefault||'')+'" style="flex:1;" class="serv-desc">'
+      +'<span style="font-size:11px;font-weight:700;color:#555;">R$</span>'
+      +'<input type="text" placeholder="0,00" style="width:110px;text-align:right;" class="serv-val" oninput="mascaraServFin(this);calcServTotal();">'
+      +'<button class="btn-rem-serv" onclick="document.getElementById(''+id+'').remove();calcServTotal();">×</button>';
+    wrap.appendChild(div);
+    calcServTotal();
+  }
+
+  function mascaraServFin(el) {
+    let v = el.value.replace(/\D/g,'');
+    if (!v) { el.value=''; return; }
+    v = (parseInt(v)/100).toFixed(2);
+    el.value = parseFloat(v).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
+
+  function calcServTotal() {
+    let total = 0;
+    document.querySelectorAll('#lServicos .serv-val').forEach(function(el) {
+      total += parseFloat(String(el.value||0).replace(/\./g,'').replace(',','.')) || 0;
+    });
+    const div = document.getElementById('lServTotal');
+    if (!div) return;
+    const rows = document.querySelectorAll('#lServicos .serv-row').length;
+    if (rows > 1) {
+      div.style.display = 'block';
+      div.textContent = 'Total: R$ ' + total.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+    } else {
+      div.style.display = 'none';
+    }
+  }
+
   function abrirModalLote() {
     renderLoteLista();
     document.getElementById('modalLote').classList.add('open');
@@ -717,6 +878,23 @@
     const logo = LOGO_FIN || sessionStorage.getItem('logoDataUrl') || '';
 
     const loteFrm = document.getElementById('loteForma') ? document.getElementById('loteForma').value : 'pix';
+    const catN_l  = cat.toLowerCase();
+
+    // Coletar itens extras (bonif / serviços)
+    let itensExtras = [], valorExtrasTotal = 0;
+    if (catN_l.includes('bonific')) {
+      document.querySelectorAll('.btn-bonif-fin.ativo').forEach(function(btn) {
+        const el = document.getElementById('lbv-' + btn.dataset.val.replace(/[^a-z]/gi,''));
+        const v  = parseFloat(String((el?el.value:0)||0).replace(/\./g,'').replace(',','.')) || 0;
+        if (v > 0) { itensExtras.push({ label: btn.dataset.val, valor: v }); valorExtrasTotal += v; }
+      });
+    } else if (catN_l.includes('presta') || catN_l.includes('servi')) {
+      document.querySelectorAll('#lServicos .serv-row').forEach(function(row) {
+        const desc = row.querySelector('.serv-desc') ? row.querySelector('.serv-desc').value.trim() : '';
+        const v    = parseFloat(String((row.querySelector('.serv-val')?row.querySelector('.serv-val').value:0)||0).replace(/\./g,'').replace(',','.')) || 0;
+        if (desc || v > 0) { itensExtras.push({ label: desc||'Serviço', valor: v }); valorExtrasTotal += v; }
+      });
+    }
     const LOTE_CSS = `
       @page { size: A4 portrait; margin: 10mm 12mm; }
       * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -753,8 +931,9 @@
 
     const paginasHtml = paginas.map(grupo => {
       const celulas = grupo.map(it => {
+        const valorItem = itensExtras.length && valorExtrasTotal > 0 ? valorExtrasTotal : it.valor;
         const bloco = buildReciboBlock(it.colab,
-          { descricao: desc, valor: it.valor, categoria: cat, inicio, fim, usuario, forma: loteFrm },
+          { descricao: desc, valor: valorItem, categoria: cat, inicio, fim, usuario, forma: loteFrm, itensExtras: itensExtras },
           logo, clinicaNome, clinicaCnpj);
         return `<div class="recibo-wrap">${bloco}</div>`;
       }).join('');
@@ -1121,4 +1300,4 @@ window.imprimirRessarcFin = function() {
   window.fecharModalRessarcFin();
 };
 </script>
-<!-- VERSION: v1.4 | financeiro.html | 03/08/2026 | feat: recibos de pagamento novo design, 3 por pagina vertical, zoom 85% -->
+<!-- VERSION: v1.5 | financeiro.html | 06/08/2026 | feat: novo design recibos, bonificação multi, prestação de serviço, limpeza manguitos, periodo auto -->
